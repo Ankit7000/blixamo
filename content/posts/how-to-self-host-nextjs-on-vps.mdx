@@ -1,0 +1,235 @@
+---
+title: "How to Self-Host Next.js on a VPS (Complete 2026 Guide)"
+slug: "how-to-self-host-nextjs-on-vps"
+description: "A complete step-by-step guide to self-hosting a Next.js app on a VPS using PM2, Nginx, and Certbot SSL. Save hundreds per month vs Vercel."
+date: "2026-03-14"
+author: "Blixamo"
+category: "tutorials"
+tags: ["nextjs", "vps", "deployment", "nginx", "pm2", "self-hosting"]
+keyword: "self host nextjs vps"
+featured: false
+featuredImage: "/images/default-og.jpg"
+schema: "howto"
+---
+
+Vercel is great — until you hit the bill. A basic Next.js app with moderate traffic can cost $20–$100/month on Vercel. A VPS with the same performance? $6/month.
+
+This guide walks you through self-hosting a production Next.js app on a VPS from scratch — with Nginx, PM2, and free SSL via Certbot. No Docker required.
+
+## What You'll Need
+
+- A VPS (DigitalOcean, Hetzner, Vultr — any Ubuntu 22.04+ box)
+- A domain name pointed at your VPS IP
+- SSH access to your server
+- Your Next.js app ready to deploy
+
+If you're just getting started with Next.js, read our [getting started with Next.js guide](/blog/getting-started-with-nextjs) first.
+
+## Step 1 — Point Your Domain to the VPS
+
+In your domain registrar's DNS panel, add two A records:
+
+```
+A record:  yourdomain.com      →  YOUR_VPS_IP
+A record:  www.yourdomain.com  →  YOUR_VPS_IP
+```
+
+DNS propagation takes 15 minutes to 4 hours. You can verify with:
+
+```bash
+nslookup yourdomain.com
+```
+
+## Step 2 — SSH Into Your VPS and Install Node.js
+
+```bash
+ssh root@YOUR_VPS_IP
+```
+
+Install Node.js 20 (LTS) via NodeSource:
+
+```bash
+curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+apt-get install -y nodejs
+node --version   # should print v20.x.x
+```
+
+## Step 3 — Install PM2 and Nginx
+
+PM2 keeps your app running and restarts it on crash. Nginx acts as a reverse proxy.
+
+```bash
+npm install -g pm2
+apt-get install -y nginx
+```
+
+Verify both installed:
+
+```bash
+pm2 --version
+nginx -v
+```
+
+## Step 4 — Upload Your Next.js App
+
+The simplest way is to zip your project and SCP it up:
+
+```bash
+# On your local machine (Windows PowerShell)
+scp -r "C:\path\to\your-app" root@YOUR_VPS_IP:/var/www/myapp
+```
+
+Or clone from GitHub directly on the VPS:
+
+```bash
+cd /var/www
+git clone https://github.com/youruser/your-nextjs-app.git myapp
+```
+
+For full VPS setup details, see our [VPS setup guide](/blog/vps-setup-guide).
+
+## Step 5 — Install Dependencies and Build
+
+```bash
+cd /var/www/myapp
+npm install
+npm run build
+```
+
+Your build should complete with 0 errors. If you see TypeScript errors, fix them locally first before deploying.
+
+## Step 6 — Create an ecosystem.config.js for PM2
+
+Create this file in your project root on the VPS:
+
+```js
+module.exports = {
+  apps: [{
+    name: 'myapp',
+    script: 'node_modules/.bin/next',
+    args: 'start',
+    instances: 'max',
+    exec_mode: 'cluster',
+    env: { NODE_ENV: 'production', PORT: 3000 },
+    wait_ready: true,
+    listen_timeout: 10000,
+  }]
+}
+```
+
+Start the app:
+
+```bash
+pm2 start ecosystem.config.js
+pm2 save
+pm2 startup   # follow the printed command to enable auto-start on reboot
+```
+
+Check it's running:
+
+```bash
+pm2 status
+```
+
+## Step 7 — Configure Nginx as a Reverse Proxy
+
+Create a new Nginx config:
+
+```bash
+nano /etc/nginx/sites-available/myapp
+```
+
+Paste this:
+
+```nginx
+server {
+    listen 80;
+    server_name yourdomain.com www.yourdomain.com;
+
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript;
+
+    location /_next/static/ {
+        proxy_pass http://localhost:3000;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+    }
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+Enable it and test:
+
+```bash
+ln -s /etc/nginx/sites-available/myapp /etc/nginx/sites-enabled/
+nginx -t
+nginx -s reload
+```
+
+Visit `http://yourdomain.com` — you should see your app.
+
+## Step 8 — Add Free SSL with Certbot
+
+```bash
+apt-get install -y certbot python3-certbot-nginx
+certbot --nginx -d yourdomain.com -d www.yourdomain.com
+```
+
+Certbot will auto-fill your Nginx config with SSL certificate paths and set up HTTP → HTTPS redirect. Certificates auto-renew every 90 days.
+
+## Step 9 — Zero-Downtime Deploys
+
+When you push new code, use `pm2 reload` (not `pm2 restart`) for zero-downtime:
+
+```bash
+cd /var/www/myapp
+git pull
+npm install
+npm run build
+pm2 reload myapp --update-env
+```
+
+Create a `deploy.sh` script in your project to run this in one command.
+
+## Useful PM2 Commands
+
+| Command | What it does |
+|---|---|
+| `pm2 status` | Show running apps |
+| `pm2 logs myapp` | View live logs |
+| `pm2 reload myapp` | Zero-downtime reload |
+| `pm2 restart myapp` | Full restart |
+| `pm2 monit` | CPU/RAM monitor |
+
+## Cost Comparison
+
+| Platform | Monthly Cost | Bandwidth | Custom Domain |
+|---|---|---|---|
+| Vercel Pro | $20/month | 1TB | ✅ |
+| Netlify Pro | $19/month | 400GB | ✅ |
+| Hetzner VPS (2 vCPU) | €4.51/month | 20TB | ✅ |
+| DigitalOcean Droplet | $6/month | 1TB | ✅ |
+
+Self-hosting on a VPS is 3–5x cheaper and gives you full control.
+
+## Common Issues
+
+**Build fails on VPS but works locally** — Usually an environment variable missing. Double-check your `.env.local` file exists on the server.
+
+**Nginx 502 Bad Gateway** — PM2 app isn't running. Check `pm2 status` and `pm2 logs`.
+
+**SSL not working** — Make sure DNS has propagated first. Run `nslookup yourdomain.com` to verify.
+
+## What's Next?
+
+Now that your Next.js app is live, check out our guide on [Tailwind CSS tips](/blog/tailwind-css-tips) to improve your site's design, and our list of [best free developer tools](/blog/best-free-developer-tools-2026) to supercharge your workflow.
+
+Self-hosting your Next.js app is a one-time setup that pays off every month. Once you've done it once, you'll never go back to paying Vercel prices.

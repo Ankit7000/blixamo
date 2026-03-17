@@ -1,0 +1,164 @@
+---
+title: "10 Tailwind CSS Tips That Will Change How You Write Styles"
+slug: "tailwind-css-tips"
+description: "Stop writing messy Tailwind. These 10 patterns clean up your code, speed up your workflow, and make your components actually maintainable."
+date: "2026-02-20"
+author: "Blixamo"
+category: "tutorials"
+tags: ["tailwind", "css", "frontend", "web-dev"]
+keyword: "tailwind css tips"
+featured: false
+featuredImage: "/images/default-og.jpg"
+schema: "article"
+---
+
+Tailwind gives you power. These tips make sure you're using it rather than fighting it.
+
+## 1. Use `@apply` Sparingly — Only for Repeated Patterns
+
+The temptation to extract every component into `@apply` defeats the purpose of utility-first CSS. Reserve it for patterns you repeat more than 10 times across the codebase.
+
+```css
+/* Good — used on 20+ elements */
+@layer components {
+  .btn-primary {
+    @apply px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700;
+  }
+}
+
+/* Bad — one-off component that should just stay inline */
+.hero-title { @apply text-4xl font-bold text-gray-900; }
+```
+
+## 2. The `clsx` + `tailwind-merge` Combo
+
+Never concatenate Tailwind classes with string interpolation. Use `clsx` for conditionals and `tailwind-merge` to resolve conflicts.
+
+```tsx
+import { clsx } from 'clsx'
+import { twMerge } from 'tailwind-merge'
+
+function cn(...inputs: string[]) {
+  return twMerge(clsx(inputs))
+}
+
+// Now conflicts resolve correctly
+<div className={cn('px-4 py-2', isLarge && 'px-6 py-3')} />
+// Result: 'px-6 py-3' — not 'px-4 py-2 px-6 py-3'
+```
+
+## 3. Responsive Design — Mobile First, Always
+
+Write the mobile style first, then layer up with breakpoints:
+
+```html
+<!-- Wrong — desktop first, then overriding down -->
+<div class="text-2xl md:text-xl sm:text-lg">
+
+<!-- Right — mobile base, scale up -->
+<div class="text-base md:text-xl lg:text-2xl">
+```
+
+## 4. Custom Colors in `tailwind.config.js`
+
+Don't use arbitrary values like `text-[#6c63ff]` everywhere. Register your brand colors once:
+
+```js
+theme: {
+  extend: {
+    colors: {
+      accent: { DEFAULT: '#6c63ff', hover: '#5a52d5', light: '#ede9fe' }
+    }
+  }
+}
+```
+
+Now use: `text-accent`, `bg-accent-light`, `hover:bg-accent-hover`.
+
+## 5. Group + Peer Modifiers for Interactive States
+
+Style child elements based on parent state without JavaScript:
+
+```html
+<!-- Hover parent → change child -->
+<div class="group cursor-pointer">
+  <p class="text-gray-500 group-hover:text-indigo-600 transition">
+    This changes color when you hover the parent
+  </p>
+</div>
+
+<!-- Toggle sibling based on checkbox state -->
+<input type="checkbox" class="peer hidden" />
+<div class="hidden peer-checked:block">Revealed!</div>
+```
+
+## 6. The `container` Class is Broken — Fix It
+
+The default Tailwind container doesn't center itself. Add this to your config:
+
+```js
+theme: {
+  container: {
+    center: true,
+    padding: { DEFAULT: '1rem', lg: '2rem' }
+  }
+}
+```
+
+## 7. Dark Mode with CSS Variables
+
+For complex dark mode, combine Tailwind's `dark:` variant with CSS variables:
+
+```css
+:root { --surface: #f1f3f5; }
+[data-theme="dark"] { --surface: #1c2128; }
+```
+
+```html
+<div class="bg-[var(--surface)]">Adapts automatically</div>
+```
+
+## 8. Arbitrary Properties for One-Offs
+
+For truly unique values, arbitrary properties beat adding to your config:
+
+```html
+<div class="[grid-template-columns:_2fr_1fr_240px]">
+<div class="[animation-delay:_200ms]">
+<div class="[counter-increment:_section]">
+```
+
+## 9. Safelist Critical Classes
+
+If you generate class names dynamically, safelist them so the purge doesn't remove them:
+
+```js
+// tailwind.config.js
+safelist: [
+  'text-red-500', 'text-green-500', 'text-yellow-500',
+  { pattern: /bg-(red|green|blue)-(100|500|900)/ }
+]
+```
+
+## 10. Use `screens` to Match Your Design System
+
+Override the default breakpoints to match what your designs actually use:
+
+```js
+theme: {
+  screens: {
+    sm: '480px',
+    md: '768px',
+    lg: '1024px',
+    xl: '1280px',
+  }
+}
+```
+
+## FAQ
+
+**Should I use Tailwind for everything?**
+For UI components yes. For complex animations or one-off SVG work, raw CSS is often cleaner.
+
+**Does Tailwind hurt page load speed?**
+No — the CLI purges unused classes. Production bundles are typically 5–15KB.

@@ -1,0 +1,115 @@
+---
+title: "How to Set Up a VPS for Web Hosting in 2026"
+slug: "vps-setup-guide"
+description: "A complete step-by-step guide to configuring a Linux VPS — from first login to serving a production website with Nginx and PM2."
+date: "2026-03-12"
+author: "Blixamo"
+category: "tutorials"
+tags: ["vps", "linux", "nginx", "deployment", "pm2"]
+keyword: "vps setup guide web hosting"
+featured: false
+featuredImage: "/images/default-og.jpg"
+schema: "howto"
+---
+
+A VPS gives you root access, predictable costs, and full control. Here's how to go from fresh server to production-ready in under an hour.
+
+## Step 1: First Login and Security
+
+Connect via SSH, then immediately:
+
+```bash
+# Update everything
+apt update && apt upgrade -y
+
+# Create a non-root user
+adduser deploy
+usermod -aG sudo deploy
+
+# Copy SSH keys to new user
+rsync --archive --chown=deploy:deploy ~/.ssh /home/deploy
+```
+
+Disable root SSH login in `/etc/ssh/sshd_config`:
+```
+PermitRootLogin no
+PasswordAuthentication no
+```
+
+## Step 2: Install Node.js
+
+```bash
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
+node --version  # should show v20.x
+```
+
+## Step 3: Install PM2
+
+PM2 keeps your Node.js app running after crashes and server restarts:
+
+```bash
+npm install -g pm2
+pm2 startup  # follow the output instructions
+```
+
+## Step 4: Install Nginx
+
+Nginx handles SSL, compression, and serves as a reverse proxy:
+
+```bash
+sudo apt install nginx -y
+sudo systemctl enable nginx
+```
+
+## Step 5: Deploy Your App
+
+```bash
+# On your server
+git clone https://github.com/you/your-app.git /var/www/myapp
+cd /var/www/myapp
+npm install
+npm run build
+
+# Start with PM2
+pm2 start npm --name "myapp" -- start
+pm2 save
+```
+
+## Step 6: Configure Nginx
+
+Create `/etc/nginx/sites-available/myapp`:
+
+```nginx
+server {
+    server_name yourdomain.com www.yourdomain.com;
+    
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+Enable it: `sudo ln -s /etc/nginx/sites-available/myapp /etc/nginx/sites-enabled/`
+
+## Step 7: SSL with Certbot
+
+```bash
+sudo apt install certbot python3-certbot-nginx -y
+sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+```
+
+Your site is now live on HTTPS. Certbot auto-renews the certificate.
+
+## FAQ
+
+**How much RAM do I need?**
+1GB handles a Next.js app with moderate traffic. 2GB gives comfortable headroom.
+
+**Which VPS provider?**
+DigitalOcean, Hetzner (best price/performance in Europe), or Vultr all work well for this setup.
