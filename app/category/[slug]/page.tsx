@@ -1,5 +1,6 @@
 import { getPostsByCategory, getAllCategories } from '@/lib/posts'
 import { PostCard } from '@/components/blog/PostCard'
+import { absoluteUrl } from '@/lib/site'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 
@@ -15,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${label.charAt(0).toUpperCase() + label.slice(1)} Articles | Blixamo`,
     description: `Browse all ${label} articles on Blixamo — tutorials, guides, and insights.`,
-    alternates: { canonical: `https://blixamo.com/category/${slug}` },
+    alternates: { canonical: absoluteUrl(`/category/${slug}`) },
   }
 }
 

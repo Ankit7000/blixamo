@@ -10,6 +10,7 @@ import { EmailCapture } from '@/components/monetization/EmailCapture'
 import { notFound } from 'next/navigation'
 import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
+import { absoluteUrl } from '@/lib/site'
 import type { Metadata } from 'next'
 
 type Props = { params: Promise<{ slug: string }> }
@@ -30,10 +31,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: post.title, description: post.description, type: 'article',
       publishedTime: post.date, modifiedTime: post.updatedAt || post.date,
       authors: [post.author],
-      images: [{ url: `https://blixamo.com${post.featuredImage}`, width: 1200, height: 630, alt: post.title }],
+      images: [{ url: absoluteUrl(`/blog/${slug}/opengraph-image`), width: 1200, height: 630, alt: post.title }],
     },
-    twitter: { card: 'summary_large_image', title: post.title, description: post.description },
-    alternates: { canonical: post.canonical || `https://blixamo.com/blog/${slug}` },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.description,
+      images: [absoluteUrl(`/blog/${slug}/opengraph-image`)],
+    },
+    alternates: { canonical: post.canonical || absoluteUrl(`/blog/${slug}`) },
     robots: post.noindex ? 'noindex' : 'index,follow',
   }
 }

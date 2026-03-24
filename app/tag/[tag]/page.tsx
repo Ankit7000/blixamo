@@ -1,5 +1,6 @@
 import { getAllPosts } from '@/lib/posts'
 import { PostCard } from '@/components/blog/PostCard'
+import { absoluteUrl } from '@/lib/site'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 
@@ -16,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `#${tag} — Articles on Blixamo`,
     description: `Browse all Blixamo articles tagged with "${tag}" — tutorials, guides, and insights.`,
-    alternates: { canonical: `https://blixamo.com/tag/${tag}` },
+    alternates: { canonical: absoluteUrl(`/tag/${tag}`) },
   }
 }
 

@@ -2,6 +2,7 @@ import { getAllPosts, getFeaturedPosts } from '@/lib/posts'
 import { PostCard } from '@/components/blog/PostCard'
 import { WebsiteJsonLd } from '@/components/seo/JsonLd'
 import { EmailCapture } from '@/components/monetization/EmailCapture'
+import { SITE_URL } from '@/lib/site'
 import Link from 'next/link'
 import Image from 'next/image'
 import type { Metadata } from 'next'
@@ -9,7 +10,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Blixamo — Tech, Tips & Trends',
   description: 'Blixamo covers the latest in tech, tutorials, AI, and digital tools to help you stay ahead.',
-  alternates: { canonical: 'https://blixamo.com' },
+  alternates: { canonical: SITE_URL },
 }
 
 const CATEGORY_META: Record<string, { icon: string; color: string }> = {
@@ -26,6 +27,16 @@ export default function HomePage() {
   const recent    = allPosts.filter(p => p.slug !== hero?.slug).slice(0, 6)
   const popular   = allPosts.slice(0, 5)
   const cats      = ['ai', 'tech', 'tutorials', 'tools']
+  const topicLinks = [
+    { label: 'Next.js', href: '/tag/nextjs' },
+    { label: 'AI Tools', href: '/category/ai' },
+    { label: 'VPS', href: '/tag/vps' },
+    { label: 'Tailwind', href: '/tag/tailwind' },
+    { label: 'Claude', href: '/tag/claude' },
+    { label: 'Open Source', href: '/tag/open-source' },
+    { label: 'Free Tools', href: '/tag/free' },
+    { label: 'ChatGPT', href: '/tag/chatgpt' },
+  ]
 
   return (
     <>
@@ -60,7 +71,7 @@ export default function HomePage() {
               </div>
               <Link href={`/blog/${hero.slug}`} style={{ display: 'block', borderRadius: '1rem', overflow: 'hidden', aspectRatio: '16/9', position: 'relative', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
                 {hero.featuredImage ? (
-                  <Image src={hero.featuredImage} alt={hero.title} fill style={{ objectFit: 'cover' }} sizes="(max-width:768px) 100vw, 50vw" />
+                  <Image src={hero.featuredImage} alt={hero.title} fill priority style={{ objectFit: 'cover' }} sizes="(max-width:768px) 100vw, 50vw" />
                 ) : (
                   <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${CATEGORY_META[hero.category]?.color ?? '#6c63ff'} 0%, #a78bfa 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '4rem' }}>
                     {CATEGORY_META[hero.category]?.icon}
@@ -136,8 +147,8 @@ export default function HomePage() {
           <div style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border)', borderRadius: '0.875rem', padding: '1.25rem' }}>
             <h3 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Topics</h3>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
-              {['Next.js','AI Tools','VPS','Tailwind','Claude','Open Source','Free Tools','ChatGPT'].map(tag => (
-                <span key={tag} style={{ padding: '0.25rem 0.65rem', borderRadius: '1rem', background: 'var(--bg)', border: '1px solid var(--border)', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{tag}</span>
+              {topicLinks.map(topic => (
+                <Link key={topic.href} href={topic.href} style={{ padding: '0.25rem 0.65rem', borderRadius: '1rem', background: 'var(--bg)', border: '1px solid var(--border)', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{topic.label}</Link>
               ))}
             </div>
           </div>

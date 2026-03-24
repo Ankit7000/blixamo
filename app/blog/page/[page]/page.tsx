@@ -1,6 +1,7 @@
 import { getAllPosts } from '@/lib/posts'
 import { PostCard } from '@/components/blog/PostCard'
 import { Pagination } from '@/components/ui/Pagination'
+import { absoluteUrl } from '@/lib/site'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 
@@ -18,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `Articles — Page ${page} | Blixamo`,
     description: `Browse Blixamo articles — page ${page}.`,
-    alternates: { canonical: `https://blixamo.com/blog/page/${page}` },
+    alternates: { canonical: absoluteUrl(`/blog/page/${page}`) },
     robots: 'noindex',
   }
 }

@@ -1,8 +1,5 @@
 import type { Post } from '@/lib/posts'
-
-const SITE = 'https://blixamo.com'
-const SITE_NAME = 'Blixamo'
-const AUTHOR_TWITTER = '@blixamo'
+import { absoluteUrl, SITE_NAME, SITE_TWITTER, SITE_URL } from '@/lib/site'
 
 export function JsonLd({ post }: { post: Post }) {
   const schema = {
@@ -10,30 +7,30 @@ export function JsonLd({ post }: { post: Post }) {
     '@graph': [
       {
         '@type': 'Article',
-        '@id': `${SITE}/blog/${post.slug}#article`,
+        '@id': `${absoluteUrl(`/blog/${post.slug}`)}#article`,
         headline: post.title,
         description: post.description,
         datePublished: new Date(post.date).toISOString(),
         dateModified: new Date(post.updatedAt || post.date).toISOString(),
         image: {
           '@type': 'ImageObject',
-          url: `${SITE}${post.featuredImage}`,
+          url: absoluteUrl(`/blog/${post.slug}/opengraph-image`),
           width: 1200,
           height: 630,
         },
         author: {
           '@type': 'Person',
           name: post.author,
-          url: `${SITE}/about`,
-          sameAs: [`https://twitter.com/${AUTHOR_TWITTER.replace('@', '')}`],
+          url: absoluteUrl('/about'),
+          sameAs: [`https://twitter.com/${SITE_TWITTER.replace('@', '')}`],
         },
         publisher: {
           '@type': 'Organization',
           name: SITE_NAME,
-          url: SITE,
-          logo: { '@type': 'ImageObject', url: `${SITE}/logo.png`, width: 512, height: 512 },
+          url: SITE_URL,
+          logo: { '@type': 'ImageObject', url: absoluteUrl('/images/logo.svg'), width: 512, height: 512 },
         },
-        mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE}/blog/${post.slug}` },
+        mainEntityOfPage: { '@type': 'WebPage', '@id': absoluteUrl(`/blog/${post.slug}`) },
         keywords: [post.keyword, ...post.tags].filter(Boolean).join(', '),
         articleSection: post.category,
         inLanguage: 'en-US',
@@ -42,9 +39,9 @@ export function JsonLd({ post }: { post: Post }) {
       {
         '@type': 'BreadcrumbList',
         itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: SITE },
-          { '@type': 'ListItem', position: 2, name: post.category, item: `${SITE}/category/${post.category}` },
-          { '@type': 'ListItem', position: 3, name: post.title, item: `${SITE}/blog/${post.slug}` },
+          { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+          { '@type': 'ListItem', position: 2, name: post.category, item: absoluteUrl(`/category/${post.category}`) },
+          { '@type': 'ListItem', position: 3, name: post.title, item: absoluteUrl(`/blog/${post.slug}`) },
         ],
       },
     ],
@@ -71,19 +68,19 @@ export function WebsiteJsonLd() {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: SITE_NAME,
-    url: SITE,
+    url: SITE_URL,
     description: 'Tech insights, tutorials, AI guides, and developer tools — straight to the point.',
     potentialAction: {
       '@type': 'SearchAction',
-      target: `${SITE}/search?q={search_term_string}`,
+      target: `${SITE_URL}/search?q={search_term_string}`,
       'query-input': 'required name=search_term_string',
     },
     publisher: {
       '@type': 'Organization',
       name: SITE_NAME,
-      url: SITE,
-      logo: { '@type': 'ImageObject', url: `${SITE}/logo.png` },
-      sameAs: [`https://twitter.com/${AUTHOR_TWITTER.replace('@', '')}`],
+      url: SITE_URL,
+      logo: { '@type': 'ImageObject', url: absoluteUrl('/images/logo.svg') },
+      sameAs: [`https://twitter.com/${SITE_TWITTER.replace('@', '')}`],
     },
   }
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />

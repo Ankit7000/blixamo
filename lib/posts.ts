@@ -3,6 +3,7 @@ import path from 'path'
 import matter from 'gray-matter'
 
 const postsDirectory = path.join(process.cwd(), 'content/posts')
+let cachedPosts: Post[] | null = null
 
 export interface Post {
   slug: string
@@ -29,7 +30,7 @@ function calcReadingTime(text: string): string {
   return `${mins} min read`
 }
 
-export function getAllPosts(): Post[] {
+function readAllPosts(): Post[] {
   if (!fs.existsSync(postsDirectory)) return []
   const fileNames = fs.readdirSync(postsDirectory)
   return fileNames
@@ -59,6 +60,12 @@ export function getAllPosts(): Post[] {
       } as Post
     })
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+}
+
+export function getAllPosts(): Post[] {
+  if (process.env.NODE_ENV === 'development') return readAllPosts()
+  if (!cachedPosts) cachedPosts = readAllPosts()
+  return cachedPosts
 }
 
 export function getPostBySlug(slug: string): Post | undefined {

@@ -1,11 +1,12 @@
 'use client'
 import { useState } from 'react'
+import { absoluteUrl } from '@/lib/site'
 
 interface Props { title: string; slug: string }
 
 export function ShareButtons({ title, slug }: Props) {
   const [copied, setCopied] = useState(false)
-  const url = `https://blixamo.com/blog/${slug}`
+  const url = absoluteUrl(`/blog/${slug}`)
   const encoded = encodeURIComponent(url)
   const encodedTitle = encodeURIComponent(title)
 

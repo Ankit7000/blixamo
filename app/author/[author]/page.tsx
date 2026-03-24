@@ -1,6 +1,7 @@
 import { getAllPosts } from '@/lib/posts'
 import { PostCard } from '@/components/blog/PostCard'
 import { AuthorBio } from '@/components/blog/AuthorBio'
+import { absoluteUrl } from '@/lib/site'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 
@@ -18,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${name} — Author at Blixamo`,
     description: `Articles written by ${name} on Blixamo — tech, AI, tutorials, and developer tools.`,
-    alternates: { canonical: `https://blixamo.com/author/${author}` },
+    alternates: { canonical: absoluteUrl(`/author/${author}`) },
   }
 }
 

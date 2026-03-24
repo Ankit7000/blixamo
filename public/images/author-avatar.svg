@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160" role="img" aria-labelledby="title desc">
+  <title id="title">Author avatar</title>
+  <desc id="desc">Illustrated avatar placeholder for the Blixamo author.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6c63ff" />
+      <stop offset="100%" stop-color="#8e86ff" />
+    </linearGradient>
+  </defs>
+  <rect width="160" height="160" rx="80" fill="url(#bg)" />
+  <circle cx="80" cy="58" r="28" fill="#f7f8ff" />
+  <path d="M36 132c10-23 27-34 44-34s34 11 44 34" fill="#f7f8ff" />
+</svg>

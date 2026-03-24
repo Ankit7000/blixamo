@@ -1,6 +1,7 @@
 import { getAllPosts } from '@/lib/posts'
 import { PostCard } from '@/components/blog/PostCard'
 import { Pagination } from '@/components/ui/Pagination'
+import { absoluteUrl } from '@/lib/site'
 import type { Metadata } from 'next'
 
 const POSTS_PER_PAGE = 10
@@ -8,7 +9,7 @@ const POSTS_PER_PAGE = 10
 export const metadata: Metadata = {
   title: 'All Articles',
   description: 'Browse all tech articles, tutorials, AI guides and tool reviews on Blixamo.',
-  alternates: { canonical: 'https://blixamo.com/blog' },
+  alternates: { canonical: absoluteUrl('/blog') },
 }
 
 export default function BlogIndexPage() {
