@@ -10,6 +10,7 @@ import { EmailCapture } from '@/components/monetization/EmailCapture'
 import { notFound } from 'next/navigation'
 import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
+import remarkGfm from 'remark-gfm'
 import type { Metadata } from 'next'
 import { Callout } from '@/components/blog/Callout'
 import { ArticleImage, ArticleTable, ProsCons, VerdictBox, VisualBlock } from '@/components/blog/MdxVisuals'
@@ -96,6 +97,7 @@ export default async function PostPage({ params }: Props) {
                 }}
                 options={{
                   mdxOptions: {
+                    remarkPlugins: [remarkGfm],
                     rehypePlugins: [rehypeSlug, [rehypeAutolinkHeadings, { behavior: 'wrap' }]],
                   },
                 }}
