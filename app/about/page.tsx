@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { EmailCapture } from '@/components/monetization/EmailCapture'
 import { absoluteUrl } from '@/lib/site'
-import { PRIMARY_AUTHOR } from '@/components/blog/AuthorBio'
+import { PRIMARY_AUTHOR } from '@/lib/author'
 
 const TOPIC_CARDS = [
   {
@@ -267,3 +267,4 @@ export default function AboutPage() {
     </div>
   )
 }
+
