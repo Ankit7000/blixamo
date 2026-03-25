@@ -12,6 +12,7 @@ import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import type { Metadata } from 'next'
 import { Callout } from '@/components/blog/Callout'
+import { ArticleImage, ArticleTable, ProsCons, VerdictBox, VisualBlock } from '@/components/blog/MdxVisuals'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -85,7 +86,14 @@ export default async function PostPage({ params }: Props) {
             <div className="prose article-prose">
               <MDXRemote
                 source={post.content}
-                components={{ Callout }}
+                components={{
+                  Callout,
+                  img: ArticleImage,
+                  table: ArticleTable,
+                  VisualBlock,
+                  ProsCons,
+                  VerdictBox,
+                }}
                 options={{
                   mdxOptions: {
                     rehypePlugins: [rehypeSlug, [rehypeAutolinkHeadings, { behavior: 'wrap' }]],

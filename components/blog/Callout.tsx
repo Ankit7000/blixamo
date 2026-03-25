@@ -4,6 +4,7 @@ const STYLES: Record<string, { bg: string; border: string; icon: string }> = {
   info: { bg: 'var(--surface)', border: '#3b82f6', icon: 'i' },
   warning: { bg: 'rgba(234,179,8,0.08)', border: '#eab308', icon: '!' },
   error: { bg: 'rgba(239,68,68,0.08)', border: '#ef4444', icon: 'x' },
+  danger: { bg: 'rgba(239,68,68,0.08)', border: '#ef4444', icon: 'x' },
   success: { bg: 'rgba(34,197,94,0.08)', border: '#22c55e', icon: 'ok' },
   tip: { bg: 'rgba(168,85,247,0.08)', border: '#a855f7', icon: 'tip' },
 }
@@ -13,7 +14,7 @@ export function Callout({
   title,
   children,
 }: {
-  type?: 'info' | 'warning' | 'error' | 'success' | 'tip'
+  type?: 'info' | 'warning' | 'error' | 'danger' | 'success' | 'tip'
   title?: string
   children: ReactNode
 }) {
