@@ -6,6 +6,7 @@ import { PostFooter } from '@/components/blog/PostFooter'
 import { TableOfContents } from '@/components/blog/TableOfContents'
 import { RelatedPosts } from '@/components/blog/RelatedPosts'
 import { ReadingProgress } from '@/components/blog/ReadingProgress'
+import { getPostOgImagePath } from '@/lib/post-images'
 import { EmailCapture } from '@/components/monetization/EmailCapture'
 import { notFound } from 'next/navigation'
 import rehypeSlug from 'rehype-slug'
@@ -26,6 +27,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = getPostBySlug(slug)
   if (!post) return {}
 
+  const ogImage = `https://blixamo.com${getPostOgImagePath(post.slug)}`
+
   return {
     title: post.title,
     description: post.description,
@@ -39,7 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       authors: [post.author],
       images: [
         {
-          url: `https://blixamo.com${post.featuredImage}`,
+          url: ogImage,
           width: 1200,
           height: 630,
           alt: post.title,
@@ -50,6 +53,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: 'summary_large_image',
       title: post.title,
       description: post.description,
+      images: [ogImage],
     },
     alternates: { canonical: post.canonical || `https://blixamo.com/blog/${slug}` },
     robots: post.noindex ? 'noindex' : 'index,follow',

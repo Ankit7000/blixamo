@@ -1,10 +1,12 @@
 import type { Post } from '@/lib/posts'
+import { getPostOgImagePath } from '@/lib/post-images'
 
 const SITE = 'https://blixamo.com'
 const SITE_NAME = 'Blixamo'
 const AUTHOR_TWITTER = '@blixamo'
 
 export function JsonLd({ post }: { post: Post }) {
+  const ogImage = `${SITE}${getPostOgImagePath(post.slug)}`
   const schema = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -17,7 +19,7 @@ export function JsonLd({ post }: { post: Post }) {
         dateModified: new Date(post.updatedAt || post.date).toISOString(),
         image: {
           '@type': 'ImageObject',
-          url: `${SITE}${post.featuredImage}`,
+          url: ogImage,
           width: 1200,
           height: 630,
         },
@@ -72,7 +74,7 @@ export function WebsiteJsonLd() {
     '@type': 'WebSite',
     name: SITE_NAME,
     url: SITE,
-    description: 'Tech insights, tutorials, AI guides, and developer tools — straight to the point.',
+    description: 'Tech insights, tutorials, AI guides, and developer tools � straight to the point.',
     potentialAction: {
       '@type': 'SearchAction',
       target: `${SITE}/search?q={search_term_string}`,
@@ -88,3 +90,4 @@ export function WebsiteJsonLd() {
   }
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
 }
+
