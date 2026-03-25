@@ -1,0 +1,428 @@
+---
+title: "Docker Compose on VPS 2026 — Production Setup Guide"
+slug: "docker-compose-production-vps-2026"
+description: "Multi-container Docker Compose on VPS: volumes, health checks, auto-restart. Real setup running n8n + Redis + PostgreSQL on Hetzner. Full config included."
+date: "2026-03-22"
+updatedAt: "2026-03-22"
+author: "Ankit Sorathiya"
+category: "how-to"
+tags: [vps,hetzner]
+keyword: "docker compose production vps 2026"
+secondaryKeywords: ["docker compose vps setup 2026", "docker compose production best practices", "self-host docker compose hetzner", "docker compose nginx ssl vps"]
+featured: false
+featuredImage: /images/posts/docker-compose-production-vps-2026/featured.jpg
+schema: "howto"
+difficulty: "intermediate"
+timeToComplete: "45 minutes"
+excerpt: "I run n8n, Redis, and PostgreSQL on one €5 VPS with Docker Compose. Zero downtime, auto-restart, persistent data.."
+toc: true
+---
+
+Most Docker Compose tutorials show you how to run containers locally. They skip the parts that matter in production: persistent volumes, health checks, automatic restarts, log rotation, and what happens when the VPS reboots at 3am.
+
+I run n8n, Redis, and PostgreSQL on my Hetzner CPX22 using Docker Compose. That stack has been up for 6 months without data loss or unexpected downtime. This guide shows the exact setup — including the mistakes I made before getting it right.
+
+> **Disclosure:** Some links in this article are affiliate links — I earn a small commission at no extra cost to you.
+
+<Callout type="info" title="TL;DR">
+Docker Compose on a VPS needs 4 things tutorials skip: named volumes (not bind mounts) for databases, health checks so containers start in the right order, restart policies for auto-recovery, and a 2GB swap file for memory spikes. This guide covers all four with real production configs.
+</Callout>
+
+| What breaks in production | Why tutorials miss it |
+|---|---|
+| Data lost on container restart | Tutorials use bind mounts, not named volumes |
+| App starts before DB is ready | No health checks or depends_on conditions |
+| Containers down after VPS reboot | No restart policy set |
+| OOM kills during load spikes | No swap configured |
+
+![Docker Compose stack showing n8n, PostgreSQL and Redis all running on one VPS](/images/posts/docker-compose-production-vps-2026/01-docker-compose-stack.png)
+*My production Docker Compose stack — n8n + Redis + PostgreSQL, all on one CPX22.*
+
+---
+
+## Prerequisites
+
+<Callout type="info" title="What You Need Before Starting">
+- A Hetzner VPS (CPX22, 4GB RAM minimum) — €5.19/month
+- Ubuntu 24.04 LTS
+- Basic Docker knowledge (know what a container is)
+- 45 minutes
+- Tested on: Docker 26.1, Docker Compose v2.27, Ubuntu 24.04, Hetzner CPX22
+</Callout>
+
+If you haven't set up Hetzner yet, the [Hetzner payment setup guide](/blog/pay-hetzner-from-india) covers card options that work. For the full self-hosting stack on one VPS, see [running 5 projects on one Hetzner VPS](/blog/multiple-projects-single-vps).
+
+---
+
+## Step 1 of 6 — Install Docker and Add Swap
+
+```bash
+# Install Docker Engine (official method)
+curl -fsSL https://get.docker.com | sh
+# ---
+# Verify installation
+docker --version && docker compose version
+```
+<Callout type="tip" title="Expected output">
+Docker version 26.1.0, build a5ee5b1
+Docker Compose version v2.27.0
+</Callout>
+#
+Add 2GB swap before running any containers — Docker image pulls and container builds spike RAM significantly on a 4GB VPS:
+#
+```bash
+fallocate -l 2G /swapfile
+chmod 600 /swapfile
+mkswap /swapfile && swapon /swapfile
+echo '/swapfile none swap sw 0 0' >> /etc/fstab
+```
+<Callout type="tip" title="Expected output">
+Setting up swapspace version 1, size = 2 GiB (2147479552 bytes)
+</Callout>
+#
+**Why swap matters for Docker:** Without swap, a large `docker pull` or `docker build` can OOM-kill your running containers. I had 13 OOM restarts in one week before adding swap. 2GB is enough buffer for any standard multi-container stack.
+#
+---
+#
+## Step 2 of 6 — The Production Compose File
+#
+Here is the full production Docker Compose config I use for n8n + PostgreSQL + Redis. Every decision is explained.
+#
+```bash
+# /opt/n8n/docker-compose.yml
+version: "3.8"
+# ---
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: n8n
+      POSTGRES_USER: n8n
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U n8n"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+# ---
+  redis:
+    image: redis:7-alpine
+    restart: always
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+# ---
+  n8n:
+    image: n8nio/n8n:latest
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_DATABASE=n8n
+      - DB_POSTGRESDB_USER=n8n
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+      - QUEUE_BULL_REDIS_HOST=redis
+      - N8N_HOST=${N8N_HOST}
+      - WEBHOOK_URL=https://${N8N_HOST}/
+      - N8N_PROTOCOL=https
+      - NODE_ENV=production
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+# ---
+volumes:
+  postgres_data:
+  redis_data:
+  n8n_data:
+```
+Create the `.env` file (never commit this to git):
+#
+```bash
+# /opt/n8n/.env
+POSTGRES_PASSWORD=your-strong-password-here
+N8N_HOST=n8n.yourdomain.com
+```
+<Callout type="warning" title="Never use bind mounts for databases">
+Using `./postgres_data:/var/lib/postgresql/data` (bind mount) instead of named volumes causes permission issues on VPS reboots and makes backups harder. Always use named volumes (`postgres_data:`) for any stateful container.
+</Callout>
+#
+---
+#
+## Step 3 of 6 — Understanding the 4 Production Patterns
+#
+### Pattern 1: `restart: always`
+#
+Without this, containers stay down after a VPS reboot. With `restart: always`, Docker starts them automatically when the Docker daemon starts — which itself is configured as a systemd service on Ubuntu.
+#
+```bash
+# Verify Docker starts on boot
+systemctl is-enabled docker
+```
+<Callout type="tip" title="Expected output">
+enabled
+</Callout>
+#
+### Pattern 2: Health Checks + `depends_on` Conditions
+#
+Without health checks, n8n starts before PostgreSQL is ready to accept connections — causing startup crashes. The `condition: service_healthy` in `depends_on` makes Docker wait until the health check passes before starting n8n.
+#
+```bash
+# Check health status of running containers
+docker compose ps
+```
+<Callout type="tip" title="Expected output">
+NAME         STATUS
+n8n-n8n-1    Up (healthy)
+n8n-postgres Up (healthy)
+n8n-redis    Up (healthy)
+</Callout>
+#
+### Pattern 3: Named Volumes
+#
+Named volumes are managed by Docker and persist independently of containers. Even if you run `docker compose down`, the volume data survives. Only `docker compose down -v` deletes volumes — a flag you never run in production.
+#
+```bash
+# List all Docker volumes
+docker volume ls | grep n8n
+```
+<Callout type="tip" title="Expected output">
+local     n8n_postgres_data
+local     n8n_redis_data
+local     n8n_n8n_data
+</Callout>
+#
+### Pattern 4: Environment Variables via `.env`
+#
+Never hardcode passwords in `docker-compose.yml`. Docker Compose automatically reads `.env` from the same directory. Use `${VARIABLE_NAME}` syntax in the compose file.
+#
+---
+#
+## Step 4 of 6 — Start and Verify
+#
+```bash
+cd /opt/n8n
+docker compose up -d
+# Watch logs during startup
+docker compose logs -f --tail 50
+```
+<Callout type="tip" title="Expected output">
+n8n-postgres  | database system is ready to accept connections
+n8n-redis     | Ready to accept connections
+n8n-n8n-1     | Editor is now accessible via:
+n8n-n8n-1     | https://n8n.yourdomain.com
+</Callout>
+#
+Check RAM usage after startup:
+#
+```bash
+docker stats --no-stream --format \
+  "table {{.Name}}\t{{.MemUsage}}"
+```
+<Callout type="tip" title="Expected output">
+n8n-n8n-1       82MiB / 3.8GiB
+n8n-postgres    28MiB / 3.8GiB
+n8n-redis       8MiB  / 3.8GiB
+</Callout>
+#
+Total ~118MB idle — plenty of headroom on a 4GB CPX22.
+#
+---
+#
+## Step 5 of 6 — Nginx Reverse Proxy + SSL
+#
+n8n runs on port 5678. Expose it over HTTPS with nginx:
+#
+```bash
+# /etc/nginx/sites-available/n8n
+server {
+    server_name n8n.yourdomain.com;
+# ---
+    location / {
+        proxy_pass http://localhost:5678;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_read_timeout 86400;
+    }
+    listen 80;
+}
+```
+```bash
+ln -s /etc/nginx/sites-available/n8n /etc/nginx/sites-enabled/
+nginx -t && systemctl reload nginx
+certbot --nginx -d n8n.yourdomain.com \
+  --non-interactive --agree-tos -m you@email.com
+```
+<Callout type="tip" title="Expected output">
+Successfully received certificate.
+Congratulations! Your certificate and chain have been saved.
+</Callout>
+#
+---
+#
+## Step 6 of 6 — Backup Strategy
+#
+Named volumes store data at `/var/lib/docker/volumes/`. Back them up daily:
+#
+```bash
+# Add to crontab: crontab -e
+# Daily backup at 2am
+0 2 * * * docker exec n8n-postgres-1 \
+  pg_dump -U n8n n8n | gzip \
+  > /var/backups/n8n-db-$(date +\%Y\%m\%d).sql.gz
+# ---
+# Keep only last 7 days
+0 3 * * * find /var/backups -name "n8n-db-*.sql.gz" \
+  -mtime +7 -delete
+```
+<Callout type="tip" title="Expected output">
+/var/backups/n8n-db-20260322.sql.gz created (2.1MB)
+</Callout>
+#
+Test restore to confirm backups actually work:
+#
+```bash
+# Test restore to a temp database
+docker exec -i n8n-postgres-1 \
+  psql -U n8n -c "CREATE DATABASE n8n_test;"
+gunzip -c /var/backups/n8n-db-20260322.sql.gz | \
+  docker exec -i n8n-postgres-1 psql -U n8n n8n_test
+```
+A backup you haven't tested is not a backup.
+#
+---
+#
+## Useful Docker Compose Commands
+#
+```bash
+# Start all containers in background
+docker compose up -d
+# Stop all containers (data preserved)
+docker compose down
+# View real-time logs
+docker compose logs -f
+# Restart single container
+docker compose restart n8n
+# Pull latest images and recreate
+docker compose pull && docker compose up -d
+# Check container resource usage
+docker stats
+# Execute command inside running container
+docker compose exec postgres psql -U n8n
+```
+---
+#
+## Troubleshooting Common Issues
+#
+**Problem: Container exits immediately after start**
+#
+```bash
+docker compose logs n8n --tail 30
+# Most common: missing env var, wrong DB credentials, port conflict
+```
+**Problem: Database connection refused**
+#
+Check the health check is passing before n8n starts:
+#
+```bash
+docker compose ps
+# If postgres shows "(health: starting)" — wait 30 seconds
+# If postgres shows "unhealthy" — check postgres logs
+docker compose logs postgres --tail 20
+```
+**Problem: Volume data missing after `docker compose down`**
+#
+You ran `docker compose down -v` — the `-v` flag deletes volumes. Never use `-v` in production. Data is gone. Restore from backup.
+#
+**Problem: Container keeps restarting in a loop**
+#
+```bash
+docker inspect n8n-n8n-1 | grep -A 5 "RestartCount"
+# High restart count = crash loop
+# Check logs for the actual error:
+docker compose logs n8n --tail 50
+```
+**Problem: "No space left on device" error**
+#
+```bash
+# Check Docker disk usage
+docker system df
+# Clean unused images and stopped containers
+docker system prune -f
+# Check actual disk
+df -h /
+```
+---
+#
+## Production Docker Compose Checklist
+#
+| Item | Done? |
+|---|---|
+| `restart: always` on every service | ☐ |
+| Health checks on databases | ☐ |
+| `depends_on` with `condition: service_healthy` | ☐ |
+| Named volumes (not bind mounts) for data | ☐ |
+| `.env` file for secrets (not in compose file) | ☐ |
+| 2GB swap added to VPS | ☐ |
+| Daily database backup cron | ☐ |
+| Backup restore tested | ☐ |
+| Nginx + SSL in front of app | ☐ |
+| Log rotation configured | ☐ |
+#
+---
+#
+## FAQ
+#
+### Does Docker Compose work with Coolify?
+#
+Yes — Coolify supports Docker Compose deployments natively. You can paste your `docker-compose.yml` directly into Coolify and it handles SSL and reverse proxy. The manual nginx setup in this guide is for when you want full control. See the [Coolify complete guide](/blog/coolify-complete-guide-2026) for that approach.
+#
+### How do I update containers to the latest image?
+#
+```bash
+docker compose pull
+docker compose up -d
+```
+This pulls the latest image and recreates containers with zero downtime for stateless services. Databases restart briefly during recreation — schedule updates during low traffic.
+#
+### Can I run multiple Docker Compose stacks on one VPS?
+#
+Yes. Each stack gets its own directory and its own `.env` file. Containers across stacks communicate via shared Docker networks or exposed ports. I run n8n and a separate PostgreSQL stack for blixamo on the same CPX22 — total RAM for both is ~200MB.
+#
+### What is the difference between `docker compose down` and `docker compose stop`?
+#
+`stop` pauses containers but keeps them. `down` removes containers and networks (but NOT volumes unless you add `-v`). In production, use `stop` for maintenance and `down` only when rebuilding the stack. Never use `down -v` unless you want to delete all data.
+#
+### Should I use Docker Compose or Kubernetes for a side project?
+#
+Docker Compose for any project running on 1-3 servers. Kubernetes adds significant operational overhead (etcd, control plane, node management) that isn't justified until you need horizontal scaling across many nodes. For indie developers, Docker Compose on a single Hetzner VPS handles millions of requests per month without Kubernetes.
+#
+---
+#
+## What Next?
+#
+You now have a production-grade Docker Compose stack running on €5.19/month — persistent data, auto-restart, health checks, daily backups.
+#
+**Your next steps:**
+#
+1. **Add more services** — deploy Plausible Analytics on the same VPS with the same Docker Compose patterns. Full guide: [self-host Plausible Analytics](/blog/self-host-plausible-analytics-2026)
+2. **Automate with n8n** — now that n8n is running, wire up the [WhatsApp AI assistant with Claude API](/blog/whatsapp-ai-assistant-n8n-claude-api) — 6 nodes, under 3 second response time
+3. **Secure the server** — before going live, run the [VPS security hardening checklist](/blog/vps-security-harden-ubuntu-2026) — SSH brute force started on my VPS within 3 hours of creation
+#
+Subscribe below — production setups that actually work, no tutorial-only configs.
+#

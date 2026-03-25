@@ -1,0 +1,441 @@
+I tested Coolify, Caprover & Dokku on a €5 VPS so you don't have to.
+
+→ Coolify wins on UI (8/10)
+→ Dokku uses 90% less RAM
+→ Caprover has the best 1-click apps
+
+Full benchmark: blixamo.com/blog/coolify-vs-caprover-2026
+
+#selfhosted #devops #indiedev
+
+---
+
+Deploy Next.js on Hetzner with auto SSL in 20 minutes.
+
+→ Git push → live site automatically
+→ Free SSL via Let's Encrypt
+→ Under €6/month total
+
+Step-by-step: blixamo.com/blog/deploy-nextjs-coolify-hetzner
+
+#nextjs #selfhosted #hetzner #webdev
+
+---
+
+Indian cards that actually work on Hetzner in 2026:
+
+→ Niyo Global ✅ confirmed working
+→ HDFC debit ❌ fails silently
+→ Tested with real transactions
+
+Full list: blixamo.com/blog/pay-hetzner-from-india
+
+#hetzner #indiedev #india
+
+---
+
+Tested 7 PostgreSQL GUI tools on a live VPS.
+
+→ DBeaver connects in 2s
+→ One tool straight up crashed
+→ Beekeeper Studio is the best free pick
+
+Honest verdict: blixamo.com/blog/best-postgresql-gui-free
+
+#postgres #devtools #opensource #webdev
+
+---
+
+Self-host n8n on a $5 VPS in 30 minutes.
+
+→ Docker + Nginx + SSL setup
+→ Redis queue mode included
+→ Replaces $80/mo Zapier for $0
+
+Full guide: blixamo.com/blog/self-hosting-n8n-hetzner-vps
+
+#selfhosted #n8n #devops #hetzner
+
+---
+
+Full SaaS MVP stack for $5/month.
+
+→ Next.js + Supabase + Hetzner + n8n
+→ No AWS, no Vercel Pro needed
+→ Ships in a weekend
+
+Zero-budget guide: blixamo.com/blog/build-saas-mvp-zero-budget-2026
+
+#indiedev #saas #selfhosted #webdev
+
+---
+
+Built a Telegram bot with Claude API in Python. Costs Rs 0.02/message.
+
+→ Session memory included
+→ Deployed free on Oracle ARM
+→ Full code + systemd setup
+
+Tutorial: blixamo.com/blog/build-telegram-bot-claude-api-python
+
+#python #claudeapi #indiedev
+
+---
+
+14 Claude AI workflows saving 10+ hours/week.
+
+→ Content automation
+→ Code review pipelines
+→ Telegram bot integration
+
+Real prompts tested in production: blixamo.com/blog/claude-ai-guide
+
+#claude #ai #productivity #indiedev
+
+---
+
+A Node.js script auto-fixes 8 quality issues in my blog every morning.
+
+→ Runs via cron + Claude API
+→ Saves 3 hours/week
+→ Full code walkthrough
+
+blixamo.com/blog/claude-api-content-automation-nodejs
+
+#nodejs #claudeapi #automation
+
+---
+
+Claude API vs OpenAI at 10K calls/month (real INR numbers):
+
+→ Claude: Rs 3,400
+→ OpenAI: Rs 8,900
+→ Same tasks, 2.6x cost difference
+
+Full breakdown: blixamo.com/blog/claude-api-vs-openai-cost-india
+
+#claudeapi #openai #indiedev
+
+---
+
+Claude API vs GPT-4o — which one should you actually use in 2026?
+
+→ Real pricing comparison
+→ Code quality benchmarked
+→ Context window tested
+
+Verdict: blixamo.com/blog/claude-api-vs-openai-gpt4-2026
+
+#claudeapi #openai #ai #developers
+
+---
+
+Self-host everything for €5/month with Coolify.
+
+→ Next.js + PostgreSQL + SSL
+→ GitHub auto-deploys
+→ Running in production
+
+Full guide: blixamo.com/blog/coolify-complete-guide-2026
+
+#coolify #selfhosted #hetzner #devops
+
+---
+
+Production Docker Compose setup on a VPS.
+
+→ Volumes + health checks + auto-restart
+→ n8n + Redis + PostgreSQL stack
+→ Full config included
+
+blixamo.com/blog/docker-compose-production-vps-2026
+
+#docker #devops #selfhosted
+
+---
+
+My entire indie dev infra costs Rs 465/month.
+
+→ Hetzner + Cloudflare + Supabase + n8n
+→ 5 live projects running right now
+→ Exact stack revealed
+
+blixamo.com/blog/free-tools-indian-indie-developer
+
+#indiedev #buildinpublic #solodev
+
+---
+
+Tested every free VPS option in 2026.
+
+→ Oracle Cloud has 4 hidden limits
+→ Fly.io has cold start issues
+→ Only one actually works long-term
+
+Honest results: blixamo.com/blog/free-vps-hosting-2026
+
+#vps #selfhosted #indiedev #devops
+
+---
+
+Add your self-hosted Next.js site to Google Search Console in 15 min.
+
+→ Domain verify on Hetzner
+→ sitemap.xml setup
+→ Request indexing steps
+
+Guide: blixamo.com/blog/google-search-console-self-hosted-nextjs
+
+#nextjs #seo #webdev
+
+---
+
+I moved from AWS to a €5 Hetzner VPS. 90 days later:
+
+→ 99.9% uptime maintained
+→ 3x faster deploys
+→ Rs 0 surprise bills
+
+Full breakdown: blixamo.com/blog/hetzner-vs-aws-2026
+
+#hetzner #aws #devops #indiedev
+
+---
+
+Hetzner vs AWS Lightsail — same $5/month, completely different specs.
+
+→ Hetzner: 4GB RAM
+→ Lightsail: 1GB RAM
+→ Real migration data included
+
+blixamo.com/blog/hetzner-vs-aws-lightsail-2026
+
+#hetzner #aws #vps #indiedev
+
+---
+
+Same specs, very different prices:
+
+→ Hetzner: €4.79/mo
+→ DigitalOcean: $12/mo
+→ Vultr: $10/mo
+
+Mumbai latency + card tests: blixamo.com/blog/hetzner-vs-digitalocean-vs-vultr-india
+
+#hetzner #vps #indiedev
+
+---
+
+Hetzner vs Vultr vs Linode — which VPS wins in 2026?
+
+→ Real benchmark data
+→ Price per GB of RAM compared
+→ All 3 tested in production
+
+blixamo.com/blog/hetzner-vs-vultr-vs-linode-2026
+
+#vps #hetzner #devops #indiedev
+
+---
+
+Which Indian debit cards work on dev tools in 2026?
+
+→ Niyo Global ✅
+→ Kotak 811 ✅
+→ HDFC/SBI ❌ fail silently
+
+Tested on Hetzner, AWS, GitHub, Vercel: blixamo.com/blog/indian-debit-cards-dev-tools
+
+#india #indiedev
+
+---
+
+Running 5 production projects on one €5 Hetzner VPS for 1+ year.
+
+→ Nginx + PM2 + Docker + Redis
+→ Zero conflicts
+→ Full config included
+
+blixamo.com/blog/multiple-projects-single-vps
+
+#selfhosted #hetzner #devops #indiedev
+
+---
+
+Replaced Zapier (Rs 7,400/mo) with self-hosted n8n for Rs 0.
+
+→ 400+ app integrations
+→ Runs on a €5 VPS
+→ Complete setup guide 2026
+
+blixamo.com/blog/n8n-complete-guide-2026
+
+#n8n #selfhosted #automation #indiedev
+
+---
+
+Cut my $80/month Zapier bill to $0 with self-hosted n8n.
+
+→ Real feature comparison
+→ Honest setup complexity review
+→ Which to pick for indie devs
+
+blixamo.com/blog/n8n-vs-make-vs-zapier-indie-dev
+
+#n8n #zapier #automation #indiedev
+
+---
+
+The exact Next.js 15 blog stack behind blixamo.com.
+
+→ App Router + ISR + MDX
+→ Loads in 306ms
+→ Costs €5/month on Hetzner
+
+Build guide: blixamo.com/blog/nextjs-mdx-blog-2026
+
+#nextjs #webdev #selfhosted #indiedev
+
+---
+
+Getting 'fs module not found' with next-mdx-remote in Next.js 15?
+
+→ Edge runtime conflict explained
+→ Exact config that fixes it
+→ 2 minute fix
+
+blixamo.com/blog/nextjs-mdx-remote-rsc-edge-runtime-fix
+
+#nextjs #webdev #debugging
+
+---
+
+Took blixamo.com from 2s to 306ms load time.
+
+→ ISR + Cloudflare CDN
+→ Image optimization
+→ Bundle splitting
+
+Techniques that actually work: blixamo.com/blog/nextjs-performance-optimization-2026
+
+#nextjs #webdev #performance
+
+---
+
+Run multiple apps on one VPS with Nginx reverse proxy.
+
+→ SSL for every subdomain
+→ Cloudflare CDN integration
+→ Copy-paste config included
+
+blixamo.com/blog/nginx-reverse-proxy-guide-2026
+
+#nginx #selfhosted #devops #vps
+
+---
+
+12 open source tools replacing $311/month in SaaS — on one €5 VPS.
+
+→ n8n, Coolify, Plausible + 9 more
+→ Real RAM usage for each
+→ Honest verdict
+
+blixamo.com/blog/open-source-tools-2026
+
+#opensource #selfhosted #indiedev
+
+---
+
+Oracle Free Tier sounds perfect. Then you hit these 4 limits.
+
+→ Account termination risk
+→ Network throttling hidden
+→ Hetzner comparison included
+
+Honest verdict: blixamo.com/blog/oracle-cloud-free-vs-hetzner-2026
+
+#oracle #hetzner #vps #indiedev
+
+---
+
+Full Razorpay + Next.js 15 integration for Indian devs.
+
+→ INR checkout + UPI flow
+→ Webhook verification
+→ Test mode to production
+
+blixamo.com/blog/razorpay-integration-nextjs-india
+
+#razorpay #nextjs #india #webdev
+
+---
+
+Zero downtime for 90 days with this self-healing VPS monitor.
+
+→ Auto-restarts PM2, Nginx, Redis on failure
+→ Telegram alerts included
+→ Free to run, full source code
+
+blixamo.com/blog/self-healing-vps-monitor-nodejs
+
+#nodejs #devops #selfhosted
+
+---
+
+Ditch Google Analytics. Self-host Plausible for free.
+
+→ GDPR-compliant, no cookies
+→ Lightweight + fast
+→ Full Docker setup on Hetzner
+
+blixamo.com/blog/self-host-plausible-analytics-2026
+
+#plausible #analytics #selfhosted #privacy
+
+---
+
+I switched from CSS Modules to Tailwind in my Next.js app. Here's what changed.
+
+→ Dev speed difference
+→ Bundle size impact
+→ Honest 2026 verdict
+
+blixamo.com/blog/tailwind-css-vs-css-modules
+
+#tailwind #nextjs #webdev #css
+
+---
+
+15 steps that blocked 847 SSH attacks on my fresh Hetzner VPS.
+
+→ SSH keys + UFW + fail2ban
+→ Unattended upgrades setup
+→ Zero breaches since deploy
+
+blixamo.com/blog/vps-security-harden-ubuntu-2026
+
+#security #ubuntu #devops #selfhosted
+
+---
+
+Built a WhatsApp AI assistant on a $5 VPS. Handles 50+ messages/day.
+
+→ n8n + WAHA + Claude API
+→ Full setup guide
+→ Config files included
+
+blixamo.com/blog/whatsapp-ai-assistant-n8n-claude-api
+
+#n8n #claudeapi #automation #indiedev
+
+---
+
+Wise saves Rs 1,335 per $1,000 vs Payoneer — tested as an Indian freelancer.
+
+→ Real fee breakdown
+→ Withdrawal time compared
+→ Which to use for USD payments
+
+blixamo.com/blog/wise-vs-payoneer-india-freelancer
+
+#india #freelancer #wise #payoneer

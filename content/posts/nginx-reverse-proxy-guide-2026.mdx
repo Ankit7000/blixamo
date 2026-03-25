@@ -1,0 +1,455 @@
+---
+title: "Nginx Reverse Proxy Setup 2026 — Multiple Apps on One VPS"
+slug: "nginx-reverse-proxy-guide-2026"
+description: "Multiple apps on one VPS with Nginx: SSL, Cloudflare CDN, load balancing. Exact config used for blixamo.com on Hetzner CPX22. Copy-paste ready."
+date: "2026-03-22"
+updatedAt: "2026-03-22"
+author: "Ankit Sorathiya"
+category: "how-to"
+tags: [devops,hetzner]
+keyword: "nginx reverse proxy setup 2026"
+secondaryKeywords: ["nginx multiple apps one vps 2026", "nginx ssl let's encrypt ubuntu 2026", "nginx cloudflare cdn setup", "nginx proxy pass nextjs 2026"]
+featured: false
+featuredImage: /images/posts/nginx-reverse-proxy-guide-2026/featured.jpg
+schema: "howto"
+difficulty: "intermediate"
+timeToComplete: "30 minutes"
+excerpt: "I run 5 apps on one Hetzner VPS using nginx as reverse proxy. Each app gets its own."
+toc: true
+---
+
+One VPS. Five apps. One IP address. Nginx routes traffic to the right app based on domain name — with SSL, Cloudflare CDN, and automatic certificate renewal.
+
+This is the exact setup I run on my Hetzner CPX22 (Ubuntu 24.04, €5.19/month). blixamo.com, n8n, Plausible Analytics, and two client projects all share one server. Each has its own domain, its own SSL certificate, and its own nginx server block.
+
+No Coolify, no Traefik, no Docker Compose proxy — just nginx configured the right way. The config in this guide is production-tested and handles blixamo.com's traffic with a 306ms average response time globally.
+
+> **Disclosure:** Some links in this article are affiliate links — I earn a small commission at no extra cost to you.
+
+<Callout type="info" title="TL;DR">
+Nginx reverse proxy routes multiple domains to different apps on one server. Install nginx, create a server block per app, get SSL via certbot, enable Cloudflare proxy. The ISR + Cloudflare cache headers in this guide are the exact config that took blixamo.com to 306ms load time.
+</Callout>
+
+**What this guide sets up:**
+
+| Domain | App | Port |
+|---|---|---|
+| blixamo.com | Next.js (PM2) | 3000 |
+| n8n.blixamo.com | n8n (Docker) | 5678 |
+| analytics.blixamo.com | Plausible (Docker) | 8000 |
+| client1.com | Node.js app | 3001 |
+
+![Nginx routing diagram showing multiple domains to different app ports on one VPS](/images/posts/nginx-reverse-proxy-guide-2026/01-nginx-routing-diagram.png)
+*Nginx as the single entry point — routes each domain to the right app process.*
+
+---
+
+## Prerequisites
+
+<Callout type="info" title="What You Need Before Starting">
+- Ubuntu 24.04 VPS (Hetzner CPX22 recommended — €5.19/month, Rs 465)
+- Ports 80 and 443 open in firewall
+- Domain(s) with DNS access (Cloudflare recommended)
+- Your apps already running on localhost ports
+- 30 minutes
+- Tested on: nginx 1.24.0, certbot 2.9.0, Ubuntu 24.04, Hetzner CPX22
+</Callout>
+
+If your apps aren't running yet, read [running 5 projects on one Hetzner VPS](/blog/multiple-projects-single-vps) for the full architecture. This guide assumes your Node.js/Python/Docker apps are already running and you need nginx in front of them.
+
+---
+
+## Step 1 of 5 — Install Nginx and Certbot
+
+```bash
+apt update
+apt install nginx certbot python3-certbot-nginx -y
+# ---
+# Verify nginx is running
+systemctl status nginx
+```
+<Callout type="tip" title="Expected output">
+● nginx.service - A high performance web server
+   Active: active (running)
+</Callout>
+#
+```bash
+# Enable nginx to start on boot
+systemctl enable nginx
+```
+**Why certbot with nginx plugin:** The `python3-certbot-nginx` plugin modifies your nginx config automatically to add SSL. Without it, you'd manually edit configs after getting the cert. The plugin handles everything including HTTPS redirect.
+#
+---
+#
+## Step 2 of 5 — Basic Server Block (One App)
+#
+Create a server block for your first app. This example is for a Next.js app running on port 3000:
+#
+```bash
+# /etc/nginx/sites-available/blixamo
+server {
+    server_name blixamo.com www.blixamo.com;
+# ---
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+# ---
+    location /_next/static/ {
+        proxy_pass http://localhost:3000;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+    }
+# ---
+    listen 80;
+}
+```
+```bash
+# Enable the site
+ln -s /etc/nginx/sites-available/blixamo /etc/nginx/sites-enabled/
+# ---
+# Test config syntax
+nginx -t
+# ---
+# Reload nginx
+systemctl reload nginx
+```
+<Callout type="tip" title="Expected output">
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+</Callout>
+#
+---
+#
+## Step 3 of 5 — SSL with Let's Encrypt
+#
+Point your domain's DNS A record to your VPS IP first. With Cloudflare, set DNS to DNS-only (grey cloud) during SSL provisioning:
+#
+```bash
+# Get SSL certificate for your domain
+certbot --nginx -d blixamo.com -d www.blixamo.com \
+  --non-interactive --agree-tos -m your@email.com
+```
+<Callout type="tip" title="Expected output">
+Successfully received certificate.
+Certificate is saved at: /etc/letsencrypt/live/blixamo.com/fullchain.pem
+Congratulations! Your certificate and chain have been saved.
+</Callout>
+#
+Certbot automatically modifies your nginx config to add SSL and HTTP→HTTPS redirect. Your server block now has `listen 443 ssl` added.
+#
+**Enable auto-renewal:**
+#
+```bash
+# Test renewal works
+certbot renew --dry-run
+# ---
+# Certbot installs a systemd timer automatically — verify it
+systemctl status certbot.timer
+```
+<Callout type="tip" title="Expected output">
+● certbot.timer - Run certbot twice daily
+   Active: active (waiting)
+</Callout>
+#
+Certificates auto-renew every 60 days. No manual intervention needed.
+#
+---
+#
+## Step 4 of 5 — Multiple Apps on One Server
+#
+Each additional app needs its own server block. Here's the full multi-app setup:
+#
+**n8n (Docker on port 5678):**
+#
+```bash
+# /etc/nginx/sites-available/n8n
+server {
+    server_name n8n.yourdomain.com;
+# ---
+    location / {
+        proxy_pass http://localhost:5678;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        # Required for n8n websocket connections
+        proxy_read_timeout 86400;
+    }
+    listen 80;
+}
+```
+**Plausible Analytics (Docker on port 8000):**
+#
+```bash
+# /etc/nginx/sites-available/plausible
+server {
+    server_name analytics.yourdomain.com;
+# ---
+    location / {
+        proxy_pass http://localhost:8000;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $host;
+    }
+    listen 80;
+}
+```
+**Enable all sites and get SSL for each:**
+#
+```bash
+ln -s /etc/nginx/sites-available/n8n /etc/nginx/sites-enabled/
+ln -s /etc/nginx/sites-available/plausible /etc/nginx/sites-enabled/
+nginx -t && systemctl reload nginx
+# ---
+certbot --nginx \
+  -d n8n.yourdomain.com \
+  -d analytics.yourdomain.com \
+  --non-interactive --agree-tos -m your@email.com
+```
+<Callout type="tip" title="Expected output">
+Successfully received certificate.
+Your certificate and chain have been saved.
+</Callout>
+#
+You can get certificates for multiple domains in one certbot command. Each domain still gets its own certificate file.
+#
+---
+#
+## Step 5 of 5 — ISR + Cloudflare CDN Cache Headers
+#
+This is the config that took blixamo.com from 2 seconds to 306ms load time. Standard nginx proxy configs don't set the right cache headers for Cloudflare CDN to cache ISR pages.
+#
+After getting SSL, update your Next.js server block with these cache headers:
+#
+```bash
+# /etc/nginx/sites-available/blixamo (full production config)
+server {
+    server_name blixamo.com www.blixamo.com;
+# ---
+    # Main app — ISR cache headers for Cloudflare
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        # Override Next.js default cache headers for Cloudflare ISR
+        proxy_hide_header Cache-Control;
+        add_header Cache-Control "public, max-age=0, s-maxage=3600, stale-while-revalidate=86400";
+    }
+# ---
+    # Next.js static assets — cache forever (content-addressed filenames)
+    location /_next/static/ {
+        proxy_pass http://localhost:3000;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+    }
+# ---
+    # Images served from /public — cache 1 week
+    location /images/ {
+        proxy_pass http://localhost:3000;
+        add_header Cache-Control "public, max-age=604800";
+    }
+# ---
+    listen 443 ssl;
+    ssl_certificate /etc/letsencrypt/live/blixamo.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/blixamo.com/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+}
+# ---
+# HTTP to HTTPS redirect
+server {
+    listen 80;
+    server_name blixamo.com www.blixamo.com;
+    return 301 https://$host$request_uri;
+}
+```
+```bash
+nginx -t && systemctl reload nginx
+```
+<Callout type="tip" title="Expected output">
+nginx: configuration file syntax is ok
+nginx: configuration file test is successful
+</Callout>
+#
+**Now enable Cloudflare proxy:**
+#
+In Cloudflare DNS settings, switch your A record from DNS-only (grey cloud) to Proxied (orange cloud). Cloudflare now caches your ISR pages at 300+ edge locations globally.
+#
+Verify Cloudflare is caching:
+#
+```bash
+curl -I https://blixamo.com/blog/your-post-slug | grep CF-Cache-Status
+```
+<Callout type="tip" title="Expected output">
+CF-Cache-Status: HIT
+</Callout>
+#
+`HIT` means Cloudflare served from cache — your origin wasn't touched. First request after cache miss shows `MISS`, subsequent requests show `HIT`.
+#
+---
+#
+## Performance Tuning
+#
+Add these to `/etc/nginx/nginx.conf` in the `http` block for production performance:
+#
+```bash
+# /etc/nginx/nginx.conf — http block additions
+http {
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css text/javascript
+               application/javascript application/json
+               application/xml image/svg+xml;
+# ---
+    # Brotli (install nginx-module-brotli for this)
+    # brotli on;
+# ---
+    # Keep connections alive — reduces TCP handshake overhead
+    keepalive_timeout 65;
+    keepalive_requests 100;
+# ---
+    # Buffer sizes — prevent slow client attacks
+    client_body_buffer_size 10K;
+    client_header_buffer_size 1k;
+    client_max_body_size 8m;
+    large_client_header_buffers 2 1k;
+# ---
+    # Timeouts
+    client_body_timeout 12;
+    client_header_timeout 12;
+    send_timeout 10;
+}
+```
+```bash
+nginx -t && systemctl reload nginx
+```
+---
+#
+## Troubleshooting Nginx
+#
+**Problem: 502 Bad Gateway**
+#
+Your app isn't running on the specified port:
+#
+```bash
+# Check what's actually running on the port
+netstat -tlnp | grep :3000
+# If empty — your app crashed. Check app logs:
+pm2 logs blixamo --lines 50
+```
+**Problem: SSL certificate fails to provision**
+#
+Cloudflare proxy must be OFF (grey cloud) during Let's Encrypt provisioning. The ACME HTTP challenge can't complete through Cloudflare's proxy.
+#
+```bash
+# Verify port 80 is reachable from outside
+curl -I http://yourdomain.com
+# Should return 200 or redirect — not timeout
+```
+**Problem: `nginx -t` fails after editing config**
+#
+```bash
+# Find the specific error
+nginx -t 2>&1
+# Common mistakes: missing semicolon, unclosed block, wrong path
+```
+**Problem: Cloudflare showing CF-Cache-Status: BYPASS**
+#
+A cookie in the response is bypassing cache. Check for any `Set-Cookie` headers from your app. Cloudflare bypasses cache when cookies are present by default:
+#
+```bash
+curl -I https://yourdomain.com | grep -i "set-cookie\|cf-cache"
+```
+Fix: In Cloudflare → Caching → Cache Rules → create a rule to cache even when cookies present for your blog paths.
+#
+**Problem: WebSocket connections failing (n8n)**
+#
+Missing WebSocket upgrade headers. Ensure your n8n server block has:
+#
+```bash
+proxy_set_header Upgrade $http_upgrade;
+proxy_set_header Connection 'upgrade';
+proxy_read_timeout 86400;
+```
+---
+#
+## Full Nginx Config Reference
+#
+```bash
+# Full multi-app reference — /etc/nginx/sites-available/[appname]
+server {
+    server_name yourdomain.com;
+# ---
+    # Standard proxy settings
+    location / {
+        proxy_pass http://localhost:PORT;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+    listen 443 ssl;
+    ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+}
+server {
+    listen 80;
+    server_name yourdomain.com;
+    return 301 https://$host$request_uri;
+}
+```
+---
+#
+## FAQ
+#
+### Can nginx handle 10,000 requests per day on a 4GB VPS?
+#
+Easily. Nginx itself uses ~5MB RAM and handles tens of thousands of concurrent connections. At 10,000 requests/day (average ~7 requests/minute), nginx overhead is negligible. The bottleneck is your app's processing time, not nginx.
+#
+### Should I use Nginx or Coolify's Traefik for reverse proxy?
+#
+Use Coolify/Traefik if you want a web UI and don't need custom cache headers. Use manual nginx if you need precise control over Cache-Control headers (required for ISR + Cloudflare CDN). I use manual nginx for blixamo.com specifically because ISR + Cloudflare CDN requires the `s-maxage` and `stale-while-revalidate` headers that Traefik doesn't set correctly by default.
+#
+### How do I add a new app to an existing nginx setup?
+#
+Create a new file in `/etc/nginx/sites-available/`, symlink to `sites-enabled/`, run `nginx -t`, reload nginx, then run certbot for the new domain. Takes 5 minutes per app.
+#
+### Does nginx work with Cloudflare's orange cloud proxy?
+#
+Yes — and it's recommended. Set your A record to Proxied (orange cloud) after SSL is provisioned. Cloudflare terminates HTTPS at the edge and proxies to your origin over HTTP or HTTPS. Your nginx still needs a valid SSL certificate even with Cloudflare in front.
+#
+### What is the difference between `proxy_pass` and a redirect?
+#
+`proxy_pass` forwards the request to another server — the client sees your domain, not the backend's port. A redirect (`return 301`) sends the client to a different URL — the client's browser makes a new request to the new URL and sees it. For reverse proxying apps, always use `proxy_pass`.
+#
+---
+#
+## What Next?
+#
+You now have nginx routing multiple domains on one Hetzner VPS with SSL and Cloudflare CDN. The ISR cache headers in Step 5 are the exact config running on blixamo.com.
+#
+**Your next steps:**
+#
+1. **Optimize Next.js performance** — the nginx cache headers are part of a larger optimization stack. Read [Next.js 15 performance optimization](/blog/nextjs-performance-optimization-2026) for the full 2s → 306ms breakdown
+2. **Add more apps** — now that nginx is configured, deploying additional apps is 5 minutes each. See [running 5 projects on one Hetzner VPS](/blog/multiple-projects-single-vps) for the full multi-app architecture
+3. **Secure the server** — nginx is exposed to the internet. Run the [VPS security hardening guide](/blog/vps-security-harden-ubuntu-2026) to add fail2ban, SSH hardening, and UFW rules
+#
+Subscribe below — production nginx configs that actually work in 2026, not recycled 2019 tutorials.
+#

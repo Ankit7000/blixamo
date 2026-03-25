@@ -1,0 +1,268 @@
+---
+title: "5 Free VPS Options 2026 — Oracle, Hetzner Trial, Fly.io"
+slug: "free-vps-hosting-2026"
+description: "Free VPS tested 2026: Oracle Cloud, Hetzner trial, Fly.io, Render, Railway. Real limits, hidden gotchas, and which one actually works long-term."
+date: "2026-03-22"
+updatedAt: "2026-03-22"
+author: "Ankit Sorathiya"
+category: "vps-cloud"
+tags: [vps,hetzner,indie-dev]
+keyword: "free vps hosting 2026"
+secondaryKeywords: ["oracle cloud free tier 2026", "best free vps for developers 2026", "fly.io free tier 2026", "free cloud hosting no credit card"]
+featured: false
+featuredImage: /images/posts/free-vps-hosting-2026/featured.jpg
+schema: "comparison"
+difficulty: "beginner"
+timeToComplete: "8 minutes"
+excerpt: "Tested every major free VPS option in 2026. Oracle Always Free is the best — if you can."
+toc: true
+---
+
+"Free VPS" gets 50,000+ searches per month globally. Every developer starting a side project wants to know: can I run this for free?
+
+The honest answer in 2026: yes, but with real limits. I've used all five options on this list. Some are genuinely useful for indie developers. Some will waste your weekend with account verification failures and surprise bills.
+
+This guide gives you the real numbers — RAM, storage, bandwidth, and the gotchas nobody mentions in the marketing copy.
+
+> **Disclosure:** Some links in this article are affiliate links — I earn a small commission at no extra cost to you.
+
+<Callout type="info" title="TL;DR">
+Oracle Cloud Always Free is the best free VPS in 2026: 4 AMD vCPUs + 24GB RAM on the ARM tier, permanently free. The catch: account creation fails for many Indian users. Fly.io free tier is the best alternative for small apps. For anything serious, Hetzner CPX22 at €5.19/month (Rs 465) beats every free option on reliability.
+</Callout>
+
+| Provider | Free RAM | Free Storage | Catch |
+|---|---|---|---|
+| Oracle Cloud (ARM) | 24GB | 200GB | Account creation fails often |
+| Oracle Cloud (AMD) | 1GB | 100GB | Limited to micro instances |
+| Hetzner Trial | 4GB (CPX22) | 80GB | €20 credit, expires in 30 days |
+| Fly.io | 256MB shared | 3GB | Sleeps after inactivity |
+| Render | 512MB | None (ephemeral) | Sleeps after 15 min |
+| Railway | 512MB | 1GB | $5 credit/month, then billing |
+
+![Free VPS comparison chart showing Oracle vs Fly.io vs Hetzner specs](/images/posts/free-vps-hosting-2026/01-free-vps-comparison.png)
+*Free tier comparison — Oracle's ARM tier is extraordinary if you can create an account.*
+
+---
+
+## Option 1 — Oracle Cloud Always Free (Best Option)
+
+Oracle's Always Free tier is the most generous free cloud offering in existence. No time limit, no credit card required for the free tier resources.
+
+**What you get free forever:**
+
+- 4 AMD vCPU micro instances (1GB RAM each) — always free
+- 1 ARM Ampere A1 instance with up to 4 vCPUs + 24GB RAM — always free
+- 200GB total block storage
+- 10GB object storage
+- 10TB outbound data transfer per month
+
+The ARM instance is extraordinary. 24GB RAM for free permanently is more than most paid VPS plans at any price tier.
+
+**The catch — and it's significant:**
+
+Oracle's account creation process is broken for a large percentage of users. Common failure modes in 2026:
+
+- "Your account request is being reviewed" — stuck for weeks with no resolution
+- Credit card verification fails even for valid cards (Visa, Mastercard)
+- Indian addresses frequently trigger fraud detection
+- Account created but free tier resources not available in your region
+
+I've seen multiple developers spend 2-3 days trying to create an Oracle Cloud account and fail. If it works for you, it's the best free option by a wide margin. If it doesn't, move to Option 3.
+
+**What to do if account creation fails:**
+
+Try with a different email (Gmail works better than custom domains), use a Visa credit card (not debit), and select a US region during signup. If still failing after 48 hours, Oracle support is unresponsive — move on.
+
+**Comparison with my Hetzner setup:** Oracle's ARM free tier (4 vCPU, 24GB RAM) vs my paid Hetzner CPX22 (3 vCPU, 4GB RAM, €5.19/month). Oracle wins on specs. Hetzner wins on reliability, support, and account creation success rate. I cover this in detail in [Oracle Cloud free vs Hetzner 2026](/blog/oracle-cloud-free-vs-hetzner-2026).
+
+---
+
+## Option 2 — Hetzner €20 Free Trial (Best for Testing)
+
+Hetzner gives every new account €20 free credit — enough for roughly 4 months on a CPX22 (4GB RAM, €5.19/month).
+
+**What you get:**
+
+- Full access to all Hetzner Cloud products
+- €20 credit applied immediately
+- CPX22 (4GB RAM, 3 vCPU, 80GB NVMe) for ~4 months free
+- No feature restrictions — same server as paid customers
+
+**The catch:**
+
+It's a trial, not permanent. After €20 is used, billing starts. You need a valid payment method on file (the €20 credit is applied before any charge).
+
+For Indian developers, [which Indian cards work on Hetzner](/blog/pay-hetzner-from-india) covers the RBI 3DS requirements — 4 out of 6 cards I tested failed. Niyo Global works reliably.
+
+**Best use case:** Testing a production setup before committing. Build your full stack on Hetzner during the trial — if it works, you're already in production and just continue paying €5.19/month. No migration needed.
+
+This is actually the path I recommend over Oracle Cloud for most Indian developers. Oracle's account creation failure rate is too high to rely on as a primary strategy.
+
+---
+
+## Option 3 — Fly.io Free Tier (Best for Small Apps)
+
+Fly.io offers a genuine free tier for small applications — no credit card required to start.
+
+**What you get free:**
+
+- 3 shared-CPU VMs with 256MB RAM each
+- 160GB outbound transfer
+- 3GB persistent volume storage
+- Shared IPv4 (dedicated IPv6)
+- Apps deploy via Docker or buildpacks
+
+**The catch:**
+
+256MB RAM is very limited. A Node.js app with Express idles at ~80MB — fine. A Next.js app idles at ~150MB and OOMs during builds. Fly.io free tier works for lightweight APIs, bots, and background workers — not full-stack Next.js apps.
+
+Apps on free tier also "sleep" after periods of inactivity, causing 2-5 second cold starts on the first request. This is acceptable for internal tools or low-traffic side projects, not for customer-facing apps.
+
+**Fly.io vs Hetzner for real production:**
+
+Fly.io's paid plans start at $1.94/month for 256MB — cheaper than Hetzner for a single tiny app. But Hetzner CPX22 at €5.19/month runs 5 apps plus databases simultaneously. For indie developers running multiple projects, Hetzner is better value from the first project onward.
+
+Fly.io's real strength is global edge deployment — deploy to 30+ regions with one command. Hetzner has 5 locations. If you need Singapore or Sydney latency for free, Fly.io wins.
+
+---
+
+## Option 4 — Render Free Tier (For Static Sites Only)
+
+Render's free tier is commonly recommended but frequently misunderstood.
+
+**What you get free:**
+
+- Static site hosting: unlimited, genuinely free
+- Web services (Node.js, Python, etc.): 512MB RAM, but sleeps after 15 minutes of inactivity
+- No persistent disk on free tier
+- 750 hours/month of web service runtime
+
+**The catch:**
+
+The 15-minute sleep means every cold start takes 30-60 seconds. For any app that needs to be responsive, this is unusable. Render's own documentation recommends upgrading to the $7/month plan for anything requiring availability.
+
+No persistent disk means every redeploy wipes your filesystem. Database files, uploaded images, any stateful data — gone on each deploy. You must use external storage (S3, Supabase, external PostgreSQL) for anything persistent.
+
+**Best use case:** Static sites and JAMstack frontends where Render's free CDN is genuinely useful. For backend services, Fly.io or Oracle are better free options.
+
+---
+
+## Option 5 — Railway Starter (Not Really Free)
+
+[Railway](https://railway.com?referralCode=iJx680) markets a "Starter" plan that's frequently listed as free. It's not free — it's $5 credit per month.
+
+**What you get:**
+
+- $5 free credit per month
+- 512MB RAM, 1GB disk
+- Credit resets monthly if you stay under $5
+- Exceeding $5 triggers billing
+
+**The catch:**
+
+A Node.js app running 24/7 costs roughly $3-4/month on Railway. Add a PostgreSQL database and you're at $5-6/month — immediately into paid territory. The "free" tier is effectively a low-usage trial that expires every month.
+
+Railway's real value is developer experience — push-to-deploy from GitHub is extremely smooth, and the database management UI is polished. For a free option, it's the worst on this list. For a paid option at $10-15/month, it's competitive with Fly.io and Render's paid tiers.
+
+---
+
+## The Real Free VPS Strategy for Indie Developers
+
+After testing all five, here's what I actually recommend depending on your situation:
+
+**Just testing an idea (1-2 weeks):** Use Hetzner's €20 trial. Full production-grade VPS, zero restrictions, and you're already set up for paid if the idea works.
+
+**Running a lightweight API or bot:** Fly.io free tier. 256MB RAM is enough, cold starts are acceptable, genuinely free with no time limit.
+
+**Need maximum free resources:** Oracle Cloud ARM if account creation works for you. 24GB RAM permanently free is unbeatable.
+
+**Running a real production app:** Stop looking for free options. Hetzner CPX22 at €5.19/month (Rs 465) is cheaper than two cups of coffee and gives you 4GB RAM, 80GB NVMe, and 20TB transfer. Free tier limitations will cost you more in debugging time than the €5 saves.
+
+The opportunity cost of fighting with free tier limitations — sleep timeouts, account creation failures, no persistent storage — is real. I wasted 3 days on Oracle account creation before switching to Hetzner and deploying in 45 minutes.
+
+---
+
+## Decision Framework
+
+**Choose Oracle Cloud Always Free if:**
+- Account creation succeeds without issues
+- You need maximum free resources permanently
+- You're comfortable with Oracle's support (which is limited)
+
+**Choose Hetzner Trial if:**
+- You want to test before committing to paid
+- You plan to use Hetzner long-term anyway
+- You're an Indian developer (account creation is straightforward)
+
+**Choose Fly.io free tier if:**
+- You need a lightweight API or background worker
+- You want global deployment regions for free
+- Your app is stateless and can handle cold starts
+
+**Choose Render free tier if:**
+- You're hosting a static site or JAMstack frontend
+- No backend logic required
+
+**Choose paid Hetzner CPX22 if:**
+- You're building anything real
+- You value reliability and 99.9% uptime SLA
+- You run more than one project
+
+---
+
+## Full Comparison Table
+
+| Feature | Oracle ARM | Hetzner Trial | Fly.io | Render | Railway |
+|---|---|---|---|---|---|
+| RAM | 24GB | 4GB | 256MB | 512MB | 512MB |
+| vCPU | 4 | 3 | Shared | Shared | Shared |
+| Storage | 200GB | 80GB | 3GB | 0GB | 1GB |
+| Transfer | 10TB | 20TB | 160GB | 100GB | 100GB |
+| Sleeps? | ❌ No | ❌ No | ✅ Yes | ✅ Yes | ❌ No |
+| Persistent disk | ✅ | ✅ | ✅ | ❌ | ✅ |
+| Time limit | None | ~4 months | None | None | None |
+| Credit card needed | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Indian account works | ⚠️ Often fails | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes |
+
+---
+
+## FAQ
+
+### Is Oracle Cloud Always Free really free forever?
+
+Yes — Oracle's Always Free resources have no time limit. The specific resources are: 2 AMD micro instances (1GB RAM each) and up to 4 ARM vCPUs + 24GB RAM. These don't expire. The catch is account creation reliability and Oracle's right to change the free tier terms (which they haven't done since 2019).
+
+### Does Fly.io require a credit card?
+
+No — Fly.io's free tier (Hobby plan) doesn't require a credit card. You can deploy up to 3 shared-CPU VMs without any payment method. Adding a credit card enables higher resource limits and removes the usage caps.
+
+### Can I run a Next.js app on Fly.io free tier?
+
+The free 256MB RAM is too small for Next.js production. A Next.js app idles at ~150MB but spikes to 400MB+ during builds. You'll hit OOM errors. Use Fly.io's $1.94/month plan (512MB) for Next.js, or deploy on Hetzner where 4GB RAM handles everything at €5.19/month.
+
+### What happens when Hetzner's €20 trial runs out?
+
+Billing starts automatically if you have a payment method on file. If you remove your payment method, the server is suspended (not deleted — you have time to migrate data). Hetzner sends email warnings before any charges.
+
+### Is there a free VPS with no credit card required and no sleep?
+
+Oracle Cloud ARM free tier — no credit card required, no sleep, 24GB RAM. The problem is account creation reliability. Fly.io is the second best option: no credit card, no sleep for web services (though they do scale to zero on the free tier after periods of inactivity).
+
+### Can I host a database on a free VPS?
+
+Oracle Cloud: yes — persistent block storage included. Fly.io: yes with a persistent volume ($0.15/GB/month — very cheap). Render: no persistent storage on free tier. For production databases, use the VPS as compute and a managed database (Supabase free tier, Neon free tier) separately — more reliable than self-hosting a database on a free VPS.
+
+---
+
+## What Next?
+
+The free VPS landscape in 2026 is better than ever — but free always comes with trade-offs. For serious side projects, Rs 465/month is a small price for reliability.
+
+**Your next steps:**
+
+1. **Start with Hetzner trial** — go to hetzner.com and deploy your full stack. If the project works, continue at €5.19/month
+2. **Set up your stack** — [Coolify complete guide](/blog/coolify-complete-guide-2026) gets you from blank VPS to production in 45 minutes, within the Hetzner trial period
+3. **Indian payment sorted** — read [which Indian cards work on Hetzner](/blog/pay-hetzner-from-india) before hitting the payment page — 4 of 6 cards I tested failed
+
+Subscribe below — honest resource guides with real numbers, no sponsored "best free hosting" rankings.
+

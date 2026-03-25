@@ -1,0 +1,400 @@
+---
+title: "Self-Host Plausible Analytics 2026 — Free GA Alternative"
+slug: "self-host-plausible-analytics-2026"
+description: "Self-host Plausible Analytics on Hetzner VPS in 2026. Free GA4 alternative, GDPR-compliant, no cookies, lightweight. Full Docker setup for Rs 465/month."
+date: "2026-03-22"
+updatedAt: "2026-03-22"
+author: "Ankit Sorathiya"
+category: "self-hosting"
+tags: [self-hosting,hetzner]
+keyword: "self-host plausible analytics 2026"
+secondaryKeywords: ["plausible analytics docker setup 2026", "google analytics alternative self-hosted", "plausible hetzner vps install", "privacy analytics free 2026"]
+featured: false
+featuredImage: /images/posts/self-host-plausible-analytics-2026/featured.jpg
+schema: "howto"
+difficulty: "beginner"
+timeToComplete: "30 minutes"
+excerpt: "GA4 is a privacy nightmare. I self-host Plausible on the same Rs 465/month Hetzner VPS — lightweight, GDPR-compliant,."
+toc: true
+---
+
+GA4 broke my workflow in 2025. The interface is confusing, it requires cookie consent banners, and it sends every visitor's data to Google's servers. I spent more time managing consent popups than reading actual traffic data.
+
+I switched to self-hosted Plausible Analytics in late 2025. It runs on the same Hetzner CPX22 I already pay Rs 465/month for. The script is 45x lighter than Google Analytics. No cookies. No consent banner needed in most jurisdictions. Real pageview data without the noise.
+
+This guide covers the exact Docker setup I run in production on Ubuntu 24.04.
+
+> **Disclosure:** Some links in this article are affiliate links — I earn a small commission at no extra cost to you.
+
+<Callout type="info" title="TL;DR">
+Plausible is a privacy-first, open-source analytics tool. Self-host it on any €5 Hetzner VPS with Docker Compose. No cookies, no GDPR consent banner needed, 45x lighter script than GA4. Setup takes 30 minutes.
+</Callout>
+
+| Feature | Plausible (self-hosted) | Google Analytics 4 |
+|---|---|---|
+| Cookie consent required | ❌ No | ✅ Yes |
+| Script size | 1KB | 45KB |
+| Data sent to Google | ❌ No | ✅ Yes |
+| GDPR compliant | ✅ Yes | Partial |
+| Monthly cost | Rs 0 extra | Rs 0 (but your data) |
+| Bounce rate accuracy | ✅ Engagement-based | ❌ Broken in GA4 |
+
+![Plausible Analytics dashboard showing blixamo.com pageviews and top pages](/images/posts/self-host-plausible-analytics-2026/01-plausible-dashboard.png)
+*Plausible dashboard — clean, fast, everything I actually need in one view.*
+
+---
+
+## Why Plausible Over GA4 in 2026
+
+GA4's problems are well-documented by now. Sessions replaced pageviews as the primary metric. The interface requires 6 clicks to find what GA3 showed on the home screen. Every deployment needs a cookie consent banner under GDPR — which tanks conversion rates by 15-25% according to multiple A/B tests.
+
+Plausible solves all of this by not using cookies at all. It fingerprints sessions via a hash of IP + user agent + date — no persistent identifiers stored. This means no cookie banner needed in the EU under current GDPR guidance (though consult your legal team for compliance decisions).
+
+The Plausible script is 1KB. GA4's gtag.js is 45KB. On a 3G connection, that's the difference between 10ms and 450ms of analytics overhead on every pageview.
+
+Self-hosting adds one more benefit: your data never leaves your server. No data sharing agreements to worry about, no Google using your traffic data to train ad models.
+
+I use it alongside Google Search Console for blixamo.com. Plausible handles real-time traffic; GSC handles search queries and impressions. Together they replace everything I ever needed from GA4. My [Google Search Console setup guide for self-hosted Next.js](/blog/google-search-console-self-hosted-nextjs) covers the GSC side.
+
+---
+
+## Prerequisites
+
+<Callout type="info" title="What You Need Before Starting">
+- A Hetzner VPS (CPX22, 4GB RAM) — Plausible uses ~300MB RAM with its PostgreSQL and Clickhouse containers
+- Docker + Docker Compose installed
+- A domain or subdomain (e.g. `analytics.yourdomain.com`)
+- 30 minutes
+- Tested on: Plausible v2.1.0, Docker 26.1, Ubuntu 24.04, Hetzner CPX22
+</Callout>
+
+<Callout type="warning" title="RAM requirement">
+Plausible needs Clickhouse (columnar database) which uses ~200MB RAM at idle. On a 1GB VPS (AWS Lightsail $5), this will cause OOM. Use a 4GB VPS minimum. Hetzner CPX22 at €5.19/month (Rs 465) is the right size.
+</Callout>
+
+If you haven't set up Hetzner yet, [how to pay for Hetzner from India](/blog/pay-hetzner-from-india) covers which Indian cards work — 4 out of 6 I tested failed RBI's 3DS check.
+
+---
+
+## Step 1 of 5 — Clone Plausible and Configure
+
+```bash
+# Create directory and clone hosting config
+mkdir -p /opt/plausible && cd /opt/plausible
+git clone https://github.com/plausible/hosting .
+```
+<Callout type="tip" title="Expected output">
+Cloning into '.'...
+remote: Counting objects: 47, done.
+</Callout>
+#
+Edit the `plausible-conf.env` file — this is the only config file you need to touch:
+#
+```bash
+# /opt/plausible/plausible-conf.env
+BASE_URL=https://analytics.yourdomain.com
+SECRET_KEY_BASE=GENERATE_THIS_BELOW
+TOTP_VAULT_KEY=GENERATE_THIS_BELOW
+```
+Generate the required secret keys:
+#
+```bash
+# Generate SECRET_KEY_BASE
+openssl rand -base64 48
+# Generate TOTP_VAULT_KEY (different format)
+openssl rand -base64 32
+```
+<Callout type="tip" title="Expected output">
+xK9mP2vL8nQ4rJ7wY3uI6tR1sA5bD0eF9cG2hN8kM4pQ7vL3wR6tJ1sA=
+</Callout>
+#
+Paste the outputs into `plausible-conf.env`. Each key goes on its own line after the `=`.
+#
+**Why this matters:** The `SECRET_KEY_BASE` signs session tokens. If you ever change it, all existing sessions are invalidated and every user gets logged out. Generate it once and never change it.
+#
+---
+#
+## Step 2 of 5 — Start Plausible with Docker Compose
+#
+```bash
+cd /opt/plausible
+docker compose up -d
+```
+<Callout type="tip" title="Expected output">
+[+] Running 5/5
+ ✔ Container plausible_db        Started
+ ✔ Container plausible_events_db Started
+ ✔ Container plausible_mail      Started
+ ✔ Container plausible           Started
+</Callout>
+#
+Verify all containers are healthy:
+#
+```bash
+docker compose ps
+```
+<Callout type="tip" title="Expected output">
+NAME                    STATUS
+plausible               Up (healthy)
+plausible_db            Up (healthy)
+plausible_events_db     Up (healthy)
+plausible_mail          Up
+</Callout>
+#
+Plausible runs on port 8000 by default. The stack includes PostgreSQL (user data), Clickhouse (events/pageviews), and a local SMTP relay for emails.
+#
+---
+#
+## Step 3 of 5 — Configure Nginx Reverse Proxy
+#
+```bash
+# /etc/nginx/sites-available/plausible
+server {
+    server_name analytics.yourdomain.com;
+# ---
+    location / {
+        proxy_pass http://localhost:8000;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $host;
+    }
+# ---
+    listen 80;
+}
+```
+```bash
+ln -s /etc/nginx/sites-available/plausible /etc/nginx/sites-enabled/
+nginx -t && systemctl reload nginx
+certbot --nginx -d analytics.yourdomain.com \
+  --non-interactive --agree-tos -m your@email.com
+```
+<Callout type="tip" title="Expected output">
+Successfully received certificate.
+Certificate is saved at: /etc/letsencrypt/live/analytics.yourdomain.com/fullchain.pem
+</Callout>
+#
+If you're using Coolify, skip nginx — add Plausible as a Docker Compose resource in Coolify and it handles SSL and routing automatically. See the [Coolify complete guide](/blog/coolify-complete-guide-2026) for that workflow.
+#
+---
+#
+## Step 4 of 5 — Create Account and Add Your Site
+#
+Open `https://analytics.yourdomain.com`. You'll see the Plausible registration screen.
+#
+<Callout type="warning" title="Self-hosted: registration is open by default">
+Anyone with your URL can register. After creating your account, disable registration by adding `DISABLE_REGISTRATION=true` to `plausible-conf.env` and running `docker compose restart plausible`.
+</Callout>
+#
+After logging in:
+1. Click **Add Website**
+2. Enter your domain (e.g. `blixamo.com`)
+3. Copy the tracking snippet — it looks like this:
+#
+```html
+<!-- Add to your <head> tag -->
+<script defer
+  data-domain="yourdomain.com"
+  src="https://analytics.yourdomain.com/js/script.js">
+</script>
+```
+**For Next.js**, add to `app/layout.tsx`:
+#
+```bash
+// app/layout.tsx
+import Script from 'next/script'
+// ---
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <head>
+        <Script
+          defer
+          data-domain="yourdomain.com"
+          src="https://analytics.yourdomain.com/js/script.js"
+        />
+      </head>
+      <body>{children}</body>
+    </html>
+  )
+}
+```
+<Callout type="tip" title="Expected output">
+After deploying: visit your site, then check Plausible dashboard — you should see 1 visitor appear within 5 seconds.
+</Callout>
+#
+---
+#
+## Step 5 of 5 — Production Hardening
+#
+```bash
+# Check RAM usage — Plausible stack idle usage
+docker stats --no-stream --format \
+  "table {{.Name}}\t{{.MemUsage}}"
+```
+<Callout type="tip" title="Expected output">
+plausible               45MiB / 3.8GiB
+plausible_db            28MiB / 3.8GiB
+plausible_events_db     198MiB / 3.8GiB
+</Callout>
+#
+Total ~270MB — fits comfortably on CPX22 alongside your apps.
+#
+**Enable email reports (optional):**
+#
+By default Plausible uses a local SMTP relay that doesn't send external email reliably. For weekly email reports, configure a real SMTP provider:
+#
+```bash
+# Add to plausible-conf.env
+MAILER_EMAIL=noreply@yourdomain.com
+SMTP_HOST_ADDR=smtp.mailgun.org
+SMTP_HOST_PORT=587
+SMTP_USER_NAME=your@mailgun.com
+SMTP_USER_PWD=your-mailgun-password
+```
+```bash
+docker compose restart plausible
+```
+**Set up data backup:**
+#
+Plausible's Clickhouse data is in a Docker volume. Back it up daily:
+#
+```bash
+# Add to crontab: crontab -e
+0 3 * * * docker exec plausible_events_db \
+  clickhouse-client --query \
+  "BACKUP DATABASE plausible_events TO Disk('backups', 'daily.zip')"
+```
+---
+#
+## What I Track on blixamo.com
+#
+Here's my actual Plausible setup for this blog:
+#
+| Metric | What I use it for |
+|---|---|
+| Pageviews by article | Which posts get traffic |
+| Top sources | Where readers come from (Reddit, Google, Twitter) |
+| Countries | Confirm global audience, not India-heavy |
+| Devices | Mobile vs desktop split for content formatting |
+| Live visitors | Check traffic spikes after posting |
+#
+I don't use: goals, funnels, or custom events — for a blog, pageviews and sources tell me everything I need.
+#
+The dashboard loads in under 200ms. GA4 took 4-6 seconds to load. That alone makes Plausible worth the 30-minute setup.
+#
+---
+#
+## Troubleshooting Plausible
+#
+**Problem: Dashboard shows 0 visitors despite traffic**
+#
+Most common cause: ad blocker or browser privacy settings blocking the script. Test in an incognito window without extensions. Also verify the script tag is in `<head>` not `<body>`.
+#
+```bash
+# Check Plausible is receiving events
+docker logs plausible --tail 50 | grep "event"
+```
+**Problem: Clickhouse container keeps restarting**
+#
+```bash
+docker logs plausible_events_db --tail 30
+```
+Usually OOM. Add 2GB swap if not already present:
+#
+```bash
+swapon --show
+# If empty:
+fallocate -l 2G /swapfile && chmod 600 /swapfile
+mkswap /swapfile && swapon /swapfile
+```
+**Problem: Registration page still showing after disabling**
+#
+```bash
+grep DISABLE_REGISTRATION /opt/plausible/plausible-conf.env
+# If set, force restart:
+docker compose down && docker compose up -d
+```
+**Problem: SSL cert not provisioning**
+#
+Cloudflare proxy must be OFF during Let's Encrypt ACME challenge. Set DNS to DNS-only (grey cloud), wait 2 minutes, then re-run certbot.
+#
+---
+#
+## Plausible vs Google Analytics 4 — Full Comparison
+#
+| Feature | Plausible (self-hosted) | Google Analytics 4 |
+|---|---|---|
+| Setup time | 30 minutes | 15 minutes |
+| Cookie consent needed | ❌ No | ✅ Yes |
+| Script weight | 1KB | 45KB |
+| Real-time data | ✅ Yes | ✅ Yes |
+| Pageview accuracy | ✅ High | ❌ Sampled |
+| Bounce rate | ✅ Engagement-based | ❌ Broken |
+| Data ownership | ✅ Your server | ❌ Google's servers |
+| GDPR status | ✅ Compliant | ⚠️ Complicated |
+| Monthly cost | Rs 0 extra | Rs 0 (data cost) |
+| Learning curve | Low | Very high |
+| Historical data | ✅ Unlimited | 14 months max |
+| API access | ✅ Free | Rate limited |
+#
+---
+#
+## Decision Framework
+#
+**Use self-hosted Plausible if:**
+- You run a blog, SaaS, or content site where simple pageview data is enough
+- GDPR compliance matters and you want to avoid cookie banners
+- You already have a Hetzner VPS with spare RAM
+- You want data that belongs to you permanently
+#
+**Keep Google Analytics 4 if:**
+- You need advanced e-commerce tracking (GA4 does this better)
+- Your team already has GA4 reports and dashboards built out
+- You need Google Ads conversion tracking integration
+- You don't have a VPS to self-host on
+#
+**Use Plausible Cloud ($9/month) if:**
+- You want Plausible's privacy benefits without managing a server
+- You have under 10,000 pageviews/month (affordable at that scale)
+#
+---
+#
+## FAQ
+#
+### Is Plausible really GDPR compliant without cookie consent?
+#
+Under current GDPR guidance, analytics that don't use persistent identifiers (cookies or device fingerprints stored across sessions) don't require consent. Plausible hashes IP + user agent + date, creating a daily identifier that resets. Most legal interpretations classify this as compliant. Consult your legal team for definitive advice specific to your situation.
+#
+### How accurate is Plausible vs Google Analytics?
+#
+Plausible typically shows 10-20% more pageviews than GA4 because it's not blocked by as many ad blockers (though some block it). GA4 also samples data on high-traffic sites — Plausible never samples. For a blog under 1M pageviews/month, Plausible's numbers are more accurate.
+#
+### Can I import Google Analytics historical data into Plausible?
+#
+Yes — Plausible has a built-in GA import tool. Go to Site Settings → Imports & Exports → Import from Google Analytics. Works for both Universal Analytics and GA4 data.
+#
+### How much disk space does Plausible use?
+#
+Clickhouse is extremely efficient for time-series data. 1 million pageviews uses roughly 50MB of disk space. On Hetzner CPX22's 80GB SSD, you can store years of analytics data without worrying about disk.
+#
+### Does Plausible work behind Cloudflare?
+#
+Yes. Set Cloudflare to DNS-only during initial SSL setup, then re-enable the proxy. Cloudflare caches Plausible's static assets but passes event tracking requests through to your origin correctly.
+#
+### Can I track multiple websites?
+#
+Yes — unlimited sites on self-hosted Plausible. I track blixamo.com and two client projects from the same dashboard. Each site has its own data silo; you can't accidentally mix data between sites.
+#
+---
+#
+## What Next?
+#
+You now have privacy-first analytics running on your VPS for Rs 0 extra per month. No cookie banners, no data sharing with Google, no GA4 confusion.
+#
+**Your next steps:**
+#
+1. **Remove your cookie banner** — if your only reason for it was GA4, you may no longer need it. Check with your legal team first, but Plausible's cookieless tracking often eliminates the requirement
+2. **Pair with GSC** — Plausible shows you traffic; Google Search Console shows you what searches brought people. Read [GSC setup for self-hosted Next.js](/blog/google-search-console-self-hosted-nextjs) for the full integration
+3. **Add more apps to the VPS** — Plausible uses ~270MB RAM, leaving plenty of room. See [running 5 projects on one Hetzner VPS](/blog/multiple-projects-single-vps) for the full multi-app architecture
+#
+Subscribe below — real production setups, real numbers, no sponsored "best tools" lists.
+#

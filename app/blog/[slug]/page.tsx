@@ -11,6 +11,7 @@ import { notFound } from 'next/navigation'
 import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import type { Metadata } from 'next'
+import { Callout } from '@/components/blog/Callout'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -66,6 +67,7 @@ export default async function PostPage({ params }: Props) {
         <div className="prose" style={{ maxWidth: '720px', padding: '1.5rem 1rem' }}>
           <MDXRemote
             source={post.content}
+            components={{ Callout }}
             options={{ mdxOptions: { rehypePlugins: [rehypeSlug, [rehypeAutolinkHeadings, { behavior: 'wrap' }]] } }}
           />
           <EmailCapture placement="end-of-post" />

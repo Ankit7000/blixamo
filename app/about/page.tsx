@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import { EmailCapture } from '@/components/monetization/EmailCapture'
+import { absoluteUrl } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'About — Ankit Sorathiya',
   description: 'I\'m Ankit, a full-stack developer from India. I build Flutter apps, Next.js sites, and AI integrations. Blixamo is where I document what actually works.',
-  alternates: { canonical: 'https://blixamo.com/about' },
+  alternates: { canonical: absoluteUrl('/about') },
 }
 
 export default function AboutPage() {
@@ -15,7 +16,7 @@ export default function AboutPage() {
       {/* Author card */}
       <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap' }}>
         <div style={{ width: '80px', height: '80px', borderRadius: '50%', flexShrink: 0, overflow: 'hidden', border: '3px solid var(--accent)' }}>
-          <Image src="/images/ankit.jpg" alt="Ankit Sorathiya" width={80} height={80} style={{ objectFit: 'cover', width: '100%', height: '100%' }} priority />
+          <Image src="/images/author-photo.svg" alt="Ankit Sorathiya" width={80} height={80} style={{ objectFit: 'cover', width: '100%', height: '100%' }} priority />
         </div>
         <div>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.2rem' }}>Ankit Sorathiya</h1>

@@ -1,0 +1,68 @@
+---
+title: "Self-Hosting Resources for Indie Developers (2026)"
+slug: "self-hosting-resources"
+description: "Curated tools, stack, and guides I use to run 5 production apps on a €5.19/month Hetzner VPS. Real deployments with Next.js, Docker, n8n, and Coolify."
+date: "2026-03-23"
+author: "Ankit Sorathiya"
+category: "self-hosting"
+tags: [self-hosting,hetzner,devops]
+keyword: "self hosting resources indie developers 2026"
+secondaryKeywords: ["self-hosting stack 2026", "hetzner vps tools", "indie dev self-hosting guide", "coolify docker n8n stack"]
+featured: true
+featuredImage: /images/posts/self-hosting-resources.png
+schema: "article"
+difficulty: "Beginner"
+---
+
+> **Disclosure:** Some links in this article are affiliate links — I earn a small commission at no extra cost to you.
+
+
+I run 5 production apps on a single €5.19/month Hetzner VPS. Everything on this page is what I actually use — not a generic "awesome list" pulled from GitHub. If it's here, it's running in production right now.
+
+---
+
+## My Actual Stack
+
+| Tool | What I Use It For |
+|------|-------------------|
+| [Hetzner](https://hetzner.com) | CPX22 at €5.19/mo — best price/performance for solo devs |
+| [Coolify](https://coolify.io) | Open-source deployment platform, self-hosted Heroku alternative |
+| [Docker](https://docker.com) | Everything runs containerized |
+| [PM2](https://pm2.keymetrics.io) | Process manager for Node apps outside Docker |
+| [Supabase](https://supabase.com) | Postgres + auth + storage, generous free tier |
+| [Redis](https://redis.io) | Queue mode for n8n, caching for APIs |
+| [n8n](https://n8n.io) | Self-hosted workflow automation, replaces Zapier |
+| [Cloudflare](https://cloudflare.com) | Free tier for DDoS protection, caching, and SSL |
+
+---
+
+## VPS Pricing Comparison
+
+All plans with ~4GB RAM so the comparison is apples-to-apples:
+
+| Provider | Specs | Price/mo |
+|----------|-------|----------|
+| **Hetzner CPX22** | 3 vCPU, 4GB RAM, 80GB NVMe | **€5.19** |
+| DigitalOcean | 2 vCPU, 4GB RAM, 80GB SSD | $24 |
+| Contabo VPS S | 4 vCPU, 6GB RAM, 400GB SSD | €5.99 |
+| Vultr | 2 vCPU, 4GB RAM, 80GB SSD | $24 |
+
+> Hetzner wins on pure value. The catch: EU-only data centers. If your users are in the US or Asia, factor in latency.
+
+---
+
+## My Guides on Blixamo
+
+Deeper dives into the stack above — all tested on a live VPS:
+
+- [Coolify vs Caprover vs Dokku — Tested on €5 VPS](/blog/coolify-vs-caprover-2026)
+- [Deploy Next.js on Hetzner with Coolify (SSL in 20 min)](/blog/deploy-nextjs-coolify-hetzner)
+- [Self-Hosting n8n on Hetzner VPS](/blog/self-hosting-n8n-hetzner-vps)
+
+---
+
+## Useful External Resources
+
+- [Coolify Official Docs](https://coolify.io/docs) — setup, services, reverse proxy config
+- [Hetzner Community Tutorials](https://community.hetzner.com/tutorials) — community-written guides, surprisingly good
+- [Awesome Self-Hosted](https://github.com/awesome-selfhosted/awesome-selfhosted) — exhaustive GitHub list if you want to go deeper

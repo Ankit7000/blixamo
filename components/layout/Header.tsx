@@ -3,10 +3,17 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 
 const NAV = [
-  { label: 'Tech', href: '/category/tech' },
+  { label: 'VPS & Cloud', href: '/category/vps-cloud' },
   { label: 'Tutorials', href: '/category/tutorials' },
   { label: 'AI', href: '/category/ai' },
   { label: 'Tools', href: '/category/tools' },
+  { label: 'Self-Hosting', href: '/category/self-hosting' },
+  { label: 'Indie', href: '/category/indie-hacking' },
+  { label: 'Web Dev', href: '/category/web-dev' },
+  { label: 'How-To', href: '/category/how-to' },
+  { label: 'Automation', href: '/category/automation' },
+  { label: 'Indie Dev', href: '/category/indie-dev' },
+  { label: 'Free Tools', href: '/category/free-tools' },
   { label: 'About', href: '/about' },
 ]
 
