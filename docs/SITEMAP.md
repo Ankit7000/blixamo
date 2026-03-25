@@ -183,7 +183,12 @@ Does NOT include:
 - /ads.txt
 - Tags not in KEEP_TAGS
 
-lastModified for static pages uses new Date() (build time), not a content date.
+lastModified behavior:
+- homepage uses the freshest post `updatedAt` or `date` 
+- category pages use the freshest post inside that category
+- tag pages use the freshest post carrying that tag
+- blog post pages use `updatedAt` if set, otherwise `date` 
+- legal/static pages use a fixed document-level date until those pages are edited
 
 ---
 

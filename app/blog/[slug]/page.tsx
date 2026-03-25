@@ -126,7 +126,7 @@ export default async function PostPage({ params }: Props) {
         </div>
 
         <PostFooter post={post} prev={prev} next={next} />
-        <RelatedPosts posts={related} />
+        <RelatedPosts posts={related} category={post.category} />
       </div>
     </>
   )

@@ -29,6 +29,10 @@ function calcReadingTime(text: string): string {
   return `${mins} min read`
 }
 
+export function getPostFreshnessDate(post: Pick<Post, 'updatedAt' | 'date'>): Date {
+  return new Date(post.updatedAt || post.date)
+}
+
 export function getAllPosts(): Post[] {
   if (!fs.existsSync(postsDirectory)) return []
   const fileNames = fs.readdirSync(postsDirectory)
@@ -58,7 +62,7 @@ export function getAllPosts(): Post[] {
         canonical: data.canonical || '',
       } as Post
     })
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .sort((a, b) => getPostFreshnessDate(b).getTime() - getPostFreshnessDate(a).getTime())
 }
 
 export function getPostBySlug(slug: string): Post | undefined {
@@ -74,15 +78,28 @@ export function getFeaturedPosts(limit = 5): Post[] {
 }
 
 export function getRelatedPosts(post: Post, limit = 3): Post[] {
-  return getAllPosts()
-    .filter(p => p.slug !== post.slug)
+  const allOtherPosts = getAllPosts().filter(p => p.slug !== post.slug)
+
+  const scored = allOtherPosts
     .map(p => ({
       post: p,
-      score: p.tags.filter(t => post.tags.includes(t)).length + (p.category === post.category ? 2 : 0),
+      score:
+        p.tags.filter(t => post.tags.includes(t)).length * 2 +
+        (p.category === post.category ? 4 : 0),
+      freshness: getPostFreshnessDate(p).getTime(),
     }))
-    .sort((a, b) => b.score - a.score)
-    .slice(0, limit)
-    .map(({ post }) => post)
+    .sort((a, b) => b.score - a.score || b.freshness - a.freshness)
+
+  const positiveMatches = scored.filter(entry => entry.score > 0).slice(0, limit)
+  if (positiveMatches.length >= limit) {
+    return positiveMatches.map(({ post }) => post)
+  }
+
+  const fallback = scored
+    .filter(entry => !positiveMatches.some(match => match.post.slug === entry.post.slug))
+    .slice(0, limit - positiveMatches.length)
+
+  return [...positiveMatches, ...fallback].map(({ post }) => post)
 }
 
 export function getAllCategories(): string[] {

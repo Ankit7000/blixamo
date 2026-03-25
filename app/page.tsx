@@ -19,8 +19,10 @@ export default function HomePage() {
   const featuredPosts = getFeaturedPosts(1)
   const featuredGuide = featuredPosts[0] || allPosts[0]
   const recentPosts = allPosts.filter((post) => post.slug !== featuredGuide?.slug)
-  const featuredReads = recentPosts.slice(0, 3)
-  const latestPosts = recentPosts.slice(3, 9)
+  const latestPosts = recentPosts.slice(0, 6)
+  const featuredReads = recentPosts
+    .filter((post) => !latestPosts.some((latestPost) => latestPost.slug === post.slug))
+    .slice(0, 3)
   const popularPosts = allPosts.slice(0, 5)
   const categories = Object.keys(CATEGORY_META)
     .filter((slug) => allPosts.some((post) => post.category === slug))
