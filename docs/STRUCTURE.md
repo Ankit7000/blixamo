@@ -114,8 +114,8 @@ blixamo/
 │   └── images/
 │       ├── logo.svg
 │       ├── default-og.jpg             # Fallback OG image for posts without featuredImage
-│       ├── author-avatar.svg
-│       ├── author-photo.svg
+│       ├── author-avatar.jpg
+│       ├── author-photo.jpg
 │       └── posts/
 │           └── [slug]/                # Per-post images
 │               ├── featured.png       # Featured image (Ideogram v2, 16:9, dark)
@@ -238,3 +238,5 @@ CATEGORY_META list. If no post uses a category, that /category/[slug] route is N
 4. Hardcoded https://blixamo.com throughout codebase
 5. The /blog/[slug] URL pattern
 6. Any existing redirect in next.config.js
+
+
