@@ -21,8 +21,10 @@ jobs:
 
             cd /var/www/blixamo
 
-            echo "=== [1/5] Pulling latest code ==="
-            git pull origin master
+            echo "=== [1/5] Syncing exact GitHub commit ==="
+            git fetch origin
+            git reset --hard origin/master
+            git clean -fd
 
             echo "=== [2/5] Installing dependencies ==="
             npm install --frozen-lockfile

@@ -1,4 +1,3 @@
-
 ---
 
 ## Auto-Deploy Pipeline (GitHub Actions)
@@ -12,7 +11,11 @@ GitHub Actions triggers (.github/workflows/deploy.yml)
        ↓
 SSH into root@77.42.17.13
        ↓
-git pull origin master
+git fetch origin
+       ↓
+git reset --hard origin/master
+       ↓
+git clean -fd
        ↓
 npm install --frozen-lockfile
        ↓
@@ -25,11 +28,13 @@ health check curl localhost:3000
 ✅ Site live  OR  ❌ auto-rollback triggered
 ```
 
+This flow intentionally discards untracked files and local modifications on the VPS so the working tree always matches GitHub `master` before build.
+
 ### Failure Points
 
 | Step | What happens on failure |
 |---|---|
-| `git pull` | Deploy stops — old code stays live |
+| `git fetch` / `git reset --hard` / `git clean -fd` | Deploy stops if Git sync fails |
 | `npm install` | Deploy stops — old code stays live |
 | `npm run build` | Deploy stops — old code stays live ✅ safest point |
 | `pm2 reload` | Deploy stops — site may be down, restart manually |
