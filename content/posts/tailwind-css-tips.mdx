@@ -14,6 +14,8 @@ schema: "article"
 
 Tailwind gives you power. These tips make sure you're using it rather than fighting it.
 
+If you're still deciding on the styling stack, read [Tailwind CSS vs CSS Modules](/blog/tailwind-css-vs-css-modules) first. If you're already building with it, the [Next.js MDX blog setup guide](/blog/nextjs-mdx-blog-2026) shows these same patterns in a real production codebase.
+
 ## 1. Use `@apply` Sparingly — Only for Repeated Patterns
 
 The temptation to extract every component into `@apply` defeats the purpose of utility-first CSS. Reserve it for patterns you repeat more than 10 times across the codebase.
@@ -156,6 +158,8 @@ theme: {
 ```
 
 ## FAQ
+
+For the production impact of these decisions, the [Next.js performance optimization guide](/blog/nextjs-performance-optimization-2026) shows how Tailwind-heavy pages behave after bundling, purging, and CDN caching.
 
 **Should I use Tailwind for everything?**
 For UI components yes. For complex animations or one-off SVG work, raw CSS is often cleaner.
