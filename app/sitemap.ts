@@ -15,6 +15,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: SITE, lastModified: new Date(), changeFrequency: 'daily', priority: 1.0 },
     { url: `${SITE}/about`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${SITE}/contact`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
+    { url: `${SITE}/privacy-policy`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
+    { url: `${SITE}/terms`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
+    { url: `${SITE}/disclaimer`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
     ...categories.map(c => ({ url: `${SITE}/category/${c}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.7 })),
     ...KEEP_TAGS.map(t => ({ url: `${SITE}/tag/${t}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.6 })),
     ...posts.map(p => ({
