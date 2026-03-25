@@ -1,12 +1,12 @@
 ---
 title: "Coolify Guide 2026 — Self-Host Everything for €5/Month"
 slug: "coolify-complete-guide-2026"
-description: "Install Coolify on Hetzner, deploy Next.js, add PostgreSQL, SSL, GitHub auto-deploy. Real setup running in production for €5.19/month. Step-by-step."
+description: "A practical Coolify guide for 2026: install it on a VPS, deploy apps, add databases, and decide when it beats managed platforms."
 date: "2026-03-22"
-updatedAt: "2026-03-22"
+updatedAt: "2026-03-25"
 author: "Ankit Sorathiya"
 category: "self-hosting"
-tags: [devops,hetzner,self-hosting]
+tags: [coolify, self-hosting, hetzner, deploy]
 keyword: "coolify complete guide 2026"
 secondaryKeywords: ["how to install coolify on hetzner", "coolify nextjs deploy 2026", "coolify docker vps setup", "self-host vercel alternative 2026"]
 featured: false
@@ -14,391 +14,207 @@ featuredImage: /images/posts/coolify-complete-guide-2026/featured.jpg
 schema: "howto"
 difficulty: "beginner"
 timeToComplete: "45 minutes"
-excerpt: "Full Coolify setup I run in production: one Hetzner VPS, 5 apps, 3 databases, SSL, auto-deploy — all."
+excerpt: "A clean guide to installing Coolify, deploying apps, and deciding when a VPS-based platform is better than paying several managed vendors."
 toc: true
 ---
 
-I was paying €40/month across Vercel, Railway, and PlanetScale. Each had its own dashboard. Each had its own billing. Each broke independently at 2am.
+Coolify becomes appealing the moment you are tired of paying several small hosting bills that all solve parts of the same problem. App hosting in one place, database in another, automation somewhere else, and SSL handled by whichever platform happens to sit in front of the traffic. It works, but it gets expensive and fragmented quickly.
 
-Six months ago I moved everything to Coolify on a single €5.19/month Hetzner VPS. Today I run 5 apps, 3 databases, and n8n automation on one server. Total infra bill: $5.2/month.
-
-This is the complete guide I wish I had when I started — exact commands, real failure modes, and what to do when things break.
-
-> **Disclosure:** Some links in this article are affiliate links — I earn a small commission at no extra cost to you.
+Coolify is useful because it pulls a lot of that operational surface back onto one VPS. If you already know how to rent a server and point DNS, it is one of the cleanest ways to make self-hosting feel practical instead of manual.
 
 <Callout type="info" title="TL;DR">
-Coolify is a free, open-source platform that replaces Vercel, Railway, and PlanetScale on your own VPS. Install in one command, deploy apps via GitHub, add databases with one click. This guide walks through my exact production setup on Hetzner CPX22 (Ubuntu 24.04, Coolify v4).
+Coolify is the right choice when you want Git-based deploys, SSL, app and database management, and lower monthly costs on your own VPS. It is not magic, but it removes a lot of repetitive deployment work.
 </Callout>
-
-**Quick comparison before we start:**
-
-| What you replace | Old cost | With Coolify |
-|---|---|---|
-| Vercel Pro | €20/month | €0 |
-| [Railway](https://railway.com?referralCode=iJx680) Starter | €5/month | €0 |
-| PlanetScale Hobby | €9/month | €0 |
-| **Total** | **€34/month** | **€5.19/month** |
 
 ![Coolify dashboard showing 5 apps running on one Hetzner VPS](/images/posts/coolify-complete-guide-2026/01-coolify-dashboard.png)
-*My Coolify dashboard — 5 projects, 3 databases, all running on a single CPX22.*
+*Coolify is most useful when one VPS needs to host several things without turning into manual deployment chaos.*
 
----
+## What Coolify Is Good At
 
-## What Is Coolify and Why Use It in 2026?
+Coolify is a self-hosted deployment platform. In practice, that means it helps you manage:
 
-Coolify is an open-source self-hosting platform that manages Docker containers, SSL certificates, reverse proxy routing, and GitHub deployments through a web UI. You install it on any server and it handles the infrastructure plumbing that used to require manual nginx + certbot + Docker Compose configuration for every project.
+- app deployments
+- domains and SSL
+- environment variables
+- databases and supporting services
+- multiple apps on one server
 
-As of March 2026, Coolify v4 is actively developed — new features ship every few weeks. The community on Discord has 15,000+ members. It's not a side project someone built and abandoned; it's the most actively maintained self-hosting platform available.
+The biggest reason to use it is not that it replaces every managed platform perfectly. It is that it removes a lot of day-to-day VPS friction while keeping the economics of self-hosting.
 
-**Why it matters in 2026 specifically:** Managed hosting prices went up 30-40% since 2024 (Vercel, Railway, Render all raised prices). Meanwhile Hetzner's CPX22 stayed at €5.19/month. The math now strongly favours self-hosting for indie developers running multiple projects.
+That is why it pairs naturally with [Build a SaaS MVP for $5/Month](/blog/build-saas-mvp-zero-budget-2026) and [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner).
 
-I compared all three major options in [Coolify vs Caprover vs Dokku](/blog/coolify-vs-caprover-2026) if you want the full breakdown. Short answer: Coolify wins for anyone who wants a UI and active development.
+## When Coolify Is the Right Choice
 
-**What Coolify handles for you:**
-- Automatic Let's Encrypt SSL for every domain
-- Traefik reverse proxy — route multiple domains to different apps on one server
-- GitHub webhook auto-deploy on every `git push`
-- One-click databases: PostgreSQL, MySQL, Redis, MongoDB, MariaDB
-- S3-compatible backups for databases
-- Container isolation between apps
+Coolify is a strong fit if:
 
----
+- you are comfortable renting a VPS
+- you want one place to deploy multiple apps
+- you are tired of separate bills for several small hosted services
+- you want Git-based deploys without fully manual ops
 
-## Prerequisites
+It is a weaker fit if:
 
-<Callout type="info" title="What You Need Before Starting">
-- A Hetzner VPS: CPX22 (4GB RAM) minimum recommended — €5.19/month. Get a VPS at hetzner.com
-- Ubuntu 24.04 LTS (select during VPS creation)
-- A domain name with DNS access
-- 45 minutes
-- Tested on: Coolify v4.0.0-beta.380, Ubuntu 24.04, Hetzner CPX22
-</Callout>
+- you do not want to touch server infrastructure at all
+- you need enterprise-grade platform support immediately
+- you only have one tiny app and do not mind paying for a managed host
 
-Hetzner payment requires a forex-enabled card — Niyo Global or Wise virtual card works reliably. [Full payment setup guide](/blog/pay-hetzner-from-india) if you run into card declines.
+The important thing is to be honest about what problem you are solving. If your current pain is cost plus fragmentation, Coolify is a good answer.
 
----
+## What You Need Before Starting
 
-## Step 1 of 6 — Create Your Hetzner VPS
+Before installing Coolify, have these ready:
 
-Go to [Hetzner Cloud Console](https://console.hetzner.cloud), click **New Server**, and select:
+- a clean VPS
+- a domain with DNS access
+- SSH access
+- enough RAM to run the platform plus your apps
 
-- **Location:** Helsinki or Nuremberg (lowest latency for most global traffic)
-- **Image:** Ubuntu 24.04
-- **Type:** CPX22 (3 vCPU, 4GB RAM, 80GB SSD) — €5.19/month
-- **SSH Key:** Add your public key (mandatory — password auth is disabled by default)
-- **Firewall:** Create one now, allow ports 22, 80, 443
+This is also one of the cases where starting with a clean server matters. If the box already has half-configured Docker, reverse proxy rules, and random app containers, the install gets harder to trust.
 
-Click **Create & Buy Now**. Server boots in under 30 seconds.
+If your VPS foundation is not ready yet, start first with [Nginx reverse proxy setup 2026](/blog/nginx-reverse-proxy-guide-2026) or [How to self-host Next.js on a VPS](/blog/how-to-self-host-nextjs-on-vps), depending on how manual you want the stack to be.
 
-```bash
-# Connect to your new VPS
-ssh root@YOUR_SERVER_IP
-```
-<Callout type="tip" title="Expected output">
-Welcome to Ubuntu 24.04 LTS (GNU/Linux 6.8.0-51-generic x86_64)
-</Callout>
-#
-**Why this matters:** Starting with a clean Ubuntu 24.04 image matters because Coolify's installer makes assumptions about the system state. If you're installing on a server with an existing Docker installation or custom nginx setup, you'll hit conflicts. Fresh server = no surprises.
-#
----
-#
-## Step 2 of 6 — Harden the VPS Before Installing Coolify
-#
-Before Coolify touches your server, lock it down. When I set up my first Hetzner VPS in 2025, SSH brute-force attempts started within 3 hours of creation. These two steps stop 99% of attacks.
-#
-```bash
-# Update packages first
-apt update && apt upgrade -y
-# ---
-# Install fail2ban — blocks IPs after repeated failed SSH attempts
-apt install fail2ban -y
-systemctl enable fail2ban
-systemctl start fail2ban
-# ---
-# Add 2GB swap — critical for Next.js builds on 4GB VPS
-# Without this you will hit OOM during builds (I hit 13 in one week)
-fallocate -l 2G /swapfile
-chmod 600 /swapfile
-mkswap /swapfile
-swapon /swapfile
-echo '/swapfile none swap sw 0 0' >> /etc/fstab
-```
-<Callout type="tip" title="Expected output">
-Setting up swapspace version 1, size = 2 GiB (2147479552 bytes)
-</Callout>
-#
-The swap step is not optional. Next.js builds on a 4GB VPS peak at ~3.2GB RAM. Without swap, PM2 or Docker containers OOM-kill mid-build. I learned this the hard way — 13 OOM restarts in one week before I added the swap. Full security hardening details are in my [VPS security guide for Ubuntu 2026](/blog/vps-security-harden-ubuntu-2026).
-#
----
-#
-## Step 3 of 6 — Install Coolify
-#
-One command installs Docker, configures Traefik, sets up the Coolify database, and starts all services:
-#
-```bash
-curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash
-```
-<Callout type="tip" title="Expected output">
-Coolify installed successfully!
-Open http://YOUR_SERVER_IP:8000 to continue.
-</Callout>
-#
-The installer takes 3-5 minutes. It installs Docker Engine, pulls the Coolify image stack (coolify, traefik, postgres, redis), and starts everything via Docker Compose.
-#
-```bash
-# Verify Coolify is running after install
-docker ps --format 'table .Names .Status'
-```
-<Callout type="tip" title="Expected output">
-coolify          Up 2 minutes
-coolify-db       Up 2 minutes
-coolify-redis    Up 2 minutes
-coolify-proxy    Up 2 minutes
-</Callout>
-#
-Open `http://YOUR_SERVER_IP:8000` in your browser. You'll see the Coolify registration screen. Create your admin account.
-#
-<Callout type="warning" title="Port 8000 must be open">
-If you see a connection timeout, check your Hetzner firewall. Port 8000 must be open temporarily during setup. You can restrict it to your IP only for security.
-</Callout>
-#
----
-#
-## Step 4 of 6 — Connect Your Domain and GitHub
-#
-**Add your server to Coolify:**
-#
-In the Coolify dashboard → **Servers** → your server is already added as localhost. Click it → **Verify** to confirm Docker connectivity.
-#
-**Add your GitHub:**
-#
-Go to **Sources** → **Add** → **GitHub App**. Follow the OAuth flow. Coolify creates a GitHub App in your account with webhook permissions — this enables auto-deploy on every `git push`.
-#
-**Point your domain to the server:**
-#
-In your DNS provider (Cloudflare recommended), add:
-#
-```text
-A    @         YOUR_SERVER_IP    Proxied: OFF initially
-A    *         YOUR_SERVER_IP    Proxied: OFF initially
-```
-<Callout type="warning" title="Cloudflare: turn off proxy during SSL provisioning">
-Set DNS to DNS-only (grey cloud) when provisioning Let's Encrypt certs. Cloudflare's orange cloud mode interferes with the ACME challenge. After cert is issued, switch back to proxied.
-</Callout>
-#
----
-#
-## Step 5 of 6 — Deploy Your First Next.js App
-#
-**Create a new project:**
-#
-Coolify → **Projects** → **Add** → **New Project** → name it.
-#
-**Add a resource (your app):**
-#
-→ **Add Resource** → **Public Repository** (or Private if you connected GitHub) → paste your repo URL → select branch (`main`) → click **Continue**.
-#
-Coolify detects Next.js via Nixpacks automatically. It sets the build command (`npm run build`) and start command (`node server.js`) without you touching anything.
-#
-**Set your domain:**
-#
-In the app settings → **Domains** → add `yourdomain.com` → click **Save**. Coolify provisions Let's Encrypt SSL automatically within 2 minutes.
-#
-**Deploy:**
-#
-Click **Deploy**. Watch the build logs in real time. For a standard Next.js 15 app, first build takes 3-4 minutes on CPX22.
-#
-```bash
-# You can also watch container logs from SSH if needed
-docker logs coolify-proxy --tail 50 -f
-```
-<Callout type="tip" title="Expected output">
-Build completed successfully.
-Container started: myapp_production
-Domain: https://yourdomain.com — SSL active
-</Callout>
-#
-**Enable auto-deploy:**
-#
-In app settings → **General** → toggle **Auto Deploy** on. Every `git push main` now triggers a build and deploy automatically via GitHub webhook.
-#
-This is the workflow I use for all client projects. Push to main, Coolify builds, zero SSH required.
-#
----
-#
-## Step 6 of 6 — Add a PostgreSQL Database
-#
-Coolify → **Project** → **Add Resource** → **Database** → **PostgreSQL** → select version (16 recommended) → click **Deploy**.
-#
-Coolify creates an isolated PostgreSQL container with persistent storage mounted at `/var/lib/docker/volumes/`.
-#
-```bash
-# Connection string format Coolify gives you:
-# postgresql://postgres:PASSWORD@HOST:PORT/postgres
-```
-**Connect it to your app:**
-#
-In your app's **Environment Variables** section, add:
-#
-```bash
-DATABASE_URL=postgresql://postgres:PASSWORD@coolify-db-container:5432/postgres
-```
-<Callout type="tip" title="Expected output">
-Environment variables saved. Redeploy to apply.
-</Callout>
-#
-**Enable S3 backups (optional but recommended):**
-#
-Database settings → **Backups** → add your S3-compatible bucket credentials. Coolify runs `pg_dump` on schedule and uploads the compressed dump. Backfill recovery from a Cloudflare R2 bucket costs essentially zero.
-#
----
-#
-## My Production Setup on This VPS
-#
-Here's what I actually run on my Hetzner CPX22 as of March 2026:
-#
-| App | RAM idle | Deploy method |
-|---|---|---|
-| blixamo.com (Next.js 15) | ~120MB | Manual PM2 (needs custom nginx ISR headers) |
-| Client project 1 | ~85MB | Coolify auto-deploy |
-| Client project 2 | ~70MB | Coolify auto-deploy |
-| n8n automation | ~80MB | Coolify one-click |
-| PostgreSQL | ~45MB | Coolify managed |
-| Redis | ~8MB | Coolify managed |
-| **Total** | **~550MB** | **2.75GB headroom** |
-#
-Total monthly cost: €5.19/month. I was paying €40/month before moving to this setup.
-#
-Note: blixamo.com runs on manual PM2+nginx rather than Coolify. This is because Next.js ISR requires specific `Cache-Control` and `CDN-Cache-Control` headers that Traefik doesn't handle cleanly. For everything else, Coolify is the right answer. See [how I run 5 projects on one VPS](/blog/multiple-projects-single-vps) for the full architecture.
-#
----
-#
-## Troubleshooting Common Coolify Problems
-#
-<Callout type="warning" title="Real issues I've hit in 6 months of production use">
-These are actual problems from my setup — not theoretical edge cases.
-</Callout>
-#
-**Problem: Build fails with "out of memory" during Next.js build**
-#
-```bash
-# Check available memory during build
-free -h
-# If available < 500MB, the build will OOM
-# ---
-# Fix: verify swap is active
-swapon --show
-# If empty, re-add swap:
-swapon /swapfile
-```
-**Problem: SSL certificate fails to provision**
-#
-Most likely cause: Cloudflare proxy is ON during cert provisioning. Set DNS to DNS-only, wait 5 minutes for propagation, then click **Renew Certificate** in Coolify.
-#
-**Problem: Auto-deploy webhook not triggering**
-#
-```bash
-# Check Coolify webhook logs
-docker logs coolify --tail 100 | grep webhook
-```
-Usually caused by GitHub App permissions expiring. Go to **Sources** → your GitHub App → **Reconnect**.
-#
-**Problem: Traefik routing shows 502 after deploying**
-#
-```bash
-# Check if your container actually started
-docker ps | grep your-app-name
-# If not running:
-docker logs your-app-container-name --tail 50
-```
-99% of the time this is a missing environment variable causing the app to crash on startup.
-#
-**Problem: Coolify dashboard shows server as "unreachable"**
-#
-```bash
-# Restart the Coolify stack
-cd /data/coolify/source
-docker compose restart
-```
-This happens after VPS reboots if Docker doesn't come back up cleanly. Adding `--restart=always` to the Coolify compose handles this in v4+.
-#
----
-#
-## Decision Framework — When to Use Coolify vs Manual Setup
-#
-**Use Coolify for:** Side projects, client apps, n8n, Ghost, any app where you want auto-deploy from GitHub without SSH access.
-#
-**Use manual PM2+nginx for:** Apps needing custom nginx config (ISR + Cloudflare CDN, specific Cache-Control headers, complex rate limiting rules).
-#
-**Don't use Coolify for:** Apps that need to control ports 80/443 themselves (conflicts with Traefik), or apps with complex multi-container architectures better handled by raw Docker Compose.
-#
----
-#
-## Full Coolify Features Reference Table
-#
-| Feature | Available in v4 |
-|---|---|
-| GitHub / GitLab / Bitbucket | ✅ All supported |
-| Auto-deploy on git push | ✅ |
-| Let's Encrypt SSL | ✅ Auto |
-| Custom domains | ✅ Unlimited |
-| PostgreSQL | ✅ One-click |
-| MySQL / MariaDB | ✅ One-click |
-| Redis | ✅ One-click |
-| MongoDB | ✅ One-click |
-| S3 database backups | ✅ Built-in |
-| Environment variables | ✅ Per app |
-| Rollback to previous deploy | ✅ One click |
-| Real-time build logs | ✅ |
-| Team members | ✅ |
-| Multi-server support | ✅ |
-| ARM64 (Hetzner CAX) | ✅ |
-| Open source license | Apache 2.0 |
-| Monthly active updates | ✅ |
-#
----
-#
+## Step 1 of 4 — Start With a Clean VPS
+
+Coolify works best when the server is fresh and predictable.
+
+That does not mean the server must stay empty forever. It means the installation step is easier when you are not inheriting a bunch of old Docker containers, proxy rules, and half-finished platform experiments.
+
+At minimum, I would make sure:
+
+- the system is updated
+- SSH access is working cleanly
+- DNS is ready
+- the server has enough headroom for the platform plus your app layer
+
+This is also where I would decide whether the VPS will be "Coolify-first" or whether it still needs some manually managed services alongside it.
+
+## Step 2 of 4 — Install Coolify and Verify the Base Platform
+
+The install itself is not the hard part. The real question is whether the platform is healthy after install.
+
+Once the installer finishes, verify:
+
+- the platform services are running
+- the UI is reachable
+- the server entry shows as healthy
+- Docker is behaving normally underneath
+
+Do not rush straight into deploying your app. If the base platform feels shaky before the first project, adding more layers on top will only make debugging harder later.
+
+## Step 3 of 4 — Connect Git and Deploy One Real App
+
+The first deployment is the proof step.
+
+Pick a real app, connect the repository, set the environment variables, assign the domain, and deploy it. That flow is what tells you whether Coolify actually fits your workflow or just looked appealing on paper.
+
+This is why I like testing it with a Next.js project early. You learn very quickly whether:
+
+- build detection is sane
+- domain setup feels clean
+- the logs are understandable
+- redeploys are trustworthy
+
+If you want the direct framework-specific path, [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner) is the follow-up.
+
+## Step 4 of 4 — Add the Supporting Services Only After the App Works
+
+Once the first app is healthy, then add the rest:
+
+- database
+- Redis if needed
+- automation service like n8n
+- more apps
+
+This order matters because it keeps the first failure surface small. If you install everything at once and something breaks, you do not know whether the problem is the platform, the app, the DNS, the proxy, or a dependent service.
+
+Treat the first app as the control test.
+
+## What Coolify Replaces Well
+
+Coolify is strongest when it replaces:
+
+- manual deploy scripts
+- fragmented small-hosting accounts
+- repetitive SSL and domain setup
+- one-app-per-platform habits
+
+It is especially good when your current workflow is technically working but operationally annoying.
+
+That is the real value. Less context switching. Less repeated setup work. Less "which platform owns this thing?" confusion.
+
+## What Coolify Does Not Remove
+
+It still does not remove the need to understand your infrastructure.
+
+You still need to care about:
+
+- DNS
+- backups
+- server capacity
+- deployment risk
+- basic security
+
+Coolify lowers the operational burden, but it does not eliminate ownership. That is the real tradeoff with self-hosting.
+
+## Why I Would Use Coolify Instead of Several Managed Platforms
+
+The decision usually comes down to three things:
+
+### Cost
+
+One VPS plus Coolify can replace several small recurring services.
+
+### Simplicity of ownership
+
+It is easier to reason about one server you control than five platforms with different limits, dashboards, and bills.
+
+### Better scaling of indie projects
+
+If you run multiple apps, self-hosting starts compounding in your favor. The first app may not save much. The third or fourth usually does.
+
+That is why Coolify makes the most sense once you are moving beyond a single experiment.
+
+## Summary
+
+Coolify is one of the best self-hosting tools for developers in 2026 because it makes the VPS path much more usable without turning it into a fully manual ops project.
+
+Use it when you want:
+
+- lower recurring hosting cost
+- multiple apps on one server
+- easier deploys and SSL
+- more control than managed platforms give you
+
+Do not use it if you want zero infrastructure responsibility. It still requires ownership, just less repetitive work.
+
 ## FAQ
-#
-### How much RAM does Coolify itself use?
-#
-Coolify's own stack (coolify, traefik, postgres, redis containers) uses ~400MB at idle on a fresh install. On a 4GB CPX22, that leaves ~3.3GB for your apps. I run 5 apps and databases in the remaining space with 2.7GB headroom.
-#
-### Can I use Coolify with Cloudflare?
-#
-Yes, but disable Cloudflare's proxy (orange cloud) during SSL certificate provisioning. After the cert is issued, re-enable Cloudflare proxy. Coolify handles the origin certificate; Cloudflare handles CDN and DDoS protection at the edge.
-#
-### Does Coolify work on a 2GB VPS?
-#
-Barely. Coolify's own stack uses ~400MB, leaving ~1.4GB for your apps. Next.js builds will OOM without swap. Use a 4GB VPS minimum. Hetzner CPX22 at €5.19/month is the right size.
-#
-### How do I update Coolify?
-#
-From the Coolify dashboard → **Settings** → **Updates** → click **Update**. Coolify pulls the latest image and restarts. Takes ~2 minutes. Your apps keep running during the update.
-#
-### Is my data safe if the VPS reboots?
-#
-Yes. Coolify mounts volumes at `/var/lib/docker/volumes/` which persists across container restarts and reboots. Database data survives VPS reboots. Configure S3 backups for off-server redundancy.
-#
-### Can I self-host Coolify on a non-Hetzner server?
-#
-Yes. Coolify works on any Ubuntu/Debian server. Hetzner is just the best price-to-performance ratio I've found — €5.19/month for 4GB RAM vs Digital Ocean's $19/month for 2GB.
-#
-### What happens when Coolify itself goes down?
-#
-Your apps keep running — they're Docker containers managed by Docker's own restart policy. Only new deployments stop working. Restart Coolify with `docker compose restart` in `/data/coolify/source`.
-#
----
-#
+
+### What is Coolify used for?
+
+Coolify is used to deploy and manage apps, databases, domains, and related services on your own server. It gives you a cleaner platform layer on top of self-hosted infrastructure.
+
+### Is Coolify better than Vercel or Railway?
+
+It depends on the goal. Coolify is usually better when cost control and ownership matter more than fully managed convenience. Vercel or Railway can still be simpler if you want the least infrastructure responsibility.
+
+### Can I use Coolify for multiple apps on one VPS?
+
+Yes. That is one of the strongest reasons to use it. It works especially well when one server needs to host several small or medium projects cleanly.
+
+### Do I still need Nginx if I use Coolify?
+
+Not in the same manual way for every app. Coolify handles a lot of proxy and SSL work for you. But understanding reverse proxy basics is still useful when something at the network edge behaves unexpectedly.
+
+### Is Coolify good for Next.js apps?
+
+Yes. It is a solid fit for Next.js deployments, especially if you want to self-host without managing every deploy step manually. The more detailed app-specific path is in the dedicated Hetzner plus Coolify deployment guide.
+
+### Should I put databases in Coolify too?
+
+You can, but I would do it only after the first app deployment is stable. It is often safer to validate the app flow first and then add the supporting services one at a time.
+
 ## What Next?
-#
-You now have a production-ready Coolify setup on Hetzner for €5.19/month. Every app you add costs zero extra — just container overhead.
-#
-**Immediate next steps:**
-#
-1. **Deploy your first app** — if you're on Next.js, read [deploying Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner) for the exact Nixpacks config that works without a custom Dockerfile
-2. **Add n8n automation** — Coolify one-click deploys n8n in 2 minutes. Then wire up a [WhatsApp AI assistant with n8n and Claude API](/blog/whatsapp-ai-assistant-n8n-claude-api) — all on the same $5.2/month server
-3. **Secure the server** — run the [VPS security hardening checklist for Ubuntu 2026](/blog/vps-security-harden-ubuntu-2026) before you go live
-#
-Subscribe below for more real-number deep dives — no filler, no sponsored "best tools" lists.
-#
+
+If you want to deploy a real app next, continue with [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner). If you are still deciding whether self-hosting is worth it financially, the next useful read is [Build a SaaS MVP for $5/Month](/blog/build-saas-mvp-zero-budget-2026). If automation is part of the stack, follow that with [n8n complete guide 2026](/blog/n8n-complete-guide-2026).
+
+That gives you the platform, the product stack, and the automation layer in the right order.

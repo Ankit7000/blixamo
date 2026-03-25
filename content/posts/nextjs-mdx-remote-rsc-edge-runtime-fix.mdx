@@ -1,12 +1,12 @@
 ---
 title: "next-mdx-remote/rsc Edge Runtime Fix — Next.js 15"
 slug: "nextjs-mdx-remote-rsc-edge-runtime-fix"
-description: "Fix next-mdx-remote/rsc edge runtime error in Next.js 15 App Router. The fs module error explained — exact config that solves it in 2 minutes."
+description: "Fix the next-mdx-remote/rsc edge runtime fs error in Next.js 15 by switching the route to Node.js runtime and avoiding edge inheritance."
 date: "2026-03-23"
-updatedAt: "2026-03-23"
+updatedAt: "2026-03-25"
 author: "Ankit Sorathiya"
 category: "web-dev"
-tags: [nextjs,devops]
+tags: [nextjs, mdx, runtime, debug]
 keyword: "next-mdx-remote rsc edge runtime fix"
 secondaryKeywords: ["next-mdx-remote edge runtime error", "nextjs 15 mdx edge runtime fs", "next-mdx-remote/rsc nodejs runtime", "mdx edge runtime not supported"]
 featured: false
@@ -14,201 +14,182 @@ featuredImage: /images/posts/nextjs-mdx-remote-rsc-edge-runtime-fix/featured.png
 schema: "howto"
 difficulty: "beginner"
 timeToComplete: "5 minutes"
-excerpt: "One config line breaks next-mdx-remote in edge runtime. Here's exactly why and how to fix it in Next.js.."
+excerpt: "A fast fix for the `fs` module error when `next-mdx-remote/rsc` is used under edge runtime in Next.js 15."
 toc: true
 ---
 
-> **Disclosure:** Some links in this article are affiliate links — I earn a small commission at no extra cost to you.
+This bug is annoying because the failure looks bigger than it is. Your Next.js app works locally, the MDX code looks fine, and then production throws `The edge runtime does not support Node.js 'fs' module` or just gives you a blank page with almost no signal.
 
+The root cause is simple: `next-mdx-remote/rsc` needs Node.js runtime. If your blog route inherits edge runtime anywhere in the route tree, it breaks. The fix is usually one line.
 
-You deployed your Next.js 15 MDX blog, everything builds fine locally — then production throws this:
+<Callout type="info" title="TL;DR">
+If `next-mdx-remote/rsc` is rendering content from disk, set `export const runtime = "nodejs"` on the affected route. Do not run that MDX route under edge runtime.
+</Callout>
 
-```bash
+## Why next-mdx-remote/rsc Breaks on Edge Runtime
+
+`next-mdx-remote/rsc` is not just a rendering helper. In the common blog setup, it works with content that is read from the filesystem, parsed, and then rendered inside a server component.
+
+That means your route usually depends on Node.js APIs like:
+
+- `fs`
+- `path`
+- file-based content loading in your posts library
+
+Edge runtime does not support that environment. So if your route or a parent layout sets `runtime = "edge"`, the MDX page is running in the wrong place.
+
+If you are using the content-on-disk architecture from [Build a Next.js MDX blog 2026](/blog/nextjs-mdx-blog-2026), this is exactly the kind of route that should stay on Node.js runtime.
+
+## What the Error Usually Looks Like
+
+The most obvious version is:
+
+```text
 Error: The edge runtime does not support Node.js 'fs' module.
 ```
-Or you see a blank page with no error at all. I hit this exact issue on [blixamo.com while building the Next.js MDX blog](/blog/nextjs-mdx-blog-2026). It took me 40 minutes to trace. This article saves you that time.
-#
-<Callout type="info" title="TL;DR">
-- `next-mdx-remote/rsc` uses Node.js `fs` module internally — incompatible with edge runtime
-- Fix: add `export const runtime = 'nodejs'` to your blog post page
-- If using a root `layout.tsx` with `runtime = 'edge'`, override it in the blog slug page
-- Takes 2 minutes to fix
-</Callout>
-#
-## Why next-mdx-remote Breaks on Edge Runtime
-#
-`next-mdx-remote/rsc` reads MDX files from the filesystem using Node.js built-in modules — specifically `fs` and `path`. Edge runtime (Vercel Edge, Cloudflare Workers) does not have access to the Node.js runtime. It runs a stripped-down V8 environment with no filesystem access.
-#
-When Next.js tries to render your `/blog/[slug]` page on the edge, it attempts to import `next-mdx-remote/rsc`, which internally calls `fs.readFileSync` — and crashes immediately.
-#
-The error surface varies by environment:
-#
-- **Vercel:** explicit error — `The edge runtime does not support Node.js 'fs' module`
-- **Self-hosted Next.js:** blank page, or a cryptic build error during `next build`
-- **Dev mode:** works fine locally — `next dev` always runs Node.js regardless of runtime config
-#
-This is why the bug is easy to miss. It only surfaces in production.
-#
-<Callout type="warning" title="Why it passes in dev">
-`next dev` ignores runtime configuration and always runs Node.js. The edge runtime restriction only applies during `next build` and production deploys. Always test with `next build && next start` before shipping.
-</Callout>
-#
+
+But you can also see:
+
+- build-time errors that mention unsupported modules
+- blank production pages
+- a route that works in dev but fails after deploy
+
+That mismatch between local success and production failure is what wastes time. The app feels correct until the runtime environment changes.
+
 ## Step 1 of 3 — Find Where Edge Runtime Is Set
-#
-Check these 3 files in order — any one of them can cause the issue:
-#
-**Check 1 — root layout**
-#
+
+Check the route tree in this order:
+
+1. `app/layout.tsx`
+2. any segment layout above the blog route
+3. `app/blog/[slug]/page.tsx`
+
+You are looking for:
+
 ```tsx
-// app/layout.tsx
-export const runtime = 'edge' // ← this breaks all pages that use fs
+export const runtime = "edge";
 ```
-**Check 2 — blog slug page**
-#
+
+If that line exists anywhere above the MDX page, the blog route may inherit it.
+
+That is the first thing I would inspect before touching the MDX code itself.
+
+## Step 2 of 3 — Switch the Blog Route to Node.js Runtime
+
+The normal fix is to set Node.js runtime directly on the blog page:
+
 ```tsx
-// app/blog/[slug]/page.tsx
-export const runtime = 'edge' // ← directly breaks MDX rendering
+export const runtime = "nodejs";
 ```
-**Check 3 — blog segment layout**
-#
-```tsx
-// app/blog/layout.tsx
-export const runtime = 'edge' // ← inherited by all blog routes
-```
-If you find `runtime = 'edge'` in any file that covers your blog post pages, that is the cause.
-#
-## Step 2 of 3 — Apply the Fix
-#
-**Fix A — Override to Node.js on the blog page (recommended)**
-#
-Add one line to your blog post page:
-#
+
+That line belongs on the route that renders the MDX content, typically:
+
 ```tsx
 // app/blog/[slug]/page.tsx
-export const runtime = 'nodejs'  // ← add this
-// blank line removed
-export default async function BlogPost({ params }) {
-  // your existing MDX rendering code
-}
+export const runtime = "nodejs";
 ```
-This explicitly sets Node.js runtime for this route, overriding any parent layout that sets edge.
-#
-<Callout type="tip" title="Expected output">
-After adding this line and running `next build`, the build completes without the fs error. Verify with `curl -s -o /dev/null -w "%{http_code}" https://yourdomain.com/blog/your-post` — you should get `200`.
-</Callout>
-#
-**Fix B — Remove edge runtime entirely**
-#
-If you set `runtime = 'edge'` for performance but don't actually use edge-specific features (geolocation, A/B at CDN layer), remove it. Node.js runtime with ISR and Cloudflare CDN delivers identical performance.
-#
-I run blixamo.com on Node.js runtime with Cloudflare CDN in front — hosted on a [Hetzner CPX22](https://www.vultr.com/?ref=9885468) class VPS. Pages load in 306ms globally. Edge runtime adds zero benefit for static blog content.
-#
-```tsx
-// app/layout.tsx — remove this line
-// export const runtime = 'edge'
-```
-**Fix C — Switch to @next/mdx for true edge compatibility**
-#
-If you genuinely need edge runtime everywhere, switch to `@next/mdx` which compiles MDX at build time — no filesystem reads at runtime.
-#
+
+This is the safest fix because it is explicit. Even if a parent layout is using edge runtime for something else, the blog page opts back into the environment it actually needs.
+
+## Step 3 of 3 — Rebuild and Verify the Runtime
+
+After changing the runtime, rebuild the app and verify the affected page directly.
+
+Use a production-style build check, not only local dev:
+
 ```bash
-npm install @next/mdx @mdx-js/loader @mdx-js/react
-```
-Trade-off: more complex config, less flexible for dynamic MDX content. For most blogs, Fix A is the right call.
-#
-## Step 3 of 3 — Verify the Fix Works
-#
-```bash
-# Rebuild
 npm run build
-# ---
-# Check HTTP status
+```
+
+Then verify the page loads:
+
+```bash
 curl -s -o /dev/null -w "%{http_code}" https://yourdomain.com/blog/your-post
-# Expected: 200
 ```
-On a [Hetzner VPS running multiple apps with PM2](/blog/multiple-projects-single-vps):
-#
-```bash
-pm2 restart your-app && pm2 logs your-app --lines 20
-# Expected: no 'fs module' or 'edge runtime' errors
-```
-<Callout type="tip" title="Build output check">
-During `next build`, edge runtime routes show `(Edge)` in the output table. After the fix, your blog routes should show `(SSG)` or `(Dynamic)` — not `(Edge)`.
-</Callout>
-#
-## When to Actually Use Edge Runtime
-#
-Edge runtime is genuinely useful for:
-#
-- **Middleware** — auth checks, redirects, geolocation routing at the CDN layer
-- **Lightweight API routes** that need sub-10ms cold starts with no Node.js dependencies
-- **A/B testing logic** running at the CDN edge
-#
-It is the wrong choice for MDX blog pages. A blog post is static or ISR content. Rendered once, cached by Cloudflare, served instantly worldwide — no edge runtime needed.
-#
-<Callout type="warning" title="Never set runtime = edge globally">
-Setting `export const runtime = 'edge'` in `app/layout.tsx` applies to every route. This breaks any route using `next-mdx-remote`, `fs`, `path`, `crypto`, or any Node.js-only library. Set edge runtime only on the specific routes that need it.
-</Callout>
-#
-## Troubleshooting — Other Edge Runtime MDX Errors
-#
-### Module not found: Can't resolve 'fs'
-#
-Same root cause — a different import in your MDX pipeline calls `fs`. Check your plugins: `rehype-pretty-code`, `rehype-slug`, and custom remark plugins are common culprits.
-#
-### Build succeeds but page returns 500 in production
-#
-Edge runtime can fail silently during build. Check platform logs — Vercel Functions tab or PM2 logs on self-hosted. The actual error is always a missing Node.js module.
-#
-### Works on Vercel, breaks on self-hosted Next.js
-#
-Check `next.config.js` for experimental edge config:
-#
-```js
-// next.config.js — remove if present
-experimental: &#123;
-  runtime: 'edge', // ← remove this
-&#125;
-```
-### Works in dev, blank page in production
-#
-Classic edge runtime issue. Run `next build && next start` locally to reproduce before deploying.
-#
+
+If the page returns `200` and the build no longer reports the `fs` module issue, the runtime mismatch is fixed.
+
+If you are self-hosting, pair this with the deployment path in [How to self-host Next.js on a VPS](/blog/how-to-self-host-nextjs-on-vps) so you are testing the same kind of environment you actually ship.
+
+## When You Should Not Use Edge Runtime for MDX Routes
+
+Do not use edge runtime for MDX routes that:
+
+- read content from disk
+- depend on a filesystem-backed posts library
+- import Node-only libraries
+- rely on build-time or server-side file parsing
+
+This is one of those cases where edge runtime sounds faster than it is useful. For content routes, the simpler and more reliable choice is usually Node.js runtime plus caching.
+
+That is also why [Next.js performance optimization 2026](/blog/nextjs-performance-optimization-2026) focuses more on ISR and caching than on forcing everything to the edge.
+
+## What If You Really Want Edge Runtime?
+
+Then you need to change the architecture, not just the config.
+
+If you truly need edge runtime everywhere, move away from filesystem-driven MDX loading for those routes. That usually means:
+
+- compile MDX at build time with a different setup
+- avoid Node-only APIs in the rendering path
+- separate edge routes from content routes
+
+For most developer blogs, that tradeoff is not worth it. The clean answer is to keep the MDX route on Node.js.
+
+## Common Mistakes Around This Fix
+
+### Fixing the wrong file
+
+If the route inherits edge runtime from a parent layout, changing only a sibling route will not help. Follow the route tree carefully.
+
+### Trusting `next dev`
+
+Local dev often hides runtime problems because it does not behave the same way as a production deployment. Always rebuild.
+
+### Assuming edge runtime is a universal performance upgrade
+
+It is not. For MDX content routes, edge runtime can add complexity without solving a real bottleneck.
+
+## Summary
+
+If `next-mdx-remote/rsc` is breaking with an edge runtime error, the problem is usually not MDX itself. The route is simply running under the wrong runtime.
+
+The fix is:
+
+- find where edge runtime is set
+- set the MDX page to `runtime = "nodejs"`
+- rebuild and verify
+
+That is usually enough to get the route working again.
+
 ## FAQ
-#
-### Does next-mdx-remote support edge runtime?
-#
-No. `next-mdx-remote` and `next-mdx-remote/rsc` both require Node.js runtime because they read and process MDX files using `fs` and other Node.js built-ins. As of 2026, there is no edge-compatible version.
-#
-### Will switching to Node.js runtime hurt performance?
-#
-No measurable impact for a blog. Node.js runtime with ISR and Cloudflare CDN delivers 200-400ms load times globally — identical to edge-rendered content. Cloudflare caches your HTML at the edge regardless of which runtime rendered it.
-#
-### Can I use edge runtime on some pages and Node.js on others?
-#
-Yes. Next.js supports per-route runtime configuration. Add `export const runtime = 'nodejs'` only on blog routes. Middleware and lightweight API routes can still use `runtime = 'edge'`.
-#
-### What is the difference between next-mdx-remote/rsc and next-mdx-remote?
-#
-`next-mdx-remote/rsc` is the React Server Component version for App Router. `next-mdx-remote` is the older Pages Router version. Both require Node.js runtime — neither works on edge.
-#
-### Does @next/mdx have the same edge runtime problem?
-#
-No. `@next/mdx` processes MDX at build time, not at runtime — so it works on edge runtime. Trade-off: requires more build configuration and is less flexible for dynamic MDX loading.
-#
-### Why does it work in development but break in production?
-#
-`next dev` always runs Node.js regardless of your runtime config. Edge runtime restrictions only apply during `next build` and production. Always test production builds locally before deploying.
-#
-### How do I confirm what runtime a page uses?
-#
-Check the `next build` output table. Edge runtime routes show `(Edge)`. After the fix, your blog routes should show `(SSG)` or `(Dynamic)`.
-#
-```bash
-next build 2>&1 | grep -E "\(Edge\)|\(SSG\)|\(Dynamic\)" | grep blog
-```
+
+### Does next-mdx-remote/rsc support edge runtime?
+
+Not in the common filesystem-based blog setup. If the route depends on Node.js APIs like `fs`, it needs Node.js runtime.
+
+### Why does this work in development but fail in production?
+
+Because local development often does not surface the same runtime constraints as the production build or hosting environment. The route can look fine until it is actually deployed under edge runtime.
+
+### Where should I add `export const runtime = "nodejs"`?
+
+Add it to the page or route segment that renders the MDX content, most often `app/blog/[slug]/page.tsx`. That makes the runtime explicit at the route level.
+
+### Should I remove edge runtime from the whole app?
+
+Not necessarily. Only the routes that need Node.js APIs must avoid edge runtime. It is fine to keep other routes or middleware on edge if they benefit from it.
+
+### Is this a Next.js problem or an MDX problem?
+
+It is mostly a runtime mismatch problem. Next.js is doing what you asked by running the route on edge, but the MDX rendering path depends on Node.js features that are unavailable there.
+
+### What is the safest long-term fix?
+
+For most blogs, keep content-rendering routes on Node.js runtime and use caching or ISR for performance. That is simpler than redesigning the whole MDX architecture around edge compatibility.
+
 ## What Next?
-#
-Two-minute fix done. If you want the full production MDX blog setup — ISR, rehype-pretty-code, Cloudflare CDN headers, and the exact config running on blixamo.com — read [how I built this Next.js MDX blog from scratch](/blog/nextjs-mdx-blog-2026).
-#
-Or if you want to skip manual Nginx config entirely and [deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner) — or try [Railway](https://railway.com?referralCode=iJx680) for a zero-ops alternative, that guide gets you from zero to live with auto SSL in 20 minutes.
+
+If you hit this bug while building a content site, the next useful read is [Build a Next.js MDX blog 2026](/blog/nextjs-mdx-blog-2026). If the route works now but performance is the next concern, continue with [Next.js performance optimization 2026](/blog/nextjs-performance-optimization-2026).
+
+That takes you from "it crashes in production" to "it works and loads fast."

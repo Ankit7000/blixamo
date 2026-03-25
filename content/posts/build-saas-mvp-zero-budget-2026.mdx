@@ -1,12 +1,12 @@
 ---
 title: "Build a SaaS MVP for $5/Month — Zero-Budget Stack 2026"
 slug: "build-saas-mvp-zero-budget-2026"
-description: "Full SaaS MVP stack for $5/month: Next.js + Supabase + Hetzner + n8n + Coolify. No AWS, no Vercel Pro. Ships in a weekend. Here's the exact setup."
+description: "Build a SaaS MVP in 2026 with Next.js, Supabase, Hetzner, Coolify, and n8n for about €5/month total. Practical stack, tradeoffs, and setup order."
 date: "2026-03-21"
-updatedAt: "2026-03-21"
+updatedAt: "2026-03-25"
 author: "Ankit Sorathiya"
 category: "indie-hacking"
-tags: [indie-dev,hetzner,nextjs]
+tags: [indie-dev, hetzner, nextjs, saas]
 keyword: "build saas mvp zero budget 2026"
 secondaryKeywords: ["saas mvp stack 2026", "cheap saas infrastructure", "indie hacker stack 2026", "build saas without funding"]
 featured: false
@@ -14,200 +14,221 @@ featuredImage: /images/posts/build-saas-mvp-zero-budget-2026/featured.jpg
 schema: "article"
 difficulty: "intermediate"
 timeToComplete: "15 minutes"
-excerpt: "The exact stack I use to run multiple SaaS MVPs for $5/month total. Next.js, Supabase free tier, Hetzner."
+excerpt: "A practical €5/month SaaS MVP stack using one small VPS plus managed free tiers where they actually help."
 toc: true
 ---
 
-> **Disclosure:** Some links in this article are affiliate links — I earn a small commission at no extra cost to you.
+Most SaaS MVPs get expensive before they get useful. You sign up for Vercel, a hosted database, an automation tool, email, analytics, maybe a queue, and suddenly the "quick test" idea is burning money before a single customer shows up.
 
+The stack in this guide is the one I would use when the goal is simple: ship a real SaaS MVP fast, keep the monthly bill near zero, and upgrade only when usage proves the product deserves it. It is not the enterprise stack. It is the stack for getting to version 1 without lying to yourself about costs.
 
-Most indie developers spend $150-300/month on infrastructure before their first paying customer. Vercel Pro, PlanetScale, Render, AWS, Stripe fees, email services. The bills add up before the product ships.
-
-I run 3 active SaaS projects for €5.19/month total — roughly $5.50 or Rs 465. Not per project. Total. Combined.
-
-This is the exact stack, the exact tools, and the exact tradeoffs. I have been running this setup for 6 months without a production incident I couldn't fix in under 10 minutes.
-
-<Callout type="info" title="TL;DR — The Full Zero-Budget SaaS Stack">
-Hetzner CPX22 (€5.19/mo) + Coolify (free) + Next.js 15 (free) + Supabase free tier + n8n self-hosted (free) + Cloudflare (free) + Resend free tier. Total: €5.19/month for your entire infra.
+<Callout type="info" title="TL;DR">
+The practical zero-budget SaaS MVP stack is: Hetzner CPX22 for the core server, Coolify for deployment, Next.js for the app, Supabase free tier for auth and database, n8n for automation, Cloudflare for DNS and CDN, and a lightweight email provider. One small VPS does more than most MVPs need.
 </Callout>
 
-## Why Most SaaS Stacks Are Overengineered for MVPs
+## What "Zero-Budget" Actually Means for a SaaS MVP
 
-Before the stack, let me explain why the default advice is wrong.
+Zero-budget does not mean literally free forever. It means you avoid fixed monthly SaaS bills until the product has real usage.
 
-Everyone tells you to use AWS, Vercel, PlanetScale, and Render. These are all excellent services. They are also priced for companies that have revenue, not indie developers testing ideas.
+That usually means:
 
-You don't need autoscaling at 0 users. You don't need 99.999% uptime SLAs when you have no paying customers yet. You need to ship fast, keep costs near zero, and find out if anyone actually wants the thing.
+- one small VPS for app hosting
+- free tier services only where they are genuinely good enough
+- no platform upgrade just because the landing page looks professional
+- no AWS-style complexity before you have a problem worth solving
 
-The zero-budget stack is optimized for exactly that: **ship fast, pay almost nothing, scale when you have customers**.
+This is the same mindset behind [free VPS hosting options in 2026](/blog/free-vps-hosting-2026), but for a SaaS MVP I usually prefer a paid low-cost VPS over an awkward free tier. Predictability matters more than squeezing out the last free dollar.
 
-## The Full Stack — Every Tool and Why
+## The Stack I Would Use for a Cheap SaaS MVP
 
-### Hetzner CPX22 — The Foundation
+Here is the full stack:
 
-**Cost:** €5.19/month (Rs 465, ~$5.50)
-**Specs:** 3 vCPU, 4GB RAM, 40GB NVMe SSD, 20TB bandwidth
-
-This single VPS runs everything. All 3 of my projects live here. Current RAM usage: 1.8GB of 4GB. I have room for 2-3 more projects before I need to upgrade to CPX32 (€9.49/month).
-
-The get €20 free credit offer means your first 3-4 months are free while you validate the idea.
-
-### Coolify — Zero-Downtime Deploys Without DevOps
-
-**Cost:** Free (self-hosted)
-
-Coolify is the tool that makes this stack practical. It is an open-source Heroku/Vercel alternative that you run on your own VPS. Connect your GitHub repo, push code, Coolify handles the build + deploy + SSL automatically.
-
-Before Coolify, deploying meant SSHing into the server, running `git pull`, restarting PM2, and hoping nothing broke. Now it is a GitHub push. The [Coolify + Hetzner deployment guide](/blog/deploy-nextjs-coolify-hetzner) has the full 25-minute setup.
-
-### Next.js 15 — Frontend + API in One
-
-**Cost:** Free
-
-Next.js App Router handles both the frontend and backend API routes in one codebase. No separate Express server, no separate API deployment. One repo, one deploy, one process.
-
-For SaaS MVPs specifically, Next.js is ideal because:
-- API routes handle auth, payments, data mutations
-- Server components fetch data without a separate API call
-- Built-in image optimization
-- ISR (Incremental Static Regeneration) for near-static performance
-
-### Supabase Free Tier — Database + Auth + Storage
-
-**Cost:** Free up to 500MB database, 1GB storage, 50K monthly active users
-
-Supabase gives you a managed Postgres database, authentication (email, Google, GitHub OAuth), file storage, and realtime subscriptions — all free up to generous limits.
-
-For a new SaaS MVP, you will not hit the limits for months. When you do, the Pro plan is $25/month — only pay when you have users who justify it.
-
-<Callout type="warning" title="Supabase free tier pauses after 1 week of inactivity">
-Supabase free tier databases pause if there is no activity for 7 days. Set up a simple cron job to ping the database once a day, or upgrade to Pro ($25/month) when you have real users.
-</Callout>
-
-### n8n — Automation Without Zapier's $300/Month Bill
-
-**Cost:** Free (self-hosted on the same Hetzner VPS)
-
-n8n replaces Zapier, Make, and most custom webhook scripts. Welcome emails, payment confirmations, Slack notifications, data sync — all of it runs in n8n on the same VPS.
-
-I replaced $240/year in Zapier costs with a Docker container that uses 200MB of RAM. The [self-hosting n8n on Hetzner guide](/blog/self-hosting-n8n-hetzner-vps) has the complete Docker setup.
-
-### Cloudflare Free — CDN, DDoS Protection, DNS
-
-**Cost:** Free
-
-Every SaaS needs a CDN and DDoS protection. Cloudflare's free tier gives you both, plus: SSL certificates, caching rules, Web Analytics (free, no cookies, GDPR-compliant), and bot protection.
-
-Point your domain to Cloudflare, set proxied DNS records, and your VPS is protected behind Cloudflare's network. Anyone trying to find your server IP to DDoS it can't — they only see Cloudflare.
-
-### Resend — Transactional Email That Actually Delivers
-
-**Cost:** Free up to 3,000 emails/month
-
-Resend is the cleanest transactional email API I have used. One API call, email delivered to inbox (not spam). The free tier handles 3,000 emails/month — enough for 1,000+ active users receiving weekly emails.
-
-## The Full Cost Breakdown
-
-Here is the real monthly cost running 3 SaaS MVPs:
-
-| Service | Cost | What It Covers |
+| Layer | Recommended choice | Why |
 |---|---|---|
-| Hetzner CPX22 | €5.19 | Server for all 3 apps |
-| Supabase | Free | DB + Auth + Storage |
-| Cloudflare | Free | CDN + DDoS + DNS |
-| Resend | Free | Up to 3K emails/month |
-| n8n | Free | Automation (self-hosted) |
-| Coolify | Free | Deploys (self-hosted) |
-| **Total** | **€5.19/month** | **Everything** |
+| Compute | Hetzner CPX22 | Cheap, stable, enough RAM |
+| Deploys | Coolify | Easiest self-hosted deployment path |
+| App framework | Next.js | One codebase for frontend and server logic |
+| Auth + database | Supabase free tier | Strong MVP default |
+| Automation | n8n | Replaces many paid workflows |
+| CDN + DNS | Cloudflare | Free, useful, and enough |
+| Email | Resend or similar | Simple transactional email |
 
-For reference: running the same setup on managed services would cost:
-- Vercel Pro: $20/month
-- PlanetScale (Supabase equivalent): $29/month
-- Render (server): $25/month
-- Zapier Starter: $20/month
-- Cloudflare Pro: $20/month
-- **Total managed stack: $114/month**
+This setup is not the answer for every product forever. It is the answer for getting an MVP live without wasting months on infrastructure theatre.
 
-Same capabilities. 22x more expensive.
+## 1. Hetzner CPX22 as the Foundation
 
-## How to Set This Up in a Weekend
+If you are serious about keeping costs down, the server should be boring and cheap. Hetzner CPX22 is still one of the best fits because it gives you enough RAM and CPU to host the app, a deployment layer, and supporting services without immediately forcing an upgrade.
 
-**Saturday morning (2 hours) — Infrastructure:**
+The reason I would pick this over jumping straight to managed platforms is simple: one predictable VPS bill is easier to reason about than five separate "cheap" services that add up fast.
 
-```bash
-# 1. Create Hetzner VPS (CPX22, Ubuntu 24.04)
-# 2. Point domain DNS to VPS IP via Cloudflare
-# 3. SSH into VPS and install Coolify
-curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash
-```
-<Callout type="tip" title="Expected output">
-Coolify installs and prints the dashboard URL: `http://your-ip:8000`. Open it to set up your admin account.
-</Callout>
-#
-**Saturday afternoon (2 hours) — App deployment:**
-1. Connect GitHub repo to Coolify
-2. Add environment variables (Supabase URL, Resend API key)
-3. Deploy — Coolify handles build + SSL + reverse proxy automatically
-4. Verify the live URL works
-#
-**Sunday (2 hours) — Auth + Payments:**
-1. Set up Supabase Auth — copy the Next.js quickstart code, done in 30 minutes
-2. Add Razorpay (India) or Stripe (global) — the [Razorpay + Next.js guide](/blog/razorpay-integration-nextjs-india) has the full flow
-3. Test end-to-end: sign up → login → payment
-#
-Total weekend time: ~6 hours. Total monthly cost: €5.19.
-#
-## When to Upgrade Beyond This Stack
-#
-This stack has real limits. Here is when to upgrade each component:
-#
-| Hitting This Limit | Upgrade To | Monthly Cost |
-|---|---|---|
-| Supabase 500MB DB full | Supabase Pro | +$25 |
-| VPS CPU at 80% | Hetzner CPX32 | +€4.30 |
-| 3,000 emails/month | Resend Starter | +$20 |
-| Need US-west latency | Add Cloudflare Worker | Free-$5 |
-#
-The key insight: **you only pay for each upgrade when you actually need it**. Most projects never hit the Supabase DB limit. Most never need US-west latency. You scale costs with users, not before them.
-#
-## Troubleshooting Common Setup Issues
-#
-### Coolify SSL certificate fails
-#
-Make sure your domain DNS is pointing to the VPS IP and not behind Cloudflare proxy (orange cloud) when first getting the SSL cert. Switch Cloudflare to DNS-only (grey cloud), get the cert, then re-enable proxy.
-#
-### Supabase connection pooling errors
-#
-By default Next.js serverless functions create a new DB connection per request. Use `@supabase/ssr` with connection pooling enabled in Supabase dashboard under Settings → Database → Connection Pooling.
-#
-### n8n workflows not triggering
-#
-n8n webhooks require a publicly accessible URL. Make sure Coolify has set up the reverse proxy for n8n correctly — the URL `https://n8n.yourdomain.com/webhook/...` must be reachable from the internet.
-#
+If you want the provider tradeoffs first, compare [Hetzner vs Vultr vs Linode in 2026](/blog/hetzner-vs-vultr-vs-linode-2026). If you already know you want Hetzner, keep going.
+
+## 2. Coolify for Deployment
+
+Coolify is what makes the low-cost stack practical for most developers. Without it, you can still run the stack, but you spend more time doing manual deploy work than you should.
+
+It gives you:
+
+- Git-based deploys
+- SSL handling
+- multiple apps on one server
+- easier environment-variable management
+
+That is why it fits an MVP stack so well. You get most of the convenience of a managed platform while keeping the economics of your own VPS.
+
+If you want the full deployment path, [Coolify guide 2026](/blog/coolify-complete-guide-2026) is the detailed walkthrough. If you are choosing between platforms, [Coolify vs CapRover vs Dokku](/blog/coolify-vs-caprover-2026) is the more direct decision article.
+
+## 3. Next.js for the App Layer
+
+For a SaaS MVP, Next.js is still the easiest way to keep the frontend and a lot of the backend logic in one repo. You can ship the marketing site, dashboard, authenticated routes, API handlers, and content pages without splitting the project too early.
+
+The real benefit is operational simplicity. One codebase means:
+
+- one deployment target
+- one repository
+- one environment-variable surface
+- one mental model
+
+If your MVP also needs content or documentation, the same setup can grow into the MDX pattern covered in [Build a Next.js MDX blog 2026](/blog/nextjs-mdx-blog-2026).
+
+## 4. Supabase Free Tier for Auth and Database
+
+Supabase is one of the few free tiers I would tell developers to use confidently for an MVP. You get real Postgres, usable authentication, and enough headroom to validate a product without immediately paying for the privilege of testing your own idea.
+
+The key reason it works is that you are not painting yourself into a weird corner. A Postgres-based backend is a sensible place to start and a sensible place to stay for a long time.
+
+For most MVPs, this is the right split:
+
+- app and deployment on your VPS
+- auth and database on Supabase free tier
+
+That keeps the infrastructure simple while avoiding the extra operational burden of self-hosting your first database too early.
+
+## 5. n8n Instead of Paid Automation
+
+The second place MVP costs quietly get out of control is automation. One workflow for onboarding. One workflow for notifications. One workflow for internal admin tasks. Suddenly there is another monthly bill just because the hosted automation tool is convenient.
+
+That is why I like keeping n8n in this stack. If you already have the VPS, it is one of the easiest cost-cutting wins.
+
+Use it for:
+
+- welcome emails
+- form routing
+- simple enrichment tasks
+- webhook orchestration
+- internal admin automations
+
+If that is the part you want to go deeper on, read [n8n complete guide 2026](/blog/n8n-complete-guide-2026).
+
+## 6. Cloudflare and Email as the Lightweight Extras
+
+Cloudflare is still the obvious choice for DNS, proxying, and basic performance improvements. It is one of the rare "free" services that is still genuinely worth using at the smallest scale.
+
+For email, I would not overcomplicate it. Use a simple transactional provider and keep it focused on:
+
+- sign-up verification
+- password reset
+- billing or product notifications
+
+The main mistake here is treating the email stack like a future enterprise problem. Your MVP needs dependable delivery, not a seven-provider architecture diagram.
+
+## What This Stack Is Good At
+
+This stack is strong if your MVP is:
+
+- a B2B dashboard
+- a developer tool
+- a content plus product hybrid
+- a small internal SaaS
+- a side project you want to launch fast
+
+It is less ideal if you need:
+
+- heavy real-time infrastructure from day 1
+- strict enterprise compliance
+- region-specific data residency requirements immediately
+- a team of non-technical operators managing infrastructure
+
+That is fine. The point is not to pretend one stack fits everything. The point is to choose the right first stack.
+
+## Setup Order That Actually Makes Sense
+
+If I were building a SaaS MVP this weekend, I would do it in this order:
+
+1. Provision the VPS
+2. Install Coolify
+3. Deploy the Next.js app
+4. Connect Supabase
+5. Add email
+6. Add n8n only when the first manual workflow starts getting annoying
+
+That order matters because it keeps you shipping product first. Too many founders build the "perfect stack" before they even have a working dashboard or a real user flow.
+
+## When to Upgrade Beyond the Cheap MVP Stack
+
+You should upgrade pieces of this stack only when there is a clear reason.
+
+Upgrade the VPS when:
+
+- CPU stays high
+- builds become unstable
+- memory pressure becomes normal instead of occasional
+
+Upgrade the database tier when:
+
+- you hit the free-tier limits
+- you need better performance or operational guarantees
+
+Upgrade automation when:
+
+- the workflows become revenue-critical
+- you need better queueing, separation, or observability
+
+Do not upgrade because the idea of "managed" feels safer. Upgrade when the current setup is actually costing you time or reliability.
+
+## Summary
+
+The cheapest useful SaaS MVP stack in 2026 is not a pile of free tiers. It is one good low-cost VPS plus a few carefully chosen free services where they genuinely reduce complexity.
+
+The practical stack is:
+
+- Hetzner for compute
+- Coolify for deployment
+- Next.js for the app
+- Supabase for auth and database
+- n8n for automation
+- Cloudflare for DNS and CDN
+
+That is enough to ship a real product without funding your infrastructure before you validate demand.
+
 ## FAQ
-#
-### Is this stack good enough for paying customers?
-#
-Yes. This exact stack runs blixamo.com and 2 other projects with real users. For a SaaS with under 5,000 daily active users, you will not hit any meaningful limits. When you do, you have revenue to justify upgrading.
-#
-### What if the VPS goes down?
-#
-Set up the self-healing monitor from the [Node.js VPS monitor guide](/blog/self-healing-vps-monitor-nodejs) — it auto-restarts any crashed service and sends a Telegram alert. In 6 months I have had zero unplanned downtime.
-#
-### Can I use this stack outside India?
-#
-Yes, completely. The stack is global — Hetzner, Supabase, Cloudflare, Resend, n8n, Next.js all work from any country. The Rs 465 number is just €5.19 converted to Indian rupees. In USD it is $5.50/month.
-#
-### Should I use this for a startup raising VC?
-#
-No. If you are raising VC money and need enterprise compliance, autoscaling, and managed services, use AWS or GCP. This stack is for indie developers validating ideas without burning runway.
-#
-### Is Supabase safe for production?
-#
-Yes. Supabase is backed by major investors, runs on AWS infrastructure, and is used by thousands of production apps. The free tier is a real hosted Postgres — not a toy. The only gotcha is the 7-day inactivity pause on free tier.
-#
+
+### What is the cheapest way to build a SaaS MVP in 2026?
+
+The cheapest practical way is usually one small VPS plus a few strong free tiers, not a dozen hosted platforms. A stack built around Hetzner, Coolify, Next.js, Supabase, and Cloudflare is often enough for an MVP at very low monthly cost.
+
+### Can I build a SaaS MVP without AWS?
+
+Yes. Most early SaaS products do not need AWS complexity or pricing. A small VPS, modern app framework, managed auth and database, and a simple deployment layer are enough for many MVPs.
+
+### Is Coolify good for a SaaS MVP?
+
+Yes, if you want to self-host and keep costs down without doing every deployment step manually. It is one of the easiest ways to make a cheap VPS-based stack feel manageable.
+
+### Should I self-host the database for an MVP?
+
+Usually no. For most MVPs, a managed free-tier Postgres option like Supabase is the better default. It removes a lot of operational work while keeping your overall costs low.
+
+### Is Next.js a good choice for a SaaS MVP?
+
+Yes. It lets you keep the marketing site, product UI, and a lot of backend logic in one repo, which is exactly what many MVPs need. The simplicity of one codebase matters more than theoretical architectural purity early on.
+
+### When should I move off the cheap MVP stack?
+
+Move when there is a real operational reason: sustained resource pressure, meaningful user growth, compliance needs, or workflows that the small stack can no longer handle reliably. Not before.
+
 ## What Next?
-#
-The fastest way to get started is spinning up the Hetzner VPS and getting Coolify running. The [Coolify + Hetzner guide](/blog/deploy-nextjs-coolify-hetzner) gets you to a live deployment in 25 minutes. Everything else builds on top of that foundation.
-#
-If you want to see the full infrastructure for running multiple projects on the same VPS without conflicts, the [multiple projects on one Hetzner VPS guide](/blog/multiple-projects-single-vps) covers the Nginx config, PM2 setup, and memory management.
+
+The next practical step is deployment. Start with [Coolify guide 2026](/blog/coolify-complete-guide-2026), then wire the product stack together with [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner). If automation is part of the MVP, follow that with [n8n complete guide 2026](/blog/n8n-complete-guide-2026).
+
+That gets you from idea to working SaaS infrastructure without pretending you need a startup SRE team first.
