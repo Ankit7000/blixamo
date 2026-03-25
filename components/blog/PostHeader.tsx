@@ -1,55 +1,100 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { ShareButtons } from './ShareButtons'
 import { AuthorBio } from './AuthorBio'
 import { AffiliateDisclosure } from '@/components/monetization/AffiliateDisclosure'
 import type { Post } from '@/lib/posts'
+import { getCategoryMeta } from '@/lib/categories'
+
+const DEFAULT_IMAGE = '/images/default-og.jpg'
+
+function hasRealImage(path: string) {
+  return path && path !== DEFAULT_IMAGE && !path.includes('undefined')
+}
 
 export function PostHeader({ post }: { post: Post }) {
+  const categoryMeta = getCategoryMeta(post.category)
+  const showFeaturedImage = hasRealImage(post.featuredImage)
+
   return (
-    <div className="page-container" style={{ maxWidth: '720px', margin: '2rem auto', padding: '0 1rem' }}>
-      {/* Breadcrumb */}
-      <nav aria-label="Breadcrumb" style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.3rem', flexWrap: 'wrap' }}>
-        <Link href="/" style={{ color: 'var(--text-muted)' }}>Home</Link>
-        <span>›</span>
-        <Link href={`/category/${post.category}`} style={{ color: 'var(--text-muted)', textTransform: 'capitalize' }}>{post.category}</Link>
-        <span>›</span>
-        <span style={{ color: 'var(--text-secondary)' }}>{post.title.length > 45 ? post.title.slice(0, 45) + '…' : post.title}</span>
-      </nav>
+    <header className="article-header-wrap">
+      <div className="article-header-card">
+        <nav className="article-breadcrumb" aria-label="Breadcrumb">
+          <Link href="/">Home</Link>
+          <span>/</span>
+          <Link href={`/category/${post.category}`}>{categoryMeta.label}</Link>
+          <span>/</span>
+          <span className="article-breadcrumb-current">{post.title}</span>
+        </nav>
 
-      {/* Category badge */}
-      <Link href={`/category/${post.category}`} className="category-badge" style={{ marginBottom: '1rem', display: 'inline-block' }}>
-        {post.category}
-      </Link>
+        <div className="article-header-grid">
+          <div className="article-header-copy">
+            <Link href={`/category/${post.category}`} className="article-category-chip" style={{ color: categoryMeta.color }}>
+              <span>{categoryMeta.icon}</span>
+              {categoryMeta.label}
+            </Link>
 
-      {/* Title */}
-      <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.625rem)', fontWeight: 800, lineHeight: 1.2, color: 'var(--text-primary)', marginBottom: '1rem' }}>
-        {post.title}
-      </h1>
+            <h1 className="post-header-title article-header-title">{post.title}</h1>
+            <p className="article-header-description">{post.description}</p>
 
-      {/* Description */}
-      <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: '1.5rem' }}>
-        {post.description}
-      </p>
+            <div className="article-meta-row">
+              <div className="article-meta-chip article-meta-chip-author">
+                <AuthorBio name={post.author} compact />
+              </div>
+              <div className="article-meta-chip">
+                <span className="article-meta-label">Published</span>
+                <time dateTime={post.date}>
+                  {new Date(post.date).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </time>
+              </div>
+              {post.updatedAt && (
+                <div className="article-meta-chip">
+                  <span className="article-meta-label">Updated</span>
+                  <span>
+                    {new Date(post.updatedAt).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })}
+                  </span>
+                </div>
+              )}
+              <div className="article-meta-chip">
+                <span className="article-meta-label">Read time</span>
+                <span>{post.readingTime}</span>
+              </div>
+            </div>
 
-      {/* Meta row */}
-      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap', fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
-        <AuthorBio name={post.author} compact />
-        <span>·</span>
-        <time dateTime={post.date} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-          📅 {new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-        </time>
-        {post.updatedAt && (
-          <><span>·</span><span>Updated {new Date(post.updatedAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span></>
-        )}
-        <span>·</span>
-        <span>⏱ {post.readingTime}</span>
+            <ShareButtons title={post.title} slug={post.slug} />
+            {post.tags.includes('affiliate') && <AffiliateDisclosure />}
+          </div>
+
+          <div className="article-header-media-shell">
+            {showFeaturedImage ? (
+              <div className="article-header-media-frame">
+                <Image
+                  src={post.featuredImage}
+                  alt={post.title}
+                  width={1200}
+                  height={675}
+                  className="article-header-media-image"
+                  priority
+                />
+              </div>
+            ) : (
+              <div className="article-header-fallback" style={{ background: categoryMeta.gradient }}>
+                <div className="article-header-fallback-symbol">{categoryMeta.symbol}</div>
+                <div className="article-header-fallback-icon">{categoryMeta.icon}</div>
+                <p>{categoryMeta.description}</p>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
-
-      {/* Share buttons */}
-      <ShareButtons title={post.title} slug={post.slug} />
-
-      {/* Affiliate disclosure if needed */}
-      {post.tags.includes('affiliate') && <AffiliateDisclosure />}
-    </div>
+    </header>
   )
 }

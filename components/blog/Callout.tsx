@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 
 const STYLES: Record<string, { bg: string; border: string; icon: string }> = {
   info: { bg: 'var(--surface)', border: '#3b82f6', icon: 'i' },
@@ -21,31 +21,21 @@ export function Callout({
 
   return (
     <div
-      style={{
-        background: style.bg,
-        borderLeft: `4px solid ${style.border}`,
-        borderRadius: '0.5rem',
-        padding: '1rem 1.25rem',
-        margin: '1.5rem 0',
-        fontSize: '0.92rem',
-        lineHeight: 1.6,
-      }}
+      className={`article-callout article-callout-${type}`}
+      style={
+        {
+          ['--callout-bg' as string]: style.bg,
+          ['--callout-border' as string]: style.border,
+        } as CSSProperties
+      }
     >
       {title && (
-        <div
-          style={{
-            fontWeight: 700,
-            marginBottom: '0.35rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-          }}
-        >
-          <span>{style.icon}</span>
+        <div className="article-callout-title">
+          <span className="article-callout-icon">{style.icon}</span>
           {title}
         </div>
       )}
-      <div style={{ color: 'var(--text-secondary)' }}>{children}</div>
+      <div className="article-callout-body">{children}</div>
     </div>
   )
 }
