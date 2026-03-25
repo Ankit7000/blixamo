@@ -18,7 +18,9 @@ export default function HomePage() {
   const allPosts = getAllPosts()
   const featuredPosts = getFeaturedPosts(1)
   const featuredGuide = featuredPosts[0] || allPosts[0]
-  const recentPosts = allPosts.filter((post) => post.slug !== featuredGuide?.slug).slice(0, 6)
+  const recentPosts = allPosts.filter((post) => post.slug !== featuredGuide?.slug)
+  const featuredReads = recentPosts.slice(0, 3)
+  const latestPosts = recentPosts.slice(3, 9)
   const popularPosts = allPosts.slice(0, 5)
   const categories = Object.keys(CATEGORY_META)
     .filter((slug) => allPosts.some((post) => post.category === slug))
@@ -29,6 +31,40 @@ export default function HomePage() {
     }))
 
   const featuredCategory = featuredGuide ? getCategoryMeta(featuredGuide.category) : null
+  const heroSignals = [
+    'Developer Guides',
+    'Hosting Tutorials',
+    'Tool Comparisons',
+    'Self-Hosting Workflows',
+  ]
+  const platformLanes = [
+    {
+      title: 'Deploy on real infrastructure',
+      description: 'Practical VPS, PM2, Docker, Nginx, and deployment playbooks tested outside toy setups.',
+    },
+    {
+      title: 'Choose tools with clarity',
+      description: 'Head-to-head breakdowns for platforms, developer tools, and stacks that actually matter in production.',
+    },
+    {
+      title: 'Automate repetitive work',
+      description: 'AI workflows, n8n automations, and self-hosted systems that save time without adding fluff.',
+    },
+  ]
+  const trustBlocks = [
+    {
+      title: 'What Blixamo covers',
+      description: 'Self-hosting, VPS operations, developer tools, automation, AI APIs, and modern web development.',
+    },
+    {
+      title: 'How the content is built',
+      description: 'Articles are shaped by real implementations, deploys, comparisons, and failure notes rather than generic summaries.',
+    },
+    {
+      title: 'Who it is for',
+      description: 'Developers, indie builders, and small teams who need practical guidance for shipping and operating projects.',
+    },
+  ]
 
   return (
     <>
@@ -39,13 +75,21 @@ export default function HomePage() {
           <div className="home-hero-copy">
             <div className="home-hero-kicker">Independent Developer Publication</div>
             <h1 className="home-hero-title">
-              Practical guides for self-hosting, AI workflows, deployment, and modern web apps.
+              Blixamo helps developers ship, self-host, automate, and choose the right stack with confidence.
             </h1>
             <p className="home-hero-description">
-              Blixamo helps developers ship faster with tested tutorials, real VPS and infrastructure
-              notes, honest tool comparisons, and automation workflows that hold up outside generic
-              tutorials.
+              Practical guides for developers who want sharper deployment workflows, better tool choices,
+              credible self-hosting tutorials, and modern web infrastructure advice that holds up in
+              production.
             </p>
+
+            <div className="home-hero-signal-row">
+              {heroSignals.map((signal) => (
+                <span key={signal} className="home-hero-signal">
+                  {signal}
+                </span>
+              ))}
+            </div>
 
             <div className="home-hero-actions">
               <Link href="/blog" className="home-hero-button home-hero-button-primary">
@@ -56,19 +100,13 @@ export default function HomePage() {
               </Link>
             </div>
 
-            <div className="home-hero-trust-grid">
-              <div className="home-hero-trust-card">
-                <strong>{allPosts.length}+</strong>
-                <span>production-focused articles</span>
-              </div>
-              <div className="home-hero-trust-card">
-                <strong>{categories.length}</strong>
-                <span>focused categories</span>
-              </div>
-              <div className="home-hero-trust-card">
-                <strong>VPS to AI</strong>
-                <span>one place for shipping and operating</span>
-              </div>
+            <div className="home-platform-grid">
+              {platformLanes.map((lane) => (
+                <div key={lane.title} className="home-platform-card">
+                  <strong>{lane.title}</strong>
+                  <span>{lane.description}</span>
+                </div>
+              ))}
             </div>
 
             {featuredGuide && featuredCategory && (
@@ -107,6 +145,20 @@ export default function HomePage() {
                 unoptimized
               />
             </div>
+            <div className="home-hero-stat-strip">
+              <div className="home-hero-stat-card">
+                <strong>{allPosts.length}+</strong>
+                <span>production-focused guides</span>
+              </div>
+              <div className="home-hero-stat-card">
+                <strong>{categories.length}</strong>
+                <span>canonical topic lanes</span>
+              </div>
+              <div className="home-hero-stat-card">
+                <strong>VPS to AI</strong>
+                <span>one platform for shipping and operating</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -114,10 +166,10 @@ export default function HomePage() {
       <section id="homepage-categories" className="home-section-shell">
         <div className="home-section-head">
           <div className="home-section-kicker">Browse Blixamo</div>
-          <h2 className="home-section-title">Explore by category</h2>
+          <h2 className="home-section-title">Explore the core category lanes</h2>
           <p className="home-section-description">
-            Find focused guides on infrastructure, web development, automation, AI, and the tools that
-            matter when you are building and running real projects.
+            Every category maps to a clear technical area so visitors can go straight to deployment,
+            self-hosting, automation, AI, or tool decisions without wading through generic blog noise.
           </p>
         </div>
 
@@ -125,6 +177,9 @@ export default function HomePage() {
           {categories.map(({ slug, meta, count }) => (
             <Link key={slug} href={`/category/${slug}`} className="home-category-card">
               <div className="home-category-card-top">
+                <div className="home-category-symbol" style={{ color: meta.color, borderColor: `${meta.color}40` }}>
+                  {meta.symbol}
+                </div>
                 <div
                   className="home-category-icon"
                   style={{
@@ -135,20 +190,13 @@ export default function HomePage() {
                 >
                   {meta.icon}
                 </div>
-                <div
-                  className="home-category-count"
-                  style={{
-                    color: meta.color,
-                    background: `${meta.color}10`,
-                    border: `1px solid ${meta.color}24`,
-                  }}
-                >
-                  {count} posts
-                </div>
               </div>
 
+              <div className="home-category-count" style={{ color: meta.color, background: `${meta.color}10` }}>
+                {count} posts
+              </div>
               <h3 className="home-category-title">{meta.label}</h3>
-              <p className="home-category-description">{meta.description}</p>
+              <p className="home-category-description">{meta.longDesc}</p>
 
               <div className="home-category-footer">
                 <span className="home-category-line" style={{ background: meta.gradient }} />
@@ -158,6 +206,71 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+
+      {featuredGuide && featuredCategory && (
+        <section className="home-section-shell">
+          <div className="home-section-head">
+            <div className="home-section-kicker">Featured Content</div>
+            <h2 className="home-section-title">Start with the strongest reads</h2>
+            <p className="home-section-description">
+              A curated set of practical guides and comparisons to help new visitors understand what
+              Blixamo does best before they dive into the full archive.
+            </p>
+          </div>
+
+          <div className="home-featured-layout">
+            <Link href={`/blog/${featuredGuide.slug}`} className="home-featured-lead">
+              <div className="home-featured-media">
+                {featuredGuide.featuredImage ? (
+                  <Image
+                    src={featuredGuide.featuredImage}
+                    alt={featuredGuide.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 60vw"
+                    style={{ objectFit: 'cover' }}
+                  />
+                ) : (
+                  <div className="home-featured-fallback" style={{ background: featuredCategory.gradient }}>
+                    <span>{featuredCategory.icon}</span>
+                  </div>
+                )}
+              </div>
+              <div className="home-featured-content">
+                <div className="home-featured-badge" style={{ color: featuredCategory.color }}>
+                  {featuredCategory.icon} {featuredCategory.label}
+                </div>
+                <h3 className="home-featured-title">{featuredGuide.title}</h3>
+                <p className="home-featured-copy">{featuredGuide.description}</p>
+                <div className="home-featured-meta">
+                  <span>{featuredGuide.readingTime}</span>
+                  <span>Featured guide</span>
+                </div>
+              </div>
+            </Link>
+
+            <div className="home-featured-stack">
+              {featuredReads.map((post) => {
+                const meta = getCategoryMeta(post.category)
+                return (
+                  <Link key={post.slug} href={`/blog/${post.slug}`} className="home-featured-mini">
+                    <div className="home-featured-mini-top">
+                      <span className="home-featured-mini-symbol" style={{ color: meta.color }}>
+                        {meta.symbol}
+                      </span>
+                      <span className="home-featured-mini-category" style={{ color: meta.color }}>
+                        {meta.label}
+                      </span>
+                    </div>
+                    <h3 className="home-featured-mini-title">{post.title}</h3>
+                    <p className="home-featured-mini-copy">{post.description}</p>
+                    <div className="home-featured-mini-meta">{post.readingTime}</div>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       <div
         className="homepage-grid"
@@ -185,7 +298,7 @@ export default function HomePage() {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.25rem' }}>
-            {recentPosts.map((post) => (
+            {latestPosts.map((post) => (
               <PostCard key={post.slug} post={post} />
             ))}
           </div>
@@ -261,6 +374,30 @@ export default function HomePage() {
           </div>
         </aside>
       </div>
+
+      <section className="home-proof-shell">
+        <div className="home-proof-panel">
+          <div className="home-proof-copy">
+            <div className="home-section-kicker">Why Blixamo</div>
+            <h2 className="home-section-title">Built for developers who care about real implementation details</h2>
+            <p className="home-section-description">
+              Blixamo is designed to feel more like a practical operating manual than a generic content
+              site. The goal is clarity, trustworthy technical guidance, and faster decision-making.
+            </p>
+            <Link href="/about" className="home-section-link">
+              Learn more about Blixamo
+            </Link>
+          </div>
+          <div className="home-proof-grid">
+            {trustBlocks.map((block) => (
+              <div key={block.title} className="home-proof-card">
+                <h3>{block.title}</h3>
+                <p>{block.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
     </>
   )
 }
