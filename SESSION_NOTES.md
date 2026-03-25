@@ -139,3 +139,4 @@ Write in this order (3 days apart per Rule 28):
 3. Run: node tools/blixamo-next-article.js (confirm next article)
 4. Say: "write self-healing-vps-monitoring-nodejs" to start article #1
 5. The partial MDX was deleted — start fresh from scratch
+# Auto-deploy test Wed Mar 25 06:32:28 AM UTC 2026
