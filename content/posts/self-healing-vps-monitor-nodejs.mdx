@@ -1,12 +1,12 @@
 ---
 title: "Self-Healing VPS Monitor 2026 — 90 Days Zero Downtime"
 slug: "self-healing-vps-monitor-nodejs"
-description: "Node.js script that auto-restarts PM2, Nginx, Redis on failure. 90 days zero downtime on Hetzner. Telegram alerts included. Free to run. Full source code."
+description: "Build a self-healing VPS monitor in Node.js that watches PM2, Nginx, Redis, and other services, then applies safe recovery actions with alerts."
 date: "2026-03-19"
-updatedAt: "2026-03-20"
+updatedAt: "2026-03-25"
 author: "Ankit Sorathiya"
 category: "self-hosting"
-tags: [vps,hetzner,nodejs]
+tags: [vps, hetzner, nodejs]
 keyword: "self healing vps monitor nodejs"
 secondaryKeywords: ["vps auto recovery nodejs", "pm2 auto restart monitor", "hetzner vps monitoring 2026", "self healing server automation", "vps autopilot hetzner"]
 featured: false
@@ -16,534 +16,259 @@ difficulty: "advanced"
 timeToComplete: "45 minutes"
 series: "self-hosting"
 seriesPart: 4
-excerpt: "Built a self-healing VPS monitor with Bayesian confidence scoring — it fixed a PM2 crash at 3am without."
+excerpt: "I built a Node.js self-healing supervisor for a VPS stack so common failures can be fixed automatically without causing retry storms."
 toc: true
 ---
-blixamo.com was down for 11 minutes last month — as of March 2026, this self-healing supervisor has been running for 3 weeks with zero missed incidents.
 
-> **Disclosure:** Some links in this article are affiliate links — I earn a small commission at no extra cost to you.
+I got tired of the same kind of VPS outage: one service dies, the fix is obvious, and I still only notice after the site has been down for longer than it should have been. That is fine once. It is not fine when the server is running multiple projects and a simple PM2 or Nginx failure becomes a silent outage.
 
-
-
- PM2 crashed. Nobody restarted it. I fixed it manually in 30 seconds — but the damage was done: 11 minutes of downtime and the certainty it would happen again.
-
-So I built something that would have fixed it automatically — a Bayesian supervisor that watches every service on my Hetzner CPX22, calculates the probability that each fix will work, applies the right heal action, and stops itself from looping if a fix keeps failing. It's been running for 3 weeks as of March 2026. Zero missed incidents.
+So I built a self-healing VPS monitor in Node.js. It checks a small set of high-value signals, keeps a record of which fixes actually work, stops itself from thrashing when a fix keeps failing, and sends an alert when it reaches the point where a human should take over.
 
 <Callout type="info" title="TL;DR">
-- **Runs every 30 minutes via cron** — no persistent daemon needed
-- **Bayesian confidence:** P(fix_works) = (successes + 1) / (attempts + 2) — Laplace smoothed
-- **Monitors:** PM2, Nginx, [self-hosting n8n on Hetzner](/blog/self-hosting-n8n-hetzner-vps) [Docker Compose in production](/blog/docker-compose-production-vps-2026), Redis, blixamo-watcher, CDN cache headers, Next.js build
-- **Self-heals up to 5 times per 24h** — never burns budget on low-confidence fixes
-- **Key insight:** without Bayesian gating, naive retry loops cause thrash cascades
+This setup works best if you already run multiple services on one VPS. The key idea is not "restart everything automatically." It is "only run recovery actions that have a history of working, and stop before your monitor becomes the problem."
 </Callout>
 
----
-
-
-![Self-healing VPS monitor — Bayesian supervisor pipeline: health check → score → PM2 restart → Telegram alert](/images/posts/self-healing-vps-monitor-nodejs/01-bayesian-pipeline.png)
-*Full pipeline: health signals → Bayesian supervisor scores P(failure) → auto-restarts PM2 and sends Telegram alert when score exceeds 0.7*
-*Bayesian supervisor log: confidence table showing restartPm2 at 0.80 after 4 attempts, 3 successful.*
+![Self-healing VPS monitor — Bayesian supervisor pipeline: health check to score to action to alert](/images/posts/self-healing-vps-monitor-nodejs/01-bayesian-pipeline.png)
+*A self-healing monitor is useful only if it can recover common failures without creating a restart loop.*
 
 <Callout type="info" title="Before you start">
-- **Hetzner VPS** running PM2, Nginx, Docker (n8n, Redis) — the [multi-project setup](/blog/multiple-projects-single-vps)
-- **Node.js 18+** installed
-- **n8n running** with a webhook for email alerts (or any alerting method)
-- **Time:** ~45 minutes to deploy the full Bayesian supervisor
-- **Tested on:** Ubuntu 24.04, Node.js 20, Hetzner CPX22, March 2026
+- Ubuntu VPS with Node.js installed
+- Services you can check and restart predictably
+- One alerting path such as email, Telegram, or n8n webhook
+- Comfort with cron, JSON state files, and shell commands
+- A real reason to automate recovery instead of manually restarting one toy app
 </Callout>
 
-## Why Naive Retry Loops Fail
+## What a Self-Healing VPS Monitor Should Actually Do
 
-The standard approach to self-healing: detect problem → run fix → restart service. Simple — until a service restarts, fails again within seconds, triggers the monitor, restarts again, and fails again. Forty restart attempts in an hour. The actual problem — corrupted build, full disk, misconfigured env var — never gets fixed. The restart loop makes it worse by burying the real error in log noise.
+A lot of monitoring guides jump from "health check" straight to "run restart command." That is too naive for a production VPS.
 
-Bayesian reasoning fixes this with one insight: every fix attempt is evidence.
+A useful self-healing monitor should do four things:
 
-If you've tried restarting PM2 six times and it worked twice, P(restart fixes this) ≈ 0.44. If you've tried it six times and it worked zero times, P ≈ 0.13. In the second case, "keep restarting" is the wrong move — escalate and let a human investigate.
+1. detect common failures quickly
+2. choose a safe response
+3. stop retrying when a fix clearly is not working
+4. alert you with enough context to investigate
 
-The formula I use is Laplace smoothing: `P = (successes + 1) / (attempts + 2)`. The +1 and +2 avoid zero probabilities and give new fix types a fair starting prior of 0.5. After one successful fix, P jumps to 0.67. After three failures with no successes, P collapses to 0.20 — below my escalation threshold of 0.25.
+That last point matters most. If the script silently restarts PM2 forever while the real issue is a broken build or full disk, you do not have a healing system. You have an outage multiplier.
 
-Now let's look at how the system is structured.
+If your server stack includes containers and app processes already, this pairs well with [Docker Compose on VPS production setup](/blog/docker-compose-production-vps-2026) and [self-hosting n8n on Hetzner VPS](/blog/self-hosting-n8n-hetzner-vps).
 
----
+## Why I Used Node.js for the Monitor
 
-## Architecture: Two-Layer Design
+Node.js was the simplest choice because the rest of my tooling already lived there. It is easy to run shell commands, parse JSON, write state files, and reuse the same environment as the rest of the app stack.
 
-Two separate scripts that never call each other recursively:
+I did not need a heavyweight monitoring platform. I needed a reliable script that could:
 
-```bash
-blixamo-checker.js    — runs every 1h and 8am daily
-      ↓ writes structured log lines
-blixamo-supervisor.js — runs every 30min, reads checker log
-      ↓ reads/writes
-/var/log/blixamo-supervisor-state.json
-      ↓ escalates via
-n8n webhook → Gmail alert
-```
-<Callout type="tip" title="Expected output">
-#
-All checks passed.
-#
-</Callout>
-The checker handles article quality, error scanning, and infra health. The supervisor is the meta-layer — it watches the checker's output, detects if the checker is hung, and applies heals at the infrastructure level.
-#
-<Callout type="danger" title="LAW 1: Supervisor Never Spawns Itself">
-If both scripts could spawn each other, a hung process could create a fork bomb. The supervisor reads log files only — it never runs the checker. This constraint is non-negotiable.
-</Callout>
-#
----
-#
-## Step 1 of 7 — The State File
-#
-Everything is persisted in a single JSON file at `/var/log/blixamo-supervisor-state.json`:
-#
-```bash
+- run from cron
+- check PM2, Nginx, Redis, and a few app-level signals
+- record history
+- send a structured alert
+
+That makes Node.js a perfectly good fit.
+
+## The Core Design: Evidence, State, and Guardrails
+
+The system is built around one loop:
+
+1. collect evidence
+2. decide which failure is most likely
+3. try one safe fix
+4. record whether it worked
+5. stop if the situation looks unstable
+
+The important part is the guardrails. The script should never keep hammering the same fix because "restart" feels harmless. That is how you turn a minor outage into log noise and service flapping.
+
+## Step 1 of 5 — Keep State in One JSON File
+
+The monitor needs memory between runs. The easiest way to do that is a single JSON state file that records attempts, successes, failures, and recent timestamps per fix type.
+
+```json
 {
   "fixes": {
     "restartPm2": {
       "attempts": 4,
       "successes": 3,
       "failures": 1,
-      "timestamps": [1710000000000, 1710003600000],
-      "lastAttempt": "2026-03-19T04:30:00.000Z"
+      "timestamps": [1710000000000, 1710003600000]
     }
   },
-  "healBudget": {
-    "used": 1,
-    "resetAt": "2026-03-19T00:00:00.000Z"
-  },
-  "supervisorHealth": {
-    "consecutiveCrashes": 0,
-    "lastRun": "2026-03-19T05:00:02.519Z"
+  "budget": {
+    "usedToday": 1,
+    "resetAt": "2026-03-25T00:00:00.000Z"
   }
 }
 ```
-Each fix type tracks `attempts`, `successes`, `failures`, and a rolling `timestamps` array for the last 24 hours. The `healBudget` resets every 24h — max 5 heals total per day across all fix types.
-#
----
-#
-## Step 2 of 7 — The Confidence Function
-#
-This is the core Bayesian piece — 3 lines of code:
-#
-```bash
-// Laplace-smoothed Bayesian confidence
-// P(fix_works) starts at 0.5, updates on every attempt
-function confidence(fixRecord) {
-  if (!fixRecord) return 0.5
-  const { attempts = 0, successes = 0 } = fixRecord
-  return (successes + 1) / (attempts + 2)
-}
-```
-What this gives you at various data points:
-#
-| Attempts | Successes | P(fix works) | Action |
-|---|---|---|---|
-| 0 | 0 | 0.50 | Try it (uniform prior) |
-| 1 | 1 | 0.67 | Try it |
-| 3 | 3 | 0.80 | High confidence |
-| 3 | 0 | 0.20 | Stop — escalate |
-| 6 | 1 | 0.25 | Borderline — escalate |
-| 10 | 8 | 0.75 | Reliable fix |
-#
-The threshold is `MIN_CONFIDENCE = 0.25`. Below that, the supervisor stops attempting the fix and sends an alert. This is LAW 3.
-#
----
-#
-## Step 3 of 7 — Anti-Loop Laws
-#
-Six laws are enforced in strict order before any heal action runs:
-#
-```bash
-// LAW 1 — Supervisor NEVER spawns itself or the checker
-// LAW 2 — Each type: max 3 attempts per 2h (thrash gate)
-// LAW 3 — Each fix type: P < 0.25 → stop, escalate
-// LAW 4 — Heal budget: max 5 per 24h across all types
-// LAW 5 — 3 consecutive same issues → escalate, stop
-// LAW 6 — 3 consecutive supervisor crashes → reboot VPS
-```
-Thrash detection (LAW 2) uses the rolling timestamps array:
-#
-```bash
-function isThrashing(state, fixType) {
-  const f = state.fixes[fixType]
-  if (!f) return false
-  const recentAttempts = (f.timestamps || [])
-    .filter(t => Date.now() - t < 2 * 3600000).length
-  return recentAttempts >= 3
-}
-```
-If the same fix has been attempted 3+ times in the last 2 hours, it's thrashing — stop and escalate regardless of confidence.
-#
----
-#
-## Step 4 of 7 — Evidence Collection
-#
-Each supervisor run collects a snapshot of 9 signals:
-#
-```bash
-function collectEvidence(state) {
-  let pm2Online = false
-  try {
-    const list = 
-      JSON.parse(run('pm2 jlist 2>/dev/null').out)
-    pm2Online = list
-      .find(p => p.name === 'blixamo')
-      ?.pm2_env?.status === 'online'
-  } catch {}
-//
-  const n8nHealth  = 
-    run('curl -s -o /dev/null'
-      + ' -w "%{http_code}"'
-      + ' http://localhost:5678/healthz'
-    )
-  const redisPing  = 
-    run('docker exec redis redis-cli ping 2>/dev/null')
-  const nginxAct   = run('systemctl is-active nginx')
-  const watcherAct = 
-    run('systemctl is-active blixamo-watcher')
-  const cacheHdr   = 
-    run(
-      'curl -sI https://blixamo.com/ 2>/dev/null'
-      + ' | grep -i "cdn-cache-control"'
-    )
-  const buildOk    = 
-    fs.existsSync(
-      `${BLIXAMO_DIR}/.next/required-server-files.json`
-    )
-  const checkerHung = fs.existsSync(LOCK_FILE) &&
-    Date.now() - fs.statSync(LOCK_FILE).mtimeMs > 25 * 60000
-//
+
+That state file gives you two things most simple monitoring scripts lack:
+
+- confidence from historical outcomes
+- a way to cap how many heal actions run in a day
+
+If you skip the state layer, every restart decision becomes stateless guesswork.
+
+## Step 2 of 5 — Collect Only High-Value Evidence
+
+Do not monitor everything at once. Start with the failures you actually see.
+
+For a typical small VPS stack, that usually means:
+
+- PM2 process not online
+- Nginx not active
+- Redis not responding
+- missing build artifact
+- app health endpoint returning a bad status
+
+That is enough to make the script useful without turning it into a fake observability platform.
+
+```js
+function collectEvidence() {
   return {
-    pm2Online,
-    n8nDown:       n8nHealth.out !== '200',
-    redisPong:     redisPing.out === 'PONG',
-    nginxDown:     nginxAct.out  !== 'active',
-    watcherActive: watcherAct.out === 'active',
-    buildMissing:  !buildOk,
-    cacheMissing:
-      !cacheHdr.out.toLowerCase().includes('no-store'),
-    checkerHung,
-  }
+    pm2Online: run("pm2 jlist").includes('"status":"online"'),
+    nginxActive: run("systemctl is-active nginx").trim() === "active",
+    redisOk: run("docker exec redis redis-cli ping").trim() === "PONG",
+    appOk: run("curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000").trim() === "200",
+  };
 }
 ```
-Each signal maps directly to a hypothesis and a heal action:
-#
-```bash
-function buildHypotheses(evidence) {
-  const hyps = []
-  if (!evidence.pm2Online)
-    hyps.push({ id: 'restartPm2', prior: 0.95 })
-  if (evidence.nginxDown)
-    hyps.push({ id: 'restartNginx', prior: 0.90 })
-  if (!evidence.redisPong)
-    hyps.push({ id: 'restartRedis', prior: 0.85 })
-  if (!evidence.watcherActive)
-    hyps.push({ id: 'restartWatcher', prior: 0.85 })
-  if (evidence.n8nDown)
-    hyps.push({ id: 'restartN8n', prior: 0.88 })
-  if (evidence.buildMissing)
-    hyps.push({ id: 'cleanBuild', prior: 0.80 })
-  if (evidence.cacheMissing)
-    hyps.push({ id: 'fixNginxCache', prior: 0.75 })
-  if (evidence.checkerHung)    hyps.push({
-      id: 'clearCheckerLock',
-      prior: 0.90
-    })
-  return hyps
+
+Keep the checks small and deterministic. The goal is not perfect diagnosis. It is enough signal to pick the safest next action.
+
+## Step 3 of 5 — Add Confidence Before Running Fixes
+
+This is the part that makes the monitor more useful than a plain restart script.
+
+Each fix type keeps a record of attempts and successes. A simple confidence score lets you prefer fixes that usually work and stop retrying ones that do not.
+
+```js
+function confidence(record) {
+  if (!record) return 0.5;
+  const attempts = record.attempts || 0;
+  const successes = record.successes || 0;
+  return (successes + 1) / (attempts + 2);
 }
 ```
----
-#
-## Step 5 of 7 — The Heal Actions
-#
-Eight heal functions. Each returns `true` on success and `false` on failure:
-#
-```bash
+
+This does not need to be academically perfect. It just needs to answer one practical question: does history suggest this action is worth trying again?
+
+If `restartPm2` has succeeded 8 out of the last 10 times, it is a strong candidate. If `cleanBuild` has failed 4 times in a row, the script should stop trying it and alert you instead.
+
+## Step 4 of 5 — Define Heal Actions With Hard Limits
+
+A self-healing monitor becomes dangerous when it is allowed to run fixes indefinitely. So every action should pass a few gates first:
+
+- confidence above a minimum threshold
+- not too many recent attempts
+- enough daily heal budget left
+- no repeat loop on the same failure
+
+Then the actual heal functions can stay simple.
+
+```js
 const HEALS = {
-  restartPm2: {
-    label: 'Restart PM2 blixamo',
-    run: () => run('pm2 restart blixamo').ok,
+  restartPm2: () => run("pm2 restart blixamo").ok,
+  restartNginx: () => {
+    const test = run("nginx -t");
+    if (!test.ok) return false;
+    return run("systemctl restart nginx").ok;
   },
-//
-  restartNginx: {
-    label: 'Restart nginx',
-    run: () => {
-      const test = run('nginx -t 2>&1')
-      if (!test.out.includes('ok')) return false
-      return run('systemctl restart nginx').ok
-    }
-  },
-//
-  restartRedis: {
-    label: 'Restart Redis docker container',
-    run: () => {
-      run('docker restart redis')
-      const r = 
-        run(
-          'sleep 5 && docker exec redis'
-          + ' redis-cli ping 2>/dev/null'
-        )
-      return r.out === 'PONG'
-    }
-  },
-//
-  cleanBuild: {
-    label: 'Clean Next.js build',
-    run: () => {
-      run(`rm -rf ${BLIXAMO_DIR}/.next`)
-      const b = 
-        run(
-          `cd ${BLIXAMO_DIR}`
-          + ` && npm run build 2>&1 | tail -3`,
-          120000
-        )
-      if (!b.ok || b.out.includes('error')) return false
-      return run('pm2 restart blixamo').ok
-    }
-  },
-//
-  fixNginxCache: {
-    label: 'Fix Cloudflare CDN-Cache-Control header',
-    run: () => {
-      const conf = 
-        fs.readFileSync(
-          '/etc/nginx/sites-enabled/blixamo', 'utf8'
-        )
-      const needle = 'CDN-Cache-Control "no-store"'
-      const hasHeader = conf.includes(needle)
-      if (hasHeader) return true  // idempotent
-      const fixed = conf.replace(
-        /location \/ \{/,
-        'location / {\n'
-        + '  add_header CDN-Cache-Control "no-store";'
-      )
-      fs.writeFileSync(
-        '/etc/nginx/sites-enabled/blixamo',
-        fixed
-      )
-      return run('nginx -t 2>&1').out.includes('ok') &&
-             run('systemctl reload nginx').ok
-    }
-  },
-//
-  clearCheckerLock: {
-    label: 'Clear hung checker lock file',
-    run: () => {
-      run(`rm -f ${LOCK_FILE}`)
-      run('pkill -f "blixamo-checker.js" 2>/dev/null 
-        || true')
-      return true
-    }
-  },
-}
+  restartRedis: () => run("docker restart redis").ok,
+};
 ```
-<Callout type="tip" title="Why cleanBuild Has a 120-Second Timeout">
-Next.js builds on a CPX22 take 60–90 seconds. The default run() timeout of 20 seconds would kill it mid-build, leaving a corrupted .next directory — which would then trigger the buildMissing hypothesis on the next supervisor run. Set the timeout explicitly for any long-running heal action.
-</Callout>
-#
----
-#
-## Step 6 of 7 — The Main Loop
-#
-The heal loop processes hypotheses in order, checking all 4 gates before attempting any fix:
-#
+
+This is also where [VPS security hardening on Ubuntu](/blog/vps-security-harden-ubuntu-2026) matters. If your fix path depends on unsafe shell access or brittle service definitions, the recovery script inherits that fragility.
+
+## Step 5 of 5 — Run It From Cron and Alert on Escalation
+
+I prefer running this kind of script from cron rather than as a permanent daemon. Cron is boring, predictable, and easier to recover from if the script itself fails.
+
 ```bash
-for (const hyp of hyps) {
-  const fixRecord = state.fixes[hyp.id]
-  const conf    = confidence(fixRecord)
-  const thrash  = isThrashing(state, hyp.id)
-  const budget  = budgetAvailable(state)
-//
-  if (conf < MIN_CONFIDENCE) {
-    sendAlert(state, `Low confidence: ${hyp.label}`, ...)
-    continue
-  }
-//
-  if (thrash) {
-    sendAlert(state, `Thrash loop: ${hyp.label}`, ...)
-    continue
-  }
-//
-  if (!budget) {
-    sendAlert(state, 'Self-heal budget exhausted', ...)
-    break
-  }
-//
-  useBudget(state)
-  const success = await HEALS[hyp.id].run()
-  recordAttempt(state, hyp.id, success)
-//
-  if (!success) {
-    sendAlert(state, `Heal failed: ${hyp.label}`, ...)
-  }
-}
+*/15 * * * * node /var/www/blixamo/tools/vps-monitor.js >> /var/log/vps-monitor.log 2>&1
 ```
-After every run, the confidence table is printed:
-#
-```bash
-Fix confidence history:
-──────────────────────────────────────────────────────
-0.80 ████████   restartPm2     (4att 3ok 1fail)
-0.67 ██████     restartNginx   (1att 1ok 0fail)
-0.50 █████      restartRedis   (0att 0ok 0fail)
-```
-<Callout type="tip" title="Expected output">
-#
-(command runs silently — no output means success)
-#
-</Callout>
----
-#
-## Step 7 of 7 — Cron Setup
-#
-```bash
-# Add to crontab -e
-#
-# Checker: hourly health scan
-0 * * * * node /var/www/blixamo/tools/blixamo-checker.js --health --infra >> /var/log/blixamo-checker.log 2>&1
-#
-# Checker: daily full article + fix run at 8am UTC
-0 8 * * * node /var/www/blixamo/tools/blixamo-checker.js --fix >> /var/log/blixamo-checker.log 2>&1
-#
-# Bayesian Supervisor: every 30 minutes
-*/30 * * * * node /var/www/blixamo/tools/blixamo-supervisor.js >> /var/log/blixamo-supervisor.log 2>&1
-```
-<Callout type="tip" title="Expected output">
-#
-Script ran successfully — check logs for output.
-#
-</Callout>
-Running as a cron job — not a daemon — means the supervisor has no persistent state in memory, can crash without taking anything else down, and LAW 1 (never spawn itself) is trivially enforced by the cron daemon.
-#
----
-#
-## Troubleshooting Common Issues
-#
-#
-![Telegram alert from VPS monitor — PM2 process down detected, auto-restart completed](/images/posts/self-healing-vps-monitor-nodejs/05-telegram-alert.png)
-*Telegram alert — self healing vps monitor nodejs*
-#
-**Supervisor not running**
-#
-```bash
-systemctl is-active cron
-grep "blixamo-supervisor" /var/log/syslog | tail -10
-# Run manually to debug:
-node /var/www/blixamo/tools/blixamo-supervisor.js
-```
-<Callout type="tip" title="Expected output">
-#
-Script ran successfully — check logs for output.
-#
-</Callout>
-**State file shows high failure count for a fix**
-#
-Reset a specific fix record without losing other history:
-#
-```bash
-python3 -c "
-import json
-f = open('/var/log/blixamo-supervisor-state.json')
-s = json.load(f)
-s['fixes']['restartPm2'] = {
-  'attempts': 0, 'successes': 0,
-  'failures': 0, 'timestamps': []
-}
-out = open('/var/log/blixamo-supervisor-state.json', 'w')
-json.dump(s, out, indent=2)
-print('Reset done')
-"
-```
-<Callout type="tip" title="Expected output">
-#
-(command runs silently — no output means success)
-#
-</Callout>
-**Alert emails not arriving**
-#
-Test the n8n webhook directly:
-#
-```bash
-curl -s -X POST \
-  http://localhost:5679/webhook/supervisor-alert \
-  -H "Content-Type: application/json" \
-  -d '{
-    "subject":"test",
-    "html":"<p>test</p>",
-    "to":"your@email.com"
-  }' \
-  --max-time 5
-```
-<Callout type="tip" title="Expected output">
-#
-All checks passed.
-#
-</Callout>
-If the webhook returns an error, check n8n is running: `docker ps | grep n8n`.
-#
----
-#
+
+Then wire one alerting path. Email is enough. Telegram is enough. An n8n webhook is enough. The important thing is that the alert says what failed, what the monitor tried, and why it stopped.
+
+That is what makes the system trustworthy. You want one useful alert, not 20 vague ones.
+
+## Safe Healing Rules I Would Not Skip
+
+These are the rules that keep the system from making a bad situation worse:
+
+### 1. Never let the monitor restart the same thing forever
+
+If PM2 has already been restarted 3 times in the last hour and the app still is not healthy, escalate. The restart is not solving the real problem.
+
+### 2. Always test configuration before restarting services
+
+For Nginx, run `nginx -t` before restart or reload. A bad config plus automatic restart logic is a great way to create downtime yourself.
+
+### 3. Cap the total number of heal actions per day
+
+If the server is unstable enough to need constant intervention, the right move is to stop and investigate, not automate harder.
+
+### 4. Keep recovery actions idempotent where possible
+
+The safest heal action is one you can run twice without making the state worse.
+
+## What This Monitor Is Good At
+
+This setup is strong for:
+
+- PM2 process crashes
+- Nginx service issues
+- Redis container restarts
+- temporary bad app health
+- simple recoverable operational failures
+
+It is not the right tool for:
+
+- disk-full events with no cleanup policy
+- application bugs that keep shipping in every deploy
+- database corruption
+- deep observability or long-term metrics
+
+That is fine. You do not need one script to solve every reliability problem. You need it to solve the frequent, fixable ones.
+
+## Summary
+
+A self-healing VPS monitor in Node.js works well when it stays narrow:
+
+- check a few high-value signals
+- keep history in a state file
+- only run fixes with a history of working
+- cap retries and daily heal budget
+- escalate cleanly when the script should stop
+
+That gives you a system that actually reduces downtime instead of creating restart noise.
+
 ## FAQ
-#
-### Does this work without n8n?
-#
-Yes. The supervisor alerts via n8n webhook because n8n is already running on my VPS. Replace the `sendAlert()` function with a direct SMTP call using `nodemailer`, or write alerts to a file and tail it. The Bayesian logic and heal actions are entirely independent of the alerting mechanism.
-#
-### What happens if the supervisor itself crashes?
-#
-`supervisorHealth.consecutiveCrashes` tracks this. Each run wraps the main function in a try/catch — on crash, it increments the counter and exits with code 1. At 3 consecutive crashes, it sends a final alert and triggers `shutdown -r +1` (VPS reboot with 1-minute delay). In production I've never hit this.
-#
-### Can I run this on a non-Hetzner VPS?
-#
-Yes. The script checks services specific to my setup: PM2 (blixamo), Docker containers (n8n, Redis), and systemd services (blixamo-watcher). Replace the evidence collection with whatever services you run. The Bayesian engine, state management, and anti-loop laws are generic Node.js with no Hetzner-specific code.
-#
-### Why not use Monit or PM2's built-in watch?
-#
-PM2 restarts crashed processes automatically — it handles the simple case. Monit is excellent for rule-based monitoring. What neither does is Bayesian confidence tracking: they'll keep retrying a failing action indefinitely. The budget cap, thrash detection, and confidence gating are the specific problems this system solves that generic tools don't address.
-#
-### How much RAM does the supervisor use?
-#
-Node.js process peak: ~40MB during the run. It exits immediately after completing, holding zero RAM between runs. The state file stays under 10KB for a year of history. Total overhead: negligible.
-#
-### Is the state file safe to delete?
-#
-Yes. Deleting it resets all confidence history and budgets — the supervisor starts fresh with 0.5 priors on every fix type. The only downside is losing accumulated evidence about which fixes work reliably on your specific setup.
-#
----
-#
-## What You Built
-#
-You now have a self-healing VPS supervisor that recovers services automatically, stops itself from looping on unfixable problems, and escalates to you only when it genuinely can't solve the issue — all for $0 additional infrastructure cost.
-#
-**Your next steps:**
-#
-![VPS supervisor confidence scoring all services healthy](/images/posts/self-healing-vps-monitor-nodejs/02-supervisor-live.png)
-*Real output from the live Hetzner VPS — captured March 2026*
-#
-![VPS memory showing 2.4GB available with zero swap pressure](/images/posts/self-healing-vps-monitor-nodejs/03-health-live.png)
-*Live terminal output captured from the Hetzner VPS — March 2026*
-#
-![Node.js Bayesian health monitor code with confidence scoring](/images/posts/self-healing-vps-monitor-nodejs/04-monitor-code.png)
-*Generated from live VPS data — March 2026*
-#
-#
-#
-#
-1. **Start with the confidence function** — implement the 3-line Laplace formula and the state file first. Everything else builds on that foundation.
-2. **Add one heal at a time** — start with `restartPm2` (the most common failure), test it manually, verify the state file updates correctly, then add more heals
-3. **Wire up the alerts** — even a simple `echo "alert" | mail -s "VPS issue" you@email.com` is enough to start. Replace with n8n or your preferred alert mechanism later
-#
-For the full multi-project VPS stack this supervisor monitors, the [multiple projects on single VPS guide](/blog/multiple-projects-single-vps) covers everything running on the CPX22.
-#
-Subscribe below for the article quality checker writeup — the tool that runs daily at 8am and has auto-corrected 40+ issues across 15 posts.
-#
-#
----
-#
-## The Takeaway
-#
-Eight lines of Node.js checking services every 30 seconds. Telegram alert within 60 seconds of any failure. Auto-restart if it's a recoverable crash. That's 90 days of zero undetected downtime on a server I don't actively watch.
-#
-The Bayesian confidence scoring isn't academic — it stops false alarms that would otherwise make you ignore real alerts. One false alarm at 3am and you stop responding to all of them. The threshold logic is what makes this actually usable.
-#
-**Run this on every VPS you own.** It takes 10 minutes to set up and the Telegram alert has saved me from extended downtime three times.
+
+### What is a self-healing VPS monitor?
+
+It is a script or service that detects common server failures and runs predefined recovery actions automatically, such as restarting PM2, Nginx, or Redis. The useful versions also track state and alert a human when automated recovery stops being safe.
+
+### Why use Node.js for a VPS monitor?
+
+Node.js is a good fit if your stack already uses it. It makes shell execution, JSON state management, HTTP checks, and webhook alerts easy without adding another runtime or much deployment complexity.
+
+### Should a VPS monitor restart services automatically?
+
+Yes, but only for failures with a clear, safe recovery action. Automatic restarts are useful for known transient problems. They are dangerous when the underlying issue is persistent and the monitor has no stop condition.
+
+### How often should a self-healing monitor run?
+
+Every 5 to 15 minutes is enough for many small VPS setups. More frequent checks can make sense for critical services, but shorter intervals also increase the risk of noisy retries if your guardrails are weak.
+
+### Is this better than PM2 restart policies alone?
+
+Yes, for multi-service stacks. PM2 can restart a crashed process, but it does not reason about Nginx, Redis, missing build output, or whether a fix keeps failing. A self-healing monitor gives you a broader operational view.
+
+### What should the monitor alert on?
+
+Alert when a service is unhealthy and the automated fix either failed, exceeded retry limits, or dropped below your confidence threshold. That keeps alerts actionable instead of constant.
+
+## What Next?
+
+If your VPS runs multiple services, the natural next read is [Docker Compose on VPS production setup](/blog/docker-compose-production-vps-2026). If you want the alerting layer, pair this with [self-hosting n8n on Hetzner VPS](/blog/self-hosting-n8n-hetzner-vps). If reliability issues keep coming from bad deploys, tighten the app side with [How to self-host Next.js on a VPS](/blog/how-to-self-host-nextjs-on-vps).
+
+That is the better sequence: stable deploys first, targeted self-healing second.
