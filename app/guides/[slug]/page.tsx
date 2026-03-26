@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { PostCard } from '@/components/blog/PostCard'
 import { getAllPosts } from '@/lib/posts'
-import { PILLAR_RESOURCE_HUB_PATH, getPillarDefinitions, getPillarPageBySlug } from '@/lib/pillars'
+import { PILLAR_BASE_PATH, PILLAR_RESOURCE_HUB_PATH, getPillarDefinitions, getPillarPageBySlug } from '@/lib/pillars'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -52,6 +52,15 @@ export default async function PillarPage({ params }: Props) {
       description: category.description,
       href: category.href,
     })),
+    ...(pillar.slug === 'comparisons-hub'
+      ? []
+      : [
+          {
+            title: 'Comparisons Hub',
+            description: 'Open the sitewide comparison hub for hosting, tooling, automation, and platform decisions.',
+            href: `${PILLAR_BASE_PATH}/comparisons-hub`,
+          },
+        ]),
     ...pillar.relatedResources.map((resource) => ({
       title: resource.label,
       description: resource.description,

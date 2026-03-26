@@ -17,6 +17,7 @@ import { ArticleImage, ArticleTable, ProsCons, VerdictBox, VisualBlock } from '@
 import Link from 'next/link'
 import { getCategoryClusterContent, RESOURCE_HUB_PATH } from '@/lib/resources'
 import { getComparisonsHub, getPrimaryPillarForPost } from '@/lib/pillars'
+import { getCategoryMeta } from '@/lib/categories'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -67,6 +68,7 @@ export default async function PostPage({ params }: Props) {
 
   const related = getRelatedPosts(post)
   const clusterContent = getCategoryClusterContent(post.category, allPosts)
+  const categoryMeta = getCategoryMeta(post.category)
   const pillarPage = getPrimaryPillarForPost(post, allPosts)
   const comparisonsHub = getComparisonsHub(allPosts)
   const relatedComparisons = clusterContent.comparisons.filter((entry) => entry.slug !== post.slug).slice(0, 2)
@@ -82,6 +84,7 @@ export default async function PostPage({ params }: Props) {
         entry.slug !== post.slug && collection.findIndex((candidate) => candidate.slug === entry.slug) === index
     )
     .slice(0, 3)
+  const topRelatedArticles = clusterRelatedPosts.slice(0, 3)
   const authorityPageLinks = [
     ...clusterContent.guides,
     ...clusterContent.comparisons,
@@ -109,11 +112,55 @@ export default async function PostPage({ params }: Props) {
       {faqs.length > 0 && <FaqJsonLd faqs={faqs} />}
 
       <div className="article-page-shell">
-        <PostHeader post={post} />
+        <PostHeader post={post} pillarPage={pillarPage} />
 
         <div className="post-layout article-layout-grid">
           <div />
           <article className="article-content-card">
+            {pillarPage && (
+              <section className="article-share-panel">
+                <p className="article-share-eyebrow">Part of the guide</p>
+                <h2 className="article-share-title">
+                  Part of the <Link href={pillarPage.href}>{pillarPage.title}</Link> guide
+                </h2>
+                <p style={{ marginTop: '0.55rem', color: 'var(--text-secondary)', lineHeight: 1.75 }}>
+                  Use these crawlable links to move from this article back into the pillar, the broader site hub, and the next
+                  related reads in this topic cluster.
+                </p>
+                <div className="article-explore-grid" style={{ marginTop: '1rem' }}>
+                  <Link href="/" className="article-explore-link">
+                    <span className="article-nav-label">Homepage</span>
+                    <span className="article-nav-title">Return to the main Blixamo hub</span>
+                  </Link>
+                  <Link href={RESOURCE_HUB_PATH} className="article-explore-link">
+                    <span className="article-nav-label">Resources Hub</span>
+                    <span className="article-nav-title">Open the sitewide resources and pillar hub</span>
+                  </Link>
+                  <Link href={`/category/${post.category}`} className="article-explore-link">
+                    <span className="article-nav-label">Category</span>
+                    <span className="article-nav-title">Browse more in {categoryMeta.label}</span>
+                  </Link>
+                  <Link href={pillarPage.href} className="article-explore-link">
+                    <span className="article-nav-label">Main Pillar</span>
+                    <span className="article-nav-title">Open {pillarPage.title}</span>
+                  </Link>
+                </div>
+                {topRelatedArticles.length > 0 && (
+                  <>
+                    <p className="article-share-eyebrow" style={{ marginTop: '1rem' }}>Related articles</p>
+                    <div className="article-explore-grid">
+                      {topRelatedArticles.map((entry) => (
+                        <Link key={entry.slug} href={`/blog/${entry.slug}`} className="article-explore-link">
+                          <span className="article-nav-label">Related Read</span>
+                          <span className="article-nav-title">{entry.title}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </section>
+            )}
+
             <div className="prose article-prose">
               <MDXRemote
                 source={post.content}

@@ -5,6 +5,7 @@ import { AuthorBio } from './AuthorBio'
 import { AffiliateDisclosure } from '@/components/monetization/AffiliateDisclosure'
 import type { Post } from '@/lib/posts'
 import { getCategoryMeta } from '@/lib/categories'
+import type { PillarPage } from '@/lib/pillars'
 
 const DEFAULT_IMAGE = '/images/default-og.jpg'
 
@@ -12,7 +13,7 @@ function hasRealImage(path: string) {
   return path && path !== DEFAULT_IMAGE && !path.includes('undefined')
 }
 
-export function PostHeader({ post }: { post: Post }) {
+export function PostHeader({ post, pillarPage = null }: { post: Post; pillarPage?: PillarPage | null }) {
   const categoryMeta = getCategoryMeta(post.category)
   const showFeaturedImage = hasRealImage(post.featuredImage)
 
@@ -21,9 +22,18 @@ export function PostHeader({ post }: { post: Post }) {
       <div className="article-header-card">
         <nav className="article-breadcrumb" aria-label="Breadcrumb">
           <Link href="/">Home</Link>
-          <span>/</span>
-          <Link href={`/category/${post.category}`}>{categoryMeta.label}</Link>
-          <span>/</span>
+          <span>&gt;</span>
+          {pillarPage ? (
+            <>
+              <Link href={pillarPage.href}>{pillarPage.title}</Link>
+              <span>&gt;</span>
+            </>
+          ) : (
+            <>
+              <Link href={`/category/${post.category}`}>{categoryMeta.label}</Link>
+              <span>&gt;</span>
+            </>
+          )}
           <span className="article-breadcrumb-current">{post.title}</span>
         </nav>
 
