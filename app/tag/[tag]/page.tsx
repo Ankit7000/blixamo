@@ -100,9 +100,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (tag === RESOURCE_HUB_TAG) {
     return {
-      title: 'Blixamo Resources | Start Here for Developers',
+      title: 'Deployment Resources Hub | Next.js, VPS, Coolify, Self-Hosting',
       description:
-        'Start here if you want to deploy, self-host, automate, compare tools, or build a better developer stack on Blixamo.',
+        'Start here for Blixamo deployment guides: Next.js on VPS, Coolify, self-hosting, server hardening, comparisons, and practical setup paths.',
       alternates: { canonical: `https://blixamo.com/tag/${tag}` },
       robots: { index: true, follow: true },
     }
@@ -157,10 +157,10 @@ export default async function TagPage({ params }: Props) {
       <section className="resource-hub-hero">
         <div className="resource-hub-hero-copy">
           <div className="home-section-kicker">Blixamo Resources</div>
-          <h1 className="resource-hub-title">Start here if you want to deploy, self-host, automate, or choose better tools.</h1>
+          <h1 className="resource-hub-title">Deployment, VPS, and self-hosting resources in one place.</h1>
           <p className="resource-hub-description">
-            This page is the central hub for navigating Blixamo. Use it as a start-here page, learning-path hub,
-            tools directory, comparison hub, and human sitemap for exploring guides by topic, stack, or goal.
+            Use this hub to find the fastest path into Next.js deployment, Hetzner and VPS setup, Coolify, self-hosting,
+            server hardening, comparisons, and related developer infrastructure guides.
           </p>
           <div className="resource-hub-actions">
             <Link href="#resources-start-here" className="home-hero-button home-hero-button-primary">

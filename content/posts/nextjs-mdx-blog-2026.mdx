@@ -1,65 +1,65 @@
 ---
-title: "Build a Next.js MDX Blog 2026 â€” Faster Than WordPress"
+title: "Next.js MDX Blog in 2026: App Router + next-mdx-remote Setup"
 slug: "nextjs-mdx-blog-2026"
-description: "Build a Next.js MDX blog in 2026 with App Router, next-mdx-remote, syntax highlighting, sitemap generation, and Hetzner deployment."
+description: "Build a Next.js 15 MDX blog with App Router and next-mdx-remote/rsc. Includes frontmatter, syntax highlighting, metadata, sitemap, and VPS deployment."
 date: "2026-03-18"
-updatedAt: "2026-03-26"
+updatedAt: "2026-03-27"
 author: "Ankit Sorathiya"
 category: "web-dev"
 tags: [nextjs, self-hosting, hetzner]
 keyword: "nextjs mdx blog"
-secondaryKeywords: ["next.js mdx blog app router", "nextjs 15 mdx setup 2026", "next-mdx-remote tutorial", "nextjs blog self hosted"]
 featured: true
 featuredImage: /images/posts/nextjs-mdx-blog-2026/featured.jpg
 schema: "howto"
-difficulty: "intermediate"
-timeToComplete: "60 minutes"
-series: "nextjs-tutorials"
-seriesPart: 1
-excerpt: "The exact Next.js 15 and MDX stack behind blixamo.com, including App Router, syntax highlighting, metadata, and VPS deployment."
-toc: true
 ---
 
-I built blixamo.com because I wanted a blog stack that felt like an app repo, not a CMS subscription. The result is a Next.js MDX blog that loads fast, keeps content in Git, and runs on a small VPS without the usual WordPress overhead.
+If you want a developer blog with Next.js and MDX in 2026, the cleanest setup is still App Router plus `next-mdx-remote/rsc`, with posts stored on disk and a small posts library handling frontmatter, reading time, related posts, and metadata.
 
-If you want a developer blog you can fully control in 2026, this is still one of the best setups: Next.js 15, App Router, MDX files on disk, syntax highlighting, and a simple deployment pipeline. The hardest part is not the happy path. It is choosing the right MDX approach, keeping metadata clean, and avoiding the caching mistakes that make content updates look broken.
+I built blixamo.com this way because I wanted the blog to behave like an app repo, not a CMS subscription. The real challenge is not rendering MDX once. The real challenge is picking the right MDX approach, keeping metadata clean, and deploying the site without breaking revalidation or search visibility.
 
 <Callout type="info" title="TL;DR">
-Use `next-mdx-remote/rsc` for MDX content stored on disk, keep post metadata in a single posts library, add `remark-gfm` and `rehype-pretty-code`, and deploy on a VPS with a cache policy that does not fight Next.js revalidation.
+Use `next-mdx-remote/rsc` when your MDX files are content data, keep metadata in one posts library, add `remark-gfm` and `rehype-pretty-code`, and deploy with a cache policy that does not fight Next.js HTML revalidation.
 </Callout>
 
 ![blixamo.com homepage loading in 306ms on Hetzner with Cloudflare](/images/posts/nextjs-mdx-blog-2026/01-blixamo-homepage-load.png)
-*The stack in this guide is the same pattern I use for a real Next.js MDX blog in production.*
+*This article covers the same basic pattern I use in production.*
 
 <Callout type="info" title="Before you start">
 - Next.js 15 with App Router
 - Node.js 20 or newer
-- One VPS or hosting target for deployment
-- Comfort editing TypeScript files and frontmatter
-- About 60 minutes for the first version
+- one VPS or hosting target for deployment
+- comfort editing TypeScript and frontmatter
+- about 60 minutes for the first version
 </Callout>
+
+## Who This Setup Is For
+
+This setup makes sense if:
+
+- you are a developer comfortable with files, Git, and TypeScript
+- you want full control over layout, metadata, and internal linking
+- you do not need a non-technical editor on day one
+- you want the blog to live inside the same codebase as the rest of the site
 
 ## Why Build a Next.js MDX Blog Instead of Using WordPress?
 
-If you are a developer, the biggest advantage is not speed. It is control.
+For developers, the biggest advantage is control. Your content lives in Git. You can review diffs, keep metadata close to the code, and build the exact page structure you want without relying on plugins or a separate CMS workflow.
 
-Your content lives in the same Git workflow as the rest of your project. You can review post diffs, branch content changes, version metadata, and keep custom components without fighting a plugin ecosystem. That matters once the blog becomes part of your product, documentation, or growth engine.
+The cost profile is also better if you are already comfortable with a VPS. If deployment is the part you are unsure about, pair this article with [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner) or [How to self-host Next.js on a VPS](/blog/how-to-self-host-nextjs-on-vps).
 
-The cost profile is also better if you are already comfortable with a VPS. A small self-hosted setup often costs less than a managed CMS stack with the same flexibility. If deployment is the part you are unsure about, pair this article with [How to self-host Next.js on a VPS](/blog/how-to-self-host-nextjs-on-vps) or the more concrete [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner).
-
-## next-mdx-remote vs @next/mdx
+## When to Use next-mdx-remote vs @next/mdx
 
 This is the first decision that confuses most tutorials.
 
-Use `@next/mdx` when your `.mdx` files are basically routes. Use `next-mdx-remote/rsc` when your `.mdx` files are content data you want to load, parse, and render inside a custom blog system.
+| Option | Choose it when | Avoid it when |
+| --- | --- | --- |
+| `next-mdx-remote/rsc` | your MDX files are content data inside a real blog system | you want route files to be the content layer |
+| `@next/mdx` | you want MDX pages directly in the app router | you need a stronger posts library with frontmatter-driven helpers |
+| CMS + MDX | non-technical editors need a UI | you want the smallest and cheapest stack |
 
-For a real blog with frontmatter, categories, related posts, featured images, and custom metadata, `next-mdx-remote/rsc` is the better fit. It lets you keep a proper posts library instead of turning every MDX file into a route definition.
-
-That separation is what makes sitemap generation, RSS, related posts, and category pages much easier later.
+For a real blog with frontmatter, categories, related posts, featured images, and custom metadata, `next-mdx-remote/rsc` is the better fit. It lets you keep a proper posts library instead of turning every MDX file into route definitions.
 
 ## Recommended Project Structure
-
-Keep the content and the rendering logic separate from day 1.
 
 ```text
 app/
@@ -84,11 +84,9 @@ public/
     posts/
 ```
 
-The important idea is that `content/posts/*.mdx` is just data. Your app code reads the files, parses frontmatter, computes reading time, and renders the result into the UI you want.
+Keep the content and the rendering logic separate from day one.
 
-## Step 1 of 6 â€” Install the Core Packages
-
-Start with a plain Next.js app, then add the MDX parsing and rendering packages you actually need.
+## Step 1: Install the Core Packages
 
 ```bash
 npx create-next-app@latest my-blog --typescript --app
@@ -98,18 +96,20 @@ npm install remark-gfm rehype-slug rehype-autolink-headings
 npm install rehype-pretty-code shiki
 ```
 
-You do not need a complicated CMS SDK for the first version. `gray-matter` handles frontmatter, `reading-time` gives you a useful metadata field, and `next-mdx-remote/rsc` handles rendering cleanly in App Router.
+You do not need a complicated CMS SDK for the first version.
 
-## Step 2 of 6 â€” Build the Posts Library
+## Step 2: Build the Posts Library
 
-Your posts library is the core of the whole system. It should read files, parse frontmatter, compute reading time, and expose helpers like `getAllPosts()` and `getPostBySlug()`.
+Your posts library should read files, parse frontmatter, compute reading time, and expose helpers like `getAllPosts()` and `getPostBySlug()`.
 
 ```ts
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 import readingTime from "reading-time";
+
 const POSTS_DIR = path.join(process.cwd(), "content/posts");
+
 export function getAllPosts() {
   return fs
     .readdirSync(POSTS_DIR)
@@ -125,28 +125,11 @@ export function getAllPosts() {
       };
     });
 }
-export function getPostBySlug(slug: string) {
-  const raw = fs.readFileSync(
-    path.join(POSTS_DIR, `${slug}.mdx`),
-    "utf8"
-  );
-  const { data, content } = matter(raw);
-  return {
-    post: {
-      slug,
-      ...data,
-      readingTime: readingTime(content).text,
-    },
-    content,
-  };
-}
 ```
 
-This is the layer that later powers your homepage, blog index, related posts, sitemap, and RSS feed. Keep it boring and predictable.
+This is the layer that later powers your homepage, category pages, related posts, sitemap, and RSS.
 
-## Step 3 of 6 â€” Render MDX in App Router
-
-Once the posts library works, the blog route becomes straightforward.
+## Step 3: Render MDX in App Router
 
 ```tsx
 import { MDXRemote } from "next-mdx-remote/rsc";
@@ -155,9 +138,11 @@ import rehypeSlug from "rehype-slug";
 import rehypePrettyCode from "rehype-pretty-code";
 import { getAllPosts, getPostBySlug } from "@/lib/posts";
 import { notFound } from "next/navigation";
+
 export async function generateStaticParams() {
   return getAllPosts().map((post) => ({ slug: post.slug }));
 }
+
 export default async function BlogPost({
   params,
 }: {
@@ -166,6 +151,7 @@ export default async function BlogPost({
   const { slug } = await params;
   const result = getPostBySlug(slug);
   if (!result) notFound();
+
   return (
     <article>
       <MDXRemote
@@ -185,11 +171,9 @@ export default async function BlogPost({
 }
 ```
 
-The main reason this approach scales well is that metadata generation and content rendering stay separate. You can render the article while also using the same frontmatter for title tags, OG tags, breadcrumbs, and category pages.
+## Step 4: Add Metadata, Images, and Sitemap Support
 
-## Step 4 of 6 â€” Add Metadata, Images, and Sitemap Support
-
-This is where a Next.js MDX blog stops being a demo and starts acting like a real publication.
+This is where the blog stops being a demo and starts acting like a real publication.
 
 Every post should have:
 
@@ -202,31 +186,19 @@ Every post should have:
 - keyword
 - featured image
 
-From there, your blog route can generate metadata using the post object, while `app/sitemap.ts` can read all posts and include them automatically.
+That is what lets the same content system power SEO metadata, cards, related posts, RSS, and sitemap generation cleanly.
 
-That is also the point where internal linking starts to matter. If you are building a real search-friendly blog, connect related guides from the beginning. A post like this one should naturally link to [Next.js performance optimization](/blog/nextjs-performance-optimization-2026), [Google Search Console for self-hosted Next.js](/blog/google-search-console-self-hosted-nextjs), and your deployment guide.
+## Step 5: Make Code Blocks and Tables Worth Reading
 
-## Step 5 of 6 â€” Make Code Blocks and Tables Worth Reading
+Most tutorials stop after "it renders." That is not enough for a real developer blog.
 
-Most MDX blog tutorials stop after "it renders." That is not enough for a developer publication.
+Use `rehype-pretty-code` so code blocks are readable without client-side highlighting. Make sure your prose styles handle tables, captions, inline code, and mobile overflow properly.
 
-Good technical content needs readable code blocks, tables that do not explode on mobile, and callouts for warnings and shortcuts. `rehype-pretty-code` is a strong default because it gives you server-rendered syntax highlighting without adding client-side weight.
+## Step 6: Deploy It Without Breaking Revalidation
 
-Also make sure your prose styles handle:
+A Next.js MDX blog can run almost anywhere, but self-hosting adds one common failure point: proxy caching can fight HTML revalidation if your CDN or reverse proxy is too aggressive.
 
-- inline code
-- ordered and unordered lists
-- wide tables with a mobile scroll wrapper
-- images and captions
-- callouts for TL;DR and warnings
-
-That polish is what separates a personal experiment from a blog people actually want to keep reading. If you want to see how much difference this makes, compare it to the article layout work in [Next.js performance optimization 2026](/blog/nextjs-performance-optimization-2026).
-
-## Step 6 of 6 â€” Deploy It Without Breaking Revalidation
-
-A Next.js MDX blog can run almost anywhere, but self-hosting introduces one common problem: proxy caching can fight ISR or revalidation behavior if your CDN is too aggressive with HTML.
-
-That does not mean self-hosting is a bad idea. It means you need a clean deployment path and sane cache headers. My preferred path for this kind of blog is:
+My preferred path for this kind of blog is:
 
 1. build on the server
 2. run with PM2 or a platform like Coolify
@@ -234,68 +206,48 @@ That does not mean self-hosting is a bad idea. It means you need a clean deploym
 4. cache static assets heavily
 5. avoid stale HTML policies that hide content updates
 
-If you want the production setup, read [How to self-host Next.js on a VPS](/blog/how-to-self-host-nextjs-on-vps) first, then follow [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner).
+If you want the production setup, read [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner) and [Google Search Console for self-hosted Next.js](/blog/google-search-console-self-hosted-nextjs).
 
 ## Common Mistakes When Building a Next.js MDX Blog
 
 ### Mixing route-driven MDX with content-driven MDX
 
-If you treat blog posts as route files too early, adding categories, related posts, or frontmatter-driven layouts becomes harder than it needs to be. Keep content as content.
+If you treat posts as route files too early, categories, related posts, and frontmatter-driven layouts become harder than they need to be.
 
 ### Letting metadata drift
 
-If half your posts have featured images and half do not, your social sharing, card previews, and article pages start looking inconsistent fast. Standardize early.
+If half your posts have featured images and half do not, the whole publication starts feeling inconsistent.
 
 ### Ignoring mobile reading experience
 
-Most readers will hit your posts on a phone first. If code blocks overflow badly or headings feel cramped, the whole blog feels lower quality even if the content is strong.
+If code blocks overflow badly or headings feel cramped, the content feels lower quality even when the writing is strong.
 
 ### Overengineering the CMS layer
 
-For a solo or developer-led blog, MDX on disk is usually enough. You can add a CMS later if a non-technical editor actually needs it.
-
-## Summary
-
-The best Next.js MDX blog setup in 2026 is still the one that stays simple:
-
-- MDX files on disk
-- a small posts library
-- `next-mdx-remote/rsc` for rendering
-- real metadata and images
-- a deployment setup that respects revalidation
-
-That gives you a fast, flexible blog without paying for a headless CMS you do not need yet.
+For a solo or developer-led blog, MDX on disk is usually enough for a long time.
 
 ## FAQ
 
 ### Is Next.js MDX better than WordPress for a developer blog?
 
-For developers, yes in many cases. A Next.js MDX blog gives you Git-based content, custom components, predictable deployment, and better control over performance. WordPress is easier for non-technical editors, but it is usually less pleasant if you want the blog to behave like part of your app.
+For developers, often yes. The biggest wins are Git-based content, predictable deployment, and full control over rendering and metadata.
 
 ### Should I use next-mdx-remote or @next/mdx?
 
-Use `next-mdx-remote/rsc` when your MDX files are content stored on disk and you want to load them through a posts library. Use `@next/mdx` when your MDX files are route-level content. For a custom blog system, `next-mdx-remote/rsc` is usually the better fit.
+Use `next-mdx-remote/rsc` when your MDX files are content stored on disk and loaded through a posts library. Use `@next/mdx` when your MDX files are route-level content.
 
 ### Can I self-host a Next.js MDX blog on a VPS?
 
-Yes. A small VPS can handle a Next.js MDX blog well if you build it correctly, run it with PM2 or a platform layer, and put Nginx in front of it. That is one of the cheapest ways to keep full control over the stack.
-
-### How do I add syntax highlighting to a Next.js MDX blog?
-
-The cleanest approach is `rehype-pretty-code` with Shiki. It gives you server-rendered syntax highlighting, good themes, and no client-side highlighting overhead.
+Yes. A small VPS can handle a Next.js MDX blog well if you build it correctly and keep the caching setup sane.
 
 ### Do I need a CMS for a Next.js blog in 2026?
 
-Not always. If you are the main writer and you are comfortable with Git, MDX files on disk are enough for a lot of developer blogs. Add a CMS later only if your workflow genuinely needs non-technical editing or complex collaboration.
+Not always. If you are the main writer and comfortable with Git, MDX files on disk are enough for a lot of developer blogs.
 
 ### What should I build after the blog is working?
 
-After the core blog works, add a sitemap, RSS, structured metadata, related posts, and stronger internal linking. Those upgrades improve both discoverability and reader retention without forcing a full rebuild of the content model.
+After the core blog works, add a sitemap, RSS, structured metadata, related posts, and stronger internal linking.
 
 ## Final Takeaway
 
-For a developer-run content site, a Next.js MDX blog still hits the best balance of control, speed, and maintainability. You keep the content in Git, shape the rendering layer exactly how you want, and avoid the overhead of forcing a CMS into a workflow that does not need one yet.
-
-If you want to keep going, the next practical step is deployment: [How to self-host Next.js on a VPS](/blog/how-to-self-host-nextjs-on-vps). After that, tighten performance with [Next.js performance optimization 2026](/blog/nextjs-performance-optimization-2026) and make sure Google sees the site properly with [Google Search Console for self-hosted Next.js](/blog/google-search-console-self-hosted-nextjs).
-
-That sequence turns a working local MDX blog into a production-ready one.
+The best Next.js MDX blog setup in 2026 is still the one that stays simple: MDX on disk, a small posts library, `next-mdx-remote/rsc`, real metadata, and a deployment setup that respects revalidation. That gives you a fast, flexible blog without dragging in a CMS you do not need yet.

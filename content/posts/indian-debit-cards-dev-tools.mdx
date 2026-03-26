@@ -1,293 +1,173 @@
 ---
-title: "Best Indian Debit Cards for Developer Subscriptions in 2026 (What Actually Works)"
+title: "Best Indian Debit Cards for Developer Subscriptions (2026 Tested)"
 slug: "indian-debit-cards-dev-tools"
-description: "Which Indian debit cards work for GitHub, AWS, DigitalOcean, Vercel, Hetzner and other dev tools in 2026? I've tested Niyo, Kotak 811, Wise, SBI and HDFC. Here's the truth."
+description: "Tested Indian cards for GitHub, AWS, Hetzner, Vercel, Cloudflare, and APIs. Best picks for lowest forex fees, recurring billing, and backup options."
 date: "2026-03-16"
-updatedAt: "2026-03-26"
+updatedAt: "2026-03-27"
 author: "Ankit Sorathiya"
 category: "indie-hacking"
-tags: [india,hetzner]
+tags: [india, hetzner]
 keyword: "indian debit card international subscription"
 featured: false
 featuredImage: /images/posts/indian-debit-cards-dev-tools/featured.jpg
 schema: "article"
 ---
 
-You're an Indian developer. You have a project to ship. You try to subscribe to GitHub Pro, AWS, Vercel, or DigitalOcean — and your card gets declined.
+If you want the fast answer: use Niyo Global as the default, keep Kotak 811 as a backup, and move to Wise if AWS or bigger recurring bills keep failing. Most standard Indian debit cards are not reliable enough for international developer subscriptions.
 
-Not once. Three times. Different cards. Same result.
-
-I've been building and shipping software from India for years. I've tested every major Indian card across every major developer platform. This guide tells you exactly which cards work, which fail, and why — so you stop wasting time on trial and error.
-
----
+The hard part is not making one payment work once. The hard part is choosing a card that keeps working for monthly renewals across GitHub, AWS, Hetzner, Vercel, Cloudflare, and API billing.
 
 ## TL;DR
 
-- **Niyo Global** — Best all-rounder. Works on almost every dev platform. Zero forex markup.
-- **Kotak 811 Virtual** — Free, instant, works on most platforms. Best backup card.
-- **Wise Multi-Currency** — Best for large bills and teams. Tiny fees, most reliable internationally.
-- **SBI / HDFC / ICICI debit** — Hit or miss. SBI almost always fails. HDFC works sometimes with 3DS.
-- **UPI / RuPay** — Not accepted by most international dev tools.
+- **Niyo Global** is the best default card for most Indian developers.
+- **Kotak 811** is a good free backup.
+- **Wise** is the best option for larger recurring bills and maximum reliability.
+- **Normal SBI and similar debit cards** are the least dependable for this use case.
 
----
+## Who This Guide Is For
 
-## Why Indian Cards Fail on Dev Platforms
+Use this page if:
 
-Before getting to what works, it helps to understand why Indian cards fail. There are three distinct problems:
+- you are paying for GitHub, AWS, Hetzner, Vercel, Cloudflare, or API usage from India
+- you want one primary card and one backup, not ten experiments
+- you care about both recurring-billing success and forex fees
+- you want a practical answer instead of a generic banking roundup
 
-**The RBI 3DS Mandate**
-Every international transaction on Indian cards requires 3D Secure (3DS) authentication — an OTP sent to your phone. Most foreign developer platforms don't support 3DS. Their payment forms don't have a place for an OTP. The transaction gets submitted without it, and the bank declines it automatically.
+## Why Indian Cards Fail on Developer Platforms
 
-**The e-Mandate Problem**
-SaaS tools like GitHub Pro, AWS, and Vercel charge you on a recurring basis. Indian banks have strict RBI rules around e-mandates for recurring international charges. Banks like SBI block these by default. Even if your first payment goes through, the renewal gets declined.
+There are usually three separate problems:
 
-**The International Transaction Block**
-Many Indian bank accounts have international transactions disabled by default. You enable it in the app, it works once, then the bank's fraud detection flags the pattern and blocks subsequent charges.
+### 1. RBI 3DS rules
 
-The cards that work have found ways around all three of these problems — usually by operating as prepaid forex cards or through international banking infrastructure.
+Many Indian cards expect an OTP-based international flow. A lot of developer platforms do not handle that flow well, so the bank declines the transaction.
 
----
+### 2. Recurring billing friction
 
-## The Cards — Ranked
+The first payment may work and the renewal may still fail. This is why "it worked once" is not the same as "this is a reliable subscription card."
 
-### 1. Niyo Global (Best Overall)
+### 3. International transactions are disabled or unstable
 
-Niyo Global is a zero-forex-markup prepaid card issued in partnership with SBM Bank India. It's designed specifically for international use — and it works on developer platforms because it doesn't go through the standard Indian banking rails that cause 3DS failures.
+Many cards ship with international usage disabled or limited. Even after you enable it, some banks still behave unpredictably for recurring SaaS billing.
 
-**What works with Niyo:**
-- GitHub Pro / GitHub Copilot
-- Hetzner Cloud
-- DigitalOcean
-- Netlify Pro
-- Vercel Pro
-- AWS (with some setup — see note below)
-- Anthropic API / OpenAI API
-- Namecheap / Porkbun domains
+## The Cards I Would Actually Recommend
+
+### 1. Niyo Global
+
+Niyo is the best default recommendation because it is easy to load, cheap on forex, and much more reliable than normal domestic debit cards for international developer spend.
+
+Best for:
+
+- GitHub
+- Hetzner
+- Vercel
 - Cloudflare
+- OpenAI or Anthropic billing
 
-**Cost:** Zero annual fee. Zero forex markup (you pay the mid-market rate). Reload via UPI or NEFT.
+If Hetzner is your main concern, read [How to pay for Hetzner from India](/blog/pay-hetzner-from-india).
 
-**How to get it:**
-1. Download the Niyo Global app (iOS / Android)
-2. Complete KYC (Aadhaar + PAN — takes 10-15 minutes)
-3. Your virtual card is active immediately. Physical card ships in 7-10 days.
-4. Load money via UPI — minimum ₹100
+### 2. Kotak 811 virtual card
 
-**For Hetzner specifically:** I use Niyo for this. Works perfectly. Load ₹600, add the card to Hetzner, the ₹30 verification charge goes through, and monthly billing runs without issues. Full walkthrough in my [Hetzner payment guide](/blog/pay-hetzner-from-india).
+Kotak 811 is not my first choice, but it is useful as a free backup. It is especially good when you want a second card that is easy to open quickly.
 
-**AWS note:** AWS has its own verification quirks. Niyo works for the initial setup but some users report the free tier verification charge failing. If it does, use Wise instead for AWS.
+Best for:
 
----
+- lower-stakes subscriptions
+- backup use
+- one-time charges
 
-### 2. Kotak 811 Virtual Card (Best Free Option)
+### 3. Wise
 
-Kotak 811 is a zero-balance digital savings account. The virtual debit card it issues works surprisingly well for international developer subscriptions — better than most full-service bank cards.
+Wise is the strongest option when you want maximum recurring-billing reliability or one card for several international infrastructure tools.
 
-**What works with Kotak 811:**
-- GitHub Pro
-- Namecheap / GoDaddy domains
-- Cloudflare
-- Most one-time charges on dev platforms
-- DigitalOcean (initial charge)
+Best for:
 
-**Cost:** Free account, free virtual card. Forex markup of around 3.5% applies.
-
-**How to get it:**
-1. Download the Kotak 811 app
-2. Open account with Aadhaar + PAN (fully digital, 10 minutes)
-3. Virtual card is in the app immediately
-4. Add money via UPI
-
-**Limitation:** Kotak 811 works well for one-time charges but recurring billing is less reliable. If a monthly renewal fails, log into the platform and manually retry — it usually goes through on the second attempt.
-
----
-
-### 3. Wise Multi-Currency Card (Best for Large Bills)
-
-Wise is not an Indian bank — it's a UK-based fintech that lets you hold and spend in multiple currencies. The Wise card is a Mastercard/Visa that works everywhere internationally, with no Indian banking restrictions at all.
-
-**What works with Wise:**
-- Everything. AWS, GCP, Azure, GitHub, Vercel, Hetzner, DigitalOcean, OpenAI, Anthropic — all of it.
-- Large recurring bills (₹5,000+/month)
-- Team subscriptions where your company reimburses you
-
-**Cost:** One-time card issuance fee of around ₹600. Transfer fees are small (typically 0.4-0.6% of the amount). No annual fee after that.
-
-**How to get it:**
-1. Sign up at wise.com
-2. Complete KYC (PAN + selfie)
-3. Add money from your Indian bank account via IMPS/NEFT
-4. Order the physical card (₹600 fee) or use virtual card immediately
-
-**Why I recommend Wise for AWS:** AWS's payment system is particularly strict. Wise's international Mastercard bypasses every Indian banking restriction that causes AWS failures. If you're running production workloads on AWS and can't afford payment failures, Wise is worth the ₹600.
-
----
-
-### 4. HDFC Millennia / Regalia Credit Card (If You Have One)
-
-HDFC credit cards — particularly Millennia and Regalia — have the best international transaction success rates among traditional Indian bank cards. They support 3DS properly through HDFC's OTP system, and recurring charges work reliably once set up.
-
-**Works on:**
-- GitHub (credit cards only for some plans)
 - AWS
-- Most major platforms
+- larger monthly bills
+- one-card-for-everything setups
 
-**The catch:** You need a credit card, not a debit card. HDFC debit cards are inconsistent — credit cards are reliable. If you already have an HDFC credit card, try it first before getting a new card.
+### 4. Good international credit cards
 
----
+If you already have a reliable HDFC or similar credit card with international payments working properly, it may be good enough. I would still trust Wise or Niyo more as a general default recommendation.
 
-### 5. SBI Debit Card (Avoid for Dev Tools)
+### 5. Standard SBI and similar debit cards
 
-SBI is India's largest bank, but their international transaction infrastructure is the worst for developer use. The combination of strict e-mandate blocking and poor 3DS implementation means SBI debit cards fail on most dev platforms.
+These are the cards I would avoid for important recurring infrastructure spend. They may work sometimes, but the failure rate is high enough that I would not build a stack around them.
 
-**What usually fails:**
-- Hetzner (almost always)
-- AWS (frequently)
-- DigitalOcean (often)
-- Any SaaS with recurring billing
+## Platform-by-Platform Picks
 
-**Workaround if you must use SBI:**
-Enable international transactions in YONO app → Settings → Card Settings → International Transactions. Then try adding the card. Even with this enabled, recurring charges often fail. Use SBI only for one-time purchases, not subscriptions.
+### GitHub Pro and GitHub Copilot
 
----
-
-## Platform-Specific Guide
-
-### GitHub Pro / GitHub Copilot
-
-**Best card:** Niyo Global or Kotak 811
-GitHub accepts Indian cards reasonably well. Niyo works consistently. Kotak 811 works for most users. HDFC credit card works. SBI debit usually fails.
-
-Monthly charge: $4/month (GitHub Pro) or $10/month (Copilot)
-INR equivalent: ~₹335 or ~₹835/month
+Best picks: Niyo Global or Kotak 811
 
 ### AWS
 
-**Best card:** Wise
-AWS is the most difficult platform for Indian developers. The ₹2 verification charge that AWS places on new cards fails on most Indian debit cards. Wise has the highest success rate. Niyo works for some users. HDFC credit card works.
+Best pick: Wise
 
-If you're starting out with AWS, use the Wise card from day one and save yourself the frustration.
+### Hetzner
 
-### Hetzner Cloud
+Best pick: Niyo Global, then Wise
 
-**Best card:** Niyo Global
-Full guide: [How to Pay for Hetzner from India](/blog/pay-hetzner-from-india)
+### Vercel
 
-### DigitalOcean
-
-**Best card:** Niyo Global or Wise
-DigitalOcean also accepts PayPal, which is a good fallback if your card doesn't work.
-
-### Vercel Pro
-
-**Best card:** Niyo Global or Wise
-Vercel's billing is Stripe-based. Niyo works well on Stripe. Kotak 811 works for initial signup but monthly renewals occasionally need manual retry.
+Best picks: Niyo Global or Wise
 
 ### Cloudflare
 
-**Best card:** Any of the above
-Cloudflare has one of the most India-friendly payment systems among major dev platforms. Even Kotak 811 works reliably for Cloudflare billing.
+Best picks: Niyo, Wise, or Kotak 811
 
-### OpenAI API / Anthropic API
+### OpenAI and Anthropic APIs
 
-**Best card:** Wise or Niyo Global
-AI API billing requires a reliable international card. Both Wise and Niyo work. Kotak 811 works for initial top-ups on some platforms.
+Best picks: Wise or Niyo
 
-### Namecheap / Porkbun (Domains)
+## When to Choose Niyo vs Kotak vs Wise
 
-**Best card:** Any of the above
-Domain registrars are among the easiest platforms to pay from India. Niyo, Kotak 811, and Wise all work without issues.
+Choose **Niyo Global** if you want the best default card for monthly developer subscriptions and low forex cost.
 
----
+Choose **Kotak 811** if you want a free backup card you can open quickly and keep around for lower-stakes charges.
 
-## My Personal Setup
-
-I run multiple projects from India. Here's exactly what I use:
-
-**Primary card: Niyo Global**
-Handles 90% of my dev subscriptions — Hetzner, Cloudflare, Namecheap, Vercel, Anthropic API. I keep ₹2,000-3,000 loaded at all times.
-
-**Backup card: Kotak 811**
-Used when Niyo has issues or when I need a second card for a platform. Free to maintain, zero reason not to have it.
-
-**For large bills: Wise**
-When a single charge exceeds ₹5,000 or I need guaranteed reliability (AWS, GCP), I use Wise. The ₹600 issuance fee paid for itself within the first month.
-
-Total monthly overhead for maintaining this setup: ₹0 (Niyo and Kotak 811 are both free, Wise has no monthly fee).
-
----
+Choose **Wise** if you want the strongest recurring-billing reliability, especially for AWS, APIs, or larger monthly spend.
 
 ## Quick Comparison Table
 
-| Card | Type | Forex Fee | Best For | Free? |
-|------|------|-----------|----------|-------|
-| Niyo Global | Prepaid Forex | 0% | Everything | ✅ Yes |
-| Kotak 811 | Virtual Debit | ~3.5% | One-time charges | ✅ Yes |
-| Wise | Multi-currency | ~0.5% | Large bills, AWS | ₹600 once |
-| HDFC Credit | Credit | ~3.5% | If you have it | Card fees apply |
-| SBI Debit | Debit | ~3.5% | Avoid for dev tools | — |
-
----
+| Card | Cost profile | Reliability | Best use |
+| --- | --- | --- | --- |
+| Niyo Global | Very good | High | Default choice |
+| Kotak 811 | Free but weaker | Medium | Backup |
+| Wise | Slightly higher setup cost | Very high | Larger or critical spend |
+| Standard debit cards | Usually mediocre | Low | Avoid for core subscriptions |
 
 ## Troubleshooting
 
-**Card added but payment fails immediately**
-Usually a 3DS issue. Try Niyo or Wise instead — they bypass Indian 3DS requirements.
+### The card fails immediately
 
-**First payment worked, renewal fails**
-This is the e-mandate problem. Your bank approved the one-time charge but blocked the recurring setup. Switch to Wise for any subscription that bills monthly.
+Check international transactions first. If it is a standard domestic debit card, stop retrying and switch to Niyo or Wise.
 
-**"Your card does not support this type of purchase"**
-Your card has international transactions disabled. For Kotak 811: Settings → Card Controls → International Transactions → Enable. For SBI: YONO app → Card Settings.
+### The first payment worked but renewal failed
 
-**Payment goes through but platform says "payment failed"**
-The bank charged you but the platform didn't confirm. Check your bank statement and contact platform support with the transaction reference. This happens occasionally with Kotak 811 on some platforms.
+That is the recurring-billing problem. Move the subscription to a stronger card before the next cycle.
 
-**VPN interference**
-Some platforms flag Indian IPs and add extra verification. If using a VPN, disable it during payment setup — use your real Indian IP. Add the card first, then use a VPN normally after.
+### The platform added the card but still shows payment issues
 
----
+Wait for the first verification charge to settle and check whether the platform actually accepted the billing method. If not, switch cards instead of repeating the same flow.
 
-## Frequently Asked Questions
+## FAQ
 
-**Which Indian debit card works best for GitHub subscriptions?**
+### Which Indian card works best for developer subscriptions in 2026?
 
-Niyo Global is the most reliable for GitHub Pro and GitHub Copilot. Kotak 811 also works for most users. HDFC credit card is reliable if you have one. SBI debit card usually fails on GitHub's recurring billing.
+For most solo developers, Niyo Global is the best default answer. Wise is the stronger option for larger or more critical recurring bills.
 
-**Can I use UPI to pay for international developer tools?**
+### Is Wise worth it if I only use one or two tools?
 
-No. UPI is a domestic Indian payment system and is not accepted by international platforms like AWS, GitHub, Hetzner, or Vercel. You need an international debit card, credit card, or PayPal.
+If Niyo is working for your full stack, you may not need Wise. If AWS or larger recurring charges keep failing, Wise becomes worth it quickly.
 
-**Is Niyo Global safe for online payments?**
+### What should my backup card be?
 
-Yes. Niyo is issued by SBM Bank India (regulated by RBI) and uses standard Visa/Mastercard security. You can freeze the card instantly from the app and set transaction limits. I've used it for 2+ years without any fraud issues.
+Kotak 811 is a practical backup because it is free and easy to keep around.
 
-**Does Wise work without a permanent address in India?**
+### Which page should I read if the main issue is Hetzner billing?
 
-Wise KYC requires PAN card and address proof. A rental agreement or utility bill works. You don't need a permanent address — a current address is sufficient.
-
-**What is the best card for AWS free tier verification?**
-
-Wise is the most reliable for AWS. The ₹2 verification charge that AWS places on new cards fails on most Indian debit cards but almost never fails on Wise. Niyo Global is the second-best option.
-
-**Can I get a refund to my Niyo or Kotak 811 card?**
-
-Yes. International refunds work on both cards. Niyo refunds typically credit within 5-7 business days. Kotak 811 refunds take 7-14 days. The forex rate applied may differ from the original charge rate.
-
-**Does Kotak 811 charge annual fees?**
-
-No. Kotak 811 is a zero-balance account with no annual fee and no minimum balance requirement. The virtual card is free. Forex markup of around 3.5% applies on international transactions.
-
-**Which card has the lowest forex fees for developer subscriptions?**
-
-Niyo Global has zero forex markup — you pay the mid-market rate. Wise charges around 0.4-0.6% which is the next lowest. All other Indian cards charge 3-3.5% forex markup plus a small cross-currency transaction fee.
-
----
+Go straight to [How to pay for Hetzner from India](/blog/pay-hetzner-from-india).
 
 ## Final Takeaway
 
-If you want the shortest answer: use Niyo Global as your default card, keep Kotak 811 as a backup, and get Wise if AWS or larger recurring bills keep failing. That setup covers nearly every developer subscription problem Indian builders run into without wasting days on random bank retries.
-
-Once payments stop being the bottleneck, the next win is using that reliable card stack on infrastructure that stays cheap month to month. Start with [running 5 side projects on a single 4GB Hetzner VPS](/blog/multiple-projects-single-vps), then move to [deploying Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner) if you want a cleaner deployment flow.
-
-Have a question about a specific platform or card combination? [Reach out](/hire) — I've probably tested it.
+The simplest reliable setup for Indian developers in 2026 is still one strong primary card and one backup, not a pile of random bank retries. Use Niyo Global as the default, keep Kotak 811 as the fallback, and add Wise when recurring infrastructure spend becomes important enough that payment failures are expensive.

@@ -1,319 +1,206 @@
 ---
-title: "Coolify vs Caprover vs Dokku in 2026 â€” Which One Should You Use?"
+title: "Coolify vs CapRover vs Dokku (2026): Best Self-Hosted PaaS?"
 slug: "coolify-vs-caprover-2026"
-description: "Coolify vs Caprover vs Dokku â€” which self-hosted deployment platform is right for your projects in 2026? I've used all three. Here's the honest comparison."
+description: "An honest 2026 comparison of Coolify, CapRover, and Dokku for VPS deploys: setup, RAM use, SSL, databases, Git workflows, and which one to choose."
 date: "2026-03-16"
-updatedAt: "2026-03-26"
+updatedAt: "2026-03-27"
 author: "Ankit Sorathiya"
 category: "developer-tools"
-tags: [coolify,self-hosting,vps,hetzner,deployment,devops]
+tags: [coolify, self-hosting, vps, hetzner, deployment, devops]
 keyword: "coolify vs caprover 2026"
 featured: false
 featuredImage: /images/posts/coolify-vs-caprover-2026/featured.jpg
 schema: "article"
 ---
 
-You have a Hetzner VPS, you want app deploys without hand-editing nginx and PM2 for every project, and now you need to decide whether Coolify, CapRover, or Dokku is the least painful way to run that setup.
+If your real question is "which self-hosted deployment platform should I put on a VPS in 2026?", the short answer is simple: choose Coolify for the easiest overall path, Dokku for the lightest CLI-first workflow, and CapRover only if its marketplace and Docker Swarm model fit how you already work.
 
-I have run all three in production. This comparison is not about feature checklists alone. It is about what gets annoying after the first deploy, what breaks in real use, and which one I would actually choose again.
-
----
+I have run all three in production. This is not a checklist article. It is a decision article. The useful comparison is what happens after the first deploy: RAM overhead, SSL friction, database management, Git workflow, and what becomes annoying once you are running multiple apps on the same server.
 
 ## TL;DR
 
-- **Coolify** â€” Best for most people in 2026. Modern UI, active development, Docker-native, one-click databases. Choose this if you want something that keeps getting better.
-- **Caprover** â€” Solid and battle-tested. Good if you need one-click apps from a marketplace or prefer a simpler mental model. Slightly dated UI.
-- **Dokku** â€” Best for developers who want Heroku-style git push deploys with zero UI overhead. No dashboard â€” pure CLI. Excellent if you're comfortable in the terminal.
+- **Coolify** is the best default for most solo developers in 2026.
+- **CapRover** is still usable, but I would only choose it for its one-click app ecosystem or if I already liked its mental model.
+- **Dokku** is excellent if you want Heroku-style `git push` deploys and the lowest overhead.
 
----
+## Who This Comparison Is For
 
-## What Are These Tools?
+This guide is for you if:
 
-All three solve the same problem: you have a VPS and you want to deploy web apps without manually configuring nginx, SSL, Docker, and reverse proxies every time.
+- you want to deploy on your own VPS instead of paying for a hosted platform
+- you expect to run more than one project on the same server
+- you care about RAM overhead, SSL, databases, and deploy workflow
+- you want an opinionated answer, not just a feature matrix
 
-They're all free and open source. They all run on your own server. The difference is in philosophy, UX, and what they're good at.
+## What These Tools Actually Solve
 
-**Coolify** â€” A newer platform (2021) that has grown rapidly. Docker and Docker Compose native. Has a full web dashboard. Supports databases, cron jobs, S3 backups, team members. Very actively developed â€” new features ship every few weeks.
+All three tools solve the same core problem: you have a VPS and you do not want to hand-edit Nginx, SSL, Docker, and reverse-proxy config every time you deploy another app.
 
-**Caprover** â€” Been around since 2018. Built on Docker Swarm. Has a web UI and a CLI. Known for its "one-click apps" marketplace (databases, WordPress, Ghost, n8n, etc.) and solid stability.
+They are all self-hosted. They are all cheaper than paying for several hosted app-platform seats. The difference is how much interface, abstraction, and operational overhead you want to own.
 
-**Dokku** â€” The oldest of the three (2013). Inspired by Heroku. No web UI â€” everything is CLI. Uses buildpacks (like Heroku) or Dockerfiles. Extremely lightweight. Beloved by developers who want minimal overhead.
+## Quick Comparison Table
 
----
+| Area | Coolify | CapRover | Dokku |
+| --- | --- | --- | --- |
+| Best for | Most people | Marketplace-driven setups | CLI-first developers |
+| UI | Strong | Fine but dated | None |
+| Deploy model | Git + dashboard | Git + dashboard | `git push` |
+| Databases | Strong built-in flow | Good via one-click apps | Plugin-based |
+| RAM overhead | Highest of the three | Medium | Lowest |
+| Learning curve | Low | Medium | Medium if you like CLI |
 
-## Head-to-Head Comparison
+## Setup and Installation
 
-### Setup and Installation
+### Coolify
 
-**Coolify:**
+Coolify is the fastest path from blank VPS to working dashboard.
+
 ```bash
 curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash
 ```
-One command. Installs Docker, sets up the Coolify app, and gives you a web dashboard on port 8000. Takes 3-5 minutes. The onboarding wizard walks you through adding your first app.
 
-**Caprover:**
-```bash
-docker run -p 80:80 -p 443:443 -p 3000:3000 \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -v /captain:/captain caprover/caprover
-```
-Requires Docker pre-installed. Dashboard runs on port 3000. Initial setup requires pointing a wildcard DNS (`*.yourdomain.com`) at your server â€” this is the step that trips most people up.
+It installs quickly, gives you a web UI, and handles the common "connect repo, add env vars, deploy" workflow well.
 
-**Dokku:**
+### CapRover
+
+CapRover is also straightforward, but it wants you to think in its own way from the start. The wildcard DNS requirement is the part that trips people up.
+
+### Dokku
+
+Dokku is the cleanest if you want a small surface area:
+
 ```bash
 wget -NP . https://dokku.com/bootstrap.sh
 sudo DOKKU_TAG=v0.34.0 bash bootstrap.sh
 ```
-Clean install. No Docker required (unless you want Dockerfile deploys). After install, you SSH in and use the `dokku` CLI for everything. No dashboard at all.
 
-**Winner: Coolify** â€” Fastest zero-to-deployed, best onboarding.
+If you like the Heroku mental model, Dokku still feels great.
 
----
+## Deploying a Next.js App
 
-### Deploying a Next.js App
+For a standard Next.js repo, Coolify is the easiest. It detects common stacks well, the dashboard makes env vars and redeploys simple, and it is easier to hand off later if a non-technical client needs basic visibility.
 
-**Coolify:**
-Connect GitHub repo â†’ select branch â†’ Coolify detects Next.js via Nixpacks â†’ sets build command automatically â†’ click Deploy. Done. Webhook auto-deploy on git push works out of the box.
+CapRover works, but it is more manual. You usually end up defining the build path more explicitly.
 
-**Caprover:**
-Either use a `captain-definition` file in your repo:
-```json
-{
-  "schemaVersion": 2,
-  "dockerfilePath": "./Dockerfile"
-}
-```
-Or use a Dockerfile. Caprover doesn't auto-detect frameworks â€” you need to tell it how to build. Slightly more manual than Coolify.
+Dokku feels best if you want this workflow:
 
-**Dokku:**
 ```bash
-# On your server
-dokku apps:create myapp
-
-# On your machine
 git remote add dokku dokku@YOUR_VPS:myapp
 git push dokku main
 ```
-Dokku detects Next.js via buildpacks and builds automatically. SSL:
-```bash
-dokku letsencrypt:enable myapp
-```
-The git push workflow feels natural if you're used to Heroku.
 
-**Winner: Coolify** for ease. **Dokku** for the cleanest developer workflow.
+That is still one of the nicest deploy loops in self-hosting if you are comfortable staying in the terminal.
 
----
+## Domains and SSL
 
-### SSL and Custom Domains
+All three can handle domains and Let's Encrypt. The difference is how much friction sits between "I have a domain" and "the site is live with SSL."
 
-All three handle SSL via Let's Encrypt. The difference is in setup friction.
+- **Coolify** wins on ease.
+- **Dokku** wins on predictability.
+- **CapRover** is fine once the wildcard DNS requirement is already solved.
 
-**Coolify:** Add domain in the UI â†’ click Save â†’ SSL provisions automatically. Works with Cloudflare (set DNS-only/grey cloud during provisioning). Takes ~2 minutes.
+## Multiple Apps on One Server
 
-**Caprover:** Requires a wildcard DNS record (`*.yourdomain.com â†’ your VPS IP`) upfront. Once that's set, adding any subdomain is instant. If you don't want wildcard DNS, it's more friction.
+This is where the platform choice starts to matter more than the first install.
 
-**Dokku:**
-```bash
-dokku domains:add myapp myapp.com
-dokku letsencrypt:enable myapp
-```
-Two commands. Works reliably. No UI needed.
+Coolify is the easiest if you expect to keep adding apps, services, databases, and side projects over time. The routing model is cleaner for most people.
 
-**Winner: Tie** â€” Coolify for ease, Dokku for reliability, Caprover requires wildcard DNS upfront.
+CapRover is okay here too, but I mostly like it when the marketplace matters.
 
----
+Dokku works very well on a small server because the overhead stays low, but you have to be happy doing more in the terminal.
 
-### Multiple Apps on One Server
+If your workload is "one box, several small projects, low monthly cost," also read [Run multiple projects on one VPS](/blog/multiple-projects-single-vps).
 
-This is where the differences matter most.
+## Databases and Backups
 
-**Coolify:** Each app gets its own container. Traefik handles routing by domain name. Adding a new app is: create resource â†’ set domain â†’ deploy. Routing updates automatically. You can run 10+ apps with zero manual nginx editing.
+This is where Coolify pulls ahead for most people. The built-in flow around databases, volumes, and backups removes a lot of low-grade operational friction.
 
-**Caprover:** Same concept â€” Docker Swarm + nginx proxy. New apps get a subdomain automatically (`appname.yourdomain.com`). Custom domains work too. The one-click app marketplace means you can spin up n8n, Ghost, or PostgreSQL in seconds.
+CapRover is decent because of the one-click app ecosystem.
 
-**Dokku:** Each app is isolated. Add domains with CLI. The proxy (nginx by default) updates automatically on each deploy. Slightly more CLI commands but very predictable.
+Dokku is perfectly capable, but it is more command-driven and plugin-driven. That is great if you want control. It is worse if you want the fastest path to "working and easy to remember later."
 
-I currently run blixamo.com manually with PM2+nginx because I need precise Cache-Control header control for ISR+Cloudflare. For everything else â€” client projects, n8n, side projects â€” I use Coolify. See my [guide on running 5 projects on one VPS](/blog/multiple-projects-single-vps) for the full setup.
+## Resource Usage
 
-**Winner: Coolify** for ease. **Caprover** for one-click marketplace apps.
+This is the simplest reason to choose Dokku on a small VPS. It has the lowest platform overhead by far.
 
----
+| Tool | Practical overhead |
+| --- | --- |
+| Coolify | Highest |
+| CapRover | Medium |
+| Dokku | Lowest |
 
-### Databases
+If your VPS is a small 4GB server and you care about every bit of RAM, Dokku has a real advantage.
 
-**Coolify:** One-click databases â€” PostgreSQL, MySQL, MongoDB, Redis, MariaDB. Each gets its own container with persistent storage. You can connect them to apps directly from the UI. Backups to S3 are built in.
+## What Breaks in Production
 
-**Caprover:** One-click apps marketplace includes databases. PostgreSQL, MySQL, Redis â€” all available. Slightly less polished than Coolify's database management UI.
+### Coolify
 
-**Dokku:** Plugin system:
-```bash
-dokku plugin:install https://github.com/dokku/dokku-postgres.git
-dokku postgres:create mydb
-dokku postgres:link mydb myapp
-```
-Works perfectly but requires more commands. Every database type needs its own plugin installed.
+- occasional friction around updates or deploy cache
+- more platform overhead
+- easier day-to-day once configured
 
-**Winner: Coolify** â€” best database management, built-in S3 backups.
+### CapRover
 
----
+- wildcard DNS is annoying if it does not fit your setup
+- the UI feels older
+- the platform is fine, but I do not find it compelling unless you already know why you want it
 
-### Resource Usage
+### Dokku
 
-This matters on a 4GB VPS.
+- best if you are comfortable debugging in SSH
+- less friendly if you need to hand the stack to someone non-technical
+- some workflows need more explicit setup than Coolify
 
-| Tool | Idle RAM usage |
-|------|----------------|
-| Coolify + Traefik + PostgreSQL + Redis | ~400-500MB |
-| Caprover + Docker Swarm overhead | ~200-300MB |
-| Dokku (no extra services) | ~50-100MB |
+## When to Choose Each One
 
-Dokku is by far the lightest. If you're running many apps on a small server and every MB matters, Dokku wins. Coolify's overhead is real â€” plan for 400MB+ just for the platform itself.
+Choose **Coolify** if:
 
-On a Hetzner CPX21 (4GB RAM) with swap:
-- Dokku: you can run 6-8 small apps comfortably
-- Coolify: you can run 3-5 apps comfortably
-- Caprover: similar to Coolify
+- you want the best default choice
+- you expect to manage several apps over time
+- you want easier database management and a modern dashboard
 
-**Winner: Dokku** for resource efficiency.
+Choose **CapRover** if:
 
----
+- you specifically want its marketplace approach
+- you already like its model
+- wildcard DNS is not a problem in your setup
 
-### Active Development and Community
+Choose **Dokku** if:
 
-**Coolify:** Most actively developed in 2026. GitHub stars growing fast. Issues get responses. New features ship frequently. The founder is active on Twitter/X. If something breaks, there's usually a fix within days.
+- you want the lightest platform
+- you prefer terminal-driven workflows
+- `git push` deploys are a feature, not a compromise
 
-**Caprover:** Slower development pace in recent years. Stable, but not getting many new features. Community is active on forums. Still maintained and reliable.
+## My Practical Recommendation
 
-**Dokku:** Mature and stable. Development is slower but intentional â€” it does what it does and doesn't add fluff. Well-documented. Community is strong among developers who prefer CLI tools.
+If I were starting from zero today, I would still choose Coolify for most solo-developer workloads. It is the best tradeoff between convenience and control.
 
-**Winner: Coolify** for momentum. **Dokku** for stability.
+I would choose Dokku only when I explicitly want lower overhead and a CLI-first setup.
 
----
+I would choose CapRover only if something specific about its workflow already matches what I need.
 
-### What Breaks in Production
+## FAQ
 
-Honest section that most comparisons skip.
+### Is Coolify really the best default in 2026?
 
-**Coolify issues I've hit:**
-- Build cache occasionally causes stale deploys â€” fix: force rebuild
-- Traefik config can get confused when you delete and recreate apps with the same domain â€” fix: restart Traefik container
-- Memory spike during Next.js builds on 4GB VPS â€” fix: add 2GB swap (covered in my [deploy guide](/blog/deploy-nextjs-coolify-hetzner))
-- Coolify updates occasionally break things â€” always check changelog before updating
+Yes, for most solo developers and small teams. It is the easiest self-hosted deployment platform to recommend without adding too many caveats.
 
-**Caprover issues I've hit:**
-- Wildcard DNS requirement is a dealbreaker for some setups
-- Docker Swarm adds overhead even for single-node deployments
-- UI feels dated â€” not a bug but affects daily experience
+### Is Dokku still worth using?
 
-**Dokku issues I've hit:**
-- Buildpack detection can fail for monorepos â€” need explicit configuration
-- `git push` failures give cryptic error messages sometimes
-- No UI means debugging requires SSH access â€” not great if you need to hand off to a non-technical person
-- Let's Encrypt rate limits if you create/destroy apps frequently
+Absolutely. Dokku is still excellent if you value low overhead and a clean terminal workflow.
 
----
+### Does CapRover still make sense?
 
-## Decision Framework
+Yes, but mostly if you already want CapRover for a reason. I would not call it the strongest default choice anymore.
 
-**Choose Coolify if:**
-- You want the best UI and ongoing development
-- You need one-click databases with S3 backups
-- You're deploying Next.js, Node.js, Python, or any standard stack
-- You want auto-deploys from GitHub without manual webhook setup
-- You have 4GB+ RAM on your VPS
+### Which one should I use on a small Hetzner VPS?
 
-**Choose Caprover if:**
-- You need specific one-click marketplace apps (Ghost, WordPress, Mattermost)
-- You want something battle-tested with years of production history
-- You're okay with setting up wildcard DNS upfront
-- You prefer Docker Swarm architecture
+If RAM is tight, Dokku has the best overhead profile. If convenience matters more, Coolify is still the better default.
 
-**Choose Dokku if:**
-- You're a developer who lives in the terminal
-- You want maximum resource efficiency
-- You like the Heroku git-push workflow
-- You're running many small apps on limited RAM
-- You don't need a UI
+### What should I read next?
 
-**Don't use any of them if:**
-You need fine-grained nginx control for ISR + Cloudflare CDN caching (like this blog). In that case, manual PM2 + nginx is still the right answer. See [how I deploy this blog manually](/blog/multiple-projects-single-vps).
-
----
-
-## My Setup in 2026
-
-For reference, here's what I actually run:
-
-- **blixamo.com** â€” Manual PM2 + nginx (needs precise Cache-Control headers)
-- **Client projects (3-4)** â€” Coolify on same Hetzner CPX21
-- **n8n automation** â€” Coolify (one-click deploy, persistent storage)
-- **Supabase self-hosted** â€” Docker Compose directly (too complex for any of these tools)
-
-Total VPS cost: â‚¬5.19/month (â‚¹465). All of this on one server.
-
----
-
-## Quick Reference
-
-| Feature | Coolify | Caprover | Dokku |
-|---------|---------|----------|-------|
-| Web UI | âœ… Modern | âœ… Dated | âŒ None |
-| Auto-detect frameworks | âœ… Nixpacks | âŒ Manual | âœ… Buildpacks |
-| One-click databases | âœ… Excellent | âœ… Good | âš ï¸ Plugins |
-| SSL | âœ… Automatic | âœ… Automatic | âœ… Plugin |
-| Git auto-deploy | âœ… Built-in | âœ… Built-in | âœ… Git push |
-| RAM overhead | ~400MB | ~250MB | ~75MB |
-| Active development | âœ… Very active | ðŸŸ¡ Slower | ðŸŸ¡ Stable |
-| Best for | Most people | Marketplace apps | CLI devs |
-
----
-
-## Frequently Asked Questions
-
-**Is Coolify really free?**
-
-The self-hosted version is completely free and open source (Apache 2.0). There is a Coolify Cloud version if you don't want to manage the server yourself, but for self-hosting on Hetzner it costs nothing beyond your VPS bill.
-
-**Can I migrate from Caprover to Coolify?**
-
-There's no automatic migration tool. The practical approach: set up Coolify on the same server (different port), redeploy your apps there one by one, then uninstall Caprover. It takes an hour but is straightforward.
-
-**Does Dokku work with Docker Compose?**
-
-Yes, via the `dokku-docker-compose` plugin. It's not as seamless as Coolify's native Compose support but it works.
-
-**Which handles the most traffic?**
-
-All three can handle significant traffic â€” the bottleneck is your VPS resources, not the platform. Dokku has the lowest overhead so theoretically leaves the most resources for your apps.
-
-**Can I run Coolify and Dokku on the same server?**
-
-Not easily â€” they both want to control ports 80/443 via their reverse proxies. Pick one per server.
-
-**Does Caprover support ARM servers?**
-
-Yes, Caprover supports ARM64. Coolify also supports ARM. Dokku supports ARM. All three work on Hetzner's CAX series ARM servers (cheapest option at â‚¬3.79/month).
-
-**Which is easiest for a solo developer shipping multiple projects?**
-
-Coolify. The UI makes it easy to see all your apps at a glance, check logs, restart services, and manage databases without SSH. For a solo developer context-switching between multiple projects, this saves real time.
-
-**What about Portainer or Traefik directly?**
-
-Portainer is a Docker management UI, not a deployment platform â€” it doesn't handle git deploys or buildpacks. Traefik is a reverse proxy, not a PaaS. Both require significantly more configuration. Coolify/Caprover/Dokku are higher-level abstractions built on top of these tools.
-
----
-
-## What Next?
-
-If you're going with Coolify, my [step-by-step guide to deploying Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner) covers the full setup â€” from blank VPS to live app with SSL and auto-deploys.
-
-If you haven't sorted your Hetzner payment method yet (common for Indian developers), [here's what actually works in 2026](/blog/pay-hetzner-from-india).
-
-Need someone to set up your deployment infrastructure? [Check my services](/hire) â€” I handle Hetzner + Coolify + CI/CD setups as part of my freelance work.
+If you choose Coolify, go to [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner). If you are still figuring out the server layout, read [Run multiple projects on one VPS](/blog/multiple-projects-single-vps). If payment is blocking the VPS itself, read [How to pay for Hetzner from India](/blog/pay-hetzner-from-india).
 
 ## Final Recommendation
 
-Coolify is still the best default for most solo developers in 2026 because it gives you the least friction for the broadest set of workloads. CapRover is still worth choosing if you like its simpler model and marketplace flow. Dokku remains excellent for developers who want the lightest possible Heroku-style workflow and do not care about having a dashboard.
-
-If you are deciding from scratch, the question is not "which one has the most features?" It is "how much platform do you actually want to maintain?" For most people, that answer lands on Coolify.
+Coolify is still the best self-hosted deployment platform for most people in 2026 because it removes the most friction without forcing you into a heavy enterprise stack. Dokku remains the best option for developers who want the lightest possible platform and do not care about having a dashboard. CapRover is still usable, but it is no longer the one I would recommend first unless its specific workflow is exactly what you want.
