@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: 'Disclaimer',
   description: 'Read the Blixamo disclaimer covering general information, affiliate relationships, advertising, and content accuracy.',
   alternates: { canonical: absoluteUrl('/disclaimer') },
+  robots: { index: false, follow: true },
 }
 
 export default function DisclaimerPage() {

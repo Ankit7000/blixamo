@@ -1,5 +1,5 @@
 ---
-title: "next-mdx-remote/rsc Edge Runtime Fix — Next.js 15"
+title: "next-mdx-remote/rsc Edge Runtime Fix â€” Next.js 15"
 slug: "nextjs-mdx-remote-rsc-edge-runtime-fix"
 description: "Fix the next-mdx-remote/rsc edge runtime fs error in Next.js 15 by switching the route to Node.js runtime and avoiding edge inheritance."
 date: "2026-03-23"
@@ -10,7 +10,7 @@ tags: [nextjs, mdx, runtime, debug]
 keyword: "next-mdx-remote rsc edge runtime fix"
 secondaryKeywords: ["next-mdx-remote edge runtime error", "nextjs 15 mdx edge runtime fs", "next-mdx-remote/rsc nodejs runtime", "mdx edge runtime not supported"]
 featured: false
-featuredImage: "/images/posts/nextjs-mdx-remote-rsc-edge-runtime-fix/featured.png"
+featuredImage: /images/posts/nextjs-mdx-remote-rsc-edge-runtime-fix/featured.jpg
 schema: "howto"
 difficulty: "beginner"
 timeToComplete: "5 minutes"
@@ -56,7 +56,7 @@ But you can also see:
 
 That mismatch between local success and production failure is what wastes time. The app feels correct until the runtime environment changes.
 
-## Step 1 of 3 — Find Where Edge Runtime Is Set
+## Step 1 of 3 â€” Find Where Edge Runtime Is Set
 
 Check the route tree in this order:
 
@@ -74,7 +74,7 @@ If that line exists anywhere above the MDX page, the blog route may inherit it.
 
 That is the first thing I would inspect before touching the MDX code itself.
 
-## Step 2 of 3 — Switch the Blog Route to Node.js Runtime
+## Step 2 of 3 â€” Switch the Blog Route to Node.js Runtime
 
 The normal fix is to set Node.js runtime directly on the blog page:
 
@@ -91,7 +91,7 @@ export const runtime = "nodejs";
 
 This is the safest fix because it is explicit. Even if a parent layout is using edge runtime for something else, the blog page opts back into the environment it actually needs.
 
-## Step 3 of 3 — Rebuild and Verify the Runtime
+## Step 3 of 3 â€” Rebuild and Verify the Runtime
 
 After changing the runtime, rebuild the app and verify the affected page directly.
 
@@ -193,5 +193,3 @@ For most blogs, keep content-rendering routes on Node.js runtime and use caching
 If you hit this bug while building a content site, the next useful read is [Build a Next.js MDX blog 2026](/blog/nextjs-mdx-blog-2026). If the route works now but performance is the next concern, continue with [Next.js performance optimization 2026](/blog/nextjs-performance-optimization-2026).
 
 That takes you from "it crashes in production" to "it works and loads fast."
-
-

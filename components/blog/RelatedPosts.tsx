@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { getCategoryMeta } from '@/lib/categories'
 import { PostCard } from './PostCard'
 import type { Post } from '@/lib/posts'
+import { RESOURCE_HUB_PATH } from '@/lib/resources'
 
 export function RelatedPosts({ posts, category }: { posts: Post[]; category: string }) {
   if (!posts.length) return null
@@ -21,6 +22,13 @@ export function RelatedPosts({ posts, category }: { posts: Post[]; category: str
           style={{ alignSelf: 'flex-start', marginTop: '0.9rem' }}
         >
           Browse more in {categoryMeta.label}
+        </Link>
+        <Link
+          href={`${RESOURCE_HUB_PATH}#resources-start-here`}
+          className="home-section-link"
+          style={{ alignSelf: 'flex-start', marginTop: '0.25rem' }}
+        >
+          Open Start Here
         </Link>
       </div>
 

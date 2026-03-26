@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: 'Contact',
   description: 'Contact Blixamo for questions, corrections, partnerships, or technical discussions by email, with response expectations and site details.',
   alternates: { canonical: absoluteUrl('/contact') },
+  robots: { index: false, follow: true },
 }
 
 export default function ContactPage() {

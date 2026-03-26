@@ -3,17 +3,12 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 
 const NAV = [
-  { label: 'VPS & Cloud', href: '/category/vps-cloud' },
-  { label: 'Tutorials', href: '/category/tutorials' },
-  { label: 'AI', href: '/category/ai' },
-  { label: 'Tools', href: '/category/tools' },
-  { label: 'Self-Hosting', href: '/category/self-hosting' },
-  { label: 'Indie', href: '/category/indie-hacking' },
-  { label: 'Web Dev', href: '/category/web-dev' },
-  { label: 'How-To', href: '/category/how-to' },
-  { label: 'Automation', href: '/category/automation' },
-  { label: 'Indie Dev', href: '/category/indie-dev' },
+  { label: 'Home', href: '/' },
+  { label: 'Start Here', href: '/tag/deployment#resources-start-here' },
+  { label: 'Resources', href: '/tag/deployment' },
+  { label: 'Comparisons', href: '/tag/deployment#resources-comparisons' },
   { label: 'Free Tools', href: '/category/free-tools' },
+  { label: 'Guides', href: '/category/how-to' },
   { label: 'About', href: '/about' },
 ]
 

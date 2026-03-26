@@ -1,30 +1,30 @@
 ---
-title: "Hetzner vs AWS Lightsail 2026 — Same Price, 3x the RAM"
+title: "Hetzner vs AWS Lightsail 2026 â€” Same Price, 3x the RAM"
 slug: "hetzner-vs-aws-lightsail-2026"
 description: "Hetzner vs AWS Lightsail 2026: same $5/month price, completely different specs. Real migration data, benchmarks, and which one wins for indie developers."
 date: "2026-03-22"
-updatedAt: "2026-03-22"
+updatedAt: "2026-03-26"
 author: "Ankit Sorathiya"
 category: "vps-cloud"
 tags: [hetzner,vps,self-hosting]
 keyword: "hetzner vs aws lightsail 2026"
 secondaryKeywords: ["aws lightsail alternative 2026", "hetzner vs lightsail performance", "cheap vps for developers 2026", "aws lightsail vs hetzner specs"]
 featured: false
-featuredImage: "/images/posts/hetzner-vs-aws-lightsail-2026/featured.png"
+featuredImage: /images/posts/hetzner-vs-aws-lightsail-2026/featured.jpg
 schema: "comparison"
 difficulty: "beginner"
 timeToComplete: "8 minutes"
-excerpt: "Same $5/month price. Lightsail gives you 1GB RAM. Hetzner gives you 4GB. I ran both in production —."
+excerpt: "Same $5/month price. Lightsail gives you 1GB RAM. Hetzner gives you 4GB. I ran both in production â€”."
 toc: true
 ---
 
-AWS Lightsail's $5/month plan gives you 1GB RAM and 1 vCPU. Hetzner's €5.19/month plan gives you 4GB RAM and 3 vCPUs. Same price. 3-4x the resources.
+AWS Lightsail looks competitive until you compare the actual resources at the same price point, then the gap gets hard to ignore: 1GB RAM and 1 vCPU on Lightsail versus 4GB RAM and 3 vCPUs on Hetzner.
 
-I ran a Next.js app on AWS Lightsail for 8 months before migrating to Hetzner in late 2025. The migration took 4 hours. My monthly bill dropped from $26 (after Lightsail's "free tier" expired) to €5.19/month (Rs 465). App performance improved.
+I ran a Next.js app on AWS Lightsail for eight months before moving it to Hetzner. The migration took one afternoon, the bill dropped from $26 to â‚¬5.19/month, and the app got easier to deploy.
 
-This is the comparison nobody gives you honestly — not AWS marketing, not a listicle written by someone who's never deployed either.
+This is the comparison I wanted before paying for the AWS convenience longer than I should have.
 
-> **Disclosure:** Some links in this article are affiliate links — I earn a small commission at no extra cost to you.
+> **Disclosure:** Some links in this article are affiliate links â€” I earn a small commission at no extra cost to you.
 
 <Callout type="info" title="TL;DR">
 At the same price point, Hetzner gives 3-4x more RAM and CPU than AWS Lightsail. Lightsail wins only if you need AWS ecosystem integration (RDS, S3, CloudFront from the same account). For indie developers and side projects, Hetzner wins on every metric that matters.
@@ -36,11 +36,11 @@ At the same price point, Hetzner gives 3-4x more RAM and CPU than AWS Lightsail.
 | vCPU | 3 (AMD EPYC) | 1 (burstable) |
 | SSD | 80GB NVMe | 40GB SSD |
 | Transfer | 20TB | 1TB |
-| Price | €5.19/month (Rs 465) | $5/month (~Rs 420) |
-| Data transfer overage | €1/TB | $0.09/GB ($90/TB) |
+| Price | â‚¬5.19/month (Rs 465) | $5/month (~Rs 420) |
+| Data transfer overage | â‚¬1/TB | $0.09/GB ($90/TB) |
 
 ![Hetzner CPX22 vs AWS Lightsail spec comparison side by side](/images/posts/hetzner-vs-aws-lightsail-2026/01-specs-comparison.png)
-*Spec sheet comparison — same price tier, completely different resource allocations.*
+*Spec sheet comparison â€” same price tier, completely different resource allocations.*
 
 ---
 
@@ -52,7 +52,7 @@ Meanwhile Hetzner has been aggressively expanding its cloud infrastructure. Thei
 
 The developer community started noticing in 2024-2025. Hetzner traffic on r/selfhosted and r/webdev increased by 3x year-over-year according to search data. The question "should I leave AWS for Hetzner" is now one of the most common posts in developer communities.
 
-The short answer: for solo developers, indie hackers, and small teams running under 10 apps — yes. For companies with existing AWS infrastructure, compliance requirements, or heavy S3/RDS usage — no.
+The short answer: for solo developers, indie hackers, and small teams running under 10 apps â€” yes. For companies with existing AWS infrastructure, compliance requirements, or heavy S3/RDS usage â€” no.
 
 ---
 
@@ -66,33 +66,33 @@ On AWS Lightsail's $5 plan (1GB RAM), a Next.js build will OOM-kill your running
 
 On Hetzner CPX22 (4GB RAM + 2GB swap), I run 5 apps plus 3 databases simultaneously with 2.75GB headroom. Builds don't affect running apps.
 
-**Winner: Hetzner** — not close.
+**Winner: Hetzner** â€” not close.
 
 ### CPU: 3 vCPUs vs 1 burstable vCPU
 
 AWS Lightsail uses "burstable" T-series instances (T3 or T4g). This means you get full CPU for short bursts but are throttled when you exceed your CPU credit balance. A Next.js build burns CPU credits in minutes. A sustained build on a depleted-credit Lightsail instance can take 3-4x longer than expected.
 
-Hetzner CPX22 uses dedicated AMD EPYC vCPUs — no burst limits, no credit system. 3 vCPUs available 100% of the time.
+Hetzner CPX22 uses dedicated AMD EPYC vCPUs â€” no burst limits, no credit system. 3 vCPUs available 100% of the time.
 
-**Winner: Hetzner** — dedicated vs burstable is not a fair fight for build-heavy workloads.
+**Winner: Hetzner** â€” dedicated vs burstable is not a fair fight for build-heavy workloads.
 
 ### Storage: 80GB NVMe vs 40GB SSD
 
 Hetzner uses NVMe SSD. AWS Lightsail uses regular SSD. In disk-intensive workloads (database writes, Docker image builds), NVMe is measurably faster. For a typical web app serving HTML/JS, the difference is minimal.
 
-The storage size gap matters more for Docker users — Docker images can easily consume 10-20GB. On Lightsail's 40GB you'll hit storage warnings within a few months of active development.
+The storage size gap matters more for Docker users â€” Docker images can easily consume 10-20GB. On Lightsail's 40GB you'll hit storage warnings within a few months of active development.
 
-**Winner: Hetzner** — both size and speed.
+**Winner: Hetzner** â€” both size and speed.
 
 ### Data Transfer: 20TB vs 1TB
 
-Lightsail's $5 plan includes 1TB transfer per month. Overages cost $0.09/GB — that's $90 per additional terabyte.
+Lightsail's $5 plan includes 1TB transfer per month. Overages cost $0.09/GB â€” that's $90 per additional terabyte.
 
-Hetzner CPX22 includes 20TB. Overages are €1/TB.
+Hetzner CPX22 includes 20TB. Overages are â‚¬1/TB.
 
 For a blog or small app, 1TB is more than enough. But for a media-heavy site, a video platform, or any app with large file downloads, Lightsail's transfer pricing is a hidden cost that compounds fast.
 
-**Winner: Hetzner** — 20x more included transfer, 90x cheaper overages.
+**Winner: Hetzner** â€” 20x more included transfer, 90x cheaper overages.
 
 ---
 
@@ -109,7 +109,7 @@ I ran the same Next.js 15 app (blixamo.com) on both platforms for 30 days before
 | RAM after build | 940MB / 2GB (47%) | 1.1GB / 4GB (27%) |
 
 <Callout type="info" title="Note on test conditions">
-Lightsail tested on $10 plan (2GB RAM) — the $5 plan couldn't complete a full build without OOM. Hetzner on CPX22 (4GB RAM). Same app code, same region (EU), same Cloudflare CDN in front. Results from 30-day average.
+Lightsail tested on $10 plan (2GB RAM) â€” the $5 plan couldn't complete a full build without OOM. Hetzner on CPX22 (4GB RAM). Same app code, same region (EU), same Cloudflare CDN in front. Results from 30-day average.
 </Callout>
 
 Hetzner's advantage comes from dedicated AMD EPYC CPUs vs AWS T3's burstable architecture. When CPU credits are healthy, Lightsail's T3 can match Hetzner on single-threaded tasks. Over a full day of deploys and traffic, Hetzner consistently outperforms.
@@ -127,7 +127,7 @@ AWS Lightsail's pricing looks simple in marketing materials. It gets complicated
 - **Elastic IP:** $3.65/month if attached to a stopped instance
 - **Load Balancer:** $18/month minimum
 - **Managed Database:** $15/month for smallest MySQL instance
-- **Snapshots:** $0.05/GB/month — a 40GB snapshot costs $2/month
+- **Snapshots:** $0.05/GB/month â€” a 40GB snapshot costs $2/month
 - **DNS zones:** $0.50/zone/month
 
 **A realistic Lightsail setup for a production app:**
@@ -137,20 +137,20 @@ AWS Lightsail's pricing looks simple in marketing materials. It gets complicated
 | Lightsail $10 instance | $10/month |
 | Managed PostgreSQL (smallest) | $15/month |
 | Load Balancer | $18/month |
-| Snapshots (2 × 40GB) | $4/month |
+| Snapshots (2 Ã— 40GB) | $4/month |
 | **Total** | **$47/month** |
 
 **The same setup on Hetzner + Coolify:**
 
 | Resource | Cost |
 |---|---|
-| Hetzner CPX22 | €5.19/month (Rs 465) |
-| PostgreSQL via Coolify | €0 (runs on same VPS) |
-| Traefik load balancer | €0 (included in Coolify) |
-| VPS snapshots (3 included) | €0 |
-| **Total** | **€5.19/month (Rs 465)** |
+| Hetzner CPX22 | â‚¬5.19/month (Rs 465) |
+| PostgreSQL via Coolify | â‚¬0 (runs on same VPS) |
+| Traefik load balancer | â‚¬0 (included in Coolify) |
+| VPS snapshots (3 included) | â‚¬0 |
+| **Total** | **â‚¬5.19/month (Rs 465)** |
 
-The $47 vs €5.19 gap is where most indie developers make their decision. That's Rs 3,900 vs Rs 465 — every month.
+The $47 vs â‚¬5.19 gap is where most indie developers make their decision. That's Rs 3,900 vs Rs 465 â€” every month.
 
 ---
 
@@ -164,7 +164,7 @@ Hetzner is not the right answer for everyone. Lightsail makes sense when:
 
 **Your team already knows AWS.** Operational familiarity matters in production. If your entire team knows CloudWatch and AWS Console, switching to Hetzner + Coolify has a learning curve cost.
 
-**You're in a region Hetzner doesn't cover.** Hetzner currently has datacenters in Germany, Finland, and the USA. If you need Singapore, Sydney, or São Paulo, Hetzner isn't an option.
+**You're in a region Hetzner doesn't cover.** Hetzner currently has datacenters in Germany, Finland, and the USA. If you need Singapore, Sydney, or SÃ£o Paulo, Hetzner isn't an option.
 
 ---
 
@@ -172,19 +172,16 @@ Hetzner is not the right answer for everyone. Lightsail makes sense when:
 
 I migrated blixamo.com from Lightsail to Hetzner in 4 hours with zero downtime. Here's the process:
 
-**Step 1 — Spin up Hetzner VPS while Lightsail is still running**
+**Step 1 â€” Spin up Hetzner VPS while Lightsail is still running**
 
 ```bash
 # After creating Hetzner VPS, install your stack
 # I use Coolify for most apps
 curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash
 ```
-**Step 2 — Deploy app on Hetzner, use a test subdomain**
-#
+**Step 2 â€” Deploy app on Hetzner, use a test subdomain**
 Point `test.yourdomain.com` to Hetzner IP. Deploy and verify everything works.
-#
-**Step 3 — Export database from Lightsail**
-#
+**Step 3 â€” Export database from Lightsail**
 ```bash
 # On Lightsail
 pg_dump -U postgres mydb > backup.sql
@@ -192,8 +189,7 @@ pg_dump -U postgres mydb > backup.sql
 # SCP to Hetzner
 scp backup.sql root@HETZNER_IP:/tmp/
 ```
-**Step 4 — Import on Hetzner and verify**
-#
+**Step 4 â€” Import on Hetzner and verify**
 ```bash
 # On Hetzner
 psql -U postgres mydb < /tmp/backup.sql
@@ -204,109 +200,74 @@ CREATE TABLE
 INSERT 0 1247
 ...
 </Callout>
-#
-**Step 5 — Switch DNS to Hetzner IP**
-#
+**Step 5 â€” Switch DNS to Hetzner IP**
 Update your A record. With Cloudflare's proxied DNS, propagation is instant. Without Cloudflare, allow 5-15 minutes.
-#
-**Step 6 — Verify, then cancel Lightsail**
-#
+**Step 6 â€” Verify, then cancel Lightsail**
 Monitor for 24 hours. If no issues, delete the Lightsail instance.
-#
-The full Coolify setup is covered in my [Coolify complete guide](/blog/coolify-complete-guide-2026). For Indian payment on Hetzner, read [which Indian cards work on Hetzner](/blog/pay-hetzner-from-india) — I tested 6 cards and only 2 worked due to RBI 3DS rules.
-#
+The full Coolify setup is covered in my [Coolify complete guide](/blog/coolify-complete-guide-2026). For Indian payment on Hetzner, read [which Indian cards work on Hetzner](/blog/pay-hetzner-from-india) â€” I tested 6 cards and only 2 worked due to RBI 3DS rules.
 ---
-#
 ## Troubleshooting Migration Issues
-#
 **Problem: App works on Lightsail but crashes on Hetzner**
-#
 Most likely cause: missing environment variables. Lightsail stores env vars in its dashboard. They don't transfer automatically.
-#
 ```bash
 # On Lightsail, export all env vars
 printenv | grep -v "^_" > lightsail_env.txt
 # Copy to Hetzner manually, don't SCP (contains secrets)
 ```
 **Problem: Database connection refused after migration**
-#
 Check that your app's `DATABASE_URL` points to the new Hetzner database, not still pointing to the Lightsail managed DB.
-#
 **Problem: SSL certificate error after DNS switch**
-#
 Let's Encrypt needs to verify domain ownership via HTTP. If Cloudflare proxy is on, the ACME challenge fails. Set DNS to DNS-only during cert provisioning.
-#
 ---
-#
 ## Decision Framework
-#
 **Choose Hetzner if:**
 - You're an indie developer or small team with no existing AWS dependencies
 - You run multiple side projects that don't justify separate cloud bills
 - You want 3-4x more RAM at the same price
 - You're okay managing your own VPS (moderate technical skill required)
-#
 **Choose AWS Lightsail if:**
 - You're already using other AWS services (S3, RDS, CloudFront)
 - You need AWS compliance certifications
 - You need a region Hetzner doesn't cover
 - Your team has no Linux sysadmin comfort level
-#
 ---
-#
 ## Full Comparison Table
-#
 | Feature | Hetzner CPX22 | AWS Lightsail $5 | AWS Lightsail $10 |
 |---|---|---|---|
 | RAM | 4GB | 1GB | 2GB |
 | vCPU | 3 dedicated | 1 burstable | 1 burstable |
 | Storage | 80GB NVMe | 40GB SSD | 60GB SSD |
 | Transfer included | 20TB | 1TB | 2TB |
-| Transfer overage | €1/TB | $0.09/GB | $0.09/GB |
-| Managed DB included | ❌ (self-host) | ❌ (+$15/mo) | ❌ (+$15/mo) |
-| Load balancer | ❌ (Coolify/Traefik) | ❌ (+$18/mo) | ❌ (+$18/mo) |
-| VPC networking | ❌ | ✅ AWS VPC | ✅ AWS VPC |
-| Compliance (SOC2) | Partial | ✅ Full AWS | ✅ Full AWS |
+| Transfer overage | â‚¬1/TB | $0.09/GB | $0.09/GB |
+| Managed DB included | âŒ (self-host) | âŒ (+$15/mo) | âŒ (+$15/mo) |
+| Load balancer | âŒ (Coolify/Traefik) | âŒ (+$18/mo) | âŒ (+$18/mo) |
+| VPC networking | âŒ | âœ… AWS VPC | âœ… AWS VPC |
+| Compliance (SOC2) | Partial | âœ… Full AWS | âœ… Full AWS |
 | Datacenter locations | EU + USA | 20+ global | 20+ global |
-| Price | €5.19/mo (Rs 465) | $5/mo (~Rs 420) | $10/mo (~Rs 840) |
-#
+| Price | â‚¬5.19/mo (Rs 465) | $5/mo (~Rs 420) | $10/mo (~Rs 840) |
 ---
-#
 ## FAQ
-#
 ### Is Hetzner reliable enough for production?
-#
 Hetzner's SLA is 99.9% uptime for their Cloud products. My Hetzner CPX22 has been running for 6 months without a single unexpected downtime event. For comparison, I had 2 unexpected Lightsail instance stops in 8 months (both during AWS regional issues). Hetzner is production-reliable for indie developers and small teams.
-#
 ### Does AWS Lightsail have a free tier?
-#
-Yes — new AWS accounts get Lightsail free for 3 months (750 hours/month of the $3.50 instance). After 3 months, billing starts. This free tier traps many developers into the AWS ecosystem before they realize the ongoing cost.
-#
+Yes â€” new AWS accounts get Lightsail free for 3 months (750 hours/month of the $3.50 instance). After 3 months, billing starts. This free tier traps many developers into the AWS ecosystem before they realize the ongoing cost.
 ### Can I use Hetzner VPS with AWS S3?
-#
-Yes. Hetzner VPS can connect to any external service including AWS S3. Many developers use Hetzner for compute and AWS S3 for storage. S3 API calls from Hetzner Helsinki to EU-West-1 have ~15ms latency — negligible for most use cases.
-#
+Yes. Hetzner VPS can connect to any external service including AWS S3. Many developers use Hetzner for compute and AWS S3 for storage. S3 API calls from Hetzner Helsinki to EU-West-1 have ~15ms latency â€” negligible for most use cases.
 ### What about Hetzner's data privacy vs AWS?
-#
 Hetzner is a German company, GDPR-compliant, and stores data only in EU/US datacenters. AWS is a US company subject to CLOUD Act. For European users with GDPR requirements, Hetzner's privacy posture is often cleaner. Consult your legal team for compliance decisions.
-#
 ### Does Hetzner offer managed Kubernetes?
-#
-Yes — Hetzner Managed Kubernetes (HKS) starts at ~€6/month for a worker node. Much cheaper than AWS EKS ($0.10/hour = $73/month just for the control plane). For indie developers who need Kubernetes, Hetzner is the most cost-effective option.
-#
+Yes â€” Hetzner Managed Kubernetes (HKS) starts at ~â‚¬6/month for a worker node. Much cheaper than AWS EKS ($0.10/hour = $73/month just for the control plane). For indie developers who need Kubernetes, Hetzner is the most cost-effective option.
 ---
-#
 ## What Next?
-#
 The numbers are clear: same price, 3-4x the resources on Hetzner. For indie developers, the decision is straightforward.
-#
 **Your next steps:**
-#
-1. **Set up Hetzner** — [how to pay for Hetzner from India](/blog/pay-hetzner-from-india) covers every Indian card option, including which ones work and which fail RBI's 3DS check
-2. **Deploy with Coolify** — read the [Coolify complete guide](/blog/coolify-complete-guide-2026) to go from blank VPS to production app with SSL in 45 minutes
-3. **Secure the server** — [VPS security hardening for Ubuntu 2026](/blog/vps-security-harden-ubuntu-2026) covers SSH hardening, fail2ban, and firewall rules before you go live
-#
-Subscribe below — no sponsored content, no filler, just real numbers from real production deployments.
-#
+1. **Set up Hetzner** â€” [how to pay for Hetzner from India](/blog/pay-hetzner-from-india) covers every Indian card option, including which ones work and which fail RBI's 3DS check
+2. **Deploy with Coolify** â€” read the [Coolify complete guide](/blog/coolify-complete-guide-2026) to go from blank VPS to production app with SSL in 45 minutes
+3. **Secure the server** â€” [VPS security hardening for Ubuntu 2026](/blog/vps-security-harden-ubuntu-2026) covers SSH hardening, fail2ban, and firewall rules before you go live
+Subscribe below â€” no sponsored content, no filler, just real numbers from real production deployments.
 
+## Final Verdict
 
+At the low end, Lightsail only makes sense when you specifically want AWS adjacency. If you just need a strong VPS for a real app, Hetzner gives you far more headroom for almost the same money and avoids the overage traps that make cheap AWS plans stop feeling cheap.
+
+My recommendation is to use Lightsail only when it is a stepping stone into the rest of AWS. For a standalone indie project or a small product with steady traffic, Hetzner is the better default.

@@ -6,7 +6,6 @@ import { PostFooter } from '@/components/blog/PostFooter'
 import { TableOfContents } from '@/components/blog/TableOfContents'
 import { RelatedPosts } from '@/components/blog/RelatedPosts'
 import { ReadingProgress } from '@/components/blog/ReadingProgress'
-import { getPostOgImagePath } from '@/lib/post-images'
 import { EmailCapture } from '@/components/monetization/EmailCapture'
 import { notFound } from 'next/navigation'
 import rehypeSlug from 'rehype-slug'
@@ -15,6 +14,9 @@ import remarkGfm from 'remark-gfm'
 import type { Metadata } from 'next'
 import { Callout } from '@/components/blog/Callout'
 import { ArticleImage, ArticleTable, ProsCons, VerdictBox, VisualBlock } from '@/components/blog/MdxVisuals'
+import Link from 'next/link'
+import { getCategoryClusterContent, RESOURCE_HUB_PATH } from '@/lib/resources'
+import { getComparisonsHub, getPrimaryPillarForPost } from '@/lib/pillars'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -26,8 +28,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const post = getPostBySlug(slug)
   if (!post) return {}
-
-  const ogImage = `https://blixamo.com${getPostOgImagePath(post.slug)}`
 
   return {
     title: post.title,
@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       authors: [post.author],
       images: [
         {
-          url: ogImage,
+          url: `https://blixamo.com${post.featuredImage}`,
           width: 1200,
           height: 630,
           alt: post.title,
@@ -53,7 +53,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: 'summary_large_image',
       title: post.title,
       description: post.description,
-      images: [ogImage],
     },
     alternates: { canonical: post.canonical || `https://blixamo.com/blog/${slug}` },
     robots: post.noindex ? 'noindex' : 'index,follow',
@@ -67,6 +66,33 @@ export default async function PostPage({ params }: Props) {
   if (!post) notFound()
 
   const related = getRelatedPosts(post)
+  const clusterContent = getCategoryClusterContent(post.category, allPosts)
+  const pillarPage = getPrimaryPillarForPost(post, allPosts)
+  const comparisonsHub = getComparisonsHub(allPosts)
+  const relatedComparisons = clusterContent.comparisons.filter((entry) => entry.slug !== post.slug).slice(0, 2)
+  const freeToolLinks = clusterContent.tools.filter((entry) => entry.slug !== post.slug).slice(0, 2)
+  const clusterRelatedPosts = [
+    ...clusterContent.guides,
+    ...clusterContent.comparisons,
+    ...clusterContent.tools,
+    ...related,
+  ]
+    .filter(
+      (entry, index, collection) =>
+        entry.slug !== post.slug && collection.findIndex((candidate) => candidate.slug === entry.slug) === index
+    )
+    .slice(0, 3)
+  const authorityPageLinks = [
+    ...clusterContent.guides,
+    ...clusterContent.comparisons,
+    ...clusterContent.tools,
+    ...related,
+  ]
+    .filter(
+      (entry, index, collection) =>
+        entry.slug !== post.slug && collection.findIndex((candidate) => candidate.slug === entry.slug) === index
+    )
+    .slice(0, 6)
   const currentIndex = allPosts.findIndex((entry) => entry.slug === slug)
   const prev = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : null
   const next = currentIndex > 0 ? allPosts[currentIndex - 1] : null
@@ -117,9 +143,9 @@ export default async function PostPage({ params }: Props) {
                 <p className="article-tag-label">Filed under</p>
                 <div className="article-tag-row">
                   {post.tags.map((tag) => (
-                    <a key={tag} href={`/tag/${tag}`} className="article-tag-chip">
+                    <span key={tag} className="article-tag-chip">
                       {tag}
-                    </a>
+                    </span>
                   ))}
                 </div>
               </section>
@@ -129,8 +155,45 @@ export default async function PostPage({ params }: Props) {
           <TableOfContents content={post.content} />
         </div>
 
-        <PostFooter post={post} prev={prev} next={next} />
-        <RelatedPosts posts={related} category={post.category} />
+        {pillarPage && authorityPageLinks.length > 0 && (
+          <section className="article-footer-shell">
+            <div className="article-share-panel">
+              <p className="article-share-eyebrow">Main Pillar</p>
+              <h2 className="article-share-title">Use the pillar page to navigate this topic cluster</h2>
+              <p style={{ marginTop: '0.55rem', color: 'var(--text-secondary)', lineHeight: 1.75 }}>
+                This guide belongs to the {pillarPage.title.toLowerCase()} path. Start there if you want the full topic map,
+                then use the linked articles below to move deeper.
+              </p>
+              <div className="home-hero-actions" style={{ marginTop: '1rem' }}>
+                <Link href={pillarPage.href} className="home-hero-button home-hero-button-secondary">
+                  Open {pillarPage.title}
+                </Link>
+                <Link href={`${RESOURCE_HUB_PATH}#authority-pages`} className="home-hero-button home-hero-button-secondary">
+                  Browse all pillar guides
+                </Link>
+              </div>
+              <div className="article-explore-grid" style={{ marginTop: '1rem' }}>
+                {authorityPageLinks.map((entry) => (
+                  <Link key={entry.slug} href={`/blog/${entry.slug}`} className="article-explore-link">
+                    <span className="article-nav-label">Cluster Read</span>
+                    <span className="article-nav-title">{entry.title}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        <PostFooter
+          post={post}
+          prev={prev}
+          next={next}
+          pillarPage={pillarPage}
+          comparisonsHub={comparisonsHub}
+          relatedComparisons={relatedComparisons}
+          freeToolLinks={freeToolLinks}
+        />
+        <RelatedPosts posts={clusterRelatedPosts} category={post.category} />
       </div>
     </>
   )

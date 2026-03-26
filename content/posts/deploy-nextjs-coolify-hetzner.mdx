@@ -1,29 +1,29 @@
 ---
 title: "How to Deploy Next.js on Hetzner with Coolify in 2026 (Step-by-Step)"
 slug: "deploy-nextjs-coolify-hetzner"
-description: "Deploy Next.js on Hetzner using Coolify in 2026. Full guide covering VPS setup, Coolify install, GitHub connect, env vars, custom domain, SSL — from zero to live in under an hour."
+description: "Deploy Next.js on Hetzner using Coolify in 2026. Full guide covering VPS setup, Coolify install, GitHub connect, env vars, custom domain, SSL â€” from zero to live in under an hour."
 date: "2026-03-16"
-updatedAt: "2026-03-16"
+updatedAt: "2026-03-26"
 author: "Ankit Sorathiya"
 category: "how-to"
 tags: [nextjs,coolify,hetzner,vps,self-hosting,deployment,devops]
 keyword: "deploy nextjs coolify hetzner"
 featured: true
-featuredImage: "/images/posts/deploy-nextjs-coolify-hetzner/featured.png"
+featuredImage: /images/posts/deploy-nextjs-coolify-hetzner/featured.jpg
 schema: "howto"
 ---
 
 You have a Next.js app. You want to self-host it on Hetzner instead of paying Vercel's $20/month tax. You've heard about Coolify but have no idea where to start.
 
-I've deployed a dozen Next.js projects on Hetzner — this blog included. Coolify is the fastest way to get from a blank VPS to a live, auto-deploying Next.js app with SSL and a custom domain. This guide covers every step, including the parts other tutorials skip.
+I've deployed a dozen Next.js projects on Hetzner â€” this blog included. Coolify is the fastest way to get from a blank VPS to a live, auto-deploying Next.js app with SSL and a custom domain. This guide covers every step, including the parts other tutorials skip.
 
 ---
 
 ## TL;DR
 
-- Hetzner CPX21 (€5.19/month — ₹465) handles multiple Next.js apps easily
-- Coolify is a free, self-hosted Vercel alternative — installs in one command
-- Connect GitHub → point to your repo → add env vars → deploy
+- Hetzner CPX21 (â‚¬5.19/month â€” â‚¹465) handles multiple Next.js apps easily
+- Coolify is a free, self-hosted Vercel alternative â€” installs in one command
+- Connect GitHub â†’ point to your repo â†’ add env vars â†’ deploy
 - SSL via Let's Encrypt, automatic on custom domains
 - Total time: under 1 hour from blank VPS to live app
 
@@ -31,11 +31,11 @@ I've deployed a dozen Next.js projects on Hetzner — this blog included. Coolif
 
 ## Why Hetzner + Coolify Instead of Vercel?
 
-Vercel's free tier is fine for side projects with zero traffic. The moment you need team members, custom limits, or just don't want to worry about bandwidth bills, you're looking at $20/month minimum — and that's per project for serious setups.
+Vercel's free tier is fine for side projects with zero traffic. The moment you need team members, custom limits, or just don't want to worry about bandwidth bills, you're looking at $20/month minimum â€” and that's per project for serious setups.
 
-Hetzner CPX21 costs €5.19/month (roughly ₹465). That's one server running as many Next.js apps as its RAM allows. For an indie developer running 3-5 projects, the math is obvious.
+Hetzner CPX21 costs â‚¬5.19/month (roughly â‚¹465). That's one server running as many Next.js apps as its RAM allows. For an indie developer running 3-5 projects, the math is obvious.
 
-The old problem with self-hosting was ops overhead. Every deploy was a manual SSH → git pull → npm run build → pm2 restart cycle. Coolify solves this. It's an open-source platform that gives you a Vercel-like dashboard on your own VPS — push to GitHub, it builds and deploys automatically.
+The old problem with self-hosting was ops overhead. Every deploy was a manual SSH â†’ git pull â†’ npm run build â†’ pm2 restart cycle. Coolify solves this. It's an open-source platform that gives you a Vercel-like dashboard on your own VPS â€” push to GitHub, it builds and deploys automatically.
 
 I currently run this blog (Blixamo), [AI Tools for Devs](https://aitools-for-devs.vercel.app), and two client projects on a single Hetzner CPX21. Before I added Coolify to my workflow, every deployment was 10-15 minutes of manual work. Now it's a git push.
 
@@ -45,14 +45,14 @@ I currently run this blog (Blixamo), [AI Tools for Devs](https://aitools-for-dev
 
 - A Hetzner account ([hetzner.cloud](https://hetzner.cloud))
 - A Next.js project pushed to a GitHub repository
-- A domain name (optional but recommended — Coolify handles SSL automatically)
+- A domain name (optional but recommended â€” Coolify handles SSL automatically)
 - About 45-60 minutes
 
 That's it. No Docker knowledge required. No Kubernetes. Coolify abstracts all of that.
 
 ---
 
-## Step 1 — Create Your Hetzner VPS
+## Step 1 â€” Create Your Hetzner VPS
 
 Log into [Hetzner Cloud Console](https://console.hetzner.cloud) and create a new project.
 
@@ -60,8 +60,8 @@ Log into [Hetzner Cloud Console](https://console.hetzner.cloud) and create a new
 
 | Server | vCPU | RAM | Storage | Price |
 |--------|------|-----|---------|-------|
-| CPX21 | 3 | 4GB | 80GB | €5.19/month |
-| CPX31 | 4 | 8GB | 160GB | €10.52/month |
+| CPX21 | 3 | 4GB | 80GB | â‚¬5.19/month |
+| CPX31 | 4 | 8GB | 160GB | â‚¬10.52/month |
 
 CPX21 is the sweet spot for 1-3 Next.js apps. If you're running 5+ projects or have a high-traffic app, go CPX31.
 
@@ -70,11 +70,11 @@ CPX21 is the sweet spot for 1-3 Next.js apps. If you're running 5+ projects or h
 1. Click **Create Server**
 2. Location: **Nuremberg** or **Helsinki** (lowest latency for India via Cloudflare)
 3. Image: **Ubuntu 24.04**
-4. Type: **Shared vCPU → CPX21**
+4. Type: **Shared vCPU â†’ CPX21**
 5. SSH Key: Add your public key (highly recommended over password auth)
 6. Click **Create & Buy Now**
 
-Your server will be ready in about 30 seconds. Note the IP address — you'll need it.
+Your server will be ready in about 30 seconds. Note the IP address â€” you'll need it.
 
 ### Add Swap Space First
 
@@ -97,11 +97,11 @@ free -h
 # Swap: 2.0Gi should now show
 ```
 
-I learned this the hard way — 13 PM2 restarts in a week, all OOM kills during builds. 2GB swap costs nothing and saves hours of debugging.
+I learned this the hard way â€” 13 PM2 restarts in a week, all OOM kills during builds. 2GB swap costs nothing and saves hours of debugging.
 
 ---
 
-## Step 2 — Install Coolify
+## Step 2 â€” Install Coolify
 
 Coolify installs via a single curl command. SSH into your server:
 
@@ -128,17 +128,17 @@ Open `http://YOUR_VPS_IP:8000` in your browser. You'll see the Coolify setup wiz
 
 ### First-Time Coolify Setup
 
-1. **Create admin account** — set your email and password
-2. **Instance settings** — set your instance domain if you have one (e.g. `coolify.yourdomain.com`), otherwise skip
-3. **Server** — Coolify auto-detects your localhost. Click **Validate Server** — it should pass all checks
+1. **Create admin account** â€” set your email and password
+2. **Instance settings** â€” set your instance domain if you have one (e.g. `coolify.yourdomain.com`), otherwise skip
+3. **Server** â€” Coolify auto-detects your localhost. Click **Validate Server** â€” it should pass all checks
 
 You're now inside the Coolify dashboard.
 
 ---
 
-## Step 3 — Connect GitHub
+## Step 3 â€” Connect GitHub
 
-In the Coolify sidebar, go to **Sources** → **Add** → **GitHub App**.
+In the Coolify sidebar, go to **Sources** â†’ **Add** â†’ **GitHub App**.
 
 Follow the GitHub OAuth flow:
 1. Name your GitHub App (e.g. "Coolify - My Server")
@@ -151,12 +151,12 @@ You should now see your GitHub organization/account listed under Sources.
 
 ---
 
-## Step 4 — Create a New Project and Application
+## Step 4 â€” Create a New Project and Application
 
 In Coolify:
 
-1. Click **Projects** → **New Project** → name it (e.g. "My Next.js App")
-2. Inside the project, click **New Resource** → **Application**
+1. Click **Projects** â†’ **New Project** â†’ name it (e.g. "My Next.js App")
+2. Inside the project, click **New Resource** â†’ **Application**
 3. Select **GitHub** as your source
 4. Choose your repository and branch (usually `main`)
 5. Build pack: **Nixpacks** (Coolify auto-detects Next.js and configures the build correctly)
@@ -182,7 +182,7 @@ Coolify will show you a settings page for your app. Key fields:
 
 ---
 
-## Step 5 — Add Environment Variables
+## Step 5 â€” Add Environment Variables
 
 Click the **Environment Variables** tab. Add your `.env.local` values here.
 
@@ -193,7 +193,7 @@ NEXTAUTH_SECRET=your_secret_here
 NEXTAUTH_URL=https://yourdomain.com
 ```
 
-> **Important:** Variables prefixed with `NEXT_PUBLIC_` are embedded at build time, not runtime. Make sure these are set correctly before your first deploy — you can't inject them after the build.
+> **Important:** Variables prefixed with `NEXT_PUBLIC_` are embedded at build time, not runtime. Make sure these are set correctly before your first deploy â€” you can't inject them after the build.
 
 For Supabase projects specifically:
 
@@ -205,7 +205,7 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 
 ---
 
-## Step 6 — Deploy
+## Step 6 â€” Deploy
 
 Click the **Deploy** button. Coolify will:
 
@@ -216,7 +216,7 @@ Click the **Deploy** button. Coolify will:
 5. Route traffic through its built-in proxy (Traefik)
 6. Provision SSL certificate via Let's Encrypt (if you added a domain)
 
-Watch the build logs in real time — Coolify shows the full output so you can catch errors immediately.
+Watch the build logs in real time â€” Coolify shows the full output so you can catch errors immediately.
 
 A typical Next.js build on CPX21 takes **2-4 minutes**.
 
@@ -224,7 +224,7 @@ When it finishes, you'll see **Running** status with a green dot. Your app is li
 
 ---
 
-## Step 7 — Configure Your Domain DNS
+## Step 7 â€” Configure Your Domain DNS
 
 If you added a custom domain, point your DNS to your Hetzner server IP:
 
@@ -235,13 +235,13 @@ Value: YOUR_VPS_IP
 TTL: 300
 ```
 
-For Cloudflare users — set the proxy to **DNS only (grey cloud)** initially until SSL is provisioned, then you can enable the orange cloud.
+For Cloudflare users â€” set the proxy to **DNS only (grey cloud)** initially until SSL is provisioned, then you can enable the orange cloud.
 
 SSL certificate provisioning takes 1-5 minutes after DNS propagates. Coolify handles the Let's Encrypt challenge automatically.
 
 ---
 
-## Step 8 — Enable Auto-Deploy on Git Push
+## Step 8 â€” Enable Auto-Deploy on Git Push
 
 In your Coolify application settings, go to the **Webhooks** tab. You'll see a webhook URL like:
 
@@ -250,21 +250,21 @@ https://coolify.yourdomain.com/webhooks/source/github/events/manual
 ```
 
 In your GitHub repository:
-1. Go to **Settings** → **Webhooks** → **Add webhook**
+1. Go to **Settings** â†’ **Webhooks** â†’ **Add webhook**
 2. Paste the Coolify webhook URL
 3. Content type: `application/json`
 4. Events: **Just the push event**
 5. Save
 
-Now every `git push` to your main branch triggers an automatic deploy. Zero-downtime — Coolify builds the new version, waits for it to be healthy, then switches traffic.
+Now every `git push` to your main branch triggers an automatic deploy. Zero-downtime â€” Coolify builds the new version, waits for it to be healthy, then switches traffic.
 
 ---
 
-## Step 9 — Add Persistent Storage (If Needed)
+## Step 9 â€” Add Persistent Storage (If Needed)
 
-If your app writes files to disk (uploads, SQLite, etc.), you need persistent storage. Container filesystems are ephemeral — they reset on each deploy.
+If your app writes files to disk (uploads, SQLite, etc.), you need persistent storage. Container filesystems are ephemeral â€” they reset on each deploy.
 
-In Coolify, go to your application → **Storages** tab → **Add Storage**:
+In Coolify, go to your application â†’ **Storages** tab â†’ **Add Storage**:
 
 - **Name**: `uploads` (or whatever makes sense)
 - **Source path on host**: `/data/your-app/uploads`
@@ -272,20 +272,20 @@ In Coolify, go to your application → **Storages** tab → **Add Storage**:
 
 This mounts a host directory into your container so data persists across deploys.
 
-For databases, don't use the container filesystem at all — use a managed service (Supabase, PlanetScale, Neon) or create a separate Coolify database resource.
+For databases, don't use the container filesystem at all â€” use a managed service (Supabase, PlanetScale, Neon) or create a separate Coolify database resource.
 
 ---
 
-## Step 10 — Set Up Multiple Apps on One Server
+## Step 10 â€” Set Up Multiple Apps on One Server
 
 One Hetzner CPX21 can comfortably run 3-5 Next.js apps simultaneously. Here's how I structure my setup:
 
 ```
-coolify.blixamo.com     → Coolify dashboard (port 8000, internal)
-blixamo.com             → This blog (Next.js)
-aitools-for-devs.com    → AI tools directory (Next.js)
-api.myapp.com           → FastAPI backend (Python)
-n8n.blixamo.com         → n8n automation (Docker)
+coolify.blixamo.com     â†’ Coolify dashboard (port 8000, internal)
+blixamo.com             â†’ This blog (Next.js)
+aitools-for-devs.com    â†’ AI tools directory (Next.js)
+api.myapp.com           â†’ FastAPI backend (Python)
+n8n.blixamo.com         â†’ n8n automation (Docker)
 ```
 
 Coolify's built-in Traefik proxy handles routing between all of these based on domain names. No manual nginx configuration needed.
@@ -358,25 +358,25 @@ You can temporarily disable health checks in the app settings to confirm the app
 
 ### "NEXT_PUBLIC_ variables showing as undefined"
 
-These are baked in at build time. If you added them after the first build, trigger a fresh deploy — Coolify → your app → **Deploy** button.
+These are baked in at build time. If you added them after the first build, trigger a fresh deploy â€” Coolify â†’ your app â†’ **Deploy** button.
 
 ---
 
 ## Coolify vs Doing It Manually (PM2 + nginx)
 
-I run both setups — Coolify for some apps, manual PM2+nginx for this blog. Here's when each makes sense:
+I run both setups â€” Coolify for some apps, manual PM2+nginx for this blog. Here's when each makes sense:
 
 | | Coolify | Manual PM2+nginx |
 |---|---|---|
 | Setup time | 30 mins | 2-3 hours |
-| Auto-deploy | ✅ Built-in | ❌ Manual or scripted |
-| SSL | ✅ Automatic | ✅ Certbot |
-| Custom nginx config | ❌ Limited | ✅ Full control |
+| Auto-deploy | âœ… Built-in | âŒ Manual or scripted |
+| SSL | âœ… Automatic | âœ… Certbot |
+| Custom nginx config | âŒ Limited | âœ… Full control |
 | Resource overhead | ~300MB RAM for Coolify itself | ~0 overhead |
-| Multi-app routing | ✅ Automatic (Traefik) | ✅ Manual nginx blocks |
-| Rollback | ✅ One click | ❌ Manual git reset + rebuild |
+| Multi-app routing | âœ… Automatic (Traefik) | âœ… Manual nginx blocks |
+| Rollback | âœ… One click | âŒ Manual git reset + rebuild |
 
-For most Next.js apps, Coolify wins on convenience. For this blog, I use manual PM2+nginx because I need precise Cache-Control header control for ISR + Cloudflare to work correctly — something Traefik's defaults don't handle well out of the box.
+For most Next.js apps, Coolify wins on convenience. For this blog, I use manual PM2+nginx because I need precise Cache-Control header control for ISR + Cloudflare to work correctly â€” something Traefik's defaults don't handle well out of the box.
 
 ---
 
@@ -384,7 +384,7 @@ For most Next.js apps, Coolify wins on convenience. For this blog, I use manual 
 
 **Does Coolify support Next.js 15 App Router?**
 
-Yes. Coolify uses Nixpacks for builds which supports Next.js 15 including App Router, Server Components, and Server Actions. No special configuration needed — it detects the Next.js version and builds correctly.
+Yes. Coolify uses Nixpacks for builds which supports Next.js 15 including App Router, Server Components, and Server Actions. No special configuration needed â€” it detects the Next.js version and builds correctly.
 
 **How much RAM does Coolify itself use?**
 
@@ -400,7 +400,7 @@ The self-hosted version is completely free and open source (Apache 2.0 license).
 
 **How do I rollback a broken deploy?**
 
-In Coolify, go to your application → **Deployments** tab. Every deploy is listed with a timestamp. Click any previous deployment → **Rollback**. It redeploys that exact version instantly.
+In Coolify, go to your application â†’ **Deployments** tab. Every deploy is listed with a timestamp. Click any previous deployment â†’ **Rollback**. It redeploys that exact version instantly.
 
 **Can I deploy a Next.js app with a custom server (Express)?**
 
@@ -422,22 +422,22 @@ ufw allow 80 && ufw allow 443 && ufw allow 8000
 
 **Can I use Coolify with a non-GitHub repo (GitLab, Bitbucket)?**
 
-Yes. Coolify supports GitLab, Bitbucket, and Gitea in addition to GitHub. The setup flow is similar — go to Sources and add your provider.
+Yes. Coolify supports GitLab, Bitbucket, and Gitea in addition to GitHub. The setup flow is similar â€” go to Sources and add your provider.
 
 **How do I check my app's logs in Coolify?**
 
-Go to your application in the Coolify dashboard → **Logs** tab. You'll see live stdout/stderr output. For historical logs, check the **Deployments** tab — each deploy has its own build log.
+Go to your application in the Coolify dashboard â†’ **Logs** tab. You'll see live stdout/stderr output. For historical logs, check the **Deployments** tab â€” each deploy has its own build log.
 
 ---
 
-## What Next?
+## Final Takeaway
 
-You now have a self-hosted Next.js app running on Hetzner with automatic deployments, SSL, and a custom domain — for €5.19/month.
+For most indie developers, this is the cleanest way to self-host Next.js without getting dragged into hand-rolled deployment scripts. Hetzner keeps the infrastructure cheap, and Coolify gives you enough automation that deployments feel close to Vercel without the monthly platform bill.
 
-If you're running multiple projects on the same server, read my guide on [running 5 side projects on a single 4GB Hetzner VPS](/blog/multiple-projects-single-vps) — covers port management, nginx multi-site setup, and resource monitoring.
+You now have a self-hosted Next.js app running on Hetzner with automatic deployments, SSL, and a custom domain â€” for â‚¬5.19/month.
 
-If you're an Indian developer and haven't sorted out your Hetzner payment method yet, check [how to pay for Hetzner from India](/blog/pay-hetzner-from-india) — covers every card and method that actually works in 2026.
+If you're running multiple projects on the same server, read my guide on [running 5 side projects on a single 4GB Hetzner VPS](/blog/multiple-projects-single-vps) â€” covers port management, nginx multi-site setup, and resource monitoring.
 
-Need help setting this up or want someone to handle your deployment infrastructure? [Check my services](/hire) — I set up Hetzner + Coolify + CI/CD pipelines as part of my freelance work.
+If you're an Indian developer and haven't sorted out your Hetzner payment method yet, check [how to pay for Hetzner from India](/blog/pay-hetzner-from-india) â€” covers every card and method that actually works in 2026.
 
-
+Need help setting this up or want someone to handle your deployment infrastructure? [Check my services](/hire) â€” I set up Hetzner + Coolify + CI/CD pipelines as part of my freelance work.

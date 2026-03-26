@@ -1,8 +1,18 @@
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
+import { normalizeCategorySlug } from './categories'
 
 const postsDirectory = path.join(process.cwd(), 'content/posts')
+
+const WEAK_ARTICLE_BOOSTS_BY_CATEGORY: Record<string, Set<string>> = {
+  'developer-tools': new Set(['best-vpn-for-developers-2026']),
+  'how-to': new Set(['build-telegram-bot-claude-api-python']),
+  'indie-hacking': new Set(['razorpay-integration-nextjs-india', 'wise-vs-payoneer-india-freelancer']),
+  'self-hosting': new Set(['self-hosting-resources']),
+  'vps-cloud': new Set(['hetzner-vs-aws-2026']),
+  'web-dev': new Set(['nextjs-mdx-remote-rsc-edge-runtime-fix', 'tailwind-css-tips']),
+}
 
 export interface Post {
   slug: string
@@ -50,7 +60,7 @@ export function getAllPosts(): Post[] {
         date: data.date || new Date().toISOString().split('T')[0],
         updatedAt: data.updatedAt,
         author: data.author || 'Blixamo',
-        category: data.category || 'general',
+        category: normalizeCategorySlug(data.category || 'general'),
         tags: data.tags || [],
         keyword: data.keyword || '',
         featured: data.featured || false,
@@ -70,7 +80,8 @@ export function getPostBySlug(slug: string): Post | undefined {
 }
 
 export function getPostsByCategory(category: string): Post[] {
-  return getAllPosts().filter(p => p.category.toLowerCase() === category.toLowerCase())
+  const slug = normalizeCategorySlug(category)
+  return getAllPosts().filter(p => p.category.toLowerCase() === slug.toLowerCase())
 }
 
 export function getFeaturedPosts(limit = 5): Post[] {
@@ -79,13 +90,15 @@ export function getFeaturedPosts(limit = 5): Post[] {
 
 export function getRelatedPosts(post: Post, limit = 3): Post[] {
   const allOtherPosts = getAllPosts().filter(p => p.slug !== post.slug)
+  const boostedTargets = WEAK_ARTICLE_BOOSTS_BY_CATEGORY[post.category] || new Set<string>()
 
   const scored = allOtherPosts
     .map(p => ({
       post: p,
       score:
         p.tags.filter(t => post.tags.includes(t)).length * 2 +
-        (p.category === post.category ? 4 : 0),
+        (p.category === post.category ? 4 : 0) +
+        (boostedTargets.has(p.slug) ? 3 : 0),
       freshness: getPostFreshnessDate(p).getTime(),
     }))
     .sort((a, b) => b.score - a.score || b.freshness - a.freshness)

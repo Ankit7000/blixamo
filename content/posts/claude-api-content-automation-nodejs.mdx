@@ -1,30 +1,32 @@
 ---
-title: "Claude API + Node.js Automation 2026 — Save 3 Hours a Week"
+title: "Claude API + Node.js Automation 2026 â€” Save 3 Hours a Week"
 slug: "claude-api-content-automation-nodejs"
-description: "A Node.js script using Claude API auto-fixes 8 quality issues across all MDX blog posts every morning. Saves 3 hours/week. Full code walkthrough."
+description: "Build a Claude API + Node.js content automation workflow that audits MDX posts every morning, fixes repeat issues, and saves hours of manual cleanup."
 date: "2026-03-19"
-updatedAt: "2026-03-20"
+updatedAt: "2026-03-26"
 author: "Ankit Sorathiya"
 category: "automation"
 tags: [automation,nextjs,nodejs]
 keyword: "claude api content automation nodejs"
 secondaryKeywords: ["automate blog content quality", "mdx content quality checker nodejs", "claude api automation tutorial", "seo content checker cron", "automated content audit tool"]
 featured: false
-featuredImage: "/images/posts/claude-api-content-automation-nodejs/featured.png"
+featuredImage: /images/posts/claude-api-content-automation-nodejs/featured.jpg
 schema: "howto"
 difficulty: "intermediate"
 timeToComplete: "30 minutes"
 series: "self-hosting"
 seriesPart: 5
-excerpt: "Built a daily AI content fixer that has auto-corrected 40+ issues across 15 articles — banned words, missing."
+excerpt: "Built a daily AI content fixer that has auto-corrected 40+ issues across 15 articles â€” banned words, missing."
 toc: true
 ---
-I published 15 articles and let them sit — as of March 2026, the same quality drift problem affects every blog without an automated fix. Three months later I read them back and found the same problems in almost every one — missing TL;DR boxes, untagged code blocks, hooks that started with "In this article", EUR prices with no INR equivalent, and FAQ sections that were either absent or buried.
+I let 15 MDX articles pile up, then lost an afternoon finding the same problems again and again: weak hooks, missing TL;DR boxes, untagged code blocks, EUR-only pricing, and FAQ sections that either did not exist or were buried at the bottom.
 
-> **Disclosure:** Some links in this article are affiliate links — I earn a small commission at no extra cost to you.
+> **Disclosure:** Some links in this article are affiliate links â€” I earn a small commission at no extra cost to you.
 
 
-Fixing them manually would take hours. So I built a tool instead: it runs every morning at 8am, scans all 15 MDX files against a 30-rule checklist, and auto-fixes what it can using [building a WhatsApp AI assistant](/blog/whatsapp-ai-assistant-n8n-claude-api). As of March 2026, it has corrected over 40 issues across 15 posts without me touching a single file.
+Fixing that drift manually was boring and expensive. So I built a Node.js fixer that runs every morning at 8am, scans the content folder against a 30-rule checklist, applies deterministic cleanup first, then uses Claude Haiku for the structural rewrites that still need language judgment.
+
+As of March 2026, that workflow had corrected 40+ issues across 15 posts without touching slugs, URLs, or the underlying publishing flow. If you want the publishing setup this sits on top of, read the [Next.js MDX blog guide](/blog/nextjs-mdx-blog-2026) first.
 
 
 
@@ -33,107 +35,99 @@ Fixing them manually would take hours. So I built a tool instead: it runs every 
 - **AI article fixer:** runs daily at 8am via cron, fixes 8 issue types automatically
 - **Non-AI fixes (instant):** banned words, untagged code blocks, EUR-only prices, long excerpts
 - **AI fixes (Claude Haiku):** hook rewrites, TL;DR boxes, FAQ sections, What Next CTAs
-- **Cost:** ~$0.04–0.08 per full run across 15 articles (Rs 3–7)
+- **Cost:** ~$0.04â€“0.08 per full run across 15 articles (Rs 3â€“7)
 - **Key insight:** separate "can fix automatically" from "needs human experience" from the start
 </Callout>
 
 ---
 
 
-![Claude API content automation pipeline — cron → MDX files → Claude Haiku → fix → redeploy](/images/posts/claude-api-content-automation-nodejs/01-automation-pipeline.png)
-*Daily 8AM pipeline: reads 24 MDX articles → Claude Haiku analyses + fixes → redeploys — 40 fixes per run at ~Rs 2.50/day*
-*First run of the content fixer: 40 auto-fixes applied — SCU blocks, TL;DR boxes, banned words, EUR+INR prices.*
+![Claude API content automation pipeline â€” cron â†’ MDX files â†’ Claude Haiku â†’ fix â†’ redeploy](/images/posts/claude-api-content-automation-nodejs/01-automation-pipeline.png)
+*Daily 8AM pipeline: reads 24 MDX articles â†’ Claude Haiku analyses + fixes â†’ redeploys â€” 40 fixes per run at ~Rs 2.50/day*
+*First run of the content fixer: 40 auto-fixes applied â€” SCU blocks, TL;DR boxes, banned words, EUR+INR prices.*
 
 ![Node.js content fixer script running Claude API fixing 8 issue types](/images/posts/claude-api-content-automation-nodejs/02-fixer-script.png)
-*Generated from live VPS data — March 2026*
+*Generated from live VPS data â€” March 2026*
 
 
 <Callout type="info" title="Before you start">
 - **Blixamo blog running** on your VPS (or any MDX blog with a `/content/posts/` directory)
 - **Node.js 18+** installed
-- **Anthropic API key** — the initial backlog run costs under Rs 50 total
+- **Anthropic API key** â€” the initial backlog run costs under Rs 50 total
 - **Time:** ~30 minutes to deploy
 - **Tested on:** Node.js 20, @anthropic-ai/sdk v0.20, March 2026
 </Callout>
 
-## Step 1 of 8 — Why Content Quality Drifts
+## Step 1 of 8 â€” Why Content Quality Drifts
 
-When you publish an article, it passes every check you care about at that moment. Three months later, the same article has problems you didn't notice — because your standards evolved.
+When you publish an article, it passes every check you care about at that moment. Three months later, the same article has problems you didn't notice â€” because your standards evolved.
 
-My ARTICLE_RULES.md started as 10 rules and grew to 30 over three months. Every new rule I added was immediately violated by every article I'd published before writing that rule. Rule 11 (TL;DR box after hook) meant all 8 existing articles needed a TL;DR. Rule 7 (6–8 FAQ H3s) meant most articles needed a full FAQ section written from scratch. Rule 21 (EUR + INR pricing) meant every Hetzner mention needed an INR equivalent added.
+My ARTICLE_RULES.md started as 10 rules and grew to 30 over three months. Every new rule I added was immediately violated by every article I'd published before writing that rule. Rule 11 (TL;DR box after hook) meant all 8 existing articles needed a TL;DR. Rule 7 (6â€“8 FAQ H3s) meant most articles needed a full FAQ section written from scratch. Rule 21 (EUR + INR pricing) meant every Hetzner mention needed an INR equivalent added.
 
 <Callout type="tip" title="Treat Content Like a CI Pipeline">
-Every article is re-checked daily and fixed if it drifts below standard. This is the same principle as automated tests — catch regressions early, fix them automatically, escalate what can't be automated.
+Every article is re-checked daily and fixed if it drifts below standard. This is the same principle as automated tests â€” catch regressions early, fix them automatically, escalate what can't be automated.
 </Callout>
 
 Doing this manually is unsustainable at 15 articles. It gets worse at 30 and impossible at 100.
 
 ---
 
-## Step 2 of 8 — Architecture: Two Layers of Fixes
+## Step 2 of 8 â€” Architecture: Two Layers of Fixes
 
 The fixer has a strict split between what it can fix automatically and what it flags for human attention:
 
 ```bash
 blixamo-ai-fixer.js
-    │
-    ├── NON-AI FIXES (instant, deterministic)
-    │   ├── fixDisclosure()    — add affiliate disclosure \
+    â”‚
+    â”œâ”€â”€ NON-AI FIXES (instant, deterministic)
+    â”‚   â”œâ”€â”€ fixDisclosure()    â€” add affiliate disclosure \
       if Hetzner mentioned
-    │   ├── fixCodeBlocks()    — tag untagged ``` blocks \
+    â”‚   â”œâ”€â”€ fixCodeBlocks()    â€” tag untagged ``` blocks \
       as ```bash
-    │   ├── fixExcerpt()       — trim excerpts over 20 words
-    │   ├── fixDescription()   — trim meta descriptions \
+    â”‚   â”œâ”€â”€ fixExcerpt()       â€” trim excerpts over 20 words
+    â”‚   â”œâ”€â”€ fixDescription()   â€” trim meta descriptions \
       over 160 chars
-    │   ├── fixBannedWords()   — replace 25 filler phrases
-    │   └── fixPricing()       — add INR to EUR/USD prices
-    │
-    ├── AI FIXES (Claude Haiku — fast, cheap)
-    │   ├── fixHook()          — rewrite hook to "I [did \
-      X] — [outcome]" format
-    │   ├── fixTLDR()          — generate 5-bullet TL;DR box
-    │   ├── fixTroubleshooting() — add "Common Errors" H2
-    │   ├── fixFAQ()           — add 6 H3 FAQ questions \
+    â”‚   â”œâ”€â”€ fixBannedWords()   â€” replace 25 filler phrases
+    â”‚   â””â”€â”€ fixPricing()       â€” add INR to EUR/USD prices
+    â”‚
+    â”œâ”€â”€ AI FIXES (Claude Haiku â€” fast, cheap)
+    â”‚   â”œâ”€â”€ fixHook()          â€” rewrite hook to "I [did \
+      X] â€” [outcome]" format
+    â”‚   â”œâ”€â”€ fixTLDR()          â€” generate 5-bullet TL;DR box
+    â”‚   â”œâ”€â”€ fixTroubleshooting() â€” add "Common Errors" H2
+    â”‚   â”œâ”€â”€ fixFAQ()           â€” add 6 H3 FAQ questions \
       with SCU answers
-    │   ├── fixWhatNext()      — add closing CTA with \
+    â”‚   â”œâ”€â”€ fixWhatNext()      â€” add closing CTA with \
       internal link
-    │   └── fixSCULinksEEAT()  — SCU blocks + internal \
+    â”‚   â””â”€â”€ fixSCULinksEEAT()  â€” SCU blocks + internal \
       links + E-E-A-T sentences
-    │
-    └── MANUAL FLAGS (cannot auto-fix — needs real \
+    â”‚
+    â””â”€â”€ MANUAL FLAGS (cannot auto-fix â€” needs real \
       experience)
-        ├── checkReadability() — paragraphs over 4 sentences
-        ├── checkWordCount()   — articles under minimum \
+        â”œâ”€â”€ checkReadability() â€” paragraphs over 4 sentences
+        â”œâ”€â”€ checkWordCount()   â€” articles under minimum \
           word count
-        ├── checkLSI()         — missing semantic entities
-        └── checkClusters()    — missing cluster hub links
+        â”œâ”€â”€ checkLSI()         â€” missing semantic entities
+        â””â”€â”€ checkClusters()    â€” missing cluster hub links
 ```
 <Callout type="tip" title="Expected output">
-#
 All checks passed.
-#
 </Callout>
-The non-AI fixes are deterministic — they run in milliseconds, produce the same output every time, and have zero token cost. The AI fixes use Claude Haiku because these are mechanical rewrites following explicit format rules, not creative writing.
-#
-Now let's look at the biggest risk in AI content tools — and how the fixer avoids it.
-#
+The non-AI fixes are deterministic â€” they run in milliseconds, produce the same output every time, and have zero token cost. The AI fixes use Claude Haiku because these are mechanical rewrites following explicit format rules, not creative writing.
+Now let's look at the biggest risk in AI content tools â€” and how the fixer avoids it.
 ---
-#
-## Step 3 of 8 — The Context Builder: No Hallucination Allowed
-#
-The biggest risk with AI content tools is hallucination — the model inventing numbers, prices, or experiences that aren't real. A fake benchmark or made-up price in an article destroys trust.
-#
-The fixer solves this with `blixamo-context-builder.js` — a separate file containing only verified production data:
-#
+## Step 3 of 8 â€” The Context Builder: No Hallucination Allowed
+The biggest risk with AI content tools is hallucination â€” the model inventing numbers, prices, or experiences that aren't real. A fake benchmark or made-up price in an article destroys trust.
+The fixer solves this with `blixamo-context-builder.js` â€” a separate file containing only verified production data:
 ```bash
 const REAL_DATA = {
   server: {
-    cost:    '€5.19/month (Rs 465)',
+    cost:    'â‚¬5.19/month (Rs 465)',
     specs:   '2 vCPU, 4GB RAM, 75GB SSD, AMD EPYC',
     loadTime:'306ms average homepage load',
   },
   failures: [
-    '13 PM2 restarts — OOM kills before adding 2GB swap',
+    '13 PM2 restarts â€” OOM kills before adding 2GB swap',
     'Kotak 811 failed auto-renewal 2/5 times in testing',
     '4/6 Indian cards declined (RBI 3DS mandate)',
   ],
@@ -146,18 +140,12 @@ const REAL_DATA = {
   },
 }
 ```
-Every AI prompt ends with: `ONLY use numbers from the real data above — never invent`. The model is constrained to pick from provided facts rather than generating new ones.
-#
-The live links list means the model can only pick internal links that actually exist — it can't invent a `/blog/some-article-that-doesnt-exist` path.
-#
+Every AI prompt ends with: `ONLY use numbers from the real data above â€” never invent`. The model is constrained to pick from provided facts rather than generating new ones.
+The live links list means the model can only pick internal links that actually exist â€” it can't invent a `/blog/some-article-that-doesnt-exist` path.
 ---
-#
-## Step 4 of 8 — Non-AI Fixes: What Runs Instantly
-#
+## Step 4 of 8 â€” Non-AI Fixes: What Runs Instantly
 These six fixes run in under 100ms per article with zero API calls.
-#
-**Banned word replacement** — 25 filler phrases mapped to clean alternatives:
-#
+**Banned word replacement** â€” 25 filler phrases mapped to clean alternatives:
 ```bash
 const BANNED_REPLACEMENTS = {
   'certainly':             '',
@@ -173,30 +161,22 @@ const BANNED_REPLACEMENTS = {
   // 15 more...
 }
 ```
-One run across 15 articles found and replaced 12 banned word instances — "use" appearing 4 times, "also" 3 times, "" twice.
-#
-**EUR+INR pricing** — regex matches any `€X.XX/month` not already followed by `(Rs`:
-#
+One run across 15 articles found and replaced 12 banned word instances â€” "use" appearing 4 times, "also" 3 times, "" twice.
+**EUR+INR pricing** â€” regex matches any `â‚¬X.XX/month` not already followed by `(Rs`:
 ```bash
 fixed = fixed.replace(
-  /€(\d+\.\d+)\/month(?!\s*\(Rs)/g,
+  /â‚¬(\d+\.\d+)\/month(?!\s*\(Rs)/g,
   (match, eur) => {
   const inr = Math.round(parseFloat(eur) * 90)
-  return `€${eur}/month (Rs ${inr})`
+  return `â‚¬${eur}/month (Rs ${inr})`
 })
 ```
-Exchange rate is hardcoded as Rs 90/EUR — updated quarterly. The regex is idempotent: running it twice on the same article produces the same output.
-#
-**Untagged code blocks** — every ` ``` ` with no language tag becomes ` ```bash `. Eight untagged blocks across 3 articles were fixed in the first run.
-#
+Exchange rate is hardcoded as Rs 90/EUR â€” updated quarterly. The regex is idempotent: running it twice on the same article produces the same output.
+**Untagged code blocks** â€” every ` ``` ` with no language tag becomes ` ```bash `. Eight untagged blocks across 3 articles were fixed in the first run.
 ---
-#
-## Step 5 of 8 — AI Fixes: What Claude Haiku Generates
-#
-The six AI fixes each make one API call to Claude Haiku. I use Haiku not Sonnet because these are mechanical rewrites following explicit format rules — Haiku handles them reliably at 1/5th the cost.
-#
-**Hook rewrite** — checks if the first paragraph starts with "I " and is under 45 words. If not, rewrites it:
-#
+## Step 5 of 8 â€” AI Fixes: What Claude Haiku Generates
+The six AI fixes each make one API call to Claude Haiku. I use Haiku not Sonnet because these are mechanical rewrites following explicit format rules â€” Haiku handles them reliably at 1/5th the cost.
+**Hook rewrite** â€” checks if the first paragraph starts with "I " and is under 45 words. If not, rewrites it:
 ```bash
 async function fixHook(raw, fm, slug) {
   const firstPara = body.split('\n\n')
@@ -208,7 +188,7 @@ async function fixHook(raw, fm, slug) {
 //
   const r = await ask(sysPrompt(fm, slug),
     `Rewrite the hook.`
-    + `\n Start: "I [action] — [outcome]."`
+    + `\n Start: "I [action] â€” [outcome]."`
      One real number. Return ONLY the paragraph.`, 150)
 //
   if (!r || !r.startsWith('I ')) return null
@@ -218,25 +198,21 @@ async function fixHook(raw, fm, slug) {
   }
 }
 ```
-The guard `if (!r || !r.startsWith('I '))` rejects any output that doesn't match the required format — the fix only applies if the model produces valid output.
-#
-**TL;DR box** — checks if `TL;DR` already exists. If not, generates a 5-bullet blockquote with the target keyword in bullet 1, then inserts it after the hook:
-#
+The guard `if (!r || !r.startsWith('I '))` rejects any output that doesn't match the required format â€” the fix only applies if the model produces valid output.
+**TL;DR box** â€” checks if `TL;DR` already exists. If not, generates a 5-bullet blockquote with the target keyword in bullet 1, then inserts it after the hook:
 ```bash
 const r = await ask(sysPrompt(fm, slug),
   `Write TL;DR box. EXACT FORMAT:
 > **TL;DR**
-> - ✅ [keyword: "${fm.keyword}"] — [outcome]
-> - ✅ [second point] — [value]
-> - ⚠️ [caveat] — [&lt;10 words]
-> - ❌ [avoid] — [why]
-> - 💡 [key insight] — [non-obvious]
+> - âœ… [keyword: "${fm.keyword}"] â€” [outcome]
+> - âœ… [second point] â€” [value]
+> - âš ï¸ [caveat] â€” [&lt;10 words]
+> - âŒ [avoid] â€” [why]
+> - ðŸ’¡ [key insight] â€” [non-obvious]
 Exactly 5 bullets. Keyword in bullet 1.`, 260)
 ```
 The prompt specifies exact output format including the `> **TL;DR**` markdown syntax. If the output doesn't contain "TL;DR", the fix is rejected.
-#
-**SCU blocks, internal links, and E-E-A-T** — the most complex fix, combining three tasks in one call. It checks which H2 sections have opening paragraphs under 60 words, how many internal links exist, and the E-E-A-T signal count. Output is parsed as JSON for precise insertion:
-#
+**SCU blocks, internal links, and E-E-A-T** â€” the most complex fix, combining three tasks in one call. It checks which H2 sections have opening paragraphs under 60 words, how many internal links exist, and the E-E-A-T signal count. Output is parsed as JSON for precise insertion:
 ```bash
 // SCU blocks response format
 [{"h2":"exact H2 title","scu":"the paragraph text"}]
@@ -254,13 +230,9 @@ The prompt specifies exact output format including the `> **TL;DR**` markdown sy
 }]
 ```
 Parsing JSON rather than markdown means the fixer can insert content at the right location without corrupting the surrounding structure.
-#
 ---
-#
-## Step 6 of 8 — What the Fix Log Shows
-#
+## Step 6 of 8 â€” What the Fix Log Shows
 After the first full run across all 15 articles, the log showed:
-#
 ```bash
 [2026-03-18 17:31:43] [pay-hetzner-from-india] SCU: "Why \
   Indian Cards Fail on Hetzner" (118w)
@@ -270,12 +242,9 @@ After the first full run across all 15 articles, the log showed:
   [Indian debit cards](/blog/indian-debit-cards-dev-tools)
 ```
 <Callout type="tip" title="Expected output">
-#
-(command runs silently — no output means success)
-#
+(command runs silently â€” no output means success)
 </Callout>
 Across all articles the first run applied:
-#
 - 8 SCU blocks strengthened
 - 4 internal links added
 - 3 TL;DR boxes generated
@@ -283,198 +252,130 @@ Across all articles the first run applied:
 - 12 banned word replacements
 - 7 EUR prices updated with INR equivalents
 - 4 untagged code blocks tagged
-#
-Total: 40 auto-fixes. None required manual review. The daily 8am cron now finds 0–2 fixes per day — mostly on newly published articles.
-#
+Total: 40 auto-fixes. None required manual review. The daily 8am cron now finds 0â€“2 fixes per day â€” mostly on newly published articles.
 ---
-#
-## Step 7 of 8 — Running It
-#
-Install the only dependency:
-#
+## Step 7 of 8 â€” Running It
+Install the only dependency. I use Anthropic's official [TypeScript SDK](https://github.com/anthropics/anthropic-sdk-typescript) so the script stays close to the API docs and is easy to update later:
 ```bash
 cd /var/www/blixamo/tools
 npm install @anthropic-ai/sdk
 ```
 <Callout type="tip" title="Expected output">
-#
 added 847 packages in 12s
-#
 </Callout>
 Set your API key:
-#
 ```bash
 echo "ANTHROPIC_API_KEY=sk-ant-your-key" >> \
   /var/www/blixamo/.env.local
 ```
 <Callout type="tip" title="Expected output">
-#
-(command runs silently — no output means success)
-#
+(command runs silently â€” no output means success)
 </Callout>
-Run in dry mode first — shows what it would fix without writing:
-#
+Run in dry mode first â€” shows what it would fix without writing:
 ```bash
 node blixamo-ai-fixer.js --dry
 ```
 <Callout type="tip" title="Expected output">
-#
-Script ran successfully — check logs for output.
-#
+Script ran successfully â€” check logs for output.
 </Callout>
 Test on a single article:
-#
 ```bash
 node blixamo-ai-fixer.js --slug pay-hetzner-from-india
 ```
 <Callout type="tip" title="Expected output">
-#
-Script ran successfully — check logs for output.
-#
+Script ran successfully â€” check logs for output.
 </Callout>
 Run on all articles:
-#
 ```bash
 node blixamo-ai-fixer.js
 ```
 <Callout type="tip" title="Expected output">
-#
-Script ran successfully — check logs for output.
-#
+Script ran successfully â€” check logs for output.
 </Callout>
 Set up the daily 8am cron:
-#
 ```bash
 crontab -e
 # Add:
 0 8 * * * node /var/www/blixamo/tools/blixamo-ai-fixer.js --fix >> /var/log/blixamo-checker.log 2>&1
 ```
 <Callout type="tip" title="Expected output">
-#
-Script ran successfully — check logs for output.
-#
+Script ran successfully â€” check logs for output.
 </Callout>
 The `--fix` flag enables all auto-fix writes. Without it, the fixer runs in dry mode and reports only.
-#
 ---
-#
-## Step 8 of 8 — What It Cannot Fix: Manual Flags
-#
+## Step 8 of 8 â€” What It Cannot Fix: Manual Flags
 The fixer outputs a manual checklist for each article that can't be auto-fixed without real human experience:
-#
 ```bash
-⚠️  Still needs YOU (3):
-  • R3: 1,240w — need 260 more words to hit 1,500w minimum
+âš ï¸  Still needs YOU (3):
+  â€¢ R3: 1,240w â€” need 260 more words to hit 1,500w minimum
         Expand: "Step 3" (180w), "Troubleshooting" (95w)
-  • R16: 2 paragraphs over 4 sentences — split for mobile \
+  â€¢ R16: 2 paragraphs over 4 sentences â€” split for mobile \
     readability
-  • E-E-A-T: 3/7 — add real numbers, failures, versions, \
+  â€¢ E-E-A-T: 3/7 â€” add real numbers, failures, versions, \
     "as of March 2026"
 ```
 <Callout type="tip" title="Expected output">
-#
-(command runs silently — no output means success)
-#
+(command runs silently â€” no output means success)
 </Callout>
-The word count check identifies the shortest H2 sections by name — not just "needs more words" but "expand Step 3 (currently 180w) and Troubleshooting (95w)". This makes the manual fix actionable.
-#
+The word count check identifies the shortest H2 sections by name â€” not just "needs more words" but "expand Step 3 (currently 180w) and Troubleshooting (95w)". This makes the manual fix actionable.
 The E-E-A-T check counts 7 signals: real numbers with units, production outcome phrases, failure mentions, version numbers, freshness dates, pricing with currency, and tool name specificity. Articles under 4/7 get flagged with which signals are missing.
-#
 <Callout type="warning" title="These Require Real Experience">
 The fixer cannot and should not invent actual RAM usage figures, real error messages from logs, or real test results. The separation between "auto-fix" and "flag for human" is the entire design principle.
 </Callout>
-#
 ---
-#
 ## Troubleshooting Common Issues
-#
-#
 ![Claude API response log showing Node.js content fixer processing 8 articles in 12 seconds](/images/posts/claude-api-content-automation-nodejs/05-api-response-log.png)
-*Api response log — claude api content automation nodejs*
-#
+*Api response log â€” claude api content automation nodejs*
 **`ANTHROPIC_API_KEY not set` on cron run**
-#
 Cron doesn't inherit shell environment. The fixer reads directly from `/var/www/blixamo/.env.local`:
-#
 ```bash
 grep ANTHROPIC_API_KEY /var/www/blixamo/.env.local
 ```
 <Callout type="tip" title="Expected output">
-#
-(command runs silently — no output means success)
-#
+(command runs silently â€” no output means success)
 </Callout>
 **AI fix applied but content sounds wrong**
-#
 Run `--dry` to preview any pending fixes without writing:
-#
 ```bash
 node blixamo-ai-fixer.js --slug problem-article --dry
 ```
 <Callout type="tip" title="Expected output">
-#
-Script ran successfully — check logs for output.
-#
+Script ran successfully â€” check logs for output.
 </Callout>
 **Fixer runs but shows `0 fixes` every day**
-#
-Once all articles pass all checks, the fixer finds nothing to fix. This is the correct state — new articles will trigger fixes on their first post-publish run.
-#
+Once all articles pass all checks, the fixer finds nothing to fix. This is the correct state â€” new articles will trigger fixes on their first post-publish run.
 **SCU blocks inserted in wrong location**
-#
 The SCU inserter searches for the exact H2 title then inserts immediately after. If an H2 title contains special characters that don't match exactly, insertion is skipped. Check the H2 title in the MDX file matches exactly what the fixer logs.
-#
 ---
-#
 ## FAQ
-#
-#
-![Cron schedule running Claude content fixer daily at 8am on Hetzner VPS — crontab output](/images/posts/claude-api-content-automation-nodejs/03-cron-schedule.png)
-*Cron schedule — claude api content automation nodejs*
-#
+![Cron schedule running Claude content fixer daily at 8am on Hetzner VPS â€” crontab output](/images/posts/claude-api-content-automation-nodejs/03-cron-schedule.png)
+*Cron schedule â€” claude api content automation nodejs*
 ### How much does the daily fixer run cost in Claude API tokens?
-#
-A full run across 15 articles costs roughly $0.04–0.08 (Rs 3–7). Claude Haiku costs $0.80/million input tokens and $4/million output tokens. Each AI fix call uses ~300–600 input tokens and generates 100–300 output tokens. The initial backlog run across 15 articles cost under $0.50 (Rs 42) total.
-#
+A full run across 15 articles costs roughly $0.04â€“0.08 (Rs 3â€“7). Claude Haiku costs $0.80/million input tokens and $4/million output tokens. Each AI fix call uses ~300â€“600 input tokens and generates 100â€“300 output tokens. The initial backlog run across 15 articles cost under $0.50 (Rs 42) total.
 ### Can this run on any blog or is it blixamo-specific?
-#
-The 30 ARTICLE_RULES and the context builder are blixamo-specific. The architecture — deterministic fixes first, AI fixes second, flag-only for human judgment third — is generic. To adapt it: replace `REAL_DATA` in `blixamo-context-builder.js` with your own production numbers and failures. Replace `LIVE_ARTICLES` with your article map. The fix functions themselves are reusable as-is.
-#
+The 30 ARTICLE_RULES and the context builder are blixamo-specific. The architecture â€” deterministic fixes first, AI fixes second, flag-only for human judgment third â€” is generic. To adapt it: replace `REAL_DATA` in `blixamo-context-builder.js` with your own production numbers and failures. Replace `LIVE_ARTICLES` with your article map. The fix functions themselves are reusable as-is.
 ### Does the fixer modify articles that are already correct?
-#
-No. Every fix function has a guard that returns `null` if the check passes. `fixTLDR()` returns null if `raw.includes('TL;DR')`. `fixHook()` returns null if the hook already starts with "I " and is under 45 words. The fixer is idempotent — running it twice on an already-clean article applies zero changes.
-#
+No. Every fix function has a guard that returns `null` if the check passes. `fixTLDR()` returns null if `raw.includes('TL;DR')`. `fixHook()` returns null if the hook already starts with "I " and is under 45 words. The fixer is idempotent â€” running it twice on an already-clean article applies zero changes.
 ### What happens if Claude returns bad output?
-#
-Every AI fix validates the response before applying it. `fixHook()` rejects any output that doesn't start with "I " or "My ". `fixTLDR()` rejects output that doesn't contain "TL;DR". The worst case is the fix is skipped and logged as a warning — the article is never corrupted.
-#
+Every AI fix validates the response before applying it. `fixHook()` rejects any output that doesn't start with "I " or "My ". `fixTLDR()` rejects output that doesn't contain "TL;DR". The worst case is the fix is skipped and logged as a warning â€” the article is never corrupted.
 ### How is this different from tools like Clearscope or Surfer SEO?
-#
-Those tools analyse content against competitor pages and suggest keywords. This tool enforces a specific internal standard — ARTICLE_RULES.md — independent of competitor analysis. It fixes structural and voice issues, not keyword density. The focus is on AI Overview citation probability (SCU blocks, FAQ structure) rather than traditional keyword SEO.
-#
+Those tools analyse content against competitor pages and suggest keywords. This tool enforces a specific internal standard â€” ARTICLE_RULES.md â€” independent of competitor analysis. It fixes structural and voice issues, not keyword density. The focus is on AI Overview citation probability (SCU blocks, FAQ structure) rather than traditional keyword SEO.
 ### Does it work with `next-mdx-remote` frontmatter?
-#
-Yes. The fixer reads and writes raw MDX files directly using `fs.readFileSync` and `fs.writeFileSync`. Changes are picked up by the `blixamo-watcher` service, which fires ISR revalidation within 1 second — the fixed article is live on the site within seconds of the fixer writing the file.
-#
+Yes. The fixer reads and writes raw MDX files directly using `fs.readFileSync` and `fs.writeFileSync`. Changes are picked up by the `blixamo-watcher` service, which fires ISR revalidation within 1 second â€” the fixed article is live on the site within seconds of the fixer writing the file.
 ---
-#
 ## What You Built
-#
-#
-![MDX article before and after Claude API fix — missing TL;DR and broken code block repaired](/images/posts/claude-api-content-automation-nodejs/04-before-after-fix.png)
-*Before after fix — claude api content automation nodejs*
-#
+![MDX article before and after Claude API fix â€” missing TL;DR and broken code block repaired](/images/posts/claude-api-content-automation-nodejs/04-before-after-fix.png)
+*Before after fix â€” claude api content automation nodejs*
 You now have a content quality CI pipeline: deterministic fixes run instantly at zero cost, AI fixes handle structural rewrites with format validation, and the manual flag list tells you exactly what still needs your attention.
-#
 **Your next steps:**
-#
-1. **Build the context builder first** — before running any AI fixes, create your `REAL_DATA` object with actual production numbers. This is the most important step for avoiding hallucination.
-2. **Start with non-AI fixes** — run the deterministic fixes first. They're free, instant, and will catch the majority of quality issues in most articles.
-3. **Add one AI fix at a time** — start with `fixBannedWords()` and `fixPricing()`, validate the output on 2–3 articles, then add more AI fixes once you trust the output format
-#
+1. **Build the context builder first** â€” before running any AI fixes, create your `REAL_DATA` object with actual production numbers. This is the most important step for avoiding hallucination.
+2. **Start with non-AI fixes** â€” run the deterministic fixes first. They're free, instant, and will catch the majority of quality issues in most articles.
+3. **Add one AI fix at a time** â€” start with `fixBannedWords()` and `fixPricing()`, validate the output on 2â€“3 articles, then add more AI fixes once you trust the output format
 For the infrastructure that makes content changes go live in 1 second without a full rebuild, the [multiple projects on single VPS guide](/blog/multiple-projects-single-vps) covers the ISR watcher setup that the fixer depends on.
-#
-Subscribe below — I write about self-hosting, Hetzner, [self-hosting n8n on Hetzner](/blog/self-hosting-n8n-hetzner-vps) automation, and building indie tools from India.
-#
+Subscribe below â€” I write about self-hosting, Hetzner, [self-hosting n8n on Hetzner](/blog/self-hosting-n8n-hetzner-vps) automation, and practical developer systems.
 
+## Final Takeaway
 
+This Claude API + Node.js automation setup is worth building if your content problem is maintenance, not generation. It works best when you already have real posts, real rules, and real production data, and you want a repeatable way to keep articles clean without rewriting them from scratch every week.
+
+My recommendation is simple: automate the boring fixes, keep the judgment-heavy edits human, and treat article quality the same way you treat CI. Start with the deterministic fixes first, then add Claude only where format and validation make the output safe.

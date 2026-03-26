@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: 'Terms',
   description: 'Review the website usage terms for Blixamo, including content ownership, external links, and limitations of liability.',
   alternates: { canonical: absoluteUrl('/terms') },
+  robots: { index: false, follow: true },
 }
 
 export default function TermsPage() {

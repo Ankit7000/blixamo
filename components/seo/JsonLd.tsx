@@ -1,12 +1,12 @@
 import type { Post } from '@/lib/posts'
-import { getPostOgImagePath } from '@/lib/post-images'
+import { getCategoryMeta } from '@/lib/categories'
 
 const SITE = 'https://blixamo.com'
 const SITE_NAME = 'Blixamo'
 const AUTHOR_TWITTER = '@blixamo'
 
 export function JsonLd({ post }: { post: Post }) {
-  const ogImage = `${SITE}${getPostOgImagePath(post.slug)}`
+  const categoryMeta = getCategoryMeta(post.category)
   const schema = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -19,7 +19,7 @@ export function JsonLd({ post }: { post: Post }) {
         dateModified: new Date(post.updatedAt || post.date).toISOString(),
         image: {
           '@type': 'ImageObject',
-          url: ogImage,
+          url: `${SITE}${post.featuredImage}`,
           width: 1200,
           height: 630,
         },
@@ -37,7 +37,7 @@ export function JsonLd({ post }: { post: Post }) {
         },
         mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE}/blog/${post.slug}` },
         keywords: [post.keyword, ...post.tags].filter(Boolean).join(', '),
-        articleSection: post.category,
+        articleSection: categoryMeta.label,
         inLanguage: 'en-US',
         wordCount: post.content.split(/\s+/).length,
       },
@@ -45,7 +45,7 @@ export function JsonLd({ post }: { post: Post }) {
         '@type': 'BreadcrumbList',
         itemListElement: [
           { '@type': 'ListItem', position: 1, name: 'Home', item: SITE },
-          { '@type': 'ListItem', position: 2, name: post.category, item: `${SITE}/category/${post.category}` },
+          { '@type': 'ListItem', position: 2, name: categoryMeta.label, item: `${SITE}/category/${post.category}` },
           { '@type': 'ListItem', position: 3, name: post.title, item: `${SITE}/blog/${post.slug}` },
         ],
       },
@@ -74,7 +74,7 @@ export function WebsiteJsonLd() {
     '@type': 'WebSite',
     name: SITE_NAME,
     url: SITE,
-    description: 'Tech insights, tutorials, AI guides, and developer tools � straight to the point.',
+    description: 'Tech insights, tutorials, AI guides, and developer tools — straight to the point.',
     potentialAction: {
       '@type': 'SearchAction',
       target: `${SITE}/search?q={search_term_string}`,
@@ -90,4 +90,3 @@ export function WebsiteJsonLd() {
   }
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
 }
-

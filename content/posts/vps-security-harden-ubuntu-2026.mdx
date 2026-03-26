@@ -1,42 +1,42 @@
 ---
-title: "VPS Security Hardening Ubuntu 2026 — Blocks 847 SSH Attacks"
+title: "VPS Security Hardening Ubuntu 2026 â€” Blocks 847 SSH Attacks"
 slug: "vps-security-harden-ubuntu-2026"
-description: "15-step Ubuntu 24.04 checklist that blocked 847 SSH attacks on a fresh Hetzner VPS — SSH keys, UFW, fail2ban, SSL, unattended upgrades. Zero breaches."
+description: "15-step Ubuntu 24.04 checklist that blocked 847 SSH attacks on a fresh Hetzner VPS â€” SSH keys, UFW, fail2ban, SSL, unattended upgrades. Zero breaches."
 date: "2026-03-18"
-updatedAt: "2026-03-20"
+updatedAt: "2026-03-26"
 author: "Ankit Sorathiya"
 category: "vps-cloud"
 tags: [vps,devops,hetzner]
 keyword: "vps security hardening ubuntu 2026"
 secondaryKeywords: ["ubuntu vps harden", "fail2ban setup", "ufw firewall vps", "ssh hardening ubuntu", "hetzner vps security"]
 featured: true
-featuredImage: "/images/posts/vps-security-harden-ubuntu-2026/featured.png"
+featuredImage: /images/posts/vps-security-harden-ubuntu-2026/featured.jpg
 schema: "howto"
 difficulty: "intermediate"
 timeToComplete: "30 minutes"
 excerpt: "I run this 8-step hardening checklist on every new Hetzner VPS within the first 10 minutes of provisioning."
 toc: true
 ---
-A fresh Ubuntu VPS exposed to the internet will have its first SSH brute-force attempt within 3 hours — as of March 2026, I run this 8-step hardening checklist on every new server within the first 10 minutes of provisioning. On my last Hetzner server, `grep "Failed password" /var/log/auth.log | wc -l` showed 847 failed attempts within 48 hours — all from different IPs, all automated.
+I treat VPS hardening like opening the front door after moving into a new place: it gets done immediately, not after the app is already live. On my last fresh Ubuntu server, `grep "Failed password" /var/log/auth.log | wc -l` showed 847 failed SSH attempts within 48 hours.
 
-> **Disclosure:** Some links in this article are affiliate links — I earn a small commission at no extra cost to you.
+> **Disclosure:** Some links in this article are affiliate links â€” I earn a small commission at no extra cost to you.
 
 
-I run this 8-step hardening checklist on every new server within the first 10 minutes of provisioning. It takes 30 minutes the first time. After that you have it memorized and it takes 10.
+This checklist is what I run on every new Ubuntu VPS before I deploy anything important. The first pass takes about 30 minutes. After a few servers, it becomes muscle memory.
 
 <Callout type="info" title="TL;DR">
-- **SSH keys only** — disable password auth, eliminate brute-force attacks entirely
-- **UFW firewall** — deny everything by default, allow only ports you actually use
-- **fail2ban** — auto-ban IPs after 5 failed attempts
-- **Automatic security updates** — unattended-upgrades handles patches without you
+- **SSH keys only** â€” disable password auth, eliminate brute-force attacks entirely
+- **UFW firewall** â€” deny everything by default, allow only ports you actually use
+- **fail2ban** â€” auto-ban IPs after 5 failed attempts
+- **Automatic security updates** â€” unattended-upgrades handles patches without you
 - **Warning:** do SSH key setup BEFORE disabling password auth or you'll lock yourself out
 </Callout>
 
 <Callout type="info" title="Before you start">
 
-![VPS security hardening — 4 defence layers: UFW → fail2ban → SSH key auth → auto-updates](/images/posts/vps-security-harden-ubuntu-2026/01-security-layers.png)
-*4 defence layers on Ubuntu 24.04: UFW blocks ports, fail2ban bans brute force, SSH key auth removes password attacks, auto-updates patch CVEs — 847 attacks blocked in first 24h*
-*auth.log output: 847 failed password attempts within 48 hours on a fresh VPS — all automated bots.*
+![VPS security hardening â€” 4 defence layers: UFW â†’ fail2ban â†’ SSH key auth â†’ auto-updates](/images/posts/vps-security-harden-ubuntu-2026/01-security-layers.png)
+*4 defence layers on Ubuntu 24.04: UFW blocks ports, fail2ban bans brute force, SSH key auth removes password attacks, auto-updates patch CVEs â€” 847 attacks blocked in first 24h*
+*auth.log output: 847 failed password attempts within 48 hours on a fresh VPS â€” all automated bots.*
 
 - **Fresh [running multiple apps on a single Hetzner VPS](/blog/multiple-projects-single-vps)** running Ubuntu 24.04 (works on any Ubuntu VPS)
 - **SSH access as root** or a sudo user
@@ -50,7 +50,7 @@ I run this 8-step hardening checklist on every new server within the first 10 mi
 
 ## Why This Matters for Indie Developers
 
-The threat model for indie developers is not sophisticated nation-state attacks. It's automated bots scanning the entire internet for default credentials and unpatched services — 24/7, hitting every IP within hours of provisioning.
+The threat model for indie developers is not sophisticated nation-state attacks. It's automated bots scanning the entire internet for default credentials and unpatched services â€” 24/7, hitting every IP within hours of provisioning.
 
 A compromised VPS doesn't just take down your projects. It can send spam (getting your IP blacklisted), mine cryptocurrency (spiking your CPU bill), or exfiltrate API keys stored on the server.
 
@@ -58,7 +58,7 @@ The good news: basic hardening stops 99% of this. SSH key auth eliminates the en
 
 ---
 
-## Step 1 of 8 — Create a Non-Root User
+## Step 1 of 8 â€” Create a Non-Root User
 
 Never run applications or day-to-day work as root. Create a user with sudo access:
 
@@ -68,57 +68,39 @@ usermod -aG sudo ankit
 su - ankit
 ```
 <Callout type="tip" title="Expected output">
-#
-(command runs silently — no output means success)
-#
+(command runs silently â€” no output means success)
 </Callout>
 From here, do everything as this user with `sudo` prefix when needed. Reserve root for emergencies only.
-#
-Now set up SSH key auth — the most important single step in this entire guide.
-#
+Now set up SSH key auth â€” the most important single step in this entire guide.
 ---
-#
-## Step 2 of 8 — Set Up SSH Key Authentication
-#
+## Step 2 of 8 â€” Set Up SSH Key Authentication
 This is the most important step. Password auth can be brute-forced. Key auth cannot.
-#
 On your **local machine** (not the server):
-#
 ```bash
 # Generate a new SSH key pair if you don't have one
 ssh-keygen -t ed25519 -C "your@email.com"
-#
 # Copy public key to server
 ssh-copy-id -i ~/.ssh/id_ed25519.pub ankit@YOUR_SERVER_IP
-#
 # Test it works BEFORE proceeding
 ssh ankit@YOUR_SERVER_IP
 # Should log in without asking for a password
 ```
 <Callout type="tip" title="Expected output">
-#
 Generating public/private ed25519 key pair.
 Your identification has been saved in ~/.ssh/id_ed25519
-#
 </Callout>
 <Callout type="danger" title="Critical: Test Key Login Before Disabling Passwords">
-Do NOT disable password auth until you confirm key login works. Locking yourself out of a Hetzner VPS means using the browser-based KVM console — painful. Confirm key-based login works in a new terminal window first.
+Do NOT disable password auth until you confirm key login works. Locking yourself out of a Hetzner VPS means using the browser-based KVM console â€” painful. Confirm key-based login works in a new terminal window first.
 </Callout>
-#
 ---
-#
-## Step 3 of 8 — Harden SSH Configuration
-#
+## Step 3 of 8 â€” Harden SSH Configuration
 ```bash
 sudo nano /etc/ssh/sshd_config
 ```
 <Callout type="tip" title="Expected output">
-#
-(command runs silently — no output means success)
-#
+(command runs silently â€” no output means success)
 </Callout>
 Change or add these lines:
-#
 ```bash
 PasswordAuthentication no
 ChallengeResponseAuthentication no
@@ -130,194 +112,135 @@ LoginGraceTime 20
 X11Forwarding no
 ```
 <Callout type="tip" title="Expected output">
-#
-(command runs silently — no output means success)
-#
+(command runs silently â€” no output means success)
 </Callout>
 Apply changes:
-#
 ```bash
 sudo systemctl restart sshd
 ```
 <Callout type="tip" title="Expected output">
 No error output means sshd restarted cleanly. Immediately open a new terminal and test your new port before closing this session.
 </Callout>
-#
 Open a new terminal and test the new port before closing your current session:
-#
 ```bash
 ssh -p 2222 ankit@YOUR_SERVER_IP
 ```
 <Callout type="tip" title="Expected output">
-#
-(command runs silently — no output means success)
-#
+(command runs silently â€” no output means success)
 </Callout>
 If it works, you can safely close the old session. All future SSH connections: `ssh -p 2222 ankit@YOUR_SERVER_IP`.
-#
-With SSH locked down, the firewall is next — deny everything by default and allow only what your apps need.
-#
+With SSH locked down, the firewall is next â€” deny everything by default and allow only what your apps need.
 <Callout type="tip" title="Why Change the SSH Port?">
-Changing from port 22 to any other port won't stop a determined attacker who scans all ports — but it eliminates the automated scanning noise. My auth.log went from 800+ failed attempts per day to under 20 after changing the port. Less noise means real threats are easier to spot.
+Changing from port 22 to any other port won't stop a determined attacker who scans all ports â€” but it eliminates the automated scanning noise. My auth.log went from 800+ failed attempts per day to under 20 after changing the port. Less noise means real threats are easier to spot.
 </Callout>
-#
 ---
-#
-## Step 4 of 8 — Configure UFW Firewall
-#
+## Step 4 of 8 â€” Configure UFW Firewall
 UFW (Uncomplicated Firewall) is the standard Ubuntu firewall. Rule: deny everything by default, allow only what you need.
-#
 ```bash
 sudo apt install ufw -y
-#
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
-#
 # Allow your SSH port (replace 2222 with yours)
 sudo ufw allow 2222/tcp
-#
 # Allow HTTP and HTTPS (for Nginx)
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
-#
 sudo ufw enable
 sudo ufw status verbose
 ```
 <Callout type="tip" title="Expected output">
 `Status: active` with your allowed ports listed. If you see `inactive`, re-run `sudo ufw enable`.
 </Callout>
-#
 <Callout type="warning" title="Docker Bypasses UFW">
 Docker modifies iptables directly and can expose container ports even when UFW denies them. Always use `-p 127.0.0.1:PORT:PORT` (not `-p PORT:PORT`) in all Docker run commands to bind to localhost only. This ensures only [Nginx reverse proxy configuration](/blog/nginx-reverse-proxy-guide-2026) can reach your containers, not the public internet.
 </Callout>
-#
 ---
-#
-## Step 5 of 8 — Install and Configure fail2ban
-#
-fail2ban monitors log files and automatically bans IPs that show malicious patterns — like 5 failed SSH attempts in 10 minutes. It's why I see 50–200 IPs banned on a new server within the first 24 hours.
-#
+## Step 5 of 8 â€” Install and Configure fail2ban
+fail2ban monitors log files and automatically bans IPs that show malicious patterns â€” like 5 failed SSH attempts in 10 minutes. It's why I see 50â€“200 IPs banned on a new server within the first 24 hours.
 ```bash
 sudo apt install fail2ban -y
-#
 sudo cat > /etc/fail2ban/jail.local << 'EOF'
 [DEFAULT]
 bantime  = 1h
 findtime  = 10m
 maxretry = 5
 banaction = ufw
-#
 [sshd]
 enabled = true
 port = 2222
 logpath = /var/log/auth.log
 maxretry = 3
-#
 [nginx-http-auth]
 enabled = true
-#
 [nginx-limit-req]
 enabled = true
 EOF
-#
 sudo systemctl enable fail2ban
 sudo systemctl start fail2ban
 ```
 <Callout type="tip" title="Expected output">
 `fail2ban.service` shows `active (running)`. If it fails, check `/var/log/fail2ban.log` for the error.
 </Callout>
-#
 Check status after 24 hours:
-#
 ```bash
 sudo fail2ban-client status sshd
 ```
 <Callout type="tip" title="Why this matters">
-Fail2ban running on a new server typically bans 50–200 IPs within the first 24 hours — all automated scanners hitting the SSH port. Each ban is a brute-force attempt that didn't succeed.
+Fail2ban running on a new server typically bans 50â€“200 IPs within the first 24 hours â€” all automated scanners hitting the SSH port. Each ban is a brute-force attempt that didn't succeed.
 </Callout>
-#
 With fail2ban active, enable automatic security updates so patches apply without manual intervention.
-#
 ---
-#
-## Step 6 of 8 — Enable Automatic Security Updates
-#
+## Step 6 of 8 â€” Enable Automatic Security Updates
 Security patches should apply automatically. You shouldn't need to manually run `apt upgrade` every time a CVE drops.
-#
 ```bash
 sudo apt install unattended-upgrades -y
 sudo dpkg-reconfigure -plow unattended-upgrades
 # Select "Yes" when prompted
-#
 # Verify
 cat /etc/apt/apt.conf.d/20auto-upgrades
 # Should show: APT::Periodic::Unattended-Upgrade "1";
 ```
 <Callout type="tip" title="Expected output">
-#
 Reading package lists...
 Setting up package-name...
 Processing triggers...
-#
 </Callout>
-This auto-applies security updates only — not regular package upgrades. Your application packages (Node.js, Python, Docker) aren't touched. The server only auto-reboots if a kernel update requires it.
-#
-External monitoring is the final layer — security hardening prevents intrusion, but monitoring tells you if something goes wrong despite all of it.
-#
+This auto-applies security updates only â€” not regular package upgrades. Your application packages (Node.js, Python, Docker) aren't touched. The server only auto-reboots if a kernel update requires it.
+External monitoring is the final layer â€” security hardening prevents intrusion, but monitoring tells you if something goes wrong despite all of it.
 ---
-#
-## Step 7 of 8 — Set Up External Monitoring
-#
+## Step 7 of 8 â€” Set Up External Monitoring
 Security hardening prevents intrusion. Monitoring tells you when something goes wrong anyway.
-#
 UptimeRobot free plan monitors 50 URLs every 5 minutes and sends email/Telegram alerts on downtime:
-#
 1. Create account at uptimerobot.com (free)
 2. Add [self-healing VPS monitor](/blog/self-healing-vps-monitor-nodejs): HTTP(S), your domain URL, 5-minute interval
 3. Add Telegram alert contact for instant phone notifications
-#
 For Telegram alerts: message `@BotFather`, create a bot, copy the token, then add it as an alert contact in UptimeRobot. When blixamo.com went down from a PM2 crash, I got the alert within 5 minutes. Without monitoring, I'd have found out from a reader.
-#
 ---
-#
-## Step 8 of 8 — Audit What's Actually Exposed
-#
+## Step 8 of 8 â€” Audit What's Actually Exposed
 After hardening, verify what's visible from the outside:
-#
 ```bash
 # Check what's listening on network interfaces
 ss -tlnp
-#
 # Check UFW status
 sudo ufw status numbered
-#
 # Check fail2ban bans
 sudo fail2ban-client status sshd
-#
 # Check recent auth activity
 sudo grep "Accepted\|Failed" /var/log/auth.log | tail -20
-#
 # Check Docker exposed ports
 docker ps --format "table {{.Names}}\t{{.Ports}}"
 ```
 <Callout type="tip" title="Expected output">
-#
 CONTAINER ID   IMAGE    STATUS         PORTS
 abc123  redis  Up 3 hours  0.0.0.0:6379->6379/tcp
-#
 </Callout>
 The `ss -tlnp` output should show only port 2222 (SSH), ports 80 and 443 (Nginx), and `127.0.0.1:PORT` entries for internal services. Any public-facing port you don't recognize should be investigated and closed.
-#
 ---
-#
-## Nginx Security — Headers and Rate Limiting
-#
+## Nginx Security â€” Headers and Rate Limiting
 Nginx hardening protects applications running behind the reverse proxy. Add these to your Nginx config:
-#
 ```bash
 # In /etc/nginx/nginx.conf, inside http { }
 server_tokens off;
-#
 # Security headers in your server block
 add_header X-Frame-Options "SAMEORIGIN" always;
 add_header X-Content-Type-Options "nosniff" always;
@@ -328,12 +251,10 @@ add_header Permissions-Policy \
   "camera=(), microphone=(), geolocation=()" always;
 ```
 Add rate limiting to stop automated scanners on API endpoints:
-#
 ```bash
 # In nginx.conf http block - define the zone
 limit_req_zone $binary_remote_addr \
   zone=api_limit:10m rate=10r/s;
-#
 # In your API location blocks
 location /api/ {
     limit_req zone=api_limit burst=20 nodelay;
@@ -341,169 +262,100 @@ location /api/ {
 }
 ```
 Verify headers:
-#
 ```bash
 curl -I https://yourdomain.com | grep -E \
   "X-Frame|X-Content|Server"
 ```
 <Callout type="tip" title="Expected output">
-#
-(command runs silently — no output means success)
-#
+(command runs silently â€” no output means success)
 </Callout>
 The `Server` header should show nothing or just `nginx` without a version number.
-#
 ---
-#
 ## Troubleshooting Common Security Issues
-#
 **Locked out after changing SSH port**
-#
-Use Hetzner's browser-based KVM console (Control Panel → Server → Console). Log in as root, fix `/etc/ssh/sshd_config`, restart sshd, re-add the correct UFW rule.
-#
+Use Hetzner's browser-based KVM console (Control Panel â†’ Server â†’ Console). Log in as root, fix `/etc/ssh/sshd_config`, restart sshd, re-add the correct UFW rule.
 **fail2ban not banning despite failed attempts**
-#
 Check the jail is looking at the right log file:
-#
 ```bash
 sudo fail2ban-client get sshd logpath
 ```
 <Callout type="tip" title="Expected output">
-#
 fail2ban.service - Fail2Ban Service
    Active: active (running)
-#
 </Callout>
 On some Ubuntu 24.04 setups, SSH logs go to `/var/log/auth.log` but fail2ban defaults to `journald`. Add `backend = auto` to `jail.local` to force file-based logging.
-#
 **UFW blocking Docker networking**
-#
 Docker and UFW have known conflicts. Install the `ufw-docker` package which handles the conflict automatically, or use `127.0.0.1` bindings in all Docker run commands.
-#
 **Automatic updates broke a package**
-#
 Check:
-#
 ```bash
 cat /var/log/unattended-upgrades/unattended-upgrades.log
 ```
 <Callout type="tip" title="Expected output">
-#
-(command runs silently — no output means success)
-#
+(command runs silently â€” no output means success)
 </Callout>
 Pin the package version in `/etc/apt/preferences.d/` to prevent future auto-updates on that specific package.
-#
 ---
-#
 ## FAQ
-#
-#
 ![fail2ban-client status showing 47 banned IPs and sshd jail active on Ubuntu 24.04](/images/posts/vps-security-harden-ubuntu-2026/05-fail2ban-status.png)
-*Fail2ban status — vps security harden ubuntu 2026*
-#
+*Fail2ban status â€” vps security harden ubuntu 2026*
 ### Do I need all 8 steps or can I just do some?
-#
 At minimum: steps 2 (SSH keys), 3 (disable password auth), and 4 (UFW). These three eliminate 95% of the risk. fail2ban (step 5) is quick and adds meaningful protection. The rest is good practice but lower priority.
-#
 ### Is a server firewall enough or do I also need Cloudflare?
-#
-Both serve different purposes. UFW/fail2ban protects at the server level. Cloudflare protects at the network level — absorbs DDoS traffic, hides your real IP, adds a WAF on paid plans. For indie projects, both together is ideal. Cloudflare free tier + UFW covers you against the threats you're actually likely to face.
-#
+Both serve different purposes. UFW/fail2ban protects at the server level. Cloudflare protects at the network level â€” absorbs DDoS traffic, hides your real IP, adds a WAF on paid plans. For indie projects, both together is ideal. Cloudflare free tier + UFW covers you against the threats you're actually likely to face.
 ### How do I know if my VPS has already been compromised?
-#
 Check `last` (recent logins), `who` (current sessions), `ps aux` (look for miners or unfamiliar processes), `crontab -l` (unexpected cron jobs), and `/tmp` directory (miners often drop files here). If anything looks suspicious, restore from a Hetzner snapshot taken before the compromise.
-#
 ### Should I change the SSH port?
-#
 It reduces log noise significantly but provides no real security benefit against a targeted attacker who scans all ports. I change it on every server because less noise makes real threats easier to spot.
-#
 ### Is Hetzner's cloud firewall the same as UFW?
-#
-No. Hetzner provides a cloud-level firewall in the control panel that blocks traffic before it reaches your server. UFW is a firewall inside the server. Using both is best practice — Hetzner firewall as a first line, UFW as a second. The Hetzner firewall survives even if your server OS is misconfigured.
-#
+No. Hetzner provides a cloud-level firewall in the control panel that blocks traffic before it reaches your server. UFW is a firewall inside the server. Using both is best practice â€” Hetzner firewall as a first line, UFW as a second. The Hetzner firewall survives even if your server OS is misconfigured.
 ### How often should I update server packages?
-#
 Security packages: automatic via unattended-upgrades. Runtime packages (Node.js, Python, Docker): monthly. Full system: `sudo apt update && sudo apt upgrade` monthly during a low-traffic window. Always snapshot the server before a major update.
-#
 ---
-#
 ## What You Built
-#
 Your VPS is now hardened against the automated attacks that hit every internet-facing server within hours of provisioning. SSH key auth eliminates brute-force. UFW drops unrecognized traffic. fail2ban handles persistent scanners. Automatic updates keep you patched without manual intervention.
-#
 **Your next steps:**
-#
 ![UFW firewall rules and fail2ban status on Ubuntu 24.04](/images/posts/vps-security-harden-ubuntu-2026/02-live-security-status.png)
-*Real output from the live Hetzner VPS — captured March 2026*
-#
+*Real output from the live Hetzner VPS â€” captured March 2026*
 ![UFW firewall rules showing ALLOW and DENY in real time on Ubuntu 24.04](/images/posts/vps-security-harden-ubuntu-2026/03-ufw-live-output.png)
-*Live terminal output captured from the Hetzner VPS — March 2026*
-#
+*Live terminal output captured from the Hetzner VPS â€” March 2026*
 ![SSH hardening sshd_config with password auth disabled on Ubuntu 24.04](/images/posts/vps-security-harden-ubuntu-2026/04-ssh-hardening.png)
-*Generated from live VPS data — March 2026*
-#
-#
-#
-#
-1. **Add a swap file** if you haven't already — `fallocate -l 2G /swapfile` prevents OOM crashes when traffic spikes or builds run
-2. **Set up the Hetzner cloud firewall** in the control panel with the same rules as UFW — gives you a recovery option if UFW gets misconfigured
-3. **Read the multi-project VPS guide** — [running 5 side projects on a single 4GB Hetzner VPS](/blog/multiple-projects-single-vps) covers the full Nginx + PM2 + Docker architecture that keeps everything isolated and running reliably
-#
-Subscribe below — the next article covers automated VPS monitoring with self-hosted Uptime Kuma as a UptimeRobot alternative.
-#
-#
+*Generated from live VPS data â€” March 2026*
+1. **Add a swap file** if you haven't already â€” `fallocate -l 2G /swapfile` prevents OOM crashes when traffic spikes or builds run
+2. **Set up the Hetzner cloud firewall** in the control panel with the same rules as UFW â€” gives you a recovery option if UFW gets misconfigured
+3. **Read the multi-project VPS guide** â€” [running 5 side projects on a single 4GB Hetzner VPS](/blog/multiple-projects-single-vps) covers the full Nginx + PM2 + Docker architecture that keeps everything isolated and running reliably
+Subscribe below â€” the next article covers automated VPS monitoring with self-hosted Uptime Kuma as a UptimeRobot alternative.
 ---
-#
-## Security Checklist — Run Monthly
-#
+## Security Checklist â€” Run Monthly
 After hardening, the work isn't done. Here's the monthly check I run on every Hetzner VPS to catch anything that's drifted:
-#
 ```bash
 # 1. Check for failed login attempts
 grep "Failed password" /var/log/auth.log | tail -20
-#
 # 2. Check fail2ban is still active
 sudo fail2ban-client status sshd
-#
 # 3. List all open ports
 ss -tlnp
-#
 # 4. Check for unexpected processes
 ps aux --sort=-%mem | head -20
-#
 # 5. Review UFW status
 sudo ufw status verbose
-#
 # 6. Check SSL cert expiry
 sudo certbot certificates
 ```
 <Callout type="tip" title="Expected output for fail2ban check">
-`sudo fail2ban-client status sshd` should show `Currently banned: N` with a non-zero number if any IPs have been blocked. If the command fails, fail2ban is not running — restart it with `sudo systemctl restart fail2ban`.
+`sudo fail2ban-client status sshd` should show `Currently banned: N` with a non-zero number if any IPs have been blocked. If the command fails, fail2ban is not running â€” restart it with `sudo systemctl restart fail2ban`.
 </Callout>
-#
-Run these once a month — takes under 5 minutes. If `ss -tlnp` shows a port you didn't open, that's the signal to investigate immediately. Unexpected open ports are the most common sign of compromise on shared VPS infrastructure.
-#
+Run these once a month â€” takes under 5 minutes. If `ss -tlnp` shows a port you didn't open, that's the signal to investigate immediately. Unexpected open ports are the most common sign of compromise on shared VPS infrastructure.
 ## What Good Security Actually Looks Like
-#
 After applying all 8 steps, here's what your attack surface looks like:
-#
-- **SSH password auth:** disabled — brute force attacks do nothing
-- **Root login:** disabled — even with correct password, blocked
+- **SSH password auth:** disabled â€” brute force attacks do nothing
+- **Root login:** disabled â€” even with correct password, blocked
 - **fail2ban:** bans IPs after 5 failed attempts for 1 hour
-- **UFW:** only ports 22, 80, 443 open — everything else dropped
+- **UFW:** only ports 22, 80, 443 open â€” everything else dropped
 - **Unattended upgrades:** kernel and package CVEs patched within 24 hours automatically
-#
-This is not perfect security — nothing is. But it raises the cost of attacking your VPS high enough that automated scanners move on. 99% of VPS compromises happen on servers that skip steps 2, 3, and 5.
-#
+This is not perfect security â€” nothing is. But it raises the cost of attacking your VPS high enough that automated scanners move on. 99% of VPS compromises happen on servers that skip steps 2, 3, and 5.
 ---
-#
-## The Takeaway
-#
-Run these 8 steps on every new VPS within the first hour. Seriously — automated SSH brute force started on my Hetzner server within 3 hours of provisioning. The steps take 30 minutes the first time and protect against 99% of automated attacks.
-#
+## Final Takeaway
+Run these 8 steps on every new VPS within the first hour. Seriously â€” automated SSH brute force started on my Hetzner server within 3 hours of provisioning. The steps take 30 minutes the first time and protect against 99% of automated attacks.
 The two you can't skip: SSH key auth (step 2) and UFW firewall (step 3). Everything else adds depth. Those two are the baseline.
-#
-Once hardening is done, deploy your first app. The [Coolify guide](/blog/coolify-complete-guide-2026) picks up from here — from a secured blank VPS to a running Next.js app with SSL in 45 minutes.
-
-
+Once hardening is done, deploy your first app. The [Coolify guide](/blog/coolify-complete-guide-2026) picks up from here â€” from a secured blank VPS to a running Next.js app with SSL in 45 minutes.

@@ -27,6 +27,12 @@ const nextConfig = {
       { source: '/series/self-hosting',      destination: '/category/self-hosting', permanent: true },
 
       // ── Misc ──────────────────────────────────────────────────────────────
+      { source: '/tag/cloudflare', destination: '/tag/deployment', permanent: true },
+      { source: '/tag/docker', destination: '/tag/deployment', permanent: true },
+      { source: '/tag/postgresql', destination: '/tag/deployment', permanent: true },
+      { source: '/tag/nextjs', destination: '/tag/deployment', permanent: true },
+      { source: '/tag/vps', destination: '/tag/deployment', permanent: true },
+      { source: '/tag/automation', destination: '/tag/deployment', permanent: true },
       { source: '/hire', destination: '/about', permanent: true },
     ]
   },

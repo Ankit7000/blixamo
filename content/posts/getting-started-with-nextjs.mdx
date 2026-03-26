@@ -9,7 +9,7 @@ category: "web-dev"
 tags: [nextjs,react,app-router]
 keyword: "getting started with nextjs"
 featured: true
-featuredImage: "/images/posts/getting-started-with-nextjs/featured.png"
+featuredImage: /images/posts/getting-started-with-nextjs/featured.jpg
 schema: "article"
 ---
 
@@ -60,12 +60,12 @@ The App Router is the part beginners overcomplicate. It is mostly just file-base
 
 ```text
 app/
-├── layout.tsx          -> shared layout
-├── page.tsx            -> /
-├── about/
-│   └── page.tsx        -> /about
-└── blog/
-    └── [slug]/page.tsx -> /blog/anything
+â”œâ”€â”€ layout.tsx          -> shared layout
+â”œâ”€â”€ page.tsx            -> /
+â”œâ”€â”€ about/
+â”‚   â””â”€â”€ page.tsx        -> /about
+â””â”€â”€ blog/
+    â””â”€â”€ [slug]/page.tsx -> /blog/anything
 ```
 
 That means you do not need to register routes manually. If the folder exists and contains `page.tsx`, the route exists.
@@ -197,4 +197,3 @@ Learn layouts, dynamic routes, data fetching, metadata, and deployment in that o
 Getting started with Next.js gets much easier once you stop treating it like a giant framework and start treating it like a practical way to ship React apps faster. Build one route, understand one layout, add metadata, and get the app online.
 
 After that, your next logical step is either [Build a Next.js MDX Blog in 2026](/blog/nextjs-mdx-blog-2026) if you want a content site or [How to Self-Host Next.js on a VPS](/blog/how-to-self-host-nextjs-on-vps) if you want to run it yourself.
-

@@ -1,45 +1,44 @@
 ---
-title: "Google Search Console for Self-Hosted Next.js — 15 Min"
+title: "Google Search Console for Self-Hosted Next.js â€” 15 Min"
 slug: "google-search-console-self-hosted-nextjs"
-description: "Add a self-hosted Next.js site to Google Search Console in 15 minutes — domain verify, sitemap.xml, request indexing. Exact commands for Hetzner VPS."
+description: "Add a self-hosted Next.js site to Google Search Console in 15 minutes â€” domain verify, sitemap.xml, request indexing. Exact commands for Hetzner VPS."
 date: "2026-03-20"
-updatedAt: "2026-03-20"
+updatedAt: "2026-03-26"
 author: "Ankit Sorathiya"
 category: "how-to"
 tags: [nextjs,hetzner,self-hosting]
 keyword: "google search console self hosted nextjs"
 secondaryKeywords: ["nextjs sitemap google search console", "search console hetzner vps", "verify nextjs site google 2026", "submit sitemap nextjs self hosted"]
 featured: false
-featuredImage: "/images/posts/google-search-console-self-hosted-nextjs/featured.png"
+featuredImage: /images/posts/google-search-console-self-hosted-nextjs/featured.jpg
 schema: "howto"
 difficulty: "beginner"
 timeToComplete: "20 minutes"
 excerpt: "blixamo.com went from 0 impressions to 847 in 14 days after proper GSC setup. Here is the exact process."
 toc: true
 ---
-blixamo.com went from 0 Google impressions to 847 in 14 days after I set up Search Console properly.
+I ignored Google Search Console on a self-hosted Next.js site until the traffic flatlined, then fixed it in one sitting and watched blixamo.com move from 0 impressions to 847 in 14 days.
 
-> **Disclosure:** Some links in this article are affiliate links — I earn a small commission at no extra cost to you.
+> **Disclosure:** Some links in this article are affiliate links â€” I earn a small commission at no extra cost to you.
 
-Self-hosted Next.js sites don't get automatic GSC integration. No Vercel dashboard, no automatic sitemap submission. You do it manually — it takes 15 minutes and the difference in indexing speed is significant.
+Self-hosted Next.js sites do not get Vercel-style indexing hand-holding. No dashboard reminder, no automatic sitemap submission, no default post-publish workflow. You have to wire the basics yourself, but the setup is straightforward and the payoff is real.
 
-
- As of March 2026, most self-hosted Next.js guides skip GSC entirely — which means your articles sit unindexed for weeks while Vercel-hosted sites get crawled on day one.
+As of March 2026, most self-hosted Next.js guides still stop at deploy and never cover GSC properly. That is why articles sit unindexed for weeks even when the content is live and the sitemap exists.
 
 This guide covers the exact GSC setup for a self-hosted Next.js blog on Hetzner: ownership verification, sitemap submission, and a CLI tool I built to request indexing from the terminal without opening a browser.
 
 <Callout type="info" title="TL;DR">
-- **Verify ownership** via HTML meta tag in your Next.js layout — takes 2 minutes
-- **Submit sitemap** at `/sitemap.xml` — Next.js App Router auto-generates it
-- **Request indexing** immediately after publishing — don't wait for Google to find it
+- **Verify ownership** via HTML meta tag in your Next.js layout â€” takes 2 minutes
+- **Submit sitemap** at `/sitemap.xml` â€” Next.js App Router auto-generates it
+- **Request indexing** immediately after publishing â€” don't wait for Google to find it
 - **CLI tool:** `node gsc.js index https://yoursite.com/blog/slug` from your [running multiple apps on one VPS](/blog/multiple-projects-single-vps) terminal
-- **Key insight:** self-hosted sites don't get Vercel's automatic indexing ping — you have to do it manually
+- **Key insight:** self-hosted sites don't get Vercel's automatic indexing ping â€” you have to do it manually
 </Callout>
 
 <Callout type="info" title="Before you start">
 
 ![Google Search Console showing 847 impressions after 14 days for blixamo.com](/images/posts/google-search-console-self-hosted-nextjs/01-gsc-impressions-14-days.png)
-*GSC performance report: 847 impressions in the first 14 days after setup — 0 before.*
+*GSC performance report: 847 impressions in the first 14 days after setup â€” 0 before.*
 
 - **Self-hosted Next.js blog** running on Hetzner (or any VPS) with a live domain
 - **Google account** with access to Search Console (search.google.com/search-console)
@@ -54,15 +53,15 @@ This guide covers the exact GSC setup for a self-hosted Next.js blog on Hetzner:
 
 When you deploy to Vercel, it automatically pings Google's indexing API after every deploy. Cloudflare Pages does the same. These platforms have tight Google integrations that self-hosted servers don't get out of the box.
 
-On a self-hosted Hetzner VPS, your new article sits at its URL doing nothing until Googlebot discovers it — either through your sitemap (if already submitted and crawl-scheduled), through internal links from existing indexed pages, or through external backlinks. Without GSC setup and manual indexing requests, this discovery can take 2–6 weeks.
+On a self-hosted Hetzner VPS, your new article sits at its URL doing nothing until Googlebot discovers it â€” either through your sitemap (if already submitted and crawl-scheduled), through internal links from existing indexed pages, or through external backlinks. Without GSC setup and manual indexing requests, this discovery can take 2â€“6 weeks.
 
 blixamo.com published 8 articles on day one. Without GSC, Google might have found them sometime in late April. With proper GSC setup and immediate indexing requests, 3 articles appeared in search results within 4 days of publishing.
 
 ---
 
-## Step 1 of 5 — Verify Ownership via HTML Meta Tag
+## Step 1 of 5 â€” Verify Ownership via HTML Meta Tag
 
-Go to [search.google.com/search-console](https://search.google.com/search-console) → Add Property → URL prefix → enter your domain (e.g. `https://blixamo.com`).
+Go to [search.google.com/search-console](https://search.google.com/search-console) â†’ Add Property â†’ URL prefix â†’ enter your domain (e.g. `https://blixamo.com`).
 
 Google offers multiple verification methods. For Next.js, the HTML meta tag method is the fastest.
 
@@ -75,7 +74,6 @@ Google gives you a meta tag like:
 />
 ```
 Add it to your Next.js root layout's metadata export:
-#
 ```bash
 // app/layout.tsx
 import type { Metadata } from 'next'
@@ -90,26 +88,19 @@ export const metadata: Metadata = {
 <Callout type="tip" title="Why this matters">
 The `verification` field in Next.js metadata automatically renders the correct meta tag in your HTML `<head>`. Google crawls this tag to confirm you own the domain. Without it, you can't access GSC data or submit sitemaps.
 </Callout>
-#
 Rebuild and deploy:
-#
 ```bash
 # On your Hetzner VPS
 cd /var/www/blixamo
 npm run build && pm2 restart blixamo
 ```
 <Callout type="tip" title="Expected output">
-Build completes without errors. Then visit your site and view source (`Ctrl+U`) — you should see `<meta name="google-site-verification" content="your-code">` in the `<head>`. If it's missing, the metadata export isn't in your root layout.tsx.
+Build completes without errors. Then visit your site and view source (`Ctrl+U`) â€” you should see `<meta name="google-site-verification" content="your-code">` in the `<head>`. If it's missing, the metadata export isn't in your root layout.tsx.
 </Callout>
-#
 Back in GSC, click **Verify**. If your site is live and the build deployed correctly, verification completes instantly.
-#
 ---
-#
-## Step 2 of 5 — Auto-Generate Your Sitemap
-#
+## Step 2 of 5 â€” Auto-Generate Your Sitemap
 Next.js 15 App Router generates a sitemap automatically from `app/sitemap.ts`. If you don't have this file yet, create it:
-#
 ```bash
 // app/sitemap.ts
 import { getAllPosts } from '@/lib/posts'
@@ -139,11 +130,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
 }
 ```
 <Callout type="tip" title="Why this matters">
-The `priority` field tells Google which pages matter most. Featured articles at 0.95 get crawled more frequently than regular posts at 0.85. The `lastModified` field tells Google when content changed — when you update an article and rebuild, Google sees the new date and recrawls.
+The `priority` field tells Google which pages matter most. Featured articles at 0.95 get crawled more frequently than regular posts at 0.85. The `lastModified` field tells Google when content changed â€” when you update an article and rebuild, Google sees the new date and recrawls.
 </Callout>
-#
 Test it works:
-#
 ```bash
 # Verify sitemap is accessible
 curl -s https://yourdomain.com/sitemap.xml | head -30
@@ -151,41 +140,28 @@ curl -s https://yourdomain.com/sitemap.xml | head -30
 <Callout type="tip" title="Expected output">
 XML starting with `<?xml version="1.0" encoding="UTF-8"?>` followed by `<urlset>` entries. Every article slug should appear as a `<url>` entry. If you get a 404, the sitemap.ts file isn't in the `app/` directory.
 </Callout>
-#
 ---
-#
-## Step 3 of 5 — Submit Sitemap to Google Search Console
-#
+## Step 3 of 5 â€” Submit Sitemap to Google Search Console
 In GSC:
-1. Left sidebar → **Sitemaps**
+1. Left sidebar â†’ **Sitemaps**
 2. Enter `sitemap.xml` in the field
 3. Click **Submit**
-#
 GSC shows your sitemap as "Success" with the number of URLs discovered.
-#
 <Callout type="warning" title="Common Issue: Sitemap Shows 0 URLs">
-If GSC reports "Success" but 0 URLs, your sitemap is returning an empty response. Check that `getAllPosts()` is reading from the correct directory and that your MDX files are in `content/posts/`. Run `curl https://yourdomain.com/sitemap.xml` from your VPS — if it returns empty XML, the posts directory path is wrong.
+If GSC reports "Success" but 0 URLs, your sitemap is returning an empty response. Check that `getAllPosts()` is reading from the correct directory and that your MDX files are in `content/posts/`. Run `curl https://yourdomain.com/sitemap.xml` from your VPS â€” if it returns empty XML, the posts directory path is wrong.
 </Callout>
-#
-Google now knows your sitemap exists and will crawl it on a schedule. But "crawl schedule" means days or weeks. For new articles, you want immediate indexing — which means the next step.
-#
+Google now knows your sitemap exists and will crawl it on a schedule. But "crawl schedule" means days or weeks. For new articles, you want immediate indexing â€” which means the next step.
 ---
-#
-## Step 4 of 5 — Build a CLI Indexing Tool
-#
+## Step 4 of 5 â€” Build a CLI Indexing Tool
 The Google Search Console URL Inspection API lets you request indexing for specific URLs programmatically. I built a small Node.js CLI tool that runs from my VPS terminal after every article publish.
-#
 First, create a service account:
-#
 1. Go to [console.cloud.google.com](https://console.cloud.google.com)
 2. Create a new project (or use existing)
 3. Enable the **Google Search Console API**
-4. Create a service account: IAM → Service Accounts → Create
-5. Download the JSON key file → save to `/var/www/gsc-tool/service-account.json`
-6. In GSC → Settings → Users and permissions → Add user → paste the service account email → Owner
-#
+4. Create a service account: IAM â†’ Service Accounts â†’ Create
+5. Download the JSON key file â†’ save to `/var/www/gsc-tool/service-account.json`
+6. In GSC â†’ Settings â†’ Users and permissions â†’ Add user â†’ paste the service account email â†’ Owner
 Now create the tool:
-#
 ```bash
 // /var/www/gsc-tool/gsc.js
 // CLI tool: node gsc.js index <url> OR node gsc.js submit
@@ -240,80 +216,53 @@ else console.log(
 )
 ```
 Install the dependency:
-#
 ```bash
 cd /var/www/gsc-tool
 npm install googleapis
 ```
 <Callout type="tip" title="Expected output">
-`npm install` completes with `added N packages`. Test immediately with `node gsc.js submit` — you should see `Sitemap submitted`. If you get `permission denied`, verify the service account has Owner role in GSC and the JSON key file path is correct.
+`npm install` completes with `added N packages`. Test immediately with `node gsc.js submit` â€” you should see `Sitemap submitted`. If you get `permission denied`, verify the service account has Owner role in GSC and the JSON key file path is correct.
 </Callout>
-#
 ---
-#
-## Step 5 of 5 — Post-Publish Indexing Ritual
-#
+## Step 5 of 5 â€” Post-Publish Indexing Ritual
 Every time you publish a new article, run these 2 commands from your VPS:
-#
 ```bash
 # Request immediate indexing for new article
 node /var/www/gsc-tool/gsc.js index \
   https://yourdomain.com/blog/your-new-slug
-#
 # Re-submit sitemap so Google sees the updated URL list
 node /var/www/gsc-tool/gsc.js submit
 ```
 <Callout type="tip" title="Expected output">
 Two lines: `Indexed: https://yourdomain.com/blog/your-slug` then `Sitemap submitted`. If you see a quota error, Google limits indexing API calls to 200/day. For a blog publishing 1 article every 3 days, you'll never hit this limit.
 </Callout>
-#
 <Callout type="tip" title="Why this matters">
-The Indexing API bypass Google's normal crawl queue. Your URL goes into a priority queue that typically resolves within 24–48 hours instead of 2–6 weeks. For blixamo.com, most indexing requests appear in GSC's "URL Inspection" as "Indexed" within 2 days of publishing.
+The Indexing API bypass Google's normal crawl queue. Your URL goes into a priority queue that typically resolves within 24â€“48 hours instead of 2â€“6 weeks. For blixamo.com, most indexing requests appear in GSC's "URL Inspection" as "Indexed" within 2 days of publishing.
 </Callout>
-#
-After indexing is requested, check progress in GSC → URL Inspection → paste your article URL → **Request Indexing** (the UI method does the same thing as the CLI but requires a browser).
-#
+After indexing is requested, check progress in GSC â†’ URL Inspection â†’ paste your article URL â†’ **Request Indexing** (the UI method does the same thing as the CLI but requires a browser).
 ---
-#
 ## Reading Your GSC Data After 14 Days
-#
 Give Google 14 days after setup before drawing conclusions from the data. After that, these are the GSC metrics that matter for a new blog:
-#
-**Total clicks:** how many people clicked through from Google. Zero for 2–3 weeks is normal. If still zero at 4 weeks, your indexing requests didn't go through or your articles aren't ranking at all.
-#
-**Total impressions:** how many times your pages appeared in search results (even if not clicked). 100+ impressions in the first 2 weeks means Google is indexing and showing your content — low CTR just means you need better title tags.
-#
-**Average position:** if you see any keywords ranking in positions 11–30, those are articles worth optimizing — one round of improvements can push them to page 1.
-#
-**Coverage report:** look for "Discovered — currently not indexed" URLs. These are pages Google found but hasn't prioritized. Use the CLI tool to request indexing on each one.
-#
+**Total clicks:** how many people clicked through from Google. Zero for 2â€“3 weeks is normal. If still zero at 4 weeks, your indexing requests didn't go through or your articles aren't ranking at all.
+**Total impressions:** how many times your pages appeared in search results (even if not clicked). 100+ impressions in the first 2 weeks means Google is indexing and showing your content â€” low CTR just means you need better title tags.
+**Average position:** if you see any keywords ranking in positions 11â€“30, those are articles worth optimizing â€” one round of improvements can push them to page 1.
+**Coverage report:** look for "Discovered â€” currently not indexed" URLs. These are pages Google found but hasn't prioritized. Use the CLI tool to request indexing on each one.
 ---
-#
-#
-![GSC self-hosted Next.js troubleshooting — common issues and fixes 2026](/images/posts/google-search-console-self-hosted-nextjs/05-gsc-troubleshooting.png)
-*6 common GSC issues on self-hosted Next.js — sitemap caching, noindex, ownership verification fixes*
-#
+![GSC self-hosted Next.js troubleshooting â€” common issues and fixes 2026](/images/posts/google-search-console-self-hosted-nextjs/05-gsc-troubleshooting.png)
+*6 common GSC issues on self-hosted Next.js â€” sitemap caching, noindex, ownership verification fixes*
 ## Troubleshooting Common Issues
-#
 **GSC shows "URL is not on Google" after indexing request**
-#
 Most common cause (60%): the URL has a `noindex` meta tag. Check your Next.js layout.tsx for `robots: { index: false }` or any `<meta name="robots" content="noindex">`. Also check that your [Nginx reverse proxy guide](/blog/nginx-reverse-proxy-guide-2026) config isn't adding a `X-Robots-Tag: noindex` header.
-#
 **Sitemap submitted but 0 pages indexed after 7 days**
-#
 Check your robots.txt at `yourdomain.com/robots.txt`. It should allow Googlebot:
-#
 ```bash
 curl https://yourdomain.com/robots.txt
 # Should NOT contain: Disallow: /
 ```
 <Callout type="tip" title="Expected output">
-#
-(command runs silently — no output means success)
-#
+(command runs silently â€” no output means success)
 </Callout>
 If `robots.txt` returns a 404 or shows `Disallow: /`, add an `app/robots.ts` file to Next.js:
-#
 ```bash
 // app/robots.ts
 export default function robots() {
@@ -324,75 +273,47 @@ export default function robots() {
 }
 ```
 **Service account auth error when running gsc.js**
-#
-The most common cause: the service account email was added to GSC as a restricted user instead of Owner. Owner permission is required for the Indexing API. Go to GSC → Settings → Users and permissions → find your service account → change role to Owner.
-#
+The most common cause: the service account email was added to GSC as a restricted user instead of Owner. Owner permission is required for the Indexing API. Go to GSC â†’ Settings â†’ Users and permissions â†’ find your service account â†’ change role to Owner.
 **GSC shows "Duplicate without user-selected canonical"**
-#
 Your site has both `https://domain.com` and `https://www.domain.com` indexed without a canonical tag. Add this to your Next.js `generateMetadata`:
-#
 ```bash
 alternates: {
   canonical: `https://yourdomain.com/blog/${slug}`,
 }
 ```
 ---
-#
 ## FAQ
-#
 ### How long does it take for Google to index a new article after requesting?
-#
-The Indexing API prioritizes URLs — typically 24–48 hours from request to indexed. Without the API, Googlebot discovers new articles via sitemap crawl, which happens on its own schedule (weekly to monthly for new sites). For blixamo.com, the average time from indexing request to appearing in GSC Coverage is 36 hours.
-#
+The Indexing API prioritizes URLs â€” typically 24â€“48 hours from request to indexed. Without the API, Googlebot discovers new articles via sitemap crawl, which happens on its own schedule (weekly to monthly for new sites). For blixamo.com, the average time from indexing request to appearing in GSC Coverage is 36 hours.
 ### Do I need to submit my sitemap every time I publish?
-#
-Not strictly, but it signals Google that the sitemap has new content. Google caches sitemaps and re-fetches them on its own schedule. Re-submitting after publish tells Google to re-fetch immediately. The `node gsc.js submit` command takes under 1 second — worth doing on every publish.
-#
+Not strictly, but it signals Google that the sitemap has new content. Google caches sitemaps and re-fetches them on its own schedule. Re-submitting after publish tells Google to re-fetch immediately. The `node gsc.js submit` command takes under 1 second â€” worth doing on every publish.
 ### Will Google index all 17 articles immediately after GSC setup?
-#
-No. Google crawls new sites cautiously — it establishes a "crawl budget" based on site quality and authority. Expect 3–5 articles indexed in the first week, more in subsequent weeks. Don't request indexing for all 17 articles at once — spread requests over 3–5 days. Too many simultaneous indexing requests can trigger Google's spam detection.
-#
+No. Google crawls new sites cautiously â€” it establishes a "crawl budget" based on site quality and authority. Expect 3â€“5 articles indexed in the first week, more in subsequent weeks. Don't request indexing for all 17 articles at once â€” spread requests over 3â€“5 days. Too many simultaneous indexing requests can trigger Google's spam detection.
 ### Does the Indexing API work for updating existing articles?
-#
 Yes. Use `type: 'URL_UPDATED'` (same as the code above) after updating any article. Google will re-crawl and update the search snippet, structured data, and content index. After updating an article, rebuild, deploy, and run the indexing command.
-#
 ### How do I check if my structured data (FAQ schema) is working?
-#
-GSC → Enhancements section → FAQ. If your FAQPage JSON-LD is correctly generated, GSC shows the count of FAQ-eligible pages. For blixamo.com, this appeared in GSC 8 days after first proper indexing. You can also test individual URLs at Google's Rich Results Test: search.google.com/test/rich-results.
-#
+GSC â†’ Enhancements section â†’ FAQ. If your FAQPage JSON-LD is correctly generated, GSC shows the count of FAQ-eligible pages. For blixamo.com, this appeared in GSC 8 days after first proper indexing. You can also test individual URLs at Google's Rich Results Test: search.google.com/test/rich-results.
 ### What GSC data should I check weekly?
-#
-Three things: Coverage (are new articles getting indexed?), Search Results (which queries drive clicks?), and Core Web Vitals (is page speed acceptable?). For a new blog in the first 3 months, Coverage is the most important — confirm every article is indexed before worrying about rankings.
-#
+Three things: Coverage (are new articles getting indexed?), Search Results (which queries drive clicks?), and Core Web Vitals (is page speed acceptable?). For a new blog in the first 3 months, Coverage is the most important â€” confirm every article is indexed before worrying about rankings.
 ---
-#
 ### Why is my sitemap returning 404 in GSC even though it works in the browser?
-#
-This is almost always a Cloudflare caching issue. GSC fetches your sitemap from Cloudflare's edge, not directly from your server — if Cloudflare cached a 404 response from before your sitemap route existed, it keeps serving that cached 404. Fix it in two steps: first, go to Cloudflare dashboard → Caching → Purge Cache → Custom Purge → enter your sitemap URL. Then re-submit in GSC. If the issue persists, check that your `next-sitemap.config.js` is generating the file correctly by running `npm run build` locally and confirming `/public/sitemap.xml` exists.
-#
-#
+This is almost always a Cloudflare caching issue. GSC fetches your sitemap from Cloudflare's edge, not directly from your server â€” if Cloudflare cached a 404 response from before your sitemap route existed, it keeps serving that cached 404. Fix it in two steps: first, go to Cloudflare dashboard â†’ Caching â†’ Purge Cache â†’ Custom Purge â†’ enter your sitemap URL. Then re-submit in GSC. If the issue persists, check that your `next-sitemap.config.js` is generating the file correctly by running `npm run build` locally and confirming `/public/sitemap.xml` exists.
 ## What You Built (And Where to Go Next)
-#
 Your self-hosted Next.js blog now has Search Console verified, sitemap submitted, and a CLI tool that requests Google indexing from your terminal in under 2 seconds.
-#
 **Your next steps:**
-#
 ![Google Search Console live data showing 70 clicks in first 6 days](/images/posts/google-search-console-self-hosted-nextjs/02-gsc-live-data.png)
-*Real output from the live Hetzner VPS — captured March 2026*
-#
+*Real output from the live Hetzner VPS â€” captured March 2026*
 ![curl headers showing HTTP 200 x-nextjs-cache HIT and no-store on Cloudflare](/images/posts/google-search-console-self-hosted-nextjs/03-curl-headers-gsc.png)
-*Live terminal output captured from the Hetzner VPS — March 2026*
-#
+*Live terminal output captured from the Hetzner VPS â€” March 2026*
 ![GSC top queries showing coolify-vs-caprover with 279 impressions](/images/posts/google-search-console-self-hosted-nextjs/04-gsc-queries.png)
-*Generated from live VPS data — March 2026*
-#
-#
-#
-#
-1. **Check indexing after 48 hours** — GSC → URL Inspection → paste one of your article URLs. If it shows "URL is on Google", setup is working.
-2. **Monitor Coverage weekly** — any "Discovered — currently not indexed" URLs are articles to request indexing on immediately.
-3. **Add JSON-LD schema** — the [Next.js MDX blog setup guide](/blog/nextjs-mdx-blog-2026) covers HowTo, FAQ, and Article schema that unlock rich results in Google SERP.
-#
-If you want me to build the exact indexing workflow for your VPS setup, [check my freelance services](https://fiverr.com/s/m5Lzq0x) — I set up the full GSC + sitemap + indexing pipeline in under 2 hours.
+*Generated from live VPS data â€” March 2026*
+1. **Check indexing after 48 hours** â€” GSC â†’ URL Inspection â†’ paste one of your article URLs. If it shows "URL is on Google", setup is working.
+2. **Monitor Coverage weekly** â€” any "Discovered â€” currently not indexed" URLs are articles to request indexing on immediately.
+3. **Add JSON-LD schema** â€” the [Next.js MDX blog setup guide](/blog/nextjs-mdx-blog-2026) covers HowTo, FAQ, and Article schema that unlock rich results in Google SERP.
+If you want me to build the exact indexing workflow for your VPS setup, [check my freelance services](https://fiverr.com/s/m5Lzq0x) â€” I set up the full GSC + sitemap + indexing pipeline in under 2 hours.
 
+## Final Takeaway
 
+If you self-host Next.js, Search Console is not optional. Verify ownership, make sure `/sitemap.xml` is valid, and give yourself a simple indexing workflow from the terminal so publishing does not depend on opening a browser every time.
+
+My recommendation is to finish the setup in this order: verify the domain, submit the sitemap, then test one live article URL end to end. After that, the rest is weekly hygiene, not a complicated SEO project.
