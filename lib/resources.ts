@@ -229,8 +229,8 @@ const RECOMMENDED_READING_SLUGS = [
 const LEARNING_PATHS: LearningPathDefinition[] = [
   {
     id: 'deploy-apps',
-    title: 'If you want to deploy apps',
-    description: 'Go from a fresh VPS to a live Next.js app with repeatable deploy and reverse proxy steps.',
+    title: 'VPS & Cloud Path',
+    description: 'Go from provider choice and server setup into a live app with repeatable deploy and reverse proxy steps.',
     href: `${RESOURCE_HUB_PATH}#deployment-guides`,
     slugs: [
       'vps-setup-guide',
@@ -241,8 +241,8 @@ const LEARNING_PATHS: LearningPathDefinition[] = [
   },
   {
     id: 'self-host-services',
-    title: 'If you want to self-host services',
-    description: 'Use these guides to build a lean self-hosted stack that stays practical instead of fragile.',
+    title: 'Self Hosting Path',
+    description: 'Build a lean self-hosted stack for apps, services, analytics, and automation without making it fragile.',
     href: `${RESOURCE_HUB_PATH}#self-hosting`,
     slugs: [
       'coolify-complete-guide-2026',
@@ -253,8 +253,8 @@ const LEARNING_PATHS: LearningPathDefinition[] = [
   },
   {
     id: 'choose-vps',
-    title: 'If you want to choose a VPS',
-    description: 'Compare entry-level hosts, understand the real tradeoffs, then harden the box you pick.',
+    title: 'Infrastructure Path',
+    description: 'Compare VPS providers, understand the tradeoffs, and harden the box you choose.',
     href: `${RESOURCE_HUB_PATH}#vps-cloud`,
     slugs: [
       'free-vps-hosting-2026',
@@ -265,7 +265,7 @@ const LEARNING_PATHS: LearningPathDefinition[] = [
   },
   {
     id: 'automation-workflows',
-    title: 'If you want automation workflows',
+    title: 'Automation Path',
     description: 'Start with n8n basics, compare the tooling, then layer AI-assisted workflows on top.',
     href: `${RESOURCE_HUB_PATH}#automation`,
     slugs: [
@@ -277,8 +277,8 @@ const LEARNING_PATHS: LearningPathDefinition[] = [
   },
   {
     id: 'better-dev-tools',
-    title: 'If you want better developer tools',
-    description: 'Use these picks and comparisons to improve database, AI, tooling, and remote workflow decisions.',
+    title: 'Developer Tools Path',
+    description: 'Use these picks and comparisons to improve database, AI, tooling, and daily workflow decisions.',
     href: `${RESOURCE_HUB_PATH}#developer-tools`,
     slugs: [
       'best-free-developer-tools-2026',
@@ -289,8 +289,8 @@ const LEARNING_PATHS: LearningPathDefinition[] = [
   },
   {
     id: 'low-cost-saas',
-    title: 'If you want to build SaaS on VPS',
-    description: 'Use this route if you want a low-cost but production-usable SaaS stack built on infrastructure you control.',
+    title: 'Indie Hacker Path',
+    description: 'Use this route if you want a low-cost but production-usable SaaS stack with monetization, tooling, and infrastructure you control.',
     href: `${RESOURCE_HUB_PATH}#build-your-stack`,
     slugs: [
       'build-saas-mvp-zero-budget-2026',
@@ -363,70 +363,63 @@ const STACK_BLUEPRINTS: StackDefinition[] = [
 const CATEGORY_DISCOVERY_CARDS: CuratedCard[] = [
   {
     title: 'VPS & Cloud',
-    description: 'Hosting decisions, provider tradeoffs, VPS hardening, and cloud cost clarity.',
+    description: 'VPS providers, cloud hosting, server setup, deployment, performance, and infrastructure.',
     href: '/category/vps-cloud',
     icon: '☁',
     accentColor: CATEGORY_META['vps-cloud'].color,
   },
   {
     title: 'Self Hosting',
-    description: 'Run apps, services, analytics, and automation on infrastructure you control.',
+    description: 'Self-hosting apps, services, analytics, automation tools, and open-source software on your own server.',
     href: '/category/self-hosting',
     icon: '▣',
     accentColor: CATEGORY_META['self-hosting'].color,
   },
   {
     title: 'Automation',
-    description: 'n8n, bots, AI workflows, and practical ways to remove repetitive work.',
+    description: 'Workflow automation, n8n, scripting, integrations, cron jobs, and automation systems.',
     href: '/category/automation',
     icon: '↻',
     accentColor: CATEGORY_META.automation.color,
   },
   {
-    title: 'AI Tools',
-    description: 'Claude, GPT comparisons, model workflows, and AI tools for developers.',
+    title: 'AI & Automation',
+    description: 'AI tools, automation workflows, APIs, AI integrations, and building AI-powered applications.',
     href: '/category/ai',
     icon: '✦',
     accentColor: CATEGORY_META.ai.color,
   },
   {
     title: 'Developer Tools',
-    description: 'Database GUIs, deployment platforms, remote workflow tools, and honest verdicts.',
+    description: 'Databases, APIs, automation tools, productivity tools, and development software.',
     href: '/category/developer-tools',
     icon: '⚙',
     accentColor: CATEGORY_META['developer-tools'].color,
   },
   {
     title: 'Web Development',
-    description: 'Next.js, performance, MDX, and frontend implementation patterns that ship well.',
+    description: 'Next.js, Node.js, frontend, backend, performance optimization, deployment, and web app development.',
     href: '/category/web-dev',
     icon: '</>',
     accentColor: CATEGORY_META['web-dev'].color,
   },
   {
-    title: 'Indie Dev',
-    description: 'Payments, MVP decisions, budget-friendly tooling, and solo-builder tradeoffs.',
+    title: 'Indie Hacking',
+    description: 'SaaS ideas, MVP building, monetization, payment gateways, growth strategies, and startup tools.',
     href: '/category/indie-hacking',
     icon: '↗',
     accentColor: CATEGORY_META['indie-hacking'].color,
   },
   {
     title: 'Free Tools',
-    description: 'Free developer tools, open source stacks, and cost-saving replacements worth using.',
+    description: 'Free hosting, free software, open-source tools, and free developer resources.',
     href: '/category/free-tools',
     icon: '◎',
     accentColor: CATEGORY_META['free-tools'].color,
   },
   {
-    title: 'Comparisons',
-    description: 'Head-to-head tool, hosting, and platform decisions collected in one place.',
-    href: `${RESOURCE_HUB_PATH}#resources-comparisons`,
-    icon: 'VS',
-    accentColor: CATEGORY_META['developer-tools'].color,
-  },
-  {
-    title: 'Guides & Tutorials',
-    description: 'Step-by-step implementation guides for deploys, setup, hosting, and integrations.',
+    title: 'How To',
+    description: 'Step-by-step tutorials, guides, setup instructions, and troubleshooting.',
     href: '/category/how-to',
     icon: 'CLI',
     accentColor: CATEGORY_META['how-to'].color,
@@ -672,6 +665,13 @@ const RESOURCE_HUB_ENTRY_CARDS: CuratedCard[] = [
     eyebrow: 'Stack',
     icon: '07',
   },
+  {
+    title: 'Community',
+    description: 'Open the community hub for discussions, indie hacker stories, tool recommendations, and weekly resources.',
+    href: '/community',
+    eyebrow: 'Community',
+    icon: '08',
+  },
 ] as const
 
 const HOME_MISSION_POINTS: MissionPoint[] = [
@@ -696,6 +696,7 @@ const HOME_SITEMAP_GROUPS = [
       { label: 'Home', href: '/' },
       { label: 'Start Here', href: `${RESOURCE_HUB_PATH}#resources-start-here` },
       { label: 'Resources Hub', href: RESOURCE_HUB_PATH },
+      { label: 'Community', href: '/community' },
       { label: 'All Guides', href: '/category/how-to' },
       { label: 'Free Tools', href: '/category/free-tools' },
       { label: 'About', href: '/about' },
@@ -721,6 +722,7 @@ const HOME_SITEMAP_GROUPS = [
       { label: 'Pillar Guides', href: `${RESOURCE_HUB_PATH}#authority-pages` },
       { label: 'Learning Paths', href: `${RESOURCE_HUB_PATH}#learning-paths` },
       { label: 'Comparisons', href: `${RESOURCE_HUB_PATH}#resources-comparisons` },
+      { label: 'Community', href: '/community' },
       { label: 'Build Your Stack', href: `${RESOURCE_HUB_PATH}#build-your-stack` },
       { label: 'Popular Articles', href: `${RESOURCE_HUB_PATH}#popular-articles` },
       { label: 'Latest Articles', href: `${RESOURCE_HUB_PATH}#latest-articles` },

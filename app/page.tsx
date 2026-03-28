@@ -2,29 +2,44 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { WebsiteJsonLd } from '@/components/seo/JsonLd'
 import { PostCard } from '@/components/blog/PostCard'
-import { EmailCapture } from '@/components/monetization/EmailCapture'
 import { getAllPosts, type Post } from '@/lib/posts'
 import { getResourceHubContent, RESOURCE_HUB_PATH } from '@/lib/resources'
 
 export const metadata: Metadata = {
-  title: 'Blixamo | Developer Guides, VPS, Self-Hosting, Deployment, and Tools',
+  title: 'Blixamo | Self Hosting, VPS, AI & Developer Tools',
   description:
-    'Developer guides for VPS, self-hosting, deployment, automation, AI workflows, comparisons, and practical free tools.',
+    'Blixamo helps developers learn self-hosting, deployment, automation, cloud infrastructure, and practical developer tools through guides, categories, and resource hubs.',
   alternates: { canonical: 'https://blixamo.com' },
 }
 
-function StartHereCard({ post, index }: { post: Post; index: number }) {
+type HubCard = {
+  title: string
+  description: string
+  href: string
+  eyebrow?: string
+}
+
+function uniquePosts(posts: Post[]): Post[] {
+  const seen = new Set<string>()
+  return posts.filter((post) => {
+    if (seen.has(post.slug)) return false
+    seen.add(post.slug)
+    return true
+  })
+}
+
+function HubLinkCard({ card }: { card: HubCard }) {
   return (
-    <Link href={`/blog/${post.slug}`} className="home-curated-card home-curated-card-strong">
+    <Link href={card.href} className="home-curated-card">
       <div className="home-curated-top">
-        <span className="home-curated-eyebrow">Start {index + 1}</span>
-        <span className="home-curated-arrow">Read first</span>
+        <span className="home-curated-eyebrow">{card.eyebrow ?? 'Explore'}</span>
+        <span className="home-curated-arrow">Open</span>
       </div>
-      <h3 className="home-curated-title">{post.title}</h3>
-      <p className="home-curated-copy">{post.description}</p>
+      <h3 className="home-curated-title">{card.title}</h3>
+      <p className="home-curated-copy">{card.description}</p>
       <div className="home-curated-footer">
-        <span>{post.readingTime}</span>
-        <span>Open guide</span>
+        <span>Use this route</span>
+        <span>Read more</span>
       </div>
     </Link>
   )
@@ -33,7 +48,65 @@ function StartHereCard({ post, index }: { post: Post; index: number }) {
 export default function HomePage() {
   const allPosts = getAllPosts()
   const hub = getResourceHubContent(allPosts)
-  const heroLead = hub.startHere[0] || hub.popularGuides[0] || allPosts[0]
+  const tutorials = uniquePosts([...hub.startHere, ...hub.deploymentGuides, ...hub.webDevelopment]).slice(0, 6)
+  const resources = [
+    {
+      title: 'Resource Hub',
+      description: 'Start here if you want categories, pillar guides, comparisons, free tools, and popular reads connected in one place.',
+      href: RESOURCE_HUB_PATH,
+      eyebrow: 'Start Here',
+    },
+    {
+      title: 'Developer Tools Directory',
+      description: 'Use the pillar page for software picks, workflow upgrades, and practical tool recommendations.',
+      href: '/guides/developer-tools-directory',
+      eyebrow: 'Pillar Guide',
+    },
+    {
+      title: 'Free Tools for Developers',
+      description: 'Open the free-tools pillar if the goal is lowering spend without wrecking the workflow.',
+      href: '/guides/free-tools-for-developers',
+      eyebrow: 'Resources',
+    },
+    {
+      title: 'Blog Archive',
+      description: 'Browse the full article archive when you already know the topic and want the complete list.',
+      href: '/blog',
+      eyebrow: 'Blog',
+    },
+    {
+      title: 'About Blixamo',
+      description: 'Read how the site is structured across categories, pillar guides, comparisons, and practical infrastructure topics.',
+      href: '/about',
+      eyebrow: 'About',
+    },
+    {
+      title: 'Community Hub',
+      description: 'Use the community page for discussions, build stories, tool recommendations, and weekly resources.',
+      href: '/community',
+      eyebrow: 'Community',
+    },
+  ] satisfies HubCard[]
+  const communityCards = [
+    {
+      title: 'Developer discussions',
+      description: 'Talk through deployment paths, self-hosting tradeoffs, and tool decisions from a practical developer angle.',
+      href: '/community#discussions',
+      eyebrow: 'Community',
+    },
+    {
+      title: 'Indie hacker stories',
+      description: 'Jump into MVP building, monetization, and lean-stack decisions tied to real solo builder problems.',
+      href: '/community#showcase',
+      eyebrow: 'Stories',
+    },
+    {
+      title: 'Weekly resources',
+      description: 'Use the community hub as a jumping-off point for fresh links, useful guides, and stack ideas worth saving.',
+      href: '/community#community-links',
+      eyebrow: 'Resources',
+    },
+  ] satisfies HubCard[]
 
   return (
     <>
@@ -42,55 +115,38 @@ export default function HomePage() {
       <section className="home-hero-shell">
         <div className="home-hero">
           <div className="home-hero-copy">
-            <div className="home-hero-kicker">Developer Resource Hub</div>
-            <h1 className="home-hero-title">Practical developer guides for VPS, self-hosting, deployment, automation, and tools.</h1>
+            <div className="home-hero-kicker">Developer Hub</div>
+            <h1 className="home-hero-title">Blixamo Self Hosting, VPS, AI &amp; Developer Tools</h1>
             <p className="home-hero-description">
-              Blixamo is built as a developer hub for shipping apps, comparing platforms, finding free tools,
-              and using one central resources page to navigate the guides that actually hold up in production.
+              Blixamo is organized as a developer hub for learning self-hosting, deployment, automation, cloud infrastructure,
+              comparisons, and practical developer tools through categories, pillar guides, and resource paths.
             </p>
 
-            <div className="home-hero-signal-row" aria-label="Core topics">
-              {hub.heroSignals.map((signal) => (
-                <Link key={signal.title} href={signal.href} className="home-hero-signal">
-                  {signal.title}
-                </Link>
-              ))}
-            </div>
-
             <div className="home-hero-actions">
-              <Link href="#start-here" className="home-hero-button home-hero-button-primary">
+              <Link href={RESOURCE_HUB_PATH} className="home-hero-button home-hero-button-primary">
                 Start Here
               </Link>
-              <Link href={RESOURCE_HUB_PATH} className="home-hero-button home-hero-button-secondary">
-                Explore Resources
+              <Link href="/guides/self-hosting-complete-guide" className="home-hero-button home-hero-button-secondary">
+                Self Hosting Guide
               </Link>
-              <Link href={`${RESOURCE_HUB_PATH}#resources-comparisons`} className="home-hero-button home-hero-button-secondary">
-                Compare Tools
-              </Link>
-              <Link href="#home-free-tools" className="home-hero-button home-hero-button-secondary">
+              <Link href="/guides/free-tools-for-developers" className="home-hero-button home-hero-button-secondary">
                 Free Tools
               </Link>
-            </div>
-
-            {heroLead && (
-              <Link href={`/blog/${heroLead.slug}`} className="home-hero-feature-card home-hub-spotlight">
-                <div className="home-hero-feature-label">Recommended First Read</div>
-                <div className="home-hero-feature-title">{heroLead.title}</div>
-                <p className="home-hero-feature-description">{heroLead.description}</p>
-                <div className="home-hero-feature-meta">
-                  <span>{heroLead.readingTime}</span>
-                  <span>Use this to get oriented fast</span>
-                </div>
+              <Link href="/guides/comparisons-hub" className="home-hero-button home-hero-button-secondary">
+                Comparisons
               </Link>
-            )}
+              <Link href="/community" className="home-hero-button home-hero-button-secondary">
+                Community
+              </Link>
+            </div>
           </div>
 
           <div className="home-hero-visual">
             <div className="home-hub-board">
               <div className="home-hub-board-head">
                 <div>
-                  <div className="home-side-eyebrow">Inside Blixamo</div>
-                  <h2 className="home-hub-board-title">A compact map of the site</h2>
+                  <div className="home-side-eyebrow">Core Structure</div>
+                  <h2 className="home-hub-board-title">Home  Resource Hub  Categories  Guides  Articles</h2>
                 </div>
                 <Link href={RESOURCE_HUB_PATH} className="home-section-link">
                   Open hub
@@ -98,7 +154,7 @@ export default function HomePage() {
               </div>
 
               <div className="home-hub-panel-grid">
-                {hub.heroPanels.map((panel) => (
+                {hub.heroPanels.slice(0, 6).map((panel) => (
                   <Link key={panel.title} href={panel.href} className="home-hub-panel">
                     <span className="home-hub-panel-icon" style={{ color: panel.accentColor }}>
                       {panel.icon}
@@ -111,20 +167,20 @@ export default function HomePage() {
 
               <div className="home-hub-stat-row">
                 <div className="home-hub-stat">
-                  <strong>{hub.stats.guides}</strong>
-                  <span>Guides</span>
+                  <strong>{hub.pillarPages.length}</strong>
+                  <span>Pillar guides</span>
                 </div>
                 <div className="home-hub-stat">
-                  <strong>{hub.stats.articles}</strong>
-                  <span>Articles</span>
+                  <strong>{hub.categoryCards.length}</strong>
+                  <span>Categories</span>
                 </div>
                 <div className="home-hub-stat">
                   <strong>{hub.stats.comparisons}</strong>
                   <span>Comparisons</span>
                 </div>
                 <div className="home-hub-stat">
-                  <strong>{hub.stats.tools}</strong>
-                  <span>Tool pages</span>
+                  <strong>{hub.stats.articles}</strong>
+                  <span>Articles</span>
                 </div>
               </div>
             </div>
@@ -132,95 +188,85 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="home-quick-access" className="home-section-shell">
-        <div className="home-section-head">
-          <div className="home-section-kicker">Quick Access</div>
-          <h2 className="home-section-title">Jump straight to the highest-value parts of the site</h2>
-          <p className="home-section-description">
-            Use these shortcuts to reach the pages people usually want first: the hub, the strongest tool lists,
-            self-hosting guides, deployment clusters, and comparison content.
-          </p>
-        </div>
-
-        <div className="home-quick-grid">
-          {hub.quickAccessCards.map((card) => (
-            <Link key={card.title} href={card.href} className="home-curated-card">
-              <div className="home-curated-top">
-                <span className="home-curated-eyebrow">{card.eyebrow}</span>
-                <span className="home-curated-arrow">{card.icon}</span>
-              </div>
-              <h3 className="home-curated-title">{card.title}</h3>
-              <p className="home-curated-copy">{card.description}</p>
-              <div className="home-curated-footer">
-                <span>Use now</span>
-                <span>Open</span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
       <section id="start-here" className="home-section-shell">
-        <div className="home-section-head home-section-head-inline">
-          <div>
-          <div className="home-section-kicker">Start Here</div>
-          <h2 className="home-section-title">New here? Read these first.</h2>
-          <p className="home-section-description">
-            These foundational reads explain how Blixamo approaches deploys, self-hosting, low-cost stacks, and practical developer operations.
-          </p>
-          </div>
-          <Link href={`${RESOURCE_HUB_PATH}#resources-start-here`} className="home-section-link">
-            View full start-here hub
-          </Link>
-        </div>
-
-        <div className="home-curated-grid home-curated-grid-four">
-          {hub.startHere.slice(0, 6).map((post, index) => (
-            <StartHereCard key={post.slug} post={post} index={index} />
-          ))}
-        </div>
-      </section>
-
-      <section id="home-authority-pages" className="home-section-shell">
-        <div className="home-section-head home-section-head-inline">
-          <div>
-            <div className="home-section-kicker">Pillar Guides</div>
-            <h2 className="home-section-title">Pillar guides that connect the main content clusters</h2>
+        <div className="home-resource-promo">
+          <div className="home-resource-promo-copy">
+            <div className="home-section-kicker">Start Here / Resource Hub</div>
+            <h2 className="home-section-title">Use the deployment hub as the main entry point for the entire site</h2>
             <p className="home-section-description">
-              These seven pillar guides sit between the resources hub, categories, and articles so readers can enter each topic from one strong page.
+              The resource hub at <strong>/tag/deployment</strong> is the best place for new visitors to start. It connects
+              categories, pillar guides, comparisons, free tools, and high-value articles without forcing users to browse randomly.
             </p>
+            <div className="home-hero-actions">
+              <Link href={RESOURCE_HUB_PATH} className="home-hero-button home-hero-button-primary">
+                Open Resource Hub
+              </Link>
+              <Link href={`${RESOURCE_HUB_PATH}#resource-categories`} className="home-hero-button home-hero-button-secondary">
+                Categories
+              </Link>
+              <Link href={`${RESOURCE_HUB_PATH}#authority-pages`} className="home-hero-button home-hero-button-secondary">
+                Pillar Guides
+              </Link>
+            </div>
           </div>
-          <Link href={`${RESOURCE_HUB_PATH}#authority-pages`} className="home-section-link">
-            Open pillar hub
-          </Link>
+
+          <div className="home-quick-grid">
+            {hub.resourceHubEntryCards.map((card) => (
+              <HubLinkCard key={card.title} card={card} />
+            ))}
+          </div>
         </div>
 
-        <div className="home-quick-grid">
-          {hub.pillarPages.slice(0, 8).map((page) => (
-            <Link key={page.slug} href={page.href} className="home-curated-card">
-              <div className="home-curated-top">
-                <span className="home-curated-eyebrow">Pillar Guide</span>
-                <span className="home-curated-arrow">{page.primaryCategory.label}</span>
-              </div>
-              <h3 className="home-curated-title">{page.title}</h3>
-              <p className="home-curated-copy">{page.description}</p>
-              <div className="home-curated-footer">
-                <span>{page.articleCount} connected articles</span>
-                <span>Open pillar guide</span>
-              </div>
-            </Link>
+        <div className="home-section-head" style={{ marginTop: '1.75rem' }}>
+          <div className="home-section-kicker">Popular Articles</div>
+          <h3 className="home-section-title">Strong pages to open right after the hub</h3>
+        </div>
+        <div className="home-post-grid">
+          {hub.popularArticles.slice(0, 3).map((post) => (
+            <PostCard key={post.slug} post={post} />
           ))}
         </div>
       </section>
 
-      <section id="homepage-categories" className="home-section-shell">
+      <section id="learning-paths" className="home-section-shell">
+        <div className="home-section-head">
+          <div className="home-section-kicker">Learning Paths</div>
+          <h2 className="home-section-title">Choose a path instead of navigating the site one post at a time</h2>
+          <p className="home-section-description">
+            These paths are the fastest way to move from curiosity into a useful topic cluster.
+          </p>
+        </div>
+        <div className="resource-path-grid">
+          {hub.learningPaths.map((path) => (
+            <div key={path.id} className="resource-path-card">
+              <div className="resource-path-top">
+                <span className="home-curated-eyebrow">Path</span>
+                <Link href={path.href} className="home-section-link">
+                  Jump in
+                </Link>
+              </div>
+              <h3>{path.title}</h3>
+              <p>{path.description}</p>
+              <ol className="resource-path-steps">
+                {path.steps.map((post) => (
+                  <li key={post.slug}>
+                    <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="categories" className="home-section-shell">
         <div className="home-section-head home-section-head-inline">
           <div>
-          <div className="home-section-kicker">Explore Categories</div>
-          <h2 className="home-section-title">Browse the site naturally instead of hunting through the navbar</h2>
-          <p className="home-section-description">
-            Category discovery now lives on the homepage and inside the resources hub, where the topic lanes are easier to scan and better connected.
-          </p>
+            <div className="home-section-kicker">Explore Categories</div>
+            <h2 className="home-section-title">Browse the main content clusters like a developer portal</h2>
+            <p className="home-section-description">
+              Each category is a direct lane into a topic area with stronger internal linking than a simple blog archive.
+            </p>
           </div>
           <Link href={`${RESOURCE_HUB_PATH}#resource-categories`} className="home-section-link">
             Open category hub
@@ -242,41 +288,45 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="home-popular-guides" className="home-section-shell">
+      <section id="pillar-guides" className="home-section-shell">
         <div className="home-section-head home-section-head-inline">
           <div>
-            <div className="home-section-kicker">Popular Guides</div>
-            <h2 className="home-section-title">Evergreen guides that do the most work for new visitors</h2>
-            <p className="home-section-description">
-              Practical walkthroughs for deployment, VPS operations, self-hosting, and production checks.
-            </p>
+            <div className="home-section-kicker">Pillar Guides</div>
+            <h2 className="home-section-title">Authority pages that connect categories, guides, comparisons, and articles</h2>
           </div>
-          <Link href="/category/how-to" className="home-section-link">
-            Browse all guides
+          <Link href={`${RESOURCE_HUB_PATH}#authority-pages`} className="home-section-link">
+            Browse all pillar guides
           </Link>
         </div>
 
-        <div className="home-post-grid">
-          {hub.popularGuides.map((post) => (
-            <PostCard key={post.slug} post={post} />
+        <div className="home-quick-grid">
+          {hub.pillarPages.map((page) => (
+            <Link key={page.slug} href={page.href} className="home-curated-card">
+              <div className="home-curated-top">
+                <span className="home-curated-eyebrow">Pillar Guide</span>
+                <span className="home-curated-arrow">{page.primaryCategory.label}</span>
+              </div>
+              <h3 className="home-curated-title">{page.title}</h3>
+              <p className="home-curated-copy">{page.description}</p>
+              <div className="home-curated-footer">
+                <span>{page.articleCount} connected articles</span>
+                <span>Open pillar guide</span>
+              </div>
+            </Link>
           ))}
         </div>
       </section>
 
-      <section id="home-comparisons" className="home-section-shell">
+      <section id="comparisons" className="home-section-shell">
         <div className="home-section-head home-section-head-inline">
           <div>
             <div className="home-section-kicker">Comparisons</div>
-            <h2 className="home-section-title">High-intent comparisons for hosting, deployment, tools, and AI workflows</h2>
-            <p className="home-section-description">
-              Comparison content is one of the strongest ways to guide decisions and keep readers moving deeper into the site.
-            </p>
+            <h2 className="home-section-title">Comparison pages that do the SEO and decision-making work</h2>
           </div>
-          <Link href={`${RESOURCE_HUB_PATH}#resources-comparisons`} className="home-section-link">
-            Open comparison hub
+          <Link href="/guides/comparisons-hub" className="home-section-link">
+            Open comparisons hub
           </Link>
         </div>
-
         <div className="home-post-grid">
           {hub.comparisons.slice(0, 6).map((post) => (
             <PostCard key={post.slug} post={post} />
@@ -284,20 +334,16 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="home-free-tools" className="home-section-shell">
+      <section id="free-tools" className="home-section-shell">
         <div className="home-section-head home-section-head-inline">
           <div>
             <div className="home-section-kicker">Free Tools</div>
-            <h2 className="home-section-title">Bookmark-worthy free tools and developer resources</h2>
-            <p className="home-section-description">
-              This section surfaces free developer tools, PostgreSQL GUIs, free VPS options, AI tools, and budget-friendly stack ideas.
-            </p>
+            <h2 className="home-section-title">Free developer tools, open-source picks, and budget-friendly resources</h2>
           </div>
-          <Link href="/category/free-tools" className="home-section-link">
-            Browse free tools
+          <Link href="/guides/free-tools-for-developers" className="home-section-link">
+            Open free tools guide
           </Link>
         </div>
-
         <div className="home-post-grid">
           {hub.freeTools.map((post) => (
             <PostCard key={post.slug} post={post} />
@@ -305,41 +351,78 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="featured-resources-hub" className="home-section-shell">
+      <section id="tutorials" className="home-section-shell">
+        <div className="home-section-head home-section-head-inline">
+          <div>
+            <div className="home-section-kicker">Tutorials</div>
+            <h2 className="home-section-title">Step-by-step guides for setup, deployment, performance, and troubleshooting</h2>
+          </div>
+          <Link href="/category/how-to" className="home-section-link">
+            Browse tutorials
+          </Link>
+        </div>
+        <div className="home-post-grid">
+          {tutorials.map((post) => (
+            <PostCard key={post.slug} post={post} />
+          ))}
+        </div>
+      </section>
+
+      <section id="resources" className="home-section-shell">
+        <div className="home-section-head">
+          <div className="home-section-kicker">Resources</div>
+          <h2 className="home-section-title">Directories, curated content, resource hubs, and important supporting pages</h2>
+          <p className="home-section-description">
+            These links help the homepage feel like a portal into the rest of the site instead of a flat stream of articles.
+          </p>
+        </div>
+        <div className="home-quick-grid">
+          {resources.map((card) => (
+            <HubLinkCard key={card.title} card={card} />
+          ))}
+        </div>
+      </section>
+
+      <section id="community" className="home-section-shell">
         <div className="home-resource-promo">
           <div className="home-resource-promo-copy">
-            <div className="home-section-kicker">Featured Resources Hub</div>
-            <h2 className="home-section-title">Use the Resources Hub as the control center for the whole site</h2>
+            <div className="home-section-kicker">Community</div>
+            <h2 className="home-section-title">Use the community hub for discussions, build stories, weekly resources, and what people are shipping</h2>
             <p className="home-section-description">
-              The deployment tag page has been upgraded into the main hub for categories, learning paths, important guides, comparisons, tools, and site navigation.
+              The community page gives the site a social and discovery layer without changing the core content structure.
             </p>
-            <div className="home-resource-points">
-              <span>Start here guides</span>
-              <span>Learning paths</span>
-              <span>Category discovery</span>
-              <span>Comparisons and tools</span>
-              <span>Important articles</span>
-            </div>
             <div className="home-hero-actions">
-              <Link href={RESOURCE_HUB_PATH} className="home-hero-button home-hero-button-primary">
-                Open Resources Hub
+              <Link href="/community" className="home-hero-button home-hero-button-primary">
+                Open Community Hub
               </Link>
-              <Link href={`${RESOURCE_HUB_PATH}#site-map`} className="home-hero-button home-hero-button-secondary">
-                Explore All Guides
+              <Link href="/community#showcase" className="home-hero-button home-hero-button-secondary">
+                What People Build
               </Link>
             </div>
           </div>
 
-          <div className="home-resource-promo-grid">
-            {hub.learningPaths.slice(0, 3).map((path) => (
-              <Link key={path.id} href={path.href} className="home-resource-promo-card">
-                <span className="home-curated-eyebrow">Learning Path</span>
-                <h3>{path.title}</h3>
-                <p>{path.description}</p>
-                <div className="home-resource-promo-meta">{path.steps.length} linked reads</div>
-              </Link>
+          <div className="home-quick-grid">
+            {communityCards.map((card) => (
+              <HubLinkCard key={card.title} card={card} />
             ))}
           </div>
+        </div>
+      </section>
+
+      <section id="popular-guides" className="home-section-shell">
+        <div className="home-section-head home-section-head-inline">
+          <div>
+            <div className="home-section-kicker">Popular Guides</div>
+            <h2 className="home-section-title">Important articles that anchor the strongest topic clusters</h2>
+          </div>
+          <Link href={RESOURCE_HUB_PATH} className="home-section-link">
+            Open resource hub
+          </Link>
+        </div>
+        <div className="home-post-grid">
+          {hub.popularGuides.map((post) => (
+            <PostCard key={post.slug} post={post} />
+          ))}
         </div>
       </section>
 
@@ -347,96 +430,20 @@ export default function HomePage() {
         <div className="home-section-head home-section-head-inline">
           <div>
             <div className="home-section-kicker">Latest Articles</div>
-            <h2 className="home-section-title">Recent posts, kept in a tighter supporting role</h2>
-            <p className="home-section-description">
-              Latest still matters, but the homepage now leads with resource discovery and internal navigation first.
-            </p>
+            <h2 className="home-section-title">Newest additions to the article archive</h2>
           </div>
           <Link href="/blog" className="home-section-link">
-            View archive
+            Browse blog archive
           </Link>
         </div>
-
         <div className="home-post-grid">
           {hub.latestArticles.map((post) => (
             <PostCard key={post.slug} post={post} />
           ))}
         </div>
       </section>
-
-      <section id="what-blixamo-covers" className="home-section-shell">
-        <div className="home-section-head home-section-head-inline">
-          <div>
-          <div className="home-section-kicker">What Blixamo Covers</div>
-          <h2 className="home-section-title">The site is built for practical developer decisions</h2>
-          <p className="home-section-description">
-            Blixamo covers the technical and operational topics that affect how developers deploy, self-host, automate, and choose their tools.
-          </p>
-          </div>
-          <Link href={RESOURCE_HUB_PATH} className="home-section-link">
-            Explore all resources
-          </Link>
-        </div>
-
-        <div className="home-discovery-grid">
-          {hub.coverageCards.map((card) => (
-            <Link key={card.title} href={card.href} className="home-discovery-card home-discovery-card-compact">
-              <div className="home-discovery-icon" style={{ color: card.accentColor }}>
-                {card.icon}
-              </div>
-              <div className="home-discovery-body">
-                <h3>{card.title}</h3>
-                <p>{card.description}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
-
-        <div className="home-mission-panel">
-          <div className="home-mission-copy">
-            <div className="home-section-kicker">About Blixamo</div>
-            <h3 className="home-mission-title">Blixamo is designed to feel more like a developer control center than a blog archive.</h3>
-            <p className="home-section-description">
-              The goal is simple: help developers understand where to start, compare real options,
-              and move from article to article through useful topic clusters instead of dead-end archive pages.
-            </p>
-            <div className="home-hero-actions">
-              <Link href={RESOURCE_HUB_PATH} className="home-hero-button home-hero-button-primary">
-                Open Developer Hub
-              </Link>
-              <Link href="/about" className="home-hero-button home-hero-button-secondary">
-                About Blixamo
-              </Link>
-            </div>
-          </div>
-
-          <div className="home-mission-grid">
-            {hub.missionPoints.map((point) => (
-              <div key={point.title} className="home-mission-card">
-                <h3>{point.title}</h3>
-                <p>{point.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="home-newsletter" className="home-section-shell home-newsletter-shell">
-        <div className="home-newsletter-panel">
-          <div className="home-section-head">
-            <div className="home-section-kicker">Newsletter</div>
-            <h2 className="home-section-title">Developer updates, guides, tools, comparisons, and practical resources</h2>
-            <p className="home-section-description">
-              Get the strongest Blixamo reads in one place instead of trying to track every new deploy guide or tool comparison manually.
-            </p>
-          </div>
-          <EmailCapture
-            placement="inline"
-            headline="Get the best new guides and tool picks"
-            subline="One developer-focused email with guides, comparisons, free tools, and resource updates."
-          />
-        </div>
-      </section>
     </>
   )
 }
+
+

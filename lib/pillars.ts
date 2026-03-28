@@ -71,6 +71,7 @@ export type PillarPage = {
   comparisons: Post[]
   tools: Post[]
   learningPath: Post[]
+  topicArticles: Post[]
   relatedArticles: Post[]
   relatedResources: PillarResourceLinkDefinition[]
   articleCount: number
@@ -103,6 +104,7 @@ const PRIMARY_PILLAR_BY_ARTICLE: Record<string, string> = {
   'claude-api-vs-openai-cost-india': 'comparisons-hub',
   'claude-api-vs-openai-gpt4-2026': 'comparisons-hub',
   'claude-vs-chatgpt-developers': 'comparisons-hub',
+  'compromised-vps-recovery-2026': 'vps-cloud-for-developers-guide',
   'coolify-complete-guide-2026': 'self-hosting-complete-guide',
   'coolify-vs-caprover-2026': 'comparisons-hub',
   'deploy-nextjs-coolify-hetzner': 'deploy-apps-on-vps-complete-guide',
@@ -111,12 +113,16 @@ const PRIMARY_PILLAR_BY_ARTICLE: Record<string, string> = {
   'free-vps-hosting-2026': 'vps-cloud-for-developers-guide',
   'getting-started-with-nextjs': 'developer-tools-directory',
   'google-search-console-self-hosted-nextjs': 'deploy-apps-on-vps-complete-guide',
+  'hetzner-alternatives-cheap-vps-2026': 'vps-cloud-for-developers-guide',
+  'hetzner-payment-methods-2026': 'vps-cloud-for-developers-guide',
   'hetzner-vs-aws-2026': 'vps-cloud-for-developers-guide',
   'hetzner-vs-aws-lightsail-2026': 'vps-cloud-for-developers-guide',
   'hetzner-vs-digitalocean-vs-vultr-india': 'vps-cloud-for-developers-guide',
   'hetzner-vs-vultr-vs-linode-2026': 'vps-cloud-for-developers-guide',
   'how-to-self-host-nextjs-on-vps': 'deploy-apps-on-vps-complete-guide',
   'indian-debit-cards-dev-tools': 'free-tools-for-developers',
+  'multiple-projects-single-vps': 'deploy-apps-on-vps-complete-guide',
+  'n8n-fastapi-hetzner-vps': 'automation-guide-for-developers',
   'n8n-complete-guide-2026': 'automation-guide-for-developers',
   'n8n-vs-make-vs-zapier-indie-dev': 'automation-guide-for-developers',
   'nextjs-mdx-blog-2026': 'developer-tools-directory',
@@ -125,13 +131,17 @@ const PRIMARY_PILLAR_BY_ARTICLE: Record<string, string> = {
   'nginx-reverse-proxy-guide-2026': 'deploy-apps-on-vps-complete-guide',
   'open-source-tools-2026': 'free-tools-for-developers',
   'oracle-cloud-free-vs-hetzner-2026': 'vps-cloud-for-developers-guide',
+  'pay-hetzner-from-india': 'vps-cloud-for-developers-guide',
   'razorpay-integration-nextjs-india': 'free-tools-for-developers',
   'self-healing-vps-monitor-nodejs': 'self-hosting-complete-guide',
   'self-host-plausible-analytics-2026': 'self-hosting-complete-guide',
   'self-hosting-n8n-hetzner-vps': 'self-hosting-complete-guide',
   'self-hosting-resources': 'self-hosting-complete-guide',
+  'ssh-security-hardening-vps-2026': 'vps-cloud-for-developers-guide',
   'tailwind-css-tips': 'developer-tools-directory',
   'tailwind-css-vs-css-modules': 'developer-tools-directory',
+  'ubuntu-vps-hardening-checklist': 'vps-cloud-for-developers-guide',
+  'best-vps-monitoring-tools-2026': 'vps-cloud-for-developers-guide',
   'vps-security-harden-ubuntu-2026': 'vps-cloud-for-developers-guide',
   'vps-setup-guide': 'deploy-apps-on-vps-complete-guide',
   'whatsapp-ai-assistant-n8n-claude-api': 'automation-guide-for-developers',
@@ -464,8 +474,9 @@ function buildPillarPage(definition: PillarDefinition, posts: Post[]): PillarPag
   const comparisons = uniquePosts([...pickPosts(posts, definition.comparisonSlugs), ...primaryArticles.filter((post) => isComparisonPost(post))])
   const tools = uniquePosts(pickPosts(posts, definition.toolSlugs))
   const learningPath = uniquePosts(pickPosts(posts, definition.learningPathSlugs))
+  const topicArticles = uniquePosts([...primaryArticles, ...guides, ...comparisons, ...tools, ...learningPath])
 
-  const relatedArticles = uniquePosts([...primaryArticles, ...guides, ...comparisons, ...tools, ...learningPath])
+  const relatedArticles = topicArticles
     .filter((post) => !guides.slice(0, 4).some((entry) => entry.slug === post.slug))
     .slice(0, 8)
 
@@ -492,9 +503,10 @@ function buildPillarPage(definition: PillarDefinition, posts: Post[]): PillarPag
     comparisons: comparisons.slice(0, 12),
     tools: tools.slice(0, 8),
     learningPath: learningPath.slice(0, 8),
+    topicArticles,
     relatedArticles,
     relatedResources: [...definition.relatedResourceLinks],
-    articleCount: primaryArticles.length,
+    articleCount: topicArticles.length,
   }
 }
 

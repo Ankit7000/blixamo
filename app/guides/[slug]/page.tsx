@@ -185,6 +185,21 @@ export default async function PillarPage({ params }: Props) {
 
       <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
         <div className="home-section-head">
+          <div className="home-section-kicker">Articles in this topic</div>
+          <h2 className="home-section-title">All cluster articles connected to this pillar</h2>
+          <p className="home-section-description">
+            Use this section as the full topic map for the cluster. Every article below is part of this pillar path and links back into the same guide, category, and resource-hub structure.
+          </p>
+        </div>
+        <div className="home-post-grid">
+          {pillar.topicArticles.map((post) => (
+            <PostCard key={post.slug} post={post} />
+          ))}
+        </div>
+      </section>
+
+      <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+        <div className="home-section-head">
           <div className="home-section-kicker">Related resources</div>
           <h2 className="home-section-title">Use these routes to navigate the rest of the site around this pillar</h2>
         </div>

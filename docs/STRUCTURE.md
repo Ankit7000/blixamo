@@ -2,7 +2,7 @@
 
 > Production site: https://blixamo.com
 > VPS: root@77.42.17.13 -> /var/www/blixamo
-> Last audited: 2026-03-26
+> Last audited: 2026-03-29
 > Do not rename directories, move key files, or add routes without updating this doc.
 
 ---
@@ -19,6 +19,8 @@
   Generates `/robots.txt`.
 - `app/about/page.tsx`
   About page.
+- `app/community/page.tsx`
+  Community hub page.
 - `app/contact/page.tsx`
   Contact page.
 - `app/privacy-policy/page.tsx`
@@ -101,6 +103,7 @@ Note:
 |-------------|-------------|-------------|
 | `/` | `app/page.tsx` | SSG |
 | `/about` | `app/about/page.tsx` | SSG |
+| `/community` | `app/community/page.tsx` | SSG |
 | `/contact` | `app/contact/page.tsx` | SSG |
 | `/privacy-policy` | `app/privacy-policy/page.tsx` | SSG |
 | `/terms` | `app/terms/page.tsx` | SSG |
@@ -128,10 +131,11 @@ Primary crawl path:
 - Category pages: `/category/[slug]`
 - Pillar guide pages: `/guides/[slug]`
 - Article pages: `/blog/[slug]`
+- Community hub: `/community`
 
 Indexing intent:
-- Keep indexed: homepage, resources hub, categories, articles, about page
-- Keep accessible but low priority: other tag pages, author pages, search, legal pages, pagination
+- Keep indexed: homepage, resources hub, categories, pillar guides, articles, about page, and community hub
+- Keep accessible but low priority: other tag pages, author pages, search, legal pages, and pagination
 - Use `noindex, follow` on low-value archive/utility routes rather than removing routes
 
 ---
@@ -168,4 +172,3 @@ Indexing intent:
 Important note:
 - `getAllCategories()` only returns categories used by current posts.
 - If no post uses a category, that category route is not pre-rendered.
-

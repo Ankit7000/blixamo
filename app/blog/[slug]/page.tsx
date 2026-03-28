@@ -73,7 +73,9 @@ export default async function PostPage({ params }: Props) {
   const comparisonsHub = getComparisonsHub(allPosts)
   const relatedComparisons = clusterContent.comparisons.filter((entry) => entry.slug !== post.slug).slice(0, 2)
   const freeToolLinks = clusterContent.tools.filter((entry) => entry.slug !== post.slug).slice(0, 2)
+  const pillarClusterPosts = pillarPage?.topicArticles || []
   const clusterRelatedPosts = [
+    ...pillarClusterPosts,
     ...clusterContent.guides,
     ...clusterContent.comparisons,
     ...clusterContent.tools,
@@ -86,6 +88,7 @@ export default async function PostPage({ params }: Props) {
     .slice(0, 3)
   const topRelatedArticles = clusterRelatedPosts.slice(0, 3)
   const authorityPageLinks = [
+    ...pillarClusterPosts,
     ...clusterContent.guides,
     ...clusterContent.comparisons,
     ...clusterContent.tools,
@@ -147,7 +150,7 @@ export default async function PostPage({ params }: Props) {
                 </div>
                 {topRelatedArticles.length > 0 && (
                   <>
-                    <p className="article-share-eyebrow" style={{ marginTop: '1rem' }}>Related articles</p>
+                    <p className="article-share-eyebrow" style={{ marginTop: '1rem' }}>Related cluster articles</p>
                     <div className="article-explore-grid">
                       {topRelatedArticles.map((entry) => (
                         <Link key={entry.slug} href={`/blog/${entry.slug}`} className="article-explore-link">
@@ -240,7 +243,12 @@ export default async function PostPage({ params }: Props) {
           relatedComparisons={relatedComparisons}
           freeToolLinks={freeToolLinks}
         />
-        <RelatedPosts posts={clusterRelatedPosts} category={post.category} />
+        <RelatedPosts
+          posts={clusterRelatedPosts}
+          category={post.category}
+          pillarHref={pillarPage?.href}
+          pillarTitle={pillarPage?.title}
+        />
       </div>
     </>
   )

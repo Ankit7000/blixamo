@@ -4,22 +4,38 @@ import { PostCard } from './PostCard'
 import type { Post } from '@/lib/posts'
 import { RESOURCE_HUB_PATH } from '@/lib/resources'
 
-export function RelatedPosts({ posts, category }: { posts: Post[]; category: string }) {
+type RelatedPostsProps = {
+  posts: Post[]
+  category: string
+  pillarHref?: string
+  pillarTitle?: string
+}
+
+export function RelatedPosts({ posts, category, pillarHref, pillarTitle }: RelatedPostsProps) {
   if (!posts.length) return null
   const categoryMeta = getCategoryMeta(category)
 
   return (
     <section className="related-posts-shell">
       <div className="related-posts-head">
-        <p className="related-posts-kicker">Next reading</p>
-        <h2 className="related-posts-title">Keep exploring Blixamo</h2>
+        <p className="related-posts-kicker">Related cluster articles</p>
+        <h2 className="related-posts-title">Keep moving through the same topic cluster</h2>
         <p className="related-posts-description">
-          Related articles that expand the same topic, compare adjacent tools, or help you take the next implementation step.
+          These links stay inside the same pillar cluster so the next reads reinforce the topic instead of sending the reader into unrelated archive pages.
         </p>
+        {pillarHref && pillarTitle && (
+          <Link
+            href={pillarHref}
+            className="home-section-link"
+            style={{ alignSelf: 'flex-start', marginTop: '0.9rem' }}
+          >
+            Open {pillarTitle}
+          </Link>
+        )}
         <Link
           href={`/category/${category}`}
           className="home-section-link"
-          style={{ alignSelf: 'flex-start', marginTop: '0.9rem' }}
+          style={{ alignSelf: 'flex-start', marginTop: pillarHref && pillarTitle ? '0.25rem' : '0.9rem' }}
         >
           Browse more in {categoryMeta.label}
         </Link>

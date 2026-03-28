@@ -1,6 +1,6 @@
 # SITEMAP.md - All Routes, Redirects and Sitemap Behavior
 
-> Last audited: 2026-03-26
+> Last audited: 2026-03-29
 > Never change route patterns, slugs, or redirects without updating this file and checking GSC.
 
 ---
@@ -11,12 +11,13 @@
 |-----|----------|-------------|----------------|
 | `/` | 1.0 | daily | Yes |
 | `/about` | 0.5 | monthly | Yes |
+| `/community` | 0.6 | weekly | Yes |
+| `/blog` | 0.8 | monthly | Yes |
 | `/tag/deployment` | 0.9 | weekly | Yes |
 | `/contact` | 0.3 | monthly | No |
 | `/privacy-policy` | 0.3 | monthly | No |
 | `/terms` | 0.3 | monthly | No |
 | `/disclaimer` | 0.3 | monthly | No |
-| `/blog` | - | - | No |
 | `/search` | - | - | No |
 | `/author/blixamo` | - | - | No |
 
@@ -31,61 +32,21 @@ Priority: `featured=true` -> `0.9` | regular -> `0.7`
 Change freq: monthly
 lastModified: `post.updatedAt` if set, else `post.date`
 
-### All 44 Post Slugs (never rename these)
+Current blog URLs are generated from every published file in `content/posts/*.mdx`.
 
-```text
-best-ai-tools-2026
-best-free-developer-tools-2026
-best-postgresql-gui-free
-best-vpn-for-developers-2026
-build-saas-mvp-zero-budget-2026
-build-telegram-bot-claude-api-python
-claude-ai-guide
-claude-api-content-automation-nodejs
-claude-api-vs-openai-cost-india
-claude-api-vs-openai-gpt4-2026
-claude-vs-chatgpt-developers
-coolify-complete-guide-2026
-coolify-vs-caprover-2026
-deploy-nextjs-coolify-hetzner
-docker-compose-production-vps-2026
-free-tools-indian-indie-developer
-free-vps-hosting-2026
-getting-started-with-nextjs
-google-search-console-self-hosted-nextjs
-hetzner-vs-aws-2026
-hetzner-vs-aws-lightsail-2026
-hetzner-vs-digitalocean-vs-vultr-india
-hetzner-vs-vultr-vs-linode-2026
-how-to-self-host-nextjs-on-vps
-indian-debit-cards-dev-tools
-n8n-complete-guide-2026
-n8n-vs-make-vs-zapier-indie-dev
-nextjs-mdx-blog-2026
-nextjs-mdx-remote-rsc-edge-runtime-fix
-nextjs-performance-optimization-2026
-nginx-reverse-proxy-guide-2026
-open-source-tools-2026
-oracle-cloud-free-vs-hetzner-2026
-razorpay-integration-nextjs-india
-self-healing-vps-monitor-nodejs
-self-host-plausible-analytics-2026
-self-hosting-n8n-hetzner-vps
-self-hosting-resources
-tailwind-css-tips
-tailwind-css-vs-css-modules
-vps-security-harden-ubuntu-2026
-vps-setup-guide
-whatsapp-ai-assistant-n8n-claude-api
-wise-vs-payoneer-india-freelancer
-```
+Validation command:
+- `npm run sitemap:check -- --list`
+
+Notes:
+- The exact article URL list is content-dependent and should be verified with the command above before deploys.
+- Never rename a published MDX filename. The filename remains the canonical `/blog/[slug]` URL.
 
 ---
 
 ## Category Routes
 
 Pattern: `/category/[slug]`
-Source: `getAllCategories()` from `lib/posts.ts` - only categories used in at least one post
+Source: categories used by current indexable posts and ordered by the canonical registry in `lib/categories.ts`
 Priority: `0.7`
 Change freq: weekly
 
@@ -121,7 +82,7 @@ Pattern: `/guides/[slug]`
 
 - 7 pillar pages live here as topic-cluster guides between categories and articles.
 - Current slugs: `self-hosting-complete-guide`, `deploy-apps-on-vps-complete-guide`, `vps-cloud-for-developers-guide`, `developer-tools-directory`, `automation-guide-for-developers`, `free-tools-for-developers`, `comparisons-hub`.
-- These routes are intentionally excluded from `sitemap.xml` so sitemap behavior stays unchanged.
+- These routes are intentionally included in `sitemap.xml` as indexed hub pages.
 
 ---
 
@@ -130,7 +91,7 @@ Pattern: `/guides/[slug]`
 Pattern: `/author/[author]`
 
 - Not included in sitemap.
-- Route remains live but now uses `noindex, follow`.
+- Route remains live but uses `noindex, follow`.
 
 ---
 
@@ -170,17 +131,19 @@ Do not remove these redirects without documenting the change.
 
 ---
 
-## Sitemap Generation Logic (`app/sitemap.ts`)
+## Sitemap Generation Logic (`app/sitemap.ts` + `lib/sitemap.ts`)
 
 Includes:
 1. `/`
 2. `/about`
-3. `/tag/deployment`
-4. `/category/[slug]` for every category with at least one post
-5. `/blog/[slug]` for all posts
+3. `/community`
+4. `/blog`
+5. `/tag/deployment`
+6. `/category/[slug]` for every canonical category with at least one indexable post
+7. `/guides/[slug]` for all pillar pages
+8. `/blog/[slug]` for all canonical indexable posts
 
 Does not include:
-- `/blog`
 - `/search`
 - `/api/*`
 - `/author/*`
@@ -189,16 +152,25 @@ Does not include:
 - `/terms`
 - `/disclaimer`
 - all tag pages except `/tag/deployment`
-- `/guides/*`
 - pagination pages
 - utility files such as `/ads.txt`
+- posts marked `noindex: true`
+- posts whose canonical points away from `https://blixamo.com/blog/[slug]`
 
 `lastModified` behavior:
-- homepage uses the freshest post `updatedAt` or `date`
-- `/tag/deployment` uses the freshest post carrying the `deployment` tag
+- homepage uses the build date
+- `/about` uses the build date
+- `/community` uses the build date
+- `/blog` uses the build date
+- `/tag/deployment` uses the build date
 - category pages use the freshest post inside that category
+- guide pages use the freshest linked post shown on that pillar page
 - blog post pages use `updatedAt` if set, otherwise `date`
-- static pages use a fixed document-level date until they are edited
+- static pages use the build date
+
+Validation:
+- `npm run sitemap:check` prints total count, architecture-group counts, included hub pages, excluded routes, duplicates, unexpected URLs, and missing expected URLs
+- `npm run sitemap:check -- --list` prints the exact current sitemap URL list
 
 ---
 
@@ -209,7 +181,6 @@ Does not include:
 - Tags come from `tags[]` frontmatter. Reuse consistently.
 - Author slug = `author.toLowerCase()` from frontmatter.
 - Never rename a slug after Google has indexed it.
-
 
 
 

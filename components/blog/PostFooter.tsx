@@ -56,6 +56,10 @@ export function PostFooter({
                 {pillarPage ? pillarPage.title : 'Open the pillar-guide layer for the strongest cluster entry points'}
               </span>
             </Link>
+            <Link href="/blog" className="article-explore-link">
+              <span className="article-nav-label">Blog Index</span>
+              <span className="article-nav-title">Browse the full article archive</span>
+            </Link>
             <Link href={comparisonLink ? `/blog/${comparisonLink.slug}` : `${PILLAR_BASE_PATH}/comparisons-hub`} className="article-explore-link">
               <span className="article-nav-label">Related Comparison</span>
               <span className="article-nav-title">

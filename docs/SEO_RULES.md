@@ -1,6 +1,6 @@
-﻿# SEO_RULES.md - SEO Rules for Blixamo
+# SEO_RULES.md - SEO Rules for Blixamo
 
-> Last audited: 2026-03-26
+> Last audited: 2026-03-29
 > These rules apply to all pages. Do not change SEO logic without updating this doc.
 
 ---
@@ -53,12 +53,12 @@ Route-level noindex rules:
 - `/terms` -> `noindex, follow`
 - `/disclaimer` -> `noindex, follow`
 - `/blog/page/*` -> `noindex, follow`
-- `/tag/deployment` -> stays `index, follow`
+- `/tag/deployment` as the only standalone hub page currently implemented -> stays `index, follow`
 - all other `/tag/*` pages -> `noindex, follow`
 
 Robots file:
 - `app/robots.ts` is the only source for `/robots.txt`
-- it disallows `/api/`, `/_next/`, and `/search`
+- it disallows `/api/`, `/_next/`, `/search`, `/author/`, `/page/`, `/blog/page/`, and `/feed.xml`
 - sitemap declared in robots: `https://blixamo.com/sitemap.xml`
 
 ---
@@ -113,17 +113,19 @@ Additional structured data:
 
 ## Sitemap SEO Rules
 
-`/sitemap.xml` is generated at build time by `app/sitemap.ts`.
+`/sitemap.xml` is generated at build time by `app/sitemap.ts` and filtered by `lib/sitemap.ts`.
 
 Included:
 - `/`
 - `/about`
-- `/tag/deployment`
+- `/community`
+- `/blog`
+- `/tag/deployment` as the only standalone hub page currently implemented
 - `/category/[slug]`
-- `/blog/[slug]`
+- `/guides/[slug]`
+- `/blog/[slug]` for canonical indexable posts only
 
 Excluded:
-- `/blog`
 - `/search`
 - `/author/*`
 - `/contact`
@@ -132,33 +134,49 @@ Excluded:
 - `/disclaimer`
 - `/blog/page/*`
 - all `/tag/*` except `/tag/deployment`
+- posts marked `noindex: true`
+- posts whose canonical points away from `https://blixamo.com/blog/[slug]`
 
 Priority targets:
 - homepage: `1.0`
+- blog index: `0.8`
 - resources hub: `0.9`
 - category pages: `0.7`
+- guide pages: `0.7`
 - regular posts: `0.7`
 - featured posts: `0.9`
 
 `lastmod` rules:
 - posts use `updatedAt` or `date`
-- homepage/category/resources hub inherit freshness from the newest relevant post
-- static pages use a fixed document date until edited
+- category pages use the freshest post inside that category
+- guide pages use the freshest linked post shown on that pillar page
+- homepage, `/about`, `/community`, `/blog`, and `/tag/deployment` use the build date
+
+Validation:
+- `npm run sitemap:check` prints total count, counts by route type, duplicates, unexpected URLs, and missing expected URLs
+- `npm run sitemap:check -- --list` prints the exact current sitemap URL list
 
 ---
 
 ## Internal Linking Rules
 
 Every article should reinforce the site architecture:
-- homepage -> resources hub -> category -> article
+- homepage -> resources hub -> category -> guide/article
 - articles should also link laterally to related posts
 
 Minimum article structure for linking:
 - link to the Resources Hub when relevant
 - link to the primary category page
+- link to the primary pillar guide for that article's topic cluster
 - link to at least 2 related articles
 - link to homepage when useful
 - link to comparison/tools pages when relevant
+
+Pillar cluster rule:
+- each pillar guide acts as the topic-cluster hub for its mapped articles
+- each cluster article links back to its primary pillar guide
+- each pillar page includes an `Articles in this topic` section that lists the full cluster article set
+- related article modules should prefer posts from the same pillar cluster before falling back to broader category matches
 
 Tag chips on article pages should not be a crawl-priority navigation surface.
 
@@ -191,3 +209,11 @@ For a new article:
 
 Use only the VPS GSC workflow:
 - `node /var/www/gsc-tool/gsc.js ...`
+
+
+
+
+
+
+
+
