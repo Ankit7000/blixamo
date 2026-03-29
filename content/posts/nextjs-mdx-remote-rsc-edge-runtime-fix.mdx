@@ -20,7 +20,7 @@ toc: true
 
 This bug is annoying because the failure looks bigger than it is. Your Next.js app works locally, the MDX code looks fine, and then production throws `The edge runtime does not support Node.js 'fs' module` or just gives you a blank page with almost no signal.
 
-The root cause is simple: `next-mdx-remote/rsc` needs Node.js runtime. If your blog route inherits edge runtime anywhere in the route tree, it breaks. The fix is usually one line.
+The root cause is simple: `next-mdx-remote/rsc` needs Node.js runtime. If your blog route inherits edge runtime anywhere in the route tree, it breaks. The fix is usually one line. For the broader implementation path, keep the [resources hub](/tag/deployment) nearby, treat this fix as part of the [Web Development category](/category/web-dev), and use the [Developer Tools Directory](/guides/developer-tools-directory) as the parent guide while you connect it to the rest of your Next.js stack.
 
 <Callout type="info" title="TL;DR">
 If `next-mdx-remote/rsc` is rendering content from disk, set `export const runtime = "nodejs"` on the affected route. Do not run that MDX route under edge runtime.

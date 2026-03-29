@@ -20,7 +20,7 @@ toc: true
 
 One VPS is enough for multiple apps, but only if the traffic routing stays predictable. That is the whole job of Nginx in this setup: receive traffic on ports 80 and 443, decide which domain or subdomain it belongs to, and forward it to the right app without exposing all your internal ports to the public internet.
 
-If you want to run a Next.js app, n8n, analytics, and maybe one or two client projects on the same server, you do not need a complex service mesh. You need a clean reverse proxy setup that you can read, verify, and fix quickly at 2am if necessary.
+If you want to run a Next.js app, n8n, analytics, and maybe one or two client projects on the same server, you do not need a complex service mesh. You need a clean reverse proxy setup that you can read, verify, and fix quickly at 2am if necessary. For the broader deployment path, keep the [resources hub](/tag/deployment) open, treat this guide as part of the [How-To category](/category/how-to), and use the [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide) as the parent map before you start routing more services through the box.
 
 <Callout type="info" title="TL;DR">
 Use one Nginx server block per domain or subdomain, proxy each block to the correct local port, add HTTPS with Certbot, and always run `nginx -t` before reload. Keep the config boring and per-app, not clever.
