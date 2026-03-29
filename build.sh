@@ -11,6 +11,8 @@ APP_DIR="/var/www/blixamo"
 APP_NAME="blixamo"
 PORT="3000"
 LOG="/var/log/blixamo-deploy.log"
+BOT_HOME="/home/bot"
+PM2_HOME_DIR="/home/bot/.pm2"
 BUILD_USER="$(id -un)"
 BUILD_GROUP="$(id -gn)"
 
@@ -37,7 +39,7 @@ echo "==> Validate sitemap" | tee -a "$LOG"
 node scripts/validate-sitemap.js 2>&1 | tee -a "$LOG"
 
 echo "==> Reload PM2" | tee -a "$LOG"
-sudo pm2 reload "$APP_NAME" 2>&1 | tee -a "$LOG" || sudo pm2 start ecosystem.config.js 2>&1 | tee -a "$LOG"
+env HOME="$BOT_HOME" PM2_HOME="$PM2_HOME_DIR" pm2 reload "$APP_NAME" 2>&1 | tee -a "$LOG" || env HOME="$BOT_HOME" PM2_HOME="$PM2_HOME_DIR" pm2 start ecosystem.config.js --only "$APP_NAME" 2>&1 | tee -a "$LOG"
 
 echo "==> Health check" | tee -a "$LOG"
 sleep 3
