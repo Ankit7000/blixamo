@@ -126,9 +126,11 @@ verify_pm2_online() {
   log "==> Verify PM2 status"
 
   local describe_output
+  local sanitized_output
   describe_output="$(run_pm2 describe "$APP_NAME" 2>&1)" || fail "pm2 describe $APP_NAME failed"
+  sanitized_output="$(printf '%s\n' "$describe_output" | sed 's/[^[:alnum:][:space:].:_\/-]//g')"
 
-  if ! printf '%s\n' "$describe_output" | grep -Eiq 'status[[:space:]]+online'; then
+  if ! printf '%s\n' "$sanitized_output" | grep -Eiq 'status[[:space:]]+online'; then
     printf '%s\n' "$describe_output" | tee -a "$LOG"
     fail "PM2 app $APP_NAME is not online"
   fi
