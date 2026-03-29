@@ -114,7 +114,7 @@ services:
 
 ### 4. Monitor RAM, not just CPU
 
-Small VPS setups usually fail from memory pressure first. Watch idle RAM, build spikes, and swap usage.
+Small VPS setups usually fail from memory pressure first. Watch idle RAM, build spikes, and swap usage, and graduate to a fuller [VPS monitoring tools](/blog/best-vps-monitoring-tools-2026) stack as soon as you have enough services that one silent failure can hide behind the others.
 
 ![Memory and service status on a multi-project VPS](/images/posts/multiple-projects-single-vps/05-memory-usage.png)
 *A single cheap VPS works well until build spikes and background services start competing for memory.*
@@ -146,7 +146,7 @@ The mistake is not mixing tools. The mistake is mixing them without rules.
 ![Live service mix on one VPS with PM2 and Docker](/images/posts/multiple-projects-single-vps/03-pm2-docker-live.png)
 *A mixed runtime model is often the most practical answer on a small VPS.*
 
-Before you build the stack, swing by `blixamo.com` to anchor yourself in the homepage narrative, follow the `/tag/deployment` resources hub for the latest cluster links, and remember that this article lives in `/category/vps-cloud` under the `/guides/vps-cloud-for-developers-guide` pillar. If you want adjacent reading, [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner) and [VPS Security Hardening Ubuntu 2026](/blog/vps-security-harden-ubuntu-2026) walk through the deploy and hardening steps, while [Docker Compose on VPS 2026](/blog/docker-compose-production-vps-2026) is the operational checklist that keeps the services shown above resilient.
+Before you build the stack, swing by `blixamo.com` to anchor yourself in the homepage narrative, follow the `/tag/deployment` resources hub for the latest cluster links, and remember that this article lives in `/category/vps-cloud` under the `/guides/vps-cloud-for-developers-guide` pillar. If you want adjacent reading, start with the [VPS setup guide](/blog/vps-setup-guide), then use [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner), the [Nginx reverse proxy guide](/blog/nginx-reverse-proxy-guide-2026), and [VPS Security Hardening Ubuntu 2026](/blog/vps-security-harden-ubuntu-2026) for the deploy and hardening steps, while [Docker Compose on VPS 2026](/blog/docker-compose-production-vps-2026) is the operational checklist that keeps the services shown above resilient and the [best VPN for developers](/blog/best-vpn-for-developers-2026) guide helps when you administer the box from public networks.
 
 ## FAQ
 

@@ -54,7 +54,7 @@ The threat model for indie developers is not sophisticated nation-state attacks.
 
 A compromised VPS doesn't just take down your projects. It can send spam (getting your IP blacklisted), mine cryptocurrency (spiking your CPU bill), or exfiltrate API keys stored on the server.
 
-The good news: basic hardening stops 99% of this. SSH key auth eliminates the entire class of password brute-force attacks. UFW drops all unrecognized traffic. fail2ban handles the rest. Let's go through each step.
+The good news: basic hardening stops 99% of this. SSH key auth eliminates the entire class of password brute-force attacks, and the dedicated [SSH hardening guide](/blog/ssh-security-hardening-vps-2026) goes deeper if you want the access layer locked down before everything else. UFW drops all unrecognized traffic. fail2ban handles the rest. Let's go through each step.
 
 ---
 
@@ -412,7 +412,7 @@ Both serve different purposes. UFW/fail2ban protects at the server level. Cloudf
 #
 ### How do I know if my VPS has already been compromised?
 #
-Check `last` (recent logins), `who` (current sessions), `ps aux` (look for miners or unfamiliar processes), `crontab -l` (unexpected cron jobs), and `/tmp` directory (miners often drop files here). If anything looks suspicious, restore from a Hetzner snapshot taken before the compromise.
+Check `last` (recent logins), `who` (current sessions), `ps aux` (look for miners or unfamiliar processes), `crontab -l` (unexpected cron jobs), and `/tmp` directory (miners often drop files here). If anything looks suspicious, follow the [compromised VPS recovery guide](/blog/compromised-vps-recovery-2026) and restore from a Hetzner snapshot taken before the compromise.
 #
 ### Should I change the SSH port?
 #

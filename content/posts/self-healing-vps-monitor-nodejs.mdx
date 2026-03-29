@@ -186,7 +186,7 @@ I prefer running this kind of script from cron rather than as a permanent daemon
 */15 * * * * node /var/www/blixamo/tools/vps-monitor.js >> /var/log/vps-monitor.log 2>&1
 ```
 
-Then wire one alerting path. Email is enough. Telegram is enough. An n8n webhook is enough. The important thing is that the alert says what failed, what the monitor tried, and why it stopped.
+Then wire one alerting path. Email is enough. Telegram is enough. An n8n webhook is enough. The important thing is that the alert says what failed, what the monitor tried, and why it stopped, so if the signal looks more like an intrusion than a transient fault you can switch immediately to the [compromised VPS recovery guide](/blog/compromised-vps-recovery-2026).
 
 That is what makes the system trustworthy. You want one useful alert, not 20 vague ones.
 
