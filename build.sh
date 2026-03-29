@@ -126,13 +126,18 @@ verify_pm2_online() {
   log "==> Verify PM2 status"
 
   local describe_output
-  local sanitized_output
+  local pid_output
   describe_output="$(run_pm2 describe "$APP_NAME" 2>&1)" || fail "pm2 describe $APP_NAME failed"
-  sanitized_output="$(printf '%s\n' "$describe_output" | sed 's/[^[:alnum:][:space:].:_\/-]//g')"
+  pid_output="$(run_pm2 pid "$APP_NAME" 2>/dev/null | tr -d '[:space:]')"
 
-  if ! printf '%s\n' "$sanitized_output" | grep -Eiq 'status[[:space:]]+online'; then
+  if ! printf '%s\n' "$describe_output" | grep -iq 'online'; then
     printf '%s\n' "$describe_output" | tee -a "$LOG"
     fail "PM2 app $APP_NAME is not online"
+  fi
+
+  if [ -z "$pid_output" ] || [ "$pid_output" = "0" ]; then
+    printf '%s\n' "$describe_output" | tee -a "$LOG"
+    fail "PM2 app $APP_NAME has no live PID"
   fi
 
   log "PM2 status online: $APP_NAME"
