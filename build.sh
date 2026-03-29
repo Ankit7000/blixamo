@@ -46,7 +46,7 @@ fail() {
 }
 
 run_pm2() {
-  env HOME="$BOT_HOME" PM2_HOME="$PM2_HOME_DIR" pm2 "$@"
+  env HOME="$BOT_HOME" PM2_HOME="$PM2_HOME_DIR" PM2_DISABLE_COLORS=1 pm2 "$@"
 }
 
 detect_deploy_branch() {
