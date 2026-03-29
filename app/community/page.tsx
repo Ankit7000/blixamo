@@ -126,6 +126,38 @@ function CommunityCard({ card }: { card: CommunityCard }) {
 export default function CommunityPage() {
   const allPosts = getAllPosts()
   const hub = getResourceHubContent(allPosts)
+  const startLearningCards = hub.pillarPages.slice(0, 4).map((page) => ({
+    title: page.title,
+    description: page.description,
+    href: page.href,
+    eyebrow: 'Pillar Guide',
+  }))
+  const continueExploringCards: CommunityCard[] = [
+    {
+      title: 'Homepage',
+      description: 'Return to the main site hub for top-level discovery paths and featured content clusters.',
+      href: '/',
+      eyebrow: 'Continue Exploring',
+    },
+    {
+      title: 'Resources Hub',
+      description: 'Use the start-here hub for categories, pillar guides, comparisons, and structured learning paths.',
+      href: RESOURCE_HUB_PATH,
+      eyebrow: 'Continue Exploring',
+    },
+    {
+      title: 'Blog Archive',
+      description: 'Browse the full article archive when you want the complete list of posts across all topic clusters.',
+      href: '/blog',
+      eyebrow: 'Continue Exploring',
+    },
+    {
+      title: 'Comparisons Hub',
+      description: 'Move into decision pages when the next question is which tool, provider, or platform should win.',
+      href: '/guides/comparisons-hub',
+      eyebrow: 'Continue Exploring',
+    },
+  ]
   const practicalReads = [
     ...hub.webDevelopment,
     ...hub.indieDevSaas,
@@ -190,6 +222,35 @@ export default function CommunityPage() {
         </div>
       </section>
 
+      <section id="continue-exploring" className="home-section-shell">
+        <div className="home-section-head">
+          <div className="home-section-kicker">Continue Exploring</div>
+          <h2 className="home-section-title">Use the main site hubs to move back into the content network</h2>
+        </div>
+        <div className="home-quick-grid">
+          {continueExploringCards.map((card) => (
+            <CommunityCard key={card.title} card={card} />
+          ))}
+        </div>
+      </section>
+
+      <section id="start-learning" className="home-section-shell">
+        <div className="home-section-head home-section-head-inline">
+          <div>
+            <div className="home-section-kicker">Start Learning</div>
+            <h2 className="home-section-title">Use these pillar guides as the fastest way into each major cluster</h2>
+          </div>
+          <Link href={`${RESOURCE_HUB_PATH}#authority-pages`} className="home-section-link">
+            Browse all pillar guides
+          </Link>
+        </div>
+        <div className="home-quick-grid">
+          {startLearningCards.map((card) => (
+            <CommunityCard key={card.title} card={card} />
+          ))}
+        </div>
+      </section>
+
       <section id="showcase" className="home-section-shell">
         <div className="home-section-head">
           <div className="home-section-kicker">What People Are Building</div>
@@ -198,6 +259,48 @@ export default function CommunityPage() {
         <div className="home-quick-grid">
           {BUILDING_SHOWCASE.map((card) => (
             <CommunityCard key={card.title} card={card} />
+          ))}
+        </div>
+      </section>
+
+      <section id="popular-guides" className="home-section-shell">
+        <div className="home-section-head home-section-head-inline">
+          <div>
+            <div className="home-section-kicker">Popular Guides</div>
+            <h2 className="home-section-title">Strong guides and articles the community layer should keep circulating</h2>
+          </div>
+          <Link href={`${RESOURCE_HUB_PATH}#popular-articles`} className="home-section-link">
+            Open popular articles
+          </Link>
+        </div>
+        <div className="home-post-grid">
+          {hub.popularGuides.slice(0, 6).map((post) => (
+            <PostCard key={post.slug} post={post} />
+          ))}
+        </div>
+      </section>
+
+      <section id="explore-categories" className="home-section-shell">
+        <div className="home-section-head home-section-head-inline">
+          <div>
+            <div className="home-section-kicker">Explore Categories</div>
+            <h2 className="home-section-title">Browse the main content clusters directly from the community layer</h2>
+          </div>
+          <Link href={`${RESOURCE_HUB_PATH}#resource-categories`} className="home-section-link">
+            Open category hub
+          </Link>
+        </div>
+        <div className="home-discovery-grid">
+          {hub.categoryCards.map((card) => (
+            <Link key={card.title} href={card.href} className="home-discovery-card">
+              <div className="home-discovery-icon" style={{ color: card.accentColor }}>
+                {card.icon}
+              </div>
+              <div className="home-discovery-body">
+                <h3>{card.title}</h3>
+                <p>{card.description}</p>
+              </div>
+            </Link>
           ))}
         </div>
       </section>

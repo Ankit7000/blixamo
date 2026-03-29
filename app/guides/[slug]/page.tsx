@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { PostCard } from '@/components/blog/PostCard'
 import { getAllPosts } from '@/lib/posts'
-import { PILLAR_BASE_PATH, PILLAR_RESOURCE_HUB_PATH, getPillarDefinitions, getPillarPageBySlug } from '@/lib/pillars'
+import { PILLAR_BASE_PATH, PILLAR_RESOURCE_HUB_PATH, getAllPillarPages, getPillarDefinitions, getPillarPageBySlug } from '@/lib/pillars'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -47,6 +47,7 @@ export default async function PillarPage({ params }: Props) {
     { title: 'Homepage', description: 'Return to the main site hub and top-level discovery paths.', href: '/' },
     { title: 'Resources Hub', description: 'Open the central resources hub for start-here paths and topic navigation.', href: PILLAR_RESOURCE_HUB_PATH },
     { title: 'Community Hub', description: 'Use the community layer to discover practical reads, comparisons, and current site entry points.', href: '/community' },
+    { title: 'Blog Archive', description: 'Browse the full article archive when you want to move from this guide into the latest sitewide content.', href: '/blog' },
     { title: pillar.primaryCategory.label, description: pillar.primaryCategory.description, href: pillar.primaryCategory.href },
     ...pillar.supportingCategories.map((category) => ({
       title: category.label,
@@ -68,6 +69,17 @@ export default async function PillarPage({ params }: Props) {
       href: resource.href,
     })),
   ].filter((resource, index, collection) => collection.findIndex((entry) => entry.href === resource.href) === index)
+  const categoryLinks = [pillar.primaryCategory, ...pillar.supportingCategories].filter(
+    (category, index, collection) => collection.findIndex((entry) => entry.href === category.href) === index
+  )
+  const pillarCategorySlugs = new Set(categoryLinks.map((category) => category.slug))
+  const relatedPillarPages = getAllPillarPages(posts)
+    .filter((page) => page.slug !== pillar.slug)
+    .filter((page) =>
+      [page.primaryCategory.slug, ...page.supportingCategories.map((category) => category.slug)]
+        .some((categorySlug) => pillarCategorySlugs.has(categorySlug))
+    )
+    .slice(0, 4)
 
   return (
     <div style={{ maxWidth: '1120px', margin: '0 auto', padding: '2.5rem 1rem 3rem' }}>
@@ -86,6 +98,9 @@ export default async function PillarPage({ params }: Props) {
             <span>{pillar.tools.length} tools</span>
           </div>
           <div className="home-hero-actions">
+            <Link href="/blog" className="home-hero-button home-hero-button-secondary">
+              Blog archive
+            </Link>
             <Link href="/community" className="home-hero-button home-hero-button-secondary">
               Community hub
             </Link>
@@ -124,6 +139,47 @@ export default async function PillarPage({ params }: Props) {
 
       <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
         <div className="home-section-head">
+          <div className="home-section-kicker">This guide is part of</div>
+          <h2 className="home-section-title">Use these hub routes to understand where this guide sits on the site</h2>
+          <p className="home-section-description">
+            This guide links back into the homepage, resources hub, community page, blog archive, and category structure so readers can move up and sideways through the cluster.
+          </p>
+        </div>
+        <div className="home-discovery-grid">
+          {relatedResources.map((resource) => (
+            <ResourceCard key={resource.href} title={resource.title} description={resource.description} href={resource.href} />
+          ))}
+        </div>
+      </section>
+
+      <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+        <div className="home-section-head">
+          <div className="home-section-kicker">Explore Categories</div>
+          <h2 className="home-section-title">Category routes connected to this guide</h2>
+        </div>
+        <div className="home-discovery-grid">
+          {categoryLinks.map((category) => (
+            <ResourceCard key={category.href} title={category.label} description={category.description} href={category.href} />
+          ))}
+        </div>
+      </section>
+
+      {relatedPillarPages.length > 0 && (
+        <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+          <div className="home-section-head">
+            <div className="home-section-kicker">Related Guides</div>
+            <h2 className="home-section-title">Other pillar guides in the same topic neighborhood</h2>
+          </div>
+          <div className="home-discovery-grid">
+            {relatedPillarPages.map((page) => (
+              <ResourceCard key={page.href} title={page.title} description={page.description} href={page.href} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+        <div className="home-section-head">
           <div className="home-section-kicker">Recommended tools</div>
           <h2 className="home-section-title">Use the strongest supporting pages before you choose the stack</h2>
           <p className="home-section-description">{pillar.bestToolsIntro}</p>
@@ -137,8 +193,8 @@ export default async function PillarPage({ params }: Props) {
 
       <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
         <div className="home-section-head">
-          <div className="home-section-kicker">Related guides</div>
-          <h2 className="home-section-title">Start with these implementation reads</h2>
+          <div className="home-section-kicker">Continue Learning</div>
+          <h2 className="home-section-title">Start with these implementation reads inside the cluster</h2>
         </div>
         <div className="home-post-grid">
           {pillar.guides.map((post) => (
@@ -198,18 +254,6 @@ export default async function PillarPage({ params }: Props) {
         <div className="home-post-grid">
           {pillar.topicArticles.map((post) => (
             <PostCard key={post.slug} post={post} />
-          ))}
-        </div>
-      </section>
-
-      <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
-        <div className="home-section-head">
-          <div className="home-section-kicker">Related resources</div>
-          <h2 className="home-section-title">Use these routes to navigate the rest of the site around this pillar</h2>
-        </div>
-        <div className="home-discovery-grid">
-          {relatedResources.map((resource) => (
-            <ResourceCard key={resource.href} title={resource.title} description={resource.description} href={resource.href} />
           ))}
         </div>
       </section>

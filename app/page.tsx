@@ -126,6 +126,9 @@ export default function HomePage() {
               <Link href={RESOURCE_HUB_PATH} className="home-hero-button home-hero-button-primary">
                 Start Here
               </Link>
+              <Link href="/blog" className="home-hero-button home-hero-button-secondary">
+                Blog Archive
+              </Link>
               <Link href="/guides/self-hosting-complete-guide" className="home-hero-button home-hero-button-secondary">
                 Self Hosting Guide
               </Link>

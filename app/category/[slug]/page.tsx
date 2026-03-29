@@ -183,6 +183,28 @@ export default async function CategoryPage({ params }: Props) {
         collection.findIndex((entry) => entry.slug === post.slug) === index
     )
     .slice(0, 4)
+  const communityLinks = [
+    {
+      title: 'Community Hub',
+      description: 'Use the community page to keep exploring practical reads, popular guides, and current site paths around this category.',
+      href: '/community',
+    },
+    {
+      title: 'Blog Archive',
+      description: 'Move from this category into the full article archive when you want the latest posts and broader cross-cluster reading.',
+      href: '/blog',
+    },
+    {
+      title: 'Resources Hub',
+      description: 'Return to the main resources hub for start-here paths, pillar guides, comparisons, and category-wide navigation.',
+      href: RESOURCE_HUB_PATH,
+    },
+    {
+      title: clusterContent.hubSection.title,
+      description: `Use the ${clusterContent.hubSection.title.toLowerCase()} lane to move from this category into a closely related site hub.`,
+      href: clusterContent.hubSection.href,
+    },
+  ].filter((link, index, collection) => collection.findIndex((entry) => entry.href === link.href) === index)
 
   return (
     <div style={{ maxWidth: '1100px', margin: '2.5rem auto', padding: '0 1rem' }}>
@@ -274,12 +296,18 @@ export default async function CategoryPage({ params }: Props) {
               <Link href="/community" style={{ color: 'var(--accent)', fontWeight: 700 }}>
                 Community Hub
               </Link>
+              <Link href="/blog" style={{ color: 'var(--accent)', fontWeight: 700 }}>
+                Blog Archive
+              </Link>
             </div>
           </div>
         </div>
 
         <div style={{ marginTop: '1.25rem' }}>
-          <h2 style={{ margin: '0 0 0.75rem', fontSize: '1rem', color: 'var(--text-primary)' }}>Important Posts In This Category</h2>
+          <h2 style={{ margin: '0 0 0.45rem', fontSize: '1rem', color: 'var(--text-primary)' }}>Start Here</h2>
+          <p style={{ margin: '0 0 0.75rem', color: 'var(--text-secondary)', lineHeight: 1.75 }}>
+            These are the clearest first reads if you want to understand this category before moving into the full archive, related guides, and sitewide hubs.
+          </p>
           <ul style={{
             margin: 0,
             paddingLeft: '1.1rem',
@@ -336,10 +364,10 @@ export default async function CategoryPage({ params }: Props) {
           }}>
             <div>
               <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.45rem', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
-                Pillar Guides
+                Related Guides
               </div>
               <h2 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--text-primary)' }}>
-                Pillar pages that anchor {meta.label.toLowerCase()}
+                Pillar guides that anchor {meta.label.toLowerCase()}
               </h2>
               <p style={{ margin: '0.55rem 0 0', color: 'var(--text-secondary)', lineHeight: 1.75 }}>
                 Use these pillar guides when you want the main entry points for this category before branching into the full archive.
@@ -400,6 +428,42 @@ export default async function CategoryPage({ params }: Props) {
         </section>
       )}
 
+      <section style={{ marginBottom: '2rem' }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-end',
+          gap: '1rem',
+          marginBottom: '1rem',
+        }}>
+          <div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.45rem', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
+              Explore Community
+            </div>
+            <h2 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--text-primary)' }}>
+              Use the main site hubs around this category
+            </h2>
+            <p style={{ margin: '0.55rem 0 0', color: 'var(--text-secondary)', lineHeight: 1.75 }}>
+              These links connect this category back to the homepage, resources hub, community page, and full blog archive so the site stays crawlable in both directions.
+            </p>
+          </div>
+          <Link href="/community" className="home-section-link">
+            Open community hub
+          </Link>
+        </div>
+
+        <div className="home-discovery-grid">
+          {communityLinks.map((link) => (
+            <Link key={link.href} href={link.href} className="home-discovery-card">
+              <div className="home-discovery-body">
+                <h3>{link.title}</h3>
+                <p>{link.description}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       {relatedResources.length > 0 && (
         <section style={{ marginBottom: '2rem' }}>
           <div style={{
@@ -430,6 +494,39 @@ export default async function CategoryPage({ params }: Props) {
           </div>
         </section>
       )}
+
+      <section style={{ marginBottom: '2rem' }}>
+        <div style={{
+          padding: '1.5rem',
+          borderRadius: '1rem',
+          border: '1px solid var(--border)',
+          background: 'var(--surface)',
+        }}>
+          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.45rem', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
+            Back To Resources Hub
+          </div>
+          <h2 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--text-primary)' }}>
+            Return to the main hub after this category
+          </h2>
+          <p style={{ margin: '0.75rem 0 0', color: 'var(--text-secondary)', lineHeight: 1.75 }}>
+            Use the central hub when you want to move from this category into other categories, pillar guides, comparisons, and the broader article archive.
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '1rem' }}>
+            <Link href={RESOURCE_HUB_PATH} className="home-hero-button home-hero-button-primary">
+              Open resources hub
+            </Link>
+            <Link href="/" className="home-hero-button home-hero-button-secondary">
+              Homepage
+            </Link>
+            <Link href="/blog" className="home-hero-button home-hero-button-secondary">
+              Blog archive
+            </Link>
+            <Link href="/community" className="home-hero-button home-hero-button-secondary">
+              Community hub
+            </Link>
+          </div>
+        </div>
+      </section>
 
       <section>
         <div style={{ marginBottom: '1rem' }}>

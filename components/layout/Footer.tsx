@@ -41,11 +41,12 @@ export function Footer() {
         <div>
           <p style={sectionTitleStyle}>Start Here</p>
           {[
+            { label: 'Home', href: '/' },
             { label: 'Resources Hub', href: '/tag/deployment' },
+            { label: 'Community', href: '/community' },
+            { label: 'Blog', href: '/blog' },
             { label: 'Start Here', href: '/tag/deployment#resources-start-here' },
             { label: 'Comparisons', href: '/tag/deployment#resources-comparisons' },
-            { label: 'Free Tools', href: '/category/free-tools' },
-            { label: 'Guides', href: '/category/how-to' },
           ].map((link) => (
             <Link key={link.href} href={link.href} style={linkStyle}>
               {link.label}
@@ -58,9 +59,41 @@ export function Footer() {
           {[
             { label: 'VPS & Cloud', href: '/category/vps-cloud' },
             { label: 'Self Hosting', href: '/category/self-hosting' },
+            { label: 'How To', href: '/category/how-to' },
             { label: 'Automation', href: '/category/automation' },
             { label: 'AI', href: '/category/ai' },
             { label: 'Developer Tools', href: '/category/developer-tools' },
+            { label: 'Free Tools', href: '/category/free-tools' },
+          ].map((link) => (
+            <Link key={link.href} href={link.href} style={linkStyle}>
+              {link.label}
+            </Link>
+          ))}
+        </div>
+
+        <div>
+          <p style={sectionTitleStyle}>Guides</p>
+          {[
+            { label: 'Deploy Apps on VPS', href: '/guides/deploy-apps-on-vps-complete-guide' },
+            { label: 'Self Hosting Guide', href: '/guides/self-hosting-complete-guide' },
+            { label: 'VPS & Cloud Guide', href: '/guides/vps-cloud-for-developers-guide' },
+            { label: 'Automation Guide', href: '/guides/automation-guide-for-developers' },
+            { label: 'Comparisons Hub', href: '/guides/comparisons-hub' },
+          ].map((link) => (
+            <Link key={link.href} href={link.href} style={linkStyle}>
+              {link.label}
+            </Link>
+          ))}
+        </div>
+
+        <div>
+          <p style={sectionTitleStyle}>Popular Articles</p>
+          {[
+            { label: 'Deploy Next.js on VPS', href: '/blog/how-to-self-host-nextjs-on-vps' },
+            { label: 'Coolify on Hetzner', href: '/blog/deploy-nextjs-coolify-hetzner' },
+            { label: 'n8n on Hetzner', href: '/blog/self-hosting-n8n-hetzner-vps' },
+            { label: 'VPS Hardening Guide', href: '/blog/vps-security-harden-ubuntu-2026' },
+            { label: 'Best Free Dev Tools', href: '/blog/best-free-developer-tools-2026' },
           ].map((link) => (
             <Link key={link.href} href={link.href} style={linkStyle}>
               {link.label}
@@ -97,7 +130,7 @@ export function Footer() {
       </div>
 
       <div style={{ borderTop: '1px solid var(--border)', textAlign: 'center', padding: '1rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-        © {new Date().getFullYear()} Blixamo. All rights reserved.
+        (c) {new Date().getFullYear()} Blixamo. All rights reserved.
       </div>
     </footer>
   )

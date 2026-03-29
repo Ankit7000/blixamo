@@ -151,6 +151,28 @@ export default async function TagPage({ params }: Props) {
 
   const allPosts = getAllPosts()
   const hub = getResourceHubContent(allPosts)
+  const continueExploring = [
+    {
+      title: 'Homepage',
+      description: 'Return to the main homepage to move into the broadest start-here sections, latest articles, and top-level site discovery paths.',
+      href: '/',
+    },
+    {
+      title: 'Community',
+      description: 'Open the community page for practical reads, popular guides, and another sitewide route back into categories and articles.',
+      href: '/community',
+    },
+    {
+      title: 'Blog Index',
+      description: 'Use the full blog archive when you want to move from this permanent hub into the latest posts and broader article stream.',
+      href: '/blog',
+    },
+    {
+      title: 'Comparisons Hub',
+      description: 'Jump straight into high-intent comparison pages for hosting, automation, tools, and platform choices.',
+      href: '/guides/comparisons-hub',
+    },
+  ]
 
   return (
     <div className="resource-hub-shell">
@@ -163,17 +185,20 @@ export default async function TagPage({ params }: Props) {
             server hardening, comparisons, and related developer infrastructure guides.
           </p>
           <div className="resource-hub-actions">
+            <Link href="/" className="home-hero-button home-hero-button-secondary">
+              Homepage
+            </Link>
+            <Link href="/community" className="home-hero-button home-hero-button-secondary">
+              Community
+            </Link>
+            <Link href="/blog" className="home-hero-button home-hero-button-secondary">
+              Blog
+            </Link>
             <Link href="#resources-start-here" className="home-hero-button home-hero-button-primary">
               Start Here
             </Link>
             <Link href="#learning-paths" className="home-hero-button home-hero-button-secondary">
               Learning Paths
-            </Link>
-            <Link href="#resources-comparisons" className="home-hero-button home-hero-button-secondary">
-              Comparisons
-            </Link>
-            <Link href="#resources-free-tools" className="home-hero-button home-hero-button-secondary">
-              Free Tools
             </Link>
           </div>
 
@@ -224,6 +249,26 @@ export default async function TagPage({ params }: Props) {
             imageSrc="/images/resources/free-tools-resources.webp"
             imageAlt="Free tools and resource pages visual with free VPS options and budget stack picks"
           />
+        </div>
+      </section>
+
+      <section className="home-section-shell">
+        <div className="home-section-head">
+          <div className="home-section-kicker">Continue Exploring</div>
+          <h2 className="home-section-title">Use the main site hubs around this resources page</h2>
+          <p className="home-section-description">
+            These links connect the resources hub back to the homepage, community page, blog archive, and comparison guide structure so the site stays strongly interlinked.
+          </p>
+        </div>
+        <div className="home-discovery-grid">
+          {continueExploring.map((item) => (
+            <Link key={item.href} href={item.href} className="home-discovery-card">
+              <div className="home-discovery-body">
+                <h3>{item.title}</h3>
+                <p>{item.description}</p>
+              </div>
+            </Link>
+          ))}
         </div>
       </section>
 
@@ -636,6 +681,12 @@ export default async function TagPage({ params }: Props) {
             <div className="home-hero-actions">
               <Link href="/" className="home-hero-button home-hero-button-primary">
                 Back to homepage
+              </Link>
+              <Link href="/community" className="home-hero-button home-hero-button-secondary">
+                Community
+              </Link>
+              <Link href="/blog" className="home-hero-button home-hero-button-secondary">
+                Blog archive
               </Link>
               <Link href="/about" className="home-hero-button home-hero-button-secondary">
                 About Blixamo
