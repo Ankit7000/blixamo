@@ -14,20 +14,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Setup SSH key
+      - name: Trigger webhook deploy
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.BLIXAMO_SSH_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H 204.168.203.255 >> ~/.ssh/known_hosts
+          PAYLOAD='{"ref":"master"}'
+          SIG=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "blixamo-deploy-secret" | sed 's/.*= //')
+          curl --fail --silent --show-error \
+            -X POST https://blixamo.com/deploy \
+            -H "Content-Type: application/json" \
+            -H "X-Hub-Signature-256: sha256=$SIG" \
+            -d "$PAYLOAD"
 
-      - name: Deploy on VPS
-        run: |
-          ssh -i ~/.ssh/id_ed25519 bot@204.168.203.255 "bash /var/www/blixamo/build.sh"
+      - name: Wait for build
+        run: sleep 45
 
       - name: Health check
         run: |
           curl --fail --silent --show-error https://blixamo.com/ > /dev/null
+          echo "Site is live"
