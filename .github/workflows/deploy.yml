@@ -1,39 +1,57 @@
-﻿name: Deploy Blixamo
+name: Deploy Blixamo
 
 on:
   push:
     branches:
       - master
+  workflow_dispatch:
 
 concurrency:
   group: blixamo-production
-  cancel-in-progress: true
+  cancel-in-progress: false
+
+permissions:
+  contents: read
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
+    environment: production
+    env:
+      SSH_HOST: ${{ secrets.BLIXAMO_SSH_HOST }}
+      SSH_PORT: ${{ secrets.BLIXAMO_SSH_PORT }}
+      SSH_USER: ${{ secrets.BLIXAMO_SSH_USER }}
+      SSH_PRIVATE_KEY: ${{ secrets.BLIXAMO_SSH_KEY }}
 
     steps:
-      - name: Setup SSH
+      - name: Validate required secrets
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H 77.42.17.13 >> ~/.ssh/known_hosts
+          set -euo pipefail
+          for secret_name in SSH_HOST SSH_PORT SSH_USER SSH_PRIVATE_KEY; do
+            if [ -z "${!secret_name:-}" ]; then
+              echo "Missing required secret: $secret_name" >&2
+              exit 1
+            fi
+          done
 
-      - name: Deploy to VPS
+      - name: Configure SSH
         run: |
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@77.42.17.13 \
-            "chmod +x /var/www/blixamo/deploy.sh && bash /var/www/blixamo/deploy.sh"
+          set -euo pipefail
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts
 
-      - name: Health check
+      - name: Run production deploy
         run: |
-          sleep 5
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://blixamo.com/)
-          echo "Health check status: $STATUS"
-          if [ "$STATUS" != "200" ]; then
-            echo "Health check FAILED with status $STATUS"
-            exit 1
-          fi
-          echo "Site is live and healthy"
+          set -euo pipefail
+          ssh \
+            -i ~/.ssh/id_ed25519 \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes \
+            -o ServerAliveInterval=30 \
+            -o ServerAliveCountMax=3 \
+            -p "$SSH_PORT" \
+            "$SSH_USER@$SSH_HOST" \
+            "bash /var/www/blixamo/build.sh"
