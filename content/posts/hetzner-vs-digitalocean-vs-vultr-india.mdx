@@ -1,7 +1,7 @@
 ---
-title: "Hetzner vs DigitalOcean vs Vultr 2026 â€” 3x Cheaper"
+title: "Hetzner vs DigitalOcean vs Vultr 2026 — 3x Cheaper"
 slug: "hetzner-vs-digitalocean-vs-vultr-india"
-description: "Same specs: Hetzner â‚¬4.79/mo, DigitalOcean $12/mo, Vultr $10/mo. Real USD cost, latency, card acceptance compared â€” including Mumbai region results."
+description: "Same specs: Hetzner €4.79/mo, DigitalOcean $12/mo, Vultr $10/mo. Real USD cost, latency, card acceptance compared — including Mumbai region results."
 date: "2026-03-18"
 updatedAt: "2026-03-26"
 author: "Ankit Sorathiya"
@@ -17,58 +17,61 @@ timeToComplete: "8 minutes"
 excerpt: "I moved from DigitalOcean to Hetzner and my VPS bill dropped from $19/month to $5.2/month for....."
 toc: true
 ---
-I ran my first real production server on DigitalOcean, paid the premium for long enough to feel it, then moved the same kind of workloads to Hetzner and never wanted to go back.
+I ran my first production server on DigitalOcean for two years — and as of March 2026, moving to Hetzner remains the single best cost decision I've made
 
-> **Disclosure:** Some links in this article are affiliate links â€” I earn a small commission at no extra cost to you.
+> **Disclosure:** Some links in this article are affiliate links — I earn a small commission at no extra cost to you.
 
-Same workload, three very different bills. Hetzner wins hard on value, DigitalOcean wins on usability, and Vultr only makes financial sense when Indian-region latency is the real bottleneck.
+Same specs, three very different prices. Hetzner gives you 4GB RAM and 3 vCPUs for €4.79/month. DigitalOcean charges $12/month for the same. I've used all three — here's the honest breakdown for Indian developers paying in USD.
 
-I used to pay DigitalOcean prices for the convenience. Then I moved the stack to Hetzner CPX22 and cut the monthly bill down to roughly $5.2 for better specs.
+
+ — $19/month for a 2GB droplet. Then I moved everything to Hetzner CPX22 and got 4GB RAM, 2 vCPU, and 75GB SSD for $5.2/month.
 
 Same projects. Better specs. 73% less money. That switch alone saved me $327 over two years.
 
 <Callout type="info" title="TL;DR">
-- **Hetzner** â€” best value by far. Unbeatable price-to-specs. Use Niyo/Kotak 811 to pay.
-- **DigitalOcean** â€” best UX and docs. Worth it if you're new to servers or need managed services.
-- **Vultr** â€” only option with Indian data center (Mumbai, ~20ms latency). Priced same as DigitalOcean.
+- **Hetzner** — best value by far. Unbeatable price-to-specs. Use Niyo/Kotak 811 to pay.
+- **DigitalOcean** — best UX and docs. Worth it if you're new to servers or need managed services.
+- **Vultr** — only option with Indian data center (Mumbai, ~20ms latency). Priced same as DigitalOcean.
 - **Key insight:** Use Cloudflare CDN in front of Hetzner and European server location stops mattering for most use cases.
 </Callout>
 
-![Hetzner Cloud Console showing CPX22 server invoice at $5.2 per month](/images/posts/hetzner-vs-digitalocean-vs-vultr-india/01-hetzner-invoice.png)
-*Hetzner monthly invoice: CPX22 at â‚¬5.19 â€” confirmed real billing amount.*
-
-![Hetzner vs DigitalOcean vs Vultr â€” comparison card 2026](/images/posts/hetzner-vs-digitalocean-vs-vultr-india/02-tweet-card.jpg)
-*Key numbers at a glance â€” shareable summary card*
-
 | Provider | 4GB/2vCPU price | USD/month | Card acceptance | Best for |
+
+![Hetzner Cloud Console showing CPX22 server invoice at $5.2 per month](/images/posts/hetzner-vs-digitalocean-vs-vultr-india/01-hetzner-invoice.png)
+*Hetzner monthly invoice: CPX22 at €5.19 — confirmed real billing amount.*
+
+![Hetzner vs DigitalOcean vs Vultr — comparison card 2026](/images/posts/hetzner-vs-digitalocean-vs-vultr-india/02-tweet-card.jpg)
+*Key numbers at a glance — shareable summary card*
+
+
 |---|---|---|---|---|
-| Hetzner CPX22 | â‚¬5.19 | ~$5.2 | âœ… Niyo/Kotak | Helsinki (~150ms) |
-| DigitalOcean | $24 | ~$22 | âœ… | Singapore (~80ms) |
-| [Vultr](https://www.vultr.com/?ref=9885468) | $24 | ~$22 | âœ… | Mumbai (~20ms) |
+| Hetzner CPX22 | €5.19 | ~$5.2 | ✅ Niyo/Kotak | Helsinki (~150ms) |
+| DigitalOcean | $24 | ~$22 | ✅ | Singapore (~80ms) |
+| [Vultr](https://www.vultr.com/?ref=9885468) | $24 | ~$22 | ✅ | Mumbai (~20ms) |
 
 ---
 
 ## Why This Comparison Is Different
 
-Most VPS comparisons are written from the US. They don't mention that some providers reject specific debit cards, lack transparent pricing, or charge 3â€“5% international transaction fees on every invoice.
+Most VPS comparisons are written from the US. They don't mention that some providers reject specific debit cards, lack transparent pricing, or charge 3–5% international transaction fees on every invoice.
 
 As of March 2026:
 
 - **Hetzner** is the cheapest by far but servers are in Europe
 - **DigitalOcean** has a Singapore region with ~80ms latency from India
-- **Vultr** has a Mumbai region with ~20ms â€” the only option with genuinely low Indian latency
+- **Vultr** has a Mumbai region with ~20ms — the only option with genuinely low Indian latency
 
-For most indie developer use cases â€” blogs, APIs, side project backends, automation servers â€” the latency difference doesn't justify 4x higher cost. I run blixamo.com on Hetzner in Helsinki. Page load time from India with Cloudflare CDN: 280â€“350ms. Without Cloudflare: 800â€“1200ms.
+For most indie developer use cases — blogs, APIs, side project backends, automation servers — the latency difference doesn't justify 4x higher cost. I run blixamo.com on Hetzner in Helsinki. Page load time from India with Cloudflare CDN: 280–350ms. Without Cloudflare: 800–1200ms.
 
 The lesson: use Cloudflare free tier as your CDN and European server location stops mattering for most use cases.
 
-The one exception: server-side rendering where every request hits your origin (SSR without caching). If your Next.js app has no caching layer and renders every page dynamically on the server, an Indian user waits for a round-trip to Helsinki on every page load. For blixamo.com, ISR handles this â€” pages are cached and served from Cloudflare's Mumbai edge. Dynamic API endpoints that can't be cached are the only place where Hetzner's European location costs real user experience, and for most indie dev projects those endpoints are rare.
+The one exception: server-side rendering where every request hits your origin (SSR without caching). If your Next.js app has no caching layer and renders every page dynamically on the server, an Indian user waits for a round-trip to Helsinki on every page load. For blixamo.com, ISR handles this — pages are cached and served from Cloudflare's Mumbai edge. Dynamic API endpoints that can't be cached are the only place where Hetzner's European location costs real user experience, and for most indie dev projects those endpoints are rare.
 
 ---
 
-## Hetzner â€” The Value Winner
+## Hetzner — The Value Winner
 
-Hetzner is a German hosting company founded in 1997 â€” not a startup. Their CPX22 server costs â‚¬5.19/month and gives you 2 AMD EPYC vCPUs, 4GB RAM, 75GB NVMe SSD, and 20TB bandwidth.
+Hetzner is a German hosting company founded in 1997 — not a startup. Their CPX22 server costs €5.19/month and gives you 2 AMD EPYC vCPUs, 4GB RAM, 75GB NVMe SSD, and 20TB bandwidth.
 
 DigitalOcean's equivalent (2 vCPU, 4GB RAM) costs $24/month. That's a **4.3x price difference for identical specs.**
 
@@ -82,7 +85,7 @@ DigitalOcean's equivalent (2 vCPU, 4GB RAM) costs $24/month. That's a **4.3x pri
 
 Full setup in the [multiple projects on single VPS guide](/blog/multiple-projects-single-vps).
 
-**Hetzner trade-offs:** Control panel is functional but not polished. No live chat support â€” email only. Managed database and Kubernetes products exist but aren't as mature as DigitalOcean's. In two years, I've opened exactly two support tickets â€” both resolved within 4 hours.
+**Hetzner trade-offs:** Control panel is functional but not polished. No live chat support — email only. Managed database and Kubernetes products exist but aren't as mature as DigitalOcean's. In two years, I've opened exactly two support tickets — both resolved within 4 hours.
 
 <Callout type="warning" title="Card Payment Tips">
 Hetzner doesn't directly accept all Indian debit cards. The workaround that works in 2026: Niyo Global card or Kotak 811 virtual debit card. Full guide at [paying Hetzner from India](/blog/pay-hetzner-from-india).
@@ -90,28 +93,28 @@ Hetzner doesn't directly accept all Indian debit cards. The workaround that work
 
 ---
 
-## DigitalOcean â€” Best Developer Experience, Worst Value
+## DigitalOcean — Best Developer Experience, Worst Value
 
-DigitalOcean's documentation is exceptional â€” every common task has a current, tested tutorial. The control panel is clean. Managed services (PostgreSQL, Redis, App Platform) work well.
+DigitalOcean's documentation is exceptional — every common task has a current, tested tutorial. The control panel is clean. Managed services (PostgreSQL, Redis, App Platform) work well.
 
-The pricing is not competitive for indie developers on a budget. A Basic Droplet with 2 vCPU and 4GB RAM costs $24/month â€” 4x Hetzner for the same specs.
+The pricing is not competitive for indie developers on a budget. A Basic Droplet with 2 vCPU and 4GB RAM costs $24/month — 4x Hetzner for the same specs.
 
 **Where DigitalOcean genuinely wins:**
 
-- Building for clients who need to manage the server themselves â€” their UI is the easiest to understand
+- Building for clients who need to manage the server themselves — their UI is the easiest to understand
 - Managed services you don't want to run yourself (managed PostgreSQL, Kubernetes)
 - App Platform for deploying Node.js/Python without managing Nginx/PM2
 - New developers who need documentation to learn from
 
 For your own projects with a tight runway, DigitalOcean is the wrong choice unless you specifically need Singapore latency or a managed service Hetzner doesn't offer.
 
-DigitalOcean has reliable payment acceptance â€” Visa debit cards work without issues. Credit cards work even more reliably.
+DigitalOcean has reliable payment acceptance — Visa debit cards work without issues. Credit cards work even more reliably.
 
-Vultr is the third option â€” and the only one with an Indian data center.
+Vultr is the third option — and the only one with an Indian data center.
 
 ---
 
-## Vultr â€” The Only Mumbai Data Center
+## Vultr — The Only Mumbai Data Center
 
 Vultr has a Mumbai data center delivering ~20ms latency from Indian cities. That's the only major VPS provider with genuinely low Indian latency.
 
@@ -121,16 +124,16 @@ Pricing mirrors DigitalOcean: 2 vCPU, 4GB RAM costs $24/month. Specs are competi
 
 - Real-time APIs where users expect sub-200ms total response time
 - Payment flow backends (Razorpay webhooks processed in India)
-- Live features â€” chat, notifications, gaming
+- Live features — chat, notifications, gaming
 - Compliance requirements needing Indian data residency
 
 **When it's not worth it:**
 
-- Blogs and content sites â€” Cloudflare CDN makes server location irrelevant for static content
-- APIs with heavy caching â€” response served from cache regardless of server location
+- Blogs and content sites — Cloudflare CDN makes server location irrelevant for static content
+- APIs with heavy caching — response served from cache regardless of server location
 - Development and staging environments
 
-For blixamo.com â€” a Next.js blog with Cloudflare CDN â€” Hetzner Helsinki serves Indian users at 280â€“350ms total page load. Vultr Mumbai would reduce this to ~180ms. Real improvement, but not worth 4x cost for a content site.
+For blixamo.com — a Next.js blog with Cloudflare CDN — Hetzner Helsinki serves Indian users at 280–350ms total page load. Vultr Mumbai would reduce this to ~180ms. Real improvement, but not worth 4x cost for a content site.
 
 The full feature comparison table makes the choice clearer with all specs side by side.
 
@@ -146,9 +149,9 @@ The full feature comparison table makes the choice clearer with all specs side b
 | RAM | 4GB | 4GB | 4GB |
 | Storage | 75GB NVMe | 80GB SSD | 80GB SSD |
 | Bandwidth | **20TB** | 4TB | 3TB |
-| Price/month | **â‚¬5.19 (~$5.2)** | $24 (~$22) | $24 (~$22) |
+| Price/month | **€5.19 (~$5.2)** | $24 (~$22) | $24 (~$22) |
 
-Hetzner's 20TB bandwidth is significant â€” DigitalOcean charges $0.01/GB over 4TB.
+Hetzner's 20TB bandwidth is significant — DigitalOcean charges $0.01/GB over 4TB.
 
 ### Latency from India
 
@@ -168,7 +171,7 @@ With Cloudflare free CDN in front of Hetzner, static assets are served from Clou
 
 **Use DigitalOcean if:** You're new to self-hosting and want the best documentation, need managed databases or Kubernetes, or deploying for clients who will manage the server.
 
-**Use Vultr if:** Your app serves Indian users and low latency is a hard requirement â€” real-time features, payment APIs, mobile app backends where round-trip time affects UX.
+**Use Vultr if:** Your app serves Indian users and low latency is a hard requirement — real-time features, payment APIs, mobile app backends where round-trip time affects UX.
 
 **Migration path:** Start on DigitalOcean to learn (they offer $200 free credits for new accounts). Once you're comfortable with Linux and Nginx, move to Hetzner. You'll cut your VPS bill by 75%.
 
@@ -177,17 +180,17 @@ With Cloudflare free CDN in front of Hetzner, static assets are served from Clou
 ## Troubleshooting Common Issues
 
 
-![Hetzner vs DigitalOcean vs Vultr verdict â€” Hetzner wins 3x cheaper for Indian devs 2026](/images/posts/hetzner-vs-digitalocean-vs-vultr-india/06-verdict-card.png)
-*Verdict card â€” hetzner vs digitalocean vs vultr india*
+![Hetzner vs DigitalOcean vs Vultr verdict — Hetzner wins 3x cheaper for Indian devs 2026](/images/posts/hetzner-vs-digitalocean-vs-vultr-india/06-verdict-card.png)
+*Verdict card — hetzner vs digitalocean vs vultr india*
 
 **Hetzner: Indian card declined at checkout**
 Use Niyo Global or Kotak 811 virtual card. Full guide at [paying Hetzner from India](/blog/pay-hetzner-from-india). Standard SBI and HDFC debit cards often fail.
 
 **Hetzner: Locked out after firewall change**
-Use the Hetzner browser-based KVM console (Control Panel â†’ Server â†’ Console). Log in as root and fix the firewall without SSH.
+Use the Hetzner browser-based KVM console (Control Panel → Server → Console). Log in as root and fix the firewall without SSH.
 
 **DigitalOcean: Droplet not responding after reboot**
-Check the droplet's console in the control panel â€” shows the boot log. Most common cause: a service that fails to start on boot (usually nginx or a database).
+Check the droplet's console in the control panel — shows the boot log. Most common cause: a service that fails to start on boot (usually nginx or a database).
 
 **Any provider: Running out of RAM**
 Add swap before you hit OOM:
@@ -200,64 +203,108 @@ swapon /swapfile
 echo '/swapfile none swap sw 0 0' >> /etc/fstab
 ```
 <Callout type="tip" title="Expected output">
-(command runs silently â€” no output means success)
+#
+(command runs silently — no output means success)
+#
 </Callout>
 ---
+#
 ## FAQ
-![Vultr pricing page showing $10/month for 4GB RAM vs Hetzner â‚¬4.79 equivalent specs](/images/posts/hetzner-vs-digitalocean-vs-vultr-india/04-vultr-pricing.png)
-*Vultr pricing â€” hetzner vs digitalocean vs vultr india*
+#
+#
+![Vultr pricing page showing $10/month for 4GB RAM vs Hetzner €4.79 equivalent specs](/images/posts/hetzner-vs-digitalocean-vs-vultr-india/04-vultr-pricing.png)
+*Vultr pricing — hetzner vs digitalocean vs vultr india*
+#
 ### Is Hetzner reliable enough for production?
-Yes. Hetzner has been running data centers since 1997 with a 99.9% uptime SLA. I've had one unexpected reboot in two years â€” the server came back up in under 2 minutes. For indie projects and side businesses, Hetzner's reliability is more than adequate.
+#
+Yes. Hetzner has been running data centers since 1997 with a 99.9% uptime SLA. I've had one unexpected reboot in two years — the server came back up in under 2 minutes. For indie projects and side businesses, Hetzner's reliability is more than adequate.
+#
 ### Does Hetzner have a free trial?
-No free tier. The CPX11 (2GB RAM, 1 vCPU) costs â‚¬3.79/month â€” the cheapest entry point. DigitalOcean offers $200 free credits for 60 days. Vultr offers $100 free credits for new accounts.
+#
+No free tier. The CPX11 (2GB RAM, 1 vCPU) costs €3.79/month — the cheapest entry point. DigitalOcean offers $200 free credits for 60 days. Vultr offers $100 free credits for new accounts.
+#
 ### Can I run multiple websites on one Hetzner VPS?
-Yes. I run 5 projects on one CPX22. The full setup is at [multiple projects on single VPS](/blog/multiple-projects-single-vps) â€” covers Nginx virtual hosts, PM2, Docker, and port allocation.
+#
+Yes. I run 5 projects on one CPX22. The full setup is at [multiple projects on single VPS](/blog/multiple-projects-single-vps) — covers Nginx virtual hosts, PM2, Docker, and port allocation.
+#
 ### What about AWS Lightsail for developers worldwide?
-AWS Lightsail starts at $5/month for 1GB RAM â€” similar entry price to Hetzner but worse specs. The advantage is the AWS ecosystem (S3, RDS, Lambda). For pure VPS hosting, Hetzner wins on cost. For teams already in the AWS ecosystem, Lightsail makes sense for integration.
+#
+AWS Lightsail starts at $5/month for 1GB RAM — similar entry price to Hetzner but worse specs. The advantage is the AWS ecosystem (S3, RDS, Lambda). For pure VPS hosting, Hetzner wins on cost. For teams already in the AWS ecosystem, Lightsail makes sense for integration.
+#
 ### Which VPS has the best uptime SLA?
-All three advertise 99.9% uptime. In practice, all three are reliable for indie project workloads. If you need 99.99% uptime, you need multi-region load balancing â€” not a different VPS provider.
+#
+All three advertise 99.9% uptime. In practice, all three are reliable for indie project workloads. If you need 99.99% uptime, you need multi-region load balancing — not a different VPS provider.
+#
 ---
+#
 ## What You Built (And Where to Go Next)
-![DigitalOcean pricing showing $12/month droplet vs Hetzner CPX22 at â‚¬4.79/month](/images/posts/hetzner-vs-digitalocean-vs-vultr-india/03-digitalocean-pricing.png)
-*Digitalocean pricing â€” hetzner vs digitalocean vs vultr india*
+#
+#
+![DigitalOcean pricing showing $12/month droplet vs Hetzner CPX22 at €4.79/month](/images/posts/hetzner-vs-digitalocean-vs-vultr-india/03-digitalocean-pricing.png)
+*Digitalocean pricing — hetzner vs digitalocean vs vultr india*
+#
 You now have the exact dollar math to choose: Hetzner for value, DigitalOcean for UX, Vultr for Indian latency.
+#
 **Your next steps:**
-1. **Get on Hetzner** â€” create an account, pay with Niyo or Kotak 811 (guide at [pay-hetzner-from-india](/blog/pay-hetzner-from-india)), provision a CPX22
-2. **Configure it for multiple projects** â€” read [running 5 side projects on one VPS](/blog/multiple-projects-single-vps) to set up Nginx + PM2 + Docker properly from day one
-3. **Secure it** â€” run through the [VPS security hardening checklist](/blog/vps-security-harden-ubuntu-2026) within the first 10 minutes of provisioning
+#
+1. **Get on Hetzner** — create an account, pay with Niyo or Kotak 811 (guide at [pay-hetzner-from-india](/blog/pay-hetzner-from-india)), provision a CPX22
+2. **Configure it for multiple projects** — read [running 5 side projects on one VPS](/blog/multiple-projects-single-vps) to set up Nginx + PM2 + Docker properly from day one
+3. **Secure it** — run through the [VPS security hardening checklist](/blog/vps-security-harden-ubuntu-2026) within the first 10 minutes of provisioning
+#
 If you're on DigitalOcean right now, the migration to Hetzner takes about 2 hours and saves $205/year. The [multiple projects VPS setup guide](/blog/multiple-projects-single-vps) covers the full Nginx + PM2 configuration you'll need.
+#
+#
 ---
+#
 ## Full Spec Comparison at Each Price Tier
-![CPU and disk benchmark comparison â€” Hetzner CPX22 vs DigitalOcean vs Vultr same tier](/images/posts/hetzner-vs-digitalocean-vs-vultr-india/05-benchmark.png)
-*Benchmark â€” hetzner vs digitalocean vs vultr india*
+#
+#
+![CPU and disk benchmark comparison — Hetzner CPX22 vs DigitalOcean vs Vultr same tier](/images/posts/hetzner-vs-digitalocean-vs-vultr-india/05-benchmark.png)
+*Benchmark — hetzner vs digitalocean vs vultr india*
+#
 Understanding the raw spec differences helps explain why Hetzner wins on value so consistently. Here's a direct comparison at the closest price points:
-### ~$5â€“6/month tier ($5.0â€“540)
+#
+### ~$5–6/month tier ($5.0–540)
+#
 | Provider | vCPU | RAM | Storage | Bandwidth | Monthly |
 |---|---|---|---|---|---|
-| Hetzner CPX21 | 2 (AMD) | 4GB | 40GB NVMe | 20TB | â‚¬3.79 |
-| Hetzner CPX22 | 3 (AMD) | 4GB | 80GB NVMe | 20TB | â‚¬5.19 |
+| Hetzner CPX21 | 2 (AMD) | 4GB | 40GB NVMe | 20TB | €3.79 |
+| Hetzner CPX22 | 3 (AMD) | 4GB | 80GB NVMe | 20TB | €5.19 |
 | DigitalOcean | 1 | 1GB | 25GB SSD | 1TB | $6 |
 | Vultr (Bangalore) | 1 | 1GB | 25GB SSD | 1TB | $6 |
-Hetzner's CPX22 gives you 3 vCPU and 4GB RAM for what DigitalOcean charges for 1 vCPU and 1GB RAM. That's not a 10% difference â€” it's 3â€“4x more compute per dollar.
+#
+Hetzner's CPX22 gives you 3 vCPU and 4GB RAM for what DigitalOcean charges for 1 vCPU and 1GB RAM. That's not a 10% difference — it's 3–4x more compute per dollar.
+#
 ### ~$12/month tier
+#
 | Provider | vCPU | RAM | Storage | Monthly |
 |---|---|---|---|---|
-| Hetzner CPX31 | 4 (AMD) | 8GB | 160GB NVMe | â‚¬10.52 |
+| Hetzner CPX31 | 4 (AMD) | 8GB | 160GB NVMe | €10.52 |
 | DigitalOcean | 2 | 4GB | 80GB SSD | $18 |
 | Vultr (Bangalore) | 2 | 4GB | 80GB SSD | $20 |
-The gap widens at this tier. For the compute you get from a single $18 DigitalOcean droplet, Hetzner costs â‚¬5.19/month.
+#
+The gap widens at this tier. For the compute you get from a single $18 DigitalOcean droplet, Hetzner costs €5.19/month.
+#
 ---
+#
 ## Payment: Card Acceptance Compared
-This is a real practical concern for developers worldwide â€” Hetzner's value is irrelevant if you can't pay for it.
+#
+This is a real practical concern for developers worldwide — Hetzner's value is irrelevant if you can't pay for it.
+#
 | Provider | Debit Cards | Credit Cards | UPI | PayPal |
 |---|---|---|---|---|
-| Hetzner | âœ… With Niyo/Wise | âœ… Most work | âŒ | âŒ |
-| DigitalOcean | âœ… Most work | âœ… Most work | âŒ | âœ… |
-| Vultr | âœ… Most work | âœ… Most work | âŒ | âœ… |
-DigitalOcean and Vultr accept Indian debit cards more reliably out of the box. Hetzner requires a forex-enabled card (Niyo Global, Wise, or a few specific credit cards) â€” but once set up, billing is seamless. See my [complete guide to paying for Hetzner from India](/blog/pay-hetzner-from-india) for the exact card setup.
+| Hetzner | ✅ With Niyo/Wise | ✅ Most work | ❌ | ❌ |
+| DigitalOcean | ✅ Most work | ✅ Most work | ❌ | ✅ |
+| Vultr | ✅ Most work | ✅ Most work | ❌ | ✅ |
+#
+DigitalOcean and Vultr accept Indian debit cards more reliably out of the box. Hetzner requires a forex-enabled card (Niyo Global, Wise, or a few specific credit cards) — but once set up, billing is seamless. See my [complete guide to paying for Hetzner from India](/blog/pay-hetzner-from-india) for the exact card setup.
+#
 ---
-## Latency From India â€” Real Numbers
+#
+## Latency From India — Real Numbers
+#
 Server location affects latency for your end users. Here's actual ping data from Mumbai and Bangalore to each provider's available regions:
+#
 | Provider | Region | Ping from Mumbai | Ping from Bangalore |
 |---|---|---|---|
 | Hetzner | Frankfurt | 115ms | 120ms |
@@ -266,49 +313,79 @@ Server location affects latency for your end users. Here's actual ping data from
 | DigitalOcean | Bangalore | 8ms | 5ms |
 | DigitalOcean | Singapore | 65ms | 60ms |
 | Vultr | Bangalore | 10ms | 6ms |
-For Indian users visiting your app directly: Vultr/DigitalOcean Bangalore wins on raw latency. But with Cloudflare's CDN in front of Hetzner (free plan), your static assets and cached pages serve from Cloudflare's Mumbai PoP at ~15ms â€” negating the latency disadvantage for most content.
-The 100â€“130ms round trip to Hetzner Frankfurt only matters for API calls and dynamic content that can't be cached. For a blog, marketing site, or read-heavy web app, Cloudflare + Hetzner Frankfurt matches local latency for 95% of requests.
-If your app does real-time database queries or server-side rendering on every request with Indian users â€” Vultr Bangalore is genuinely the better technical choice despite the higher price.
+#
+For Indian users visiting your app directly: Vultr/DigitalOcean Bangalore wins on raw latency. But with Cloudflare's CDN in front of Hetzner (free plan), your static assets and cached pages serve from Cloudflare's Mumbai PoP at ~15ms — negating the latency disadvantage for most content.
+#
+The 100–130ms round trip to Hetzner Frankfurt only matters for API calls and dynamic content that can't be cached. For a blog, marketing site, or read-heavy web app, Cloudflare + Hetzner Frankfurt matches local latency for 95% of requests.
+#
+If your app does real-time database queries or server-side rendering on every request with Indian users — Vultr Bangalore is genuinely the better technical choice despite the higher price.
+#
 ---
+#
 ## Developer Experience: Control Panel and CLI
-**Hetzner Cloud Console** â€” Clean, fast. Firewall rules, snapshots, load balancers, floating IPs, private networks. `hcloud` CLI is excellent for automation. API is well-documented. No marketplace for pre-built app stacks.
-**DigitalOcean** â€” Best developer experience of the three. App Platform for PaaS-style deployments. Managed databases, managed Kubernetes. 1-Click apps (WordPress, LAMP, n8n). `doctl` CLI. Spaces for S3-compatible object storage. If you want managed services with a great UI and don't care about cost, DigitalOcean wins.
-**Vultr** â€” Good control panel. Marketplace with pre-built stacks. Object storage. Managed databases. The Bangalore data center is the main differentiator. UI is slightly less polished than DigitalOcean but fully functional.
-For an indie developer who's comfortable with SSH, Docker, and nginx â€” Hetzner's panel has everything needed. The managed services that DigitalOcean and Vultr offer at premium prices can be self-hosted on Hetzner (Supabase, n8n, Redis) at near-zero additional cost.
+#
+**Hetzner Cloud Console** — Clean, fast. Firewall rules, snapshots, load balancers, floating IPs, private networks. `hcloud` CLI is excellent for automation. API is well-documented. No marketplace for pre-built app stacks.
+#
+**DigitalOcean** — Best developer experience of the three. App Platform for PaaS-style deployments. Managed databases, managed Kubernetes. 1-Click apps (WordPress, LAMP, n8n). `doctl` CLI. Spaces for S3-compatible object storage. If you want managed services with a great UI and don't care about cost, DigitalOcean wins.
+#
+**Vultr** — Good control panel. Marketplace with pre-built stacks. Object storage. Managed databases. The Bangalore data center is the main differentiator. UI is slightly less polished than DigitalOcean but fully functional.
+#
+For an indie developer who's comfortable with SSH, Docker, and nginx — Hetzner's panel has everything needed. The managed services that DigitalOcean and Vultr offer at premium prices can be self-hosted on Hetzner (Supabase, n8n, Redis) at near-zero additional cost.
+#
 ---
+#
 ## When to Choose Each Provider
+#
 **Choose Hetzner if:**
 - You need maximum compute per dollar
 - You're running multiple projects on one server
 - You're comfortable with self-hosted infrastructure
 - You already have a Niyo or Wise card for payment
 - You use Cloudflare CDN (solves the latency issue)
+#
 **Choose DigitalOcean if:**
 - You want managed databases, Kubernetes, or App Platform
 - Your Indian debit card doesn't work on Hetzner and you don't want to set up Niyo
 - You need 1-Click apps or Marketplace deployments
 - You're building a startup where developer time costs more than server costs
+#
 **Choose Vultr Bangalore if:**
 - Your app has Indian users who make real-time requests (gaming, chat, dashboards)
 - Latency under 10ms from India is a hard requirement
 - You need a local data center for data residency compliance
+#
 **The 90% case for indie developers:** Hetzner + Cloudflare. You get European performance, global CDN, and the lowest cost. Niyo Global for payment setup takes 30 minutes once. After that, $5.2/month for a server that runs everything.
+#
 ---
-## Support Quality â€” The Honest Assessment
-**Hetzner:** Email-only support. Response time 2â€“8 hours. Community forums are excellent and cover most common questions. No live chat. No phone. For infrastructure issues (hardware failure, network outage), their status page updates quickly and reliability is very high.
+#
+## Support Quality — The Honest Assessment
+#
+**Hetzner:** Email-only support. Response time 2–8 hours. Community forums are excellent and cover most common questions. No live chat. No phone. For infrastructure issues (hardware failure, network outage), their status page updates quickly and reliability is very high.
+#
 **DigitalOcean:** 24/7 live chat on paid plans. Extensive documentation. Large community. Faster for urgent issues.
+#
 **Vultr:** 24/7 ticket support. Community is smaller. Documentation is adequate but less comprehensive than DigitalOcean.
-For a solo indie developer: Hetzner's email support is fine. You're rarely going to have an issue that requires live chat â€” and Hetzner's uptime is excellent enough that server emergencies are rare. In 18 months on Hetzner, I've contacted support twice (both billing questions), both resolved within 3 hours.
+#
+For a solo indie developer: Hetzner's email support is fine. You're rarely going to have an issue that requires live chat — and Hetzner's uptime is excellent enough that server emergencies are rare. In 18 months on Hetzner, I've contacted support twice (both billing questions), both resolved within 3 hours.
+#
 ---
+#
 ## The Real Monthly Bill at Scale
-Running a full indie developer stack â€” blog, two side projects, n8n automation, Redis â€” on each provider:
+#
+Running a full indie developer stack — blog, two side projects, n8n automation, Redis — on each provider:
+#
 | Provider | Recommended setup | Monthly cost |
 |---|---|---|
-| Hetzner | 1x CPX22 | â‚¬5.19 |
+| Hetzner | 1x CPX22 | €5.19 |
 | DigitalOcean | 1x 4GB droplet + managed Redis | ~$28 |
 | Vultr | 1x 4GB Bangalore + block storage | ~$22 |
-At this scale, Hetzner saves $22â€“2,500/month vs the alternatives. Over a year, that's $267â€“30,000 â€” real money for an indie developer in India.
+#
+At this scale, Hetzner saves $22–2,500/month vs the alternatives. Over a year, that's $267–30,000 — real money for an indie developer in India.
+#
 ---
-## Final Verdict
-For Indian developers paying in USD, Hetzner isn't just cheaper â€” it's 2.5â€“3x cheaper for equivalent specs. The latency difference from Helsinki to India is real but Cloudflare CDN eliminates it for web traffic. If you're not CPU-bound or latency-sensitive at the database level, Helsinki vs Bangalore doesn't matter for most indie projects.
-The setup is 30 minutes. The savings start from day one. [Get started with Hetzner + Coolify](/blog/coolify-complete-guide-2026) â€” blank VPS to deployed app in under an hour.
+#
+## The Takeaway
+#
+For Indian developers paying in USD, Hetzner isn't just cheaper — it's 2.5–3x cheaper for equivalent specs. The latency difference from Helsinki to India is real but Cloudflare CDN eliminates it for web traffic. If you're not CPU-bound or latency-sensitive at the database level, Helsinki vs Bangalore doesn't matter for most indie projects.
+#
+The setup is 30 minutes. The savings start from day one. [Get started with Hetzner + Coolify](/blog/coolify-complete-guide-2026) — blank VPS to deployed app in under an hour.

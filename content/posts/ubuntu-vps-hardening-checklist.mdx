@@ -1,0 +1,88 @@
+---
+title: "Ubuntu VPS Hardening Checklist 2026 — Hetzner Edition"
+slug: "ubuntu-vps-hardening-checklist"
+description: "A step-by-step Ubuntu VPS hardening checklist for Hetzner 4GB servers: SSH, firewall, fail2ban, monitoring, updates, backups, and automation."
+date: "2026-03-27"
+updatedAt: "2026-03-27"
+author: "Ankit Sorathiya"
+category: "vps-cloud"
+tags: [ubuntu, security, hetzner, firewall]
+keyword: "ubuntu vps hardening checklist"
+featured: false
+featuredImage: /images/posts/ubuntu-vps-hardening-checklist/featured.jpg
+schema: "howto"
+difficulty: "intermediate"
+timeToComplete: "20 minutes"
+excerpt: "Ubuntu 24.04 hardening checklist for Hetzner: SSH keys, firewall, fail2ban, unattended upgrades, swap, monitoring, and backups in one practical flow."
+toc: true
+---
+
+This checklist keeps the Hetzner VPS behind hardened Ubuntu layers. It matches the [/category/vps-cloud](/category/vps-cloud) narrative and feeds the [/guides/vps-cloud-for-developers-guide](/guides/vps-cloud-for-developers-guide) pillar; revisit [blixamo.com](/) and the [/tag/deployment](/tag/deployment) resources hub to keep the deployment path aligned as you lock the security posture.
+
+## TL;DR
+
+1. SSH key auth + port change
+2. UFW allow list + rate limiting
+3. Fail2ban for brute-force defenses
+4. Automatic security updates + swap
+5. Monitor with Netdata or UptimeRobot (see [Best VPS Monitoring Tools in 2026](/blog/best-vps-monitoring-tools-2026))
+6. Backups + snapshots
+7. Regular audits + penetration sanity check
+
+## Step 1: SSH keys + port hygiene
+
+- Create a non-root sudo user and drop root login.
+- Disable password authentication in `/etc/ssh/sshd_config`.
+- Move SSH off port 22 (`Port 2222` or another unused port) while documenting it in your checklist.
+
+This step is baseline in [VPS Security Hardening Ubuntu 2026](/blog/vps-security-harden-ubuntu-2026).
+
+## Step 2: UFW + rate limiting
+
+- Allow only ports 22/2222, 80, 443, and whatever internal services need.
+- Add rate limits for SSH and API endpoints (`limit_req_zone`).
+
+Use the same UFW rules as in [Run multiple projects on one VPS](/blog/multiple-projects-single-vps) so your multi-app layout stays consistent.
+
+## Step 3: Fail2ban + monitoring
+
+- Install `fail2ban`, enable `sshd`, `nginx`, and `docker` jails.
+- Monitor bans with `fail2ban-client status`.
+- Pair with [Best VPS Monitoring Tools in 2026](/blog/best-vps-monitoring-tools-2026) to get alerts when fail2ban fires.
+
+## Step 4: Automatic updates + swap
+
+- Install `unattended-upgrades`.
+- Enable `APT::Periodic::Unattended-Upgrade "1";`.
+- Create a 2GB swap file with `fallocate -l 2G /swapfile`.
+
+This protects you from kernel/performance regressions and keeps builds stable.
+
+## Step 5: Backups + snapshots
+
+- Schedule Hetzner snapshots (monthly) and export to Hetzner Object Storage if needed.
+- Keep a local tarball backup for config files stored in `/var/backups`.
+- Document the snapshot plan inside the `/guides/vps-cloud-for-developers-guide`.
+
+## Step 6: Monitoring + automation
+
+- Use UptimeRobot or Netdata for visibility.
+- Send alerts to Telegram via `n8n` (see [n8n + FastAPI on Hetzner VPS](/blog/n8n-fastapi-hetzner-vps)) to automate remediation.
+- Include the monitoring plan in your `/tag/deployment` resources hub notes.
+
+## Step 7: Monthly checklist
+
+- `sshd`, `ufw`, `dhclient` logs (`journalctl -u sshd`, `sudo ufw status numbered`).
+- Check `apt` history for upgrades.
+- Verify backups and snapshots exist.
+- Confirm security scans (e.g., `lynis audit system`).
+
+## Related reading
+
+- [Hetzner Payment Methods in 2026](/blog/hetzner-payment-methods-2026)
+- [Hetzner Alternatives for Cheap VPS Hosting in 2026](/blog/hetzner-alternatives-cheap-vps-2026)
+- [/blog/ubuntu-vps-hardening-checklist](this post) sits beside [VPS Security Hardening Ubuntu 2026](/blog/vps-security-harden-ubuntu-2026) for deeper coverage.
+
+## What next?
+
+After this checklist, secure the applications using [Coolify Complete Guide 2026](/blog/coolify-complete-guide-2026) and tune the same metrics into [Best VPS Monitoring Tools in 2026](/blog/best-vps-monitoring-tools-2026).

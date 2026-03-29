@@ -1,5 +1,5 @@
 ---
-title: "Hetzner vs Vultr vs Linode 2026 â€” Which VPS Is Worth It?"
+title: "Hetzner vs Vultr vs Linode 2026 — Which VPS Is Worth It?"
 slug: "hetzner-vs-vultr-vs-linode-2026"
 description: "Hetzner vs Vultr vs Linode 2026: real benchmark data, pricing breakdown, and which VPS wins for indie developers. Tested all three in production."
 date: "2026-03-22"
@@ -24,7 +24,7 @@ At the $5-6/month price point: Hetzner gives you 4GB RAM and 3 vCPUs. Vultr give
 
 I've used all three in production. Hetzner for blixamo.com since 2025. Vultr for a client project before migrating. Linode for a Node.js API that's since moved. This is the comparison you'd write if you actually ran all three.
 
-> **Disclosure:** Some links in this article are affiliate links â€” I earn a small commission at no extra cost to you.
+> **Disclosure:** Some links in this article are affiliate links — I earn a small commission at no extra cost to you.
 
 <Callout type="info" title="TL;DR">
 At the same $5-6/month price, Hetzner gives 3-4x more RAM and CPU than Vultr or Linode. For indie developers running Next.js, Docker, or multiple apps, Hetzner wins on every performance metric. Vultr and Linode win only if you need their specific datacenter locations or ecosystem integrations.
@@ -36,19 +36,19 @@ At the same $5-6/month price, Hetzner gives 3-4x more RAM and CPU than Vultr or 
 | vCPU | 3 AMD EPYC | 1 shared | 1 shared |
 | SSD | 80GB NVMe | 25GB SSD | 25GB SSD |
 | Transfer | 20TB | 1TB | 1TB |
-| Price | â‚¬5.19/mo (Rs 465) | $6/mo (~Rs 505) | $5/mo (~Rs 420) |
+| Price | €5.19/mo (Rs 465) | $6/mo (~Rs 505) | $5/mo (~Rs 420) |
 | Locations | EU + USA | 32 global | 12 global |
 
 ![Hetzner vs Vultr vs Linode spec comparison at same price tier](/images/posts/hetzner-vs-vultr-vs-linode-2026/01-spec-comparison.png)
-*Same price tier â€” 4x the RAM difference between Hetzner and competitors.*
+*Same price tier — 4x the RAM difference between Hetzner and competitors.*
 
 ---
 
 ## Why This Comparison in 2026
 
-Vultr and Linode are the two most popular alternatives to DigitalOcean in the US developer market. Both have been around since the early 2010s. Linode was acquired by Akamai in 2022 â€” it now markets itself as "Akamai Cloud" but the underlying Linode infrastructure and pricing are unchanged.
+Vultr and Linode are the two most popular alternatives to DigitalOcean in the US developer market. Both have been around since the early 2010s. Linode was acquired by Akamai in 2022 — it now markets itself as "Akamai Cloud" but the underlying Linode infrastructure and pricing are unchanged.
 
-Hetzner entered the competitive English-language VPS market seriously around 2019-2020. Before that, it was known primarily in Europe. Word spread through developer communities when people noticed the spec disparity â€” you get 4x more RAM for the same price.
+Hetzner entered the competitive English-language VPS market seriously around 2019-2020. Before that, it was known primarily in Europe. Word spread through developer communities when people noticed the spec disparity — you get 4x more RAM for the same price.
 
 By early 2026, Hetzner has become the most recommended VPS for indie developers on Reddit, Hacker News, and dev Twitter. The conversation has shifted from "is Hetzner good enough?" to "is there any reason NOT to use Hetzner?"
 
@@ -62,7 +62,7 @@ I already have a detailed comparison of [Hetzner vs DigitalOcean vs Vultr for In
 
 ### What You Actually Pay
 
-**Hetzner CPX22:** â‚¬5.19/month flat. 20TB transfer included. No egress surprises.
+**Hetzner CPX22:** €5.19/month flat. 20TB transfer included. No egress surprises.
 
 **Vultr Cloud Compute $6:** $6/month for 1GB RAM. 1TB transfer included. Egress after 1TB: $0.01/GB ($10/TB). IPv4 address included.
 
@@ -74,13 +74,13 @@ Running a Next.js app + PostgreSQL + Redis + monitoring on each provider for one
 
 | Provider | Base | Upgrade needed | Real monthly cost |
 |---|---|---|---|
-| Hetzner CPX22 | â‚¬5.19 | None â€” 4GB handles it | **â‚¬5.19 (Rs 465)** |
+| Hetzner CPX22 | €5.19 | None — 4GB handles it | **€5.19 (Rs 465)** |
 | Vultr | $6 | Upgrade to $12 (2GB) for builds | **$12 (~Rs 1,010)** |
 | Linode | $5 | Upgrade to $10 (2GB) for builds | **$10 (~Rs 840)** |
 
-On Vultr and Linode's 1GB plans, a Next.js build OOMs and kills your running app. You must upgrade to 2GB just to deploy without downtime â€” doubling the cost.
+On Vultr and Linode's 1GB plans, a Next.js build OOMs and kills your running app. You must upgrade to 2GB just to deploy without downtime — doubling the cost.
 
-Hetzner's 4GB on the base plan handles builds, databases, and production traffic simultaneously. The real comparison isn't $5 vs $5 â€” it's $5.19 vs $10-12.
+Hetzner's 4GB on the base plan handles builds, databases, and production traffic simultaneously. The real comparison isn't $5 vs $5 — it's $5.19 vs $10-12.
 
 ---
 
@@ -109,7 +109,7 @@ I ran the same Next.js 15 app on all three providers for 30 days each. Same app 
 Hetzner uses NVMe SSDs. Vultr uses SATA SSDs on their base plans (NVMe is a paid upgrade). Linode uses SSD (type varies by region). In database-heavy workloads, this matters.
 
 ```bash
-# fio random read test â€” ran on all three
+# fio random read test — ran on all three
 fio --name=randread --ioengine=libaio --iodepth=16 \
   --rw=randread --bs=4k --size=1G --numjobs=4 \
   --runtime=60 --group_reporting
@@ -119,69 +119,105 @@ fio --name=randread --ioengine=libaio --iodepth=16 \
 | Hetzner CPX22 | ~48,000 | ~1.1 GB/s |
 | Vultr (SATA) | ~18,000 | ~380 MB/s |
 | Linode | ~22,000 | ~420 MB/s |
+#
 Hetzner's NVMe advantage is significant for database operations, Docker image builds, and log-heavy workloads.
+#
 ---
+#
 ## Datacenter Locations
+#
 This is where Vultr and Linode have a real advantage over Hetzner.
-**Hetzner:** 5 locations â€” Nuremberg (DE), Falkenstein (DE), Helsinki (FI), Ashburn (USA), Hillsboro (USA). No Asia-Pacific, no South America, no Middle East.
-**Vultr:** 32 locations including Singapore, Tokyo, Sydney, SÃ£o Paulo, Mumbai, Toronto, London, Amsterdam, and more.
+#
+**Hetzner:** 5 locations — Nuremberg (DE), Falkenstein (DE), Helsinki (FI), Ashburn (USA), Hillsboro (USA). No Asia-Pacific, no South America, no Middle East.
+#
+**Vultr:** 32 locations including Singapore, Tokyo, Sydney, São Paulo, Mumbai, Toronto, London, Amsterdam, and more.
+#
 **Linode (Akamai):** 12 locations including Singapore, Tokyo, Sydney, Mumbai, Toronto, London, Frankfurt, and more.
-**If your users are in Asia-Pacific:** Hetzner is not the right choice. A server in Helsinki adds 200-300ms latency for Southeast Asian users â€” unacceptable for interactive apps. Vultr Singapore or Linode Singapore is the correct answer.
+#
+**If your users are in Asia-Pacific:** Hetzner is not the right choice. A server in Helsinki adds 200-300ms latency for Southeast Asian users — unacceptable for interactive apps. Vultr Singapore or Linode Singapore is the correct answer.
+#
 **If your users are in Europe or USA:** Hetzner Helsinki or Nuremberg is within 10-30ms of most European users, and 80-120ms of US East Coast. More than acceptable for most use cases.
-blixamo.com targets a global developer audience. Helsinki + Cloudflare CDN gives 280-350ms globally. Without CDN it'd be 800-1200ms to Southeast Asia â€” which is why CDN is non-negotiable for global blogs.
+#
+blixamo.com targets a global developer audience. Helsinki + Cloudflare CDN gives 280-350ms globally. Without CDN it'd be 800-1200ms to Southeast Asia — which is why CDN is non-negotiable for global blogs.
+#
 ---
+#
 ## Ecosystem and Support
+#
 **Hetzner:** German company, no-frills support. Ticket-based, typically 4-24 hour response. Documentation is thorough but occasionally German-first. Community tutorials are extensive in English now. No managed databases, no Kubernetes offering comparable to AWS EKS.
-**[Vultr](https://www.vultr.com/?ref=9885468):** US company, 24/7 live chat support. Extensive documentation. Managed Kubernetes, managed databases (PostgreSQL, MySQL), object storage, CDN, load balancers â€” full cloud ecosystem comparable to DigitalOcean. Higher prices for managed services.
+#
+**[Vultr](https://www.vultr.com/?ref=9885468):** US company, 24/7 live chat support. Extensive documentation. Managed Kubernetes, managed databases (PostgreSQL, MySQL), object storage, CDN, load balancers — full cloud ecosystem comparable to DigitalOcean. Higher prices for managed services.
+#
 **Linode (Akamai):** Historically excellent documentation and community. Post-acquisition by Akamai, support quality has gotten mixed reviews in forums. Managed Kubernetes (LKE), managed databases, object storage. Integration with Akamai's CDN and DDoS protection is a genuine differentiator.
-If you need managed Kubernetes, managed PostgreSQL, or object storage from the same provider â€” Vultr and Linode both offer complete solutions. Hetzner's managed Kubernetes (HKS) exists but is newer and less battle-tested.
+#
+If you need managed Kubernetes, managed PostgreSQL, or object storage from the same provider — Vultr and Linode both offer complete solutions. Hetzner's managed Kubernetes (HKS) exists but is newer and less battle-tested.
+#
 ---
+#
 ## When Each Provider Wins
+#
 **Hetzner wins when:**
 - You need maximum RAM/CPU for the price
 - Your users are in Europe or USA
 - You're self-hosting with Docker/Coolify and don't need managed services
 - You're an indie developer running multiple side projects on one server
+#
 **Vultr wins when:**
 - You need a datacenter in Asia-Pacific, South America, or Middle East
 - You want managed Kubernetes with good documentation
 - You're building for a global audience where Helsinki latency is too high
 - You need 24/7 live chat support
+#
 **Linode/Akamai wins when:**
 - You need Singapore or Tokyo with a proven track record
 - Akamai CDN + DDoS protection integration matters for your use case
 - You already use Akamai for other services
+#
 ---
+#
 ## Migration Path: Vultr or Linode to Hetzner
+#
 If you're on Vultr or Linode and want to move to Hetzner for the cost savings:
-**Step 1 â€” Create Hetzner VPS while old server runs**
+#
+**Step 1 — Create Hetzner VPS while old server runs**
+#
 ```bash
 # After creating Hetzner CPX22, connect
 ssh root@HETZNER_IP
 # Install your stack (Coolify or manual)
 curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash
 ```
-**Step 2 â€” Export database from current provider**
+**Step 2 — Export database from current provider**
+#
 ```bash
 # On Vultr/Linode
 pg_dump -U postgres mydb | gzip > /tmp/db_backup.sql.gz
 scp /tmp/db_backup.sql.gz root@HETZNER_IP:/tmp/
 ```
-**Step 3 â€” Deploy app on Hetzner test subdomain, verify**
-Point `test.yourdomain.com` â†’ Hetzner IP. Test thoroughly.
-**Step 4 â€” Switch DNS, verify, cancel old server**
+**Step 3 — Deploy app on Hetzner test subdomain, verify**
+#
+Point `test.yourdomain.com` → Hetzner IP. Test thoroughly.
+#
+**Step 4 — Switch DNS, verify, cancel old server**
+#
 With Cloudflare proxied DNS, propagation is instant. Monitor for 24h before cancelling the old server.
+#
 Full Coolify setup is in the [Coolify complete guide](/blog/coolify-complete-guide-2026). For Indian payment on Hetzner, [which Indian cards work](/blog/pay-hetzner-from-india) covers all the RBI 3DS workarounds.
+#
 ---
+#
 ## Troubleshooting Common VPS Issues
+#
 **Problem: SSH connection refused after VPS creation (all providers)**
+#
 ```bash
 # Wait 60 seconds for boot, then try
 ssh -v root@YOUR_IP
 # If still refused, check your firewall rules
-# Hetzner: Cloud Console â†’ Firewall â†’ verify port 22 is open
+# Hetzner: Cloud Console → Firewall → verify port 22 is open
 ```
 **Problem: Out of memory on 1GB Vultr/Linode during build**
+#
 ```bash
 # Add swap immediately
 fallocate -l 2G /swapfile
@@ -189,11 +225,16 @@ chmod 600 /swapfile
 mkswap /swapfile && swapon /swapfile
 echo '/swapfile none swap sw 0 0' >> /etc/fstab
 ```
-This is a temporary fix. The real fix is upgrading to 2GB RAM â€” or migrating to Hetzner where 4GB is included at the same price.
+This is a temporary fix. The real fix is upgrading to 2GB RAM — or migrating to Hetzner where 4GB is included at the same price.
+#
 **Problem: High latency from Asia despite choosing closest datacenter**
+#
 Add Cloudflare CDN in front of your origin. Set DNS to proxied (orange cloud). Cloudflare's edge nodes in Singapore, Tokyo, and Mumbai will serve cached content with under 30ms latency regardless of your origin server location.
+#
 ---
+#
 ## Full Feature Comparison Table
+#
 | Feature | Hetzner CPX22 | Vultr $6 | Linode $5 |
 |---|---|---|---|
 | RAM | 4GB | 1GB | 1GB |
@@ -201,33 +242,50 @@ Add Cloudflare CDN in front of your origin. Set DNS to proxied (orange cloud). C
 | Storage | 80GB NVMe | 25GB SSD | 25GB SSD |
 | Transfer | 20TB | 1TB | 1TB |
 | Locations | 5 (EU/USA) | 32 global | 12 global |
-| Managed Kubernetes | âœ… HKS (newer) | âœ… VKE (mature) | âœ… LKE (mature) |
-| Managed databases | âŒ | âœ… | âœ… |
-| Object storage | âœ… | âœ… | âœ… |
+| Managed Kubernetes | ✅ HKS (newer) | ✅ VKE (mature) | ✅ LKE (mature) |
+| Managed databases | ❌ | ✅ | ✅ |
+| Object storage | ✅ | ✅ | ✅ |
 | Support | Ticket (4-24h) | 24/7 live chat | Ticket |
-| Snapshot backup | âœ… 3 free | âœ… Paid | âœ… Paid |
-| ARM servers | âœ… CAX (â‚¬3.79/mo) | âŒ | âŒ |
-| IPv6 | âœ… | âœ… | âœ… |
-| Price | â‚¬5.19/mo | $6/mo | $5/mo |
+| Snapshot backup | ✅ 3 free | ✅ Paid | ✅ Paid |
+| ARM servers | ✅ CAX (€3.79/mo) | ❌ | ❌ |
+| IPv6 | ✅ | ✅ | ✅ |
+| Price | €5.19/mo | $6/mo | $5/mo |
+#
 ---
+#
 ## FAQ
+#
 ### Is Hetzner reliable enough compared to Vultr and Linode?
-All three have similar uptime SLAs (~99.9%). In practice, I've had zero unexpected downtime on Hetzner in 6 months. Both Vultr and Linode have larger track records (10+ years) â€” reliability is not a differentiator between them at this price tier.
+#
+All three have similar uptime SLAs (~99.9%). In practice, I've had zero unexpected downtime on Hetzner in 6 months. Both Vultr and Linode have larger track records (10+ years) — reliability is not a differentiator between them at this price tier.
+#
 ### Does Vultr have NVMe SSDs?
-Vultr's base "Cloud Compute" plans use SATA SSDs. NVMe is available on their "High Performance" tier starting at $6/month for 1GB RAM â€” but that's still 4x less RAM than Hetzner at the same price. Their NVMe plans at 4GB RAM start at $24/month vs Hetzner's â‚¬5.19.
+#
+Vultr's base "Cloud Compute" plans use SATA SSDs. NVMe is available on their "High Performance" tier starting at $6/month for 1GB RAM — but that's still 4x less RAM than Hetzner at the same price. Their NVMe plans at 4GB RAM start at $24/month vs Hetzner's €5.19.
+#
 ### Can I use Hetzner in India?
-Yes â€” Hetzner accepts international payments. For Indian cards, Niyo Global and some HDFC cards work. Read [how to pay for Hetzner from India](/blog/pay-hetzner-from-india) â€” 4 of 6 cards I tested failed RBI's mandatory 3DS check. Wise or Payoneer work as reliable alternatives.
+#
+Yes — Hetzner accepts international payments. For Indian cards, Niyo Global and some HDFC cards work. Read [how to pay for Hetzner from India](/blog/pay-hetzner-from-india) — 4 of 6 cards I tested failed RBI's mandatory 3DS check. Wise or Payoneer work as reliable alternatives.
+#
 ### Which is best for a WordPress site?
+#
 For a single WordPress site with low traffic: any of the three works. For high-traffic WordPress (50K+ visitors/month), Hetzner's 4GB RAM and NVMe storage handle caching and database queries noticeably better at the same price.
+#
 ### Does Linode still exist after Akamai acquisition?
-Yes â€” Linode's infrastructure, pricing, and product lineup are unchanged. The brand is being gradually merged into "Akamai Cloud" but as of 2026, you can still sign up and use Linode exactly as before. The main change is Akamai's network and DDoS protection layered on top.
+#
+Yes — Linode's infrastructure, pricing, and product lineup are unchanged. The brand is being gradually merged into "Akamai Cloud" but as of 2026, you can still sign up and use Linode exactly as before. The main change is Akamai's network and DDoS protection layered on top.
+#
 ---
-## Final Verdict
-Hetzner is still the default pick for most indie developers in 2026. At the low end, the RAM and storage advantage is too large to ignore, and neither Vultr nor Linode gives enough extra reliability to justify paying more for less capacity.
-
-The only strong reasons to choose Vultr or Linode are geography and product fit. If you need a region Hetzner does not cover well, or you care more about managed add-ons than raw value, then the trade-off can make sense. Otherwise, Hetzner remains the best performance-per-rupee choice.
+#
+## What Next?
+#
+The verdict is clear for most indie developers: Hetzner wins on specs at every price point. The only legitimate reasons to choose Vultr or Linode are datacenter location (Asia-Pacific) or managed service requirements.
+#
 **Your next steps:**
-1. **Get started with Hetzner** â€” [how to pay for Hetzner from India](/blog/pay-hetzner-from-india) covers all payment options including which Indian cards work
-2. **Deploy your stack** â€” [Coolify complete guide](/blog/coolify-complete-guide-2026) gets you from blank VPS to production with SSL in 45 minutes
-3. **Run multiple projects** â€” [how I run 5 projects on one Hetzner VPS](/blog/multiple-projects-single-vps) shows the exact architecture for maximizing a â‚¬5/month server
-Subscribe below â€” honest comparisons, real production data, no affiliate-driven "best" lists.
+#
+1. **Get started with Hetzner** — [how to pay for Hetzner from India](/blog/pay-hetzner-from-india) covers all payment options including which Indian cards work
+2. **Deploy your stack** — [Coolify complete guide](/blog/coolify-complete-guide-2026) gets you from blank VPS to production with SSL in 45 minutes
+3. **Run multiple projects** — [how I run 5 projects on one Hetzner VPS](/blog/multiple-projects-single-vps) shows the exact architecture for maximizing a €5/month server
+#
+Subscribe below — honest comparisons, real production data, no affiliate-driven "best" lists.
+#

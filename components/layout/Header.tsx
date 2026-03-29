@@ -3,12 +3,9 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 
 const NAV = [
-  { label: 'Home', href: '/' },
-  { label: 'Start Here', href: '/tag/deployment#resources-start-here' },
-  { label: 'Resources', href: '/tag/deployment' },
-  { label: 'Comparisons', href: '/tag/deployment#resources-comparisons' },
-  { label: 'Free Tools', href: '/category/free-tools' },
-  { label: 'Guides', href: '/category/how-to' },
+  { label: 'Start Here', href: '/tag/deployment' },
+  { label: 'Categories', href: '/tag/deployment#resource-categories' },
+  { label: 'Guides', href: '/tag/deployment#authority-pages' },
   { label: 'Community', href: '/community' },
   { label: 'Blog', href: '/blog' },
   { label: 'About', href: '/about' },

@@ -46,6 +46,7 @@ export default async function PillarPage({ params }: Props) {
   const relatedResources = [
     { title: 'Homepage', description: 'Return to the main site hub and top-level discovery paths.', href: '/' },
     { title: 'Resources Hub', description: 'Open the central resources hub for start-here paths and topic navigation.', href: PILLAR_RESOURCE_HUB_PATH },
+    { title: 'Community Hub', description: 'Use the community layer to discover practical reads, comparisons, and current site entry points.', href: '/community' },
     { title: pillar.primaryCategory.label, description: pillar.primaryCategory.description, href: pillar.primaryCategory.href },
     ...pillar.supportingCategories.map((category) => ({
       title: category.label,
@@ -85,6 +86,9 @@ export default async function PillarPage({ params }: Props) {
             <span>{pillar.tools.length} tools</span>
           </div>
           <div className="home-hero-actions">
+            <Link href="/community" className="home-hero-button home-hero-button-secondary">
+              Community hub
+            </Link>
             <Link href={PILLAR_RESOURCE_HUB_PATH} className="home-hero-button home-hero-button-primary">
               Open resources hub
             </Link>
@@ -120,7 +124,7 @@ export default async function PillarPage({ params }: Props) {
 
       <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
         <div className="home-section-head">
-          <div className="home-section-kicker">Best tools and platforms</div>
+          <div className="home-section-kicker">Recommended tools</div>
           <h2 className="home-section-title">Use the strongest supporting pages before you choose the stack</h2>
           <p className="home-section-description">{pillar.bestToolsIntro}</p>
         </div>
@@ -133,7 +137,7 @@ export default async function PillarPage({ params }: Props) {
 
       <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
         <div className="home-section-head">
-          <div className="home-section-kicker">Step-by-step guides</div>
+          <div className="home-section-kicker">Related guides</div>
           <h2 className="home-section-title">Start with these implementation reads</h2>
         </div>
         <div className="home-post-grid">
@@ -245,6 +249,9 @@ export default async function PillarPage({ params }: Props) {
           <div className="home-hero-actions" style={{ marginTop: '1rem' }}>
             <Link href="/" className="home-hero-button home-hero-button-secondary">
               Go to homepage
+            </Link>
+            <Link href="/community" className="home-hero-button home-hero-button-secondary">
+              Open community hub
             </Link>
             <Link href={PILLAR_RESOURCE_HUB_PATH} className="home-hero-button home-hero-button-secondary">
               Return to resources hub

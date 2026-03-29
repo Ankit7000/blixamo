@@ -253,6 +253,29 @@ export default async function CategoryPage({ params }: Props) {
               Open {clusterContent.hubSection.title}
             </Link>
           </div>
+
+          <div style={{
+            padding: '1rem',
+            borderRadius: '0.875rem',
+            background: 'var(--bg)',
+            border: '1px solid var(--border)',
+          }}>
+            <h2 style={{ margin: '0 0 0.5rem', fontSize: '1rem', color: 'var(--text-primary)' }}>Navigate the Site</h2>
+            <p style={{ margin: '0 0 0.85rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+              Use the homepage, resources hub, and community page as the main return paths around this category.
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+              <Link href="/" style={{ color: 'var(--accent)', fontWeight: 700 }}>
+                Homepage
+              </Link>
+              <Link href={RESOURCE_HUB_PATH} style={{ color: 'var(--accent)', fontWeight: 700 }}>
+                Resources Hub
+              </Link>
+              <Link href="/community" style={{ color: 'var(--accent)', fontWeight: 700 }}>
+                Community Hub
+              </Link>
+            </div>
+          </div>
         </div>
 
         <div style={{ marginTop: '1.25rem' }}>

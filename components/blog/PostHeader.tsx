@@ -23,14 +23,13 @@ export function PostHeader({ post, pillarPage = null }: { post: Post; pillarPage
         <nav className="article-breadcrumb" aria-label="Breadcrumb">
           <Link href="/">Home</Link>
           <span>&gt;</span>
-          {pillarPage ? (
+          <Link href="/tag/deployment">Resource Hub</Link>
+          <span>&gt;</span>
+          <Link href={`/category/${post.category}`}>{categoryMeta.label}</Link>
+          <span>&gt;</span>
+          {pillarPage && (
             <>
               <Link href={pillarPage.href}>{pillarPage.title}</Link>
-              <span>&gt;</span>
-            </>
-          ) : (
-            <>
-              <Link href={`/category/${post.category}`}>{categoryMeta.label}</Link>
               <span>&gt;</span>
             </>
           )}

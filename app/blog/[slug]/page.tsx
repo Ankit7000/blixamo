@@ -15,7 +15,7 @@ import type { Metadata } from 'next'
 import { Callout } from '@/components/blog/Callout'
 import { ArticleImage, ArticleTable, ProsCons, VerdictBox, VisualBlock } from '@/components/blog/MdxVisuals'
 import Link from 'next/link'
-import { getCategoryClusterContent, RESOURCE_HUB_PATH } from '@/lib/resources'
+import { getCategoryClusterContent, getResourceHubContent, RESOURCE_HUB_PATH } from '@/lib/resources'
 import { getComparisonsHub, getPrimaryPillarForPost } from '@/lib/pillars'
 import { getCategoryMeta } from '@/lib/categories'
 
@@ -68,6 +68,7 @@ export default async function PostPage({ params }: Props) {
 
   const related = getRelatedPosts(post)
   const clusterContent = getCategoryClusterContent(post.category, allPosts)
+  const hub = getResourceHubContent(allPosts)
   const categoryMeta = getCategoryMeta(post.category)
   const pillarPage = getPrimaryPillarForPost(post, allPosts)
   const comparisonsHub = getComparisonsHub(allPosts)
@@ -87,6 +88,18 @@ export default async function PostPage({ params }: Props) {
     )
     .slice(0, 3)
   const topRelatedArticles = clusterRelatedPosts.slice(0, 3)
+  const sameCategoryPosts = allPosts
+    .filter((entry) => entry.slug !== post.slug && entry.category === post.category)
+    .slice(0, 3)
+  const sameCategorySlugs = new Set(sameCategoryPosts.map((entry) => entry.slug))
+  const samePillarPosts = pillarClusterPosts
+    .filter((entry) => entry.slug !== post.slug && !sameCategorySlugs.has(entry.slug))
+    .slice(0, 3)
+  const popularGuides = hub.popularGuides
+    .filter(
+      (entry) => entry.slug !== post.slug && !sameCategorySlugs.has(entry.slug) && !samePillarPosts.some((candidate) => candidate.slug === entry.slug)
+    )
+    .slice(0, 3)
   const authorityPageLinks = [
     ...pillarClusterPosts,
     ...clusterContent.guides,
@@ -242,6 +255,9 @@ export default async function PostPage({ params }: Props) {
           comparisonsHub={comparisonsHub}
           relatedComparisons={relatedComparisons}
           freeToolLinks={freeToolLinks}
+          sameCategoryPosts={sameCategoryPosts}
+          samePillarPosts={samePillarPosts}
+          popularGuides={popularGuides}
         />
         <RelatedPosts
           posts={clusterRelatedPosts}

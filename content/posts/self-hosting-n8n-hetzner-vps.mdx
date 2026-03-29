@@ -1,7 +1,7 @@
 ---
-title: "Self-Host n8n on Hetzner VPS 2026 â€” 30 Min Setup"
+title: "Self-Host n8n on Hetzner VPS 2026 — 30 Min Setup"
 slug: "self-hosting-n8n-hetzner-vps"
-description: "Self-host n8n on Hetzner in 30 minutes â€” Docker, Nginx proxy, SSL, Redis queue mode, auto-restart. Complete setup on a $5.2/month VPS. Step-by-step."
+description: "Self-host n8n on Hetzner in 30 minutes — Docker, Nginx proxy, SSL, Redis queue mode, auto-restart. Complete setup on a $5.2/month VPS. Step-by-step."
 date: "2026-03-18"
 updatedAt: "2026-03-26"
 author: "Ankit Sorathiya"
@@ -14,33 +14,36 @@ featuredImage: /images/posts/self-hosting-n8n-hetzner-vps/featured.jpg
 schema: "howto"
 difficulty: "intermediate"
 timeToComplete: "45 minutes"
-excerpt: "I self-host n8n on the same $5.2/month Hetzner VPS that runs my blog â€” zero extra cost,."
+excerpt: "I self-host n8n on the same $5.2/month Hetzner VPS that runs my blog — zero extra cost,."
 toc: true
 ---
-I started self-hosting n8n the moment the cloud pricing felt harder to justify than the setup time, and the switch paid for itself almost immediately.
+As of March 2026, n8n Cloud costs $20/month.
 
-> **Disclosure:** Some links in this article are affiliate links â€” I earn a small commission at no extra cost to you.
+> **Disclosure:** Some links in this article are affiliate links — I earn a small commission at no extra cost to you.
 
-n8n Cloud starts at $20/month. Make charges less, but still turns workflow volume into a monthly bill. Self-hosted n8n on a VPS you already run is different: the marginal cost is basically zero, and the control is much better.
+n8n Cloud starts at $20/month. I've been running the same workflows on self-hosted n8n for free — on the same Hetzner VPS I already pay ₹465/month for. The setup takes 30 minutes. Here's the exact Docker config.
 
-I run n8n on the same Hetzner CPX22 that handles this blog, aitoolsfordev.com, and a FastAPI backend. Zero extra automation fees, unlimited executions, full data privacy, and enough headroom that the setup has stayed stable in production.
+
+ Make Core costs $8.3/month with execution limits. Self-hosted n8n on a VPS you already run: $0 in additional cost.
+
+I self-host n8n on the same Hetzner CPX22 that runs this blog, aitoolsfordev.com, and a FastAPI backend. Zero automation fees, unlimited executions, full data privacy. I've been running this setup in production since early 2026 — it's stable.
 
 <Callout type="info" title="TL;DR">
-- **n8n runs on Docker** â€” ~80MB idle, ~180MB with active workflows queued
+- **n8n runs on Docker** — ~80MB idle, ~180MB with active workflows queued
 - **Hetzner CPX22** ($5.2/month) handles n8n + other apps with 1.5GB headroom
 - **Queue mode with Redis** makes workflows reliable and non-blocking
-- **SSL via Certbot** â€” automatic renewal, no manual cert management
-- **Warning:** you manage updates and backups â€” no managed service. Add UptimeRobot monitoring.
+- **SSL via Certbot** — automatic renewal, no manual cert management
+- **Warning:** you manage updates and backups — no managed service. Add UptimeRobot monitoring.
 </Callout>
 
 <Callout type="info" title="Before you start">
 
 ![n8n dashboard running on Hetzner VPS at n8n.blixamo.com](/images/posts/self-hosting-n8n-hetzner-vps/01-n8n-dashboard-hetzner.png)
-*n8n editor running at n8n.blixamo.com â€” self-hosted on the same $5.2/month CPX22 as this blog.*
+*n8n editor running at n8n.blixamo.com — self-hosted on the same $5.2/month CPX22 as this blog.*
 
 - **Hetzner CPX22** with Ubuntu 24.04 (or any Linux VPS with 2GB+ RAM)
-- **Domain** with DNS access â€” you'll create `n8n.yourdomain.com`
-- **Basic Linux/SSH comfort** â€” Docker and Nginx covered below if not installed
+- **Domain** with DNS access — you'll create `n8n.yourdomain.com`
+- **Basic Linux/SSH comfort** — Docker and Nginx covered below if not installed
 - **Time:** ~45 minutes end to end
 - **Tested on:** Ubuntu 24.04, n8n v1.28, Docker 26, March 2026
 </Callout>
@@ -59,18 +62,21 @@ Now let's build it step by step.
 
 ---
 
-## Step 1 of 6 â€” Prepare Your VPS
+## Step 1 of 6 — Prepare Your VPS
 
 On a fresh Hetzner Ubuntu 24.04 VPS:
 
 ```bash
 apt update && apt upgrade -y
+#
 # Docker
 curl -fsSL https://get.docker.com | sh
 systemctl enable docker && systemctl start docker
+#
 # Nginx + Certbot
 apt install -y nginx certbot python3-certbot-nginx
-# Redis â€” localhost only, never expose publicly
+#
+# Redis — localhost only, never expose publicly
 docker run -d \
   --name redis \
   --restart unless-stopped \
@@ -78,9 +84,12 @@ docker run -d \
   redis:alpine
 ```
 <Callout type="tip" title="Expected output">
-Created symlink ... â†’ .../systemd/system/...
+#
+Created symlink ... → .../systemd/system/...
+#
 </Callout>
 Verify Redis is running:
+#
 ```bash
 docker exec redis redis-cli ping
 # Should return: PONG
@@ -88,19 +97,28 @@ docker exec redis redis-cli ping
 <Callout type="tip" title="Expected output">
 `PONG` confirms Redis is running and reachable. If you see an error, check `docker ps | grep redis`.
 </Callout>
+#
 If you already have Nginx and Docker from previous projects, skip to Step 2. The [multiple projects VPS guide](/blog/multiple-projects-single-vps) covers the full base server setup.
+#
 With the base server ready, create the n8n data directory and environment file before running any containers.
+#
 ---
-## Step 2 of 6 â€” Create the n8n Data Directory and Environment File
+#
+## Step 2 of 6 — Create the n8n Data Directory and Environment File
+#
 n8n stores all workflow data, credentials, and execution history in a data directory. Set this up before running the container so data persists across restarts and updates.
+#
 ```bash
 mkdir -p /home/n8n-data
 chown -R 1000:1000 /home/n8n-data
 ```
 <Callout type="tip" title="Expected output">
-(command runs silently â€” no output means success)
+#
+(command runs silently — no output means success)
+#
 </Callout>
 Create the environment file:
+#
 ```bash
 cat > /home/n8n.env << 'EOF'
 N8N_HOST=n8n.yourdomain.com
@@ -117,13 +135,18 @@ N8N_ENCRYPTION_KEY=your-random-32-char-string-here
 EOF
 ```
 <Callout type="tip" title="Expected output">
-(command runs silently â€” no output means success)
+#
+(command runs silently — no output means success)
+#
 </Callout>
 <Callout type="warning" title="Three Settings That Matter">
-Set `N8N_HOST` and `WEBHOOK_URL` to your actual subdomain â€” webhooks break without this. `EXECUTIONS_DATA_MAX_AGE=336` keeps execution history for 14 days then auto-prunes â€” without this the SQLite database grows indefinitely and eventually causes OOM. `N8N_ENCRYPTION_KEY` must be set before first run â€” you can't change it after credentials are stored.
+Set `N8N_HOST` and `WEBHOOK_URL` to your actual subdomain — webhooks break without this. `EXECUTIONS_DATA_MAX_AGE=336` keeps execution history for 14 days then auto-prunes — without this the SQLite database grows indefinitely and eventually causes OOM. `N8N_ENCRYPTION_KEY` must be set before first run — you can't change it after credentials are stored.
 </Callout>
+#
 ---
-## Step 3 of 6 â€” Run n8n With Docker
+#
+## Step 3 of 6 — Run n8n With Docker
+#
 ```bash
 docker run -d \
   --name n8n \
@@ -138,15 +161,20 @@ docker run -d \
   n8nio/n8n
 ```
 <Callout type="tip" title="Expected output">
-(command runs silently â€” no output means success)
+#
+(command runs silently — no output means success)
+#
 </Callout>
 Key flags explained:
-- `-p 127.0.0.1:5678:5678` â€” binds to localhost only; Nginx proxies to it, internet cannot reach it directly
-- `--restart unless-stopped` â€” survives server reboots without manual intervention
-- `EXECUTIONS_MODE=queue` â€” enables Redis queue mode for reliable, non-blocking workflow execution
-- `--add-host=host.docker.internal:host-gateway` â€” lets the container reach the host's Redis instance
-- `-v /home/n8n-data:/home/node/.n8n` â€” persists all data outside the container so updates don't wipe workflows
+#
+- `-p 127.0.0.1:5678:5678` — binds to localhost only; Nginx proxies to it, internet cannot reach it directly
+- `--restart unless-stopped` — survives server reboots without manual intervention
+- `EXECUTIONS_MODE=queue` — enables Redis queue mode for reliable, non-blocking workflow execution
+- `--add-host=host.docker.internal:host-gateway` — lets the container reach the host's Redis instance
+- `-v /home/n8n-data:/home/node/.n8n` — persists all data outside the container so updates don't wipe workflows
+#
 Check it started:
+#
 ```bash
 docker logs n8n --tail 20
 # Should see: editor at http://localhost:5678
@@ -154,11 +182,17 @@ docker logs n8n --tail 20
 <Callout type="tip" title="Expected output">
 `Editor is now accessible via: http://localhost:5678` confirms n8n started. Memory usage: `docker stats n8n --no-stream` should show ~80MB idle.
 </Callout>
+#
 Memory usage: ~80MB idle, ~180MB with active workflows queued.
+#
 With n8n running on localhost:5678, expose it securely via Nginx with SSL.
+#
 ---
-## Step 4 of 6 â€” Configure Nginx With SSL
+#
+## Step 4 of 6 — Configure Nginx With SSL
+#
 Point your subdomain DNS A record to your VPS IP first, then:
+#
 ```bash
 cat > /etc/nginx/sites-available/n8n << 'EOF'
 server {
@@ -166,13 +200,16 @@ server {
     server_name n8n.yourdomain.com;
     return 301 https://$host$request_uri;
 }
+#
 server {
     listen 443 ssl;
     server_name n8n.yourdomain.com;
+#
     ssl_certificate
       /etc/letsencrypt/live/n8n.yourdomain.com/fullchain.pem;
     ssl_certificate_key
       /etc/letsencrypt/live/n8n.yourdomain.com/privkey.pem;
+#
     location / {
         proxy_pass http://127.0.0.1:5678;
         proxy_http_version 1.1;
@@ -189,35 +226,51 @@ server {
     }
 }
 EOF
+#
 ln -s /etc/nginx/sites-available/n8n \
   /etc/nginx/sites-enabled/
 nginx -t
+#
 # Get SSL certificate
 certbot --nginx -d n8n.yourdomain.com --non-interactive \
   --agree-tos -m your@email.com
+#
 systemctl reload nginx
 ```
 <Callout type="tip" title="Expected output">
 `nginx -t` output: `syntax is ok / test is successful`. If SSL fails, ensure DNS A record is pointing to your VPS IP and wait 2 minutes for propagation.
 </Callout>
+#
 <Callout type="tip" title="Why proxy_read_timeout 88400s?">
 n8n webhooks can have long-running connections. Without a high timeout, Nginx kills connections mid-workflow. 88400 seconds (24.5 hours) is effectively "never timeout" for any realistic workflow duration.
 </Callout>
+#
 ---
-## Step 5 of 6 â€” Test Webhooks and Run Your First Workflow
-Open `https://n8n.yourdomain.com` â€” you should see the n8n login page. Create your owner account.
-Test webhook functionality â€” the most common failure point:
+#
+## Step 5 of 6 — Test Webhooks and Run Your First Workflow
+#
+Open `https://n8n.yourdomain.com` — you should see the n8n login page. Create your owner account.
+#
+Test webhook functionality — the most common failure point:
+#
 1. Create a new workflow
 2. Add a Webhook node, set method to GET, copy the test URL
 3. Click "Listen for test event"
 4. In a terminal: `curl https://n8n.yourdomain.com/webhook-test/your-webhook-id`
 5. You should see the incoming data appear in n8n
+#
 If the webhook times out, check that `WEBHOOK_URL` in your env file exactly matches your domain including `https://` and the trailing slash.
+#
 With n8n verified, automate updates and backups so the server stays current without manual intervention.
+#
 **First workflow to build:** a daily health check that pings your blog and sends a Telegram message if it's down. Five minutes to set up, runs forever, tells you before your users do.
+#
 ---
-## Step 6 of 6 â€” Automatic Updates and Backups
+#
+## Step 6 of 6 — Automatic Updates and Backups
+#
 Set up weekly auto-updates with a simple shell script:
+#
 ```bash
 cat > /usr/local/bin/update-n8n.sh << 'EOF'
 #!/bin/bash
@@ -236,127 +289,206 @@ docker run -d \
   n8nio/n8n
 echo "n8n updated at $(date)"
 EOF
+#
 chmod +x /usr/local/bin/update-n8n.sh
+#
 # Run weekly on Sunday at 3am IST
 (crontab -l 2>/dev/null; echo "0 3 * * 0 \
   /usr/local/bin/update-n8n.sh >> /var/log/n8n-update.log 2>&1") | crontab -
+#
 # Daily backup of n8n data directory
 (crontab -l 2>/dev/null; echo "0 2 * * * tar -czf \
   /root/n8n-backup-\$(date +\%Y\%m\%d).tar.gz /home/n8n-data && find /root -name 'n8n-backup-*.tar.gz' -mtime +7 -delete") | crontab -
 ```
 <Callout type="tip" title="Expected output">
-(command runs silently â€” no output means success)
+#
+(command runs silently — no output means success)
+#
 </Callout>
-7 days of n8n backups on a CPX22 typically use under 100MB. Also create a Hetzner snapshot monthly from the control panel â€” it's free for one snapshot per server.
+7 days of n8n backups on a CPX22 typically use under 100MB. Also create a Hetzner snapshot monthly from the control panel — it's free for one snapshot per server.
+#
 ---
+#
 ## Five n8n Workflows to Build First
+#
 Once n8n is running, here are the five workflows that deliver the most immediate value:
-**Workflow 1 â€” New article published â†’ auto-tweet.** Trigger: webhook called by ISR revalidation. Nodes: Webhook â†’ IF (new post not update) â†’ HTTP Request (Twitter v2 API) â†’ Telegram notification. Set up once, tweets every new article automatically.
-**Workflow 2 â€” Daily VPS health check.** Trigger: Schedule (8am IST daily). Nodes: Schedule â†’ HTTP Request (ping your domain) â†’ IF (status 200?) â†’ Telegram alert if down. Complements UptimeRobot's 5-minute pings with a daily summary.
-**Workflow 3 â€” GitHub star â†’ Telegram notification.** Trigger: Webhook (configure in GitHub repo Settings â†’ Webhooks). Every new star sends a Telegram message: "â­ [username] starred [repo-name]". Tells you which projects are getting attention.
-**Workflow 4 â€” Contact form â†’ email + Notion log.** Trigger: Webhook (your form POSTs here). Replace Formspree or Netlify Forms with an n8n webhook â€” you get email notification plus every submission logged to Notion. No paid form service needed.
-**Workflow 5 â€” WhatsApp AI assistant.** The most complex but most useful. Full setup at [WhatsApp AI assistant with n8n and Claude API](/blog/whatsapp-ai-assistant-n8n-claude-api) â€” runs entirely on the same Hetzner VPS.
+#
+**Workflow 1 — New article published → auto-tweet.** Trigger: webhook called by ISR revalidation. Nodes: Webhook → IF (new post not update) → HTTP Request (Twitter v2 API) → Telegram notification. Set up once, tweets every new article automatically.
+#
+### Workflow 2 — Daily VPS health check.** Trigger: Schedule (8am IST daily). Nodes: Schedule → HTTP Request (ping your domain) → IF (status 200?) → Telegram alert if down. Complements UptimeRobot's 5-minute pings with a daily summary.
+#
+**Workflow 3 — GitHub star → Telegram notification.** Trigger: Webhook (configure in GitHub repo Settings → Webhooks). Every new star sends a Telegram message: "⭐ [username] starred [repo-name]". Tells you which projects are getting attention.
+#
+**Workflow 4 — Contact form → email + Notion log.** Trigger: Webhook (your form POSTs here). Replace Formspree or Netlify Forms with an n8n webhook — you get email notification plus every submission logged to Notion. No paid form service needed.
+#
+**Workflow 5 — WhatsApp AI assistant.** The most complex but most useful. Full setup at [WhatsApp AI assistant with n8n and Claude API](/blog/whatsapp-ai-assistant-n8n-claude-api) — runs entirely on the same Hetzner VPS.
+#
 ---
+#
 ## Troubleshooting Common Issues
+#
 **Workflows stop executing after a few hours**
+#
 Almost always an OOM kill. Verify:
+#
 ```bash
 dmesg | grep -i kill
 ```
 <Callout type="tip" title="Expected output">
-(command runs silently â€” no output means success)
+#
+(command runs silently — no output means success)
+#
 </Callout>
-If confirmed: add a 2GB swap file or upgrade to CPX31. Also ensure `EXECUTIONS_DATA_PRUNE=true` is set â€” uncontrolled execution history growth is the most common cause.
+If confirmed: add a 2GB swap file or upgrade to CPX31. Also ensure `EXECUTIONS_DATA_PRUNE=true` is set — uncontrolled execution history growth is the most common cause.
+#
 **Webhooks return 502 from external services**
+#
 The `WEBHOOK_URL` in your env file doesn't match your actual domain. Restart with `WEBHOOK_URL` set to exactly `https://n8n.yourdomain.com/` including the trailing slash.
+#
 **n8n login page shows but workflows don't save**
+#
 Permissions issue on the data directory:
+#
 ```bash
 chown -R 1000:1000 /home/n8n-data
 docker restart n8n
 ```
 <Callout type="tip" title="Expected output">
-(command runs silently â€” no output means success)
+#
+(command runs silently — no output means success)
+#
 </Callout>
-**Queue mode not working â€” workflows run sequentially**
+**Queue mode not working — workflows run sequentially**
+#
 Redis not reachable from the Docker container. Test:
+#
 ```bash
 docker exec n8n ping host.docker.internal
 ```
 <Callout type="tip" title="Expected output">
-(command runs silently â€” no output means success)
+#
+(command runs silently — no output means success)
+#
 </Callout>
 If it doesn't resolve, verify `--add-host=host.docker.internal:host-gateway` is in your docker run command.
+#
 **Certbot SSL renewal fails**
+#
 Check the auto-renewal timer:
+#
 ```bash
 systemctl status certbot.timer
 certbot renew --dry-run
 ```
 <Callout type="tip" title="Expected output">
-â— service - ...
+#
+● service - ...
    Active: active (running) since ...
+#
 </Callout>
 Common cause: port 80 blocked by UFW. Allow it:
+#
 ```bash
 ufw allow 80
 ```
 <Callout type="tip" title="Expected output">
+#
 Rules updated
 Rules updated (v6)
+#
 </Callout>
 ---
+#
 ## FAQ
+#
+#
 ![n8n execution history showing 2,847 successful workflow runs on self-hosted Hetzner VPS](/images/posts/self-hosting-n8n-hetzner-vps/05-executions.png)
-*Executions â€” self hosting n8n hetzner vps*
+*Executions — self hosting n8n hetzner vps*
+#
 ### How much RAM does n8n use on a 4GB VPS?
-At idle: ~80MB. Queue mode active: ~180MB. During complex workflow execution: peaks at 250â€“350MB. On a CPX22 running n8n alongside a Next.js app and FastAPI backend, total memory stays under 2.5GB with 1.5GB headroom. I have run this setup for months without OOM issues after adding pruning and keeping Redis local.
+#
+At idle: ~80MB. Queue mode active: ~180MB. During complex workflow execution: peaks at 250–350MB. On a CPX22 running n8n alongside a Next.js app and FastAPI backend, total memory stays under 2.5GB with 1.5GB headroom. I've run this setup for over a year without OOM issues.
+#
 ### Can I use n8n to replace WhatsApp automation on Make or Zapier?
-Yes. I built a full WhatsApp AI assistant using n8n + WAHA + Claude API. The complete guide is at [WhatsApp AI assistant with n8n](/blog/whatsapp-ai-assistant-n8n-claude-api) â€” runs entirely on the same Hetzner VPS.
+#
+Yes. I built a full WhatsApp AI assistant using n8n + WAHA + Claude API. The complete guide is at [WhatsApp AI assistant with n8n](/blog/whatsapp-ai-assistant-n8n-claude-api) — runs entirely on the same Hetzner VPS.
+#
 ### How do I back up n8n workflows to git?
+#
 From n8n 0.214+, export all workflows via the CLI:
+#
 ```bash
 docker exec n8n n8n export:workflow --all \
   --output=/home/node/.n8n/workflows/
 ```
 <Callout type="tip" title="Expected output">
-(command runs silently â€” no output means success)
+#
+(command runs silently — no output means success)
+#
 </Callout>
 This creates individual JSON files you can commit to a git repo. Add this to your weekly update script.
+#
 ### What happens to running workflows when I update n8n?
+#
 With queue mode, in-progress executions are queued in Redis. If you stop n8n mid-execution, queued items resume when n8n restarts. Actively running executions will fail. Best practice: update during low-traffic hours and check the execution queue is empty first.
+#
 ### Can n8n connect to local services like Razorpay or MSG91?
+#
 Any service with a REST API works via n8n's HTTP Request node. Razorpay webhooks work as n8n Webhook triggers. MSG91, Cashfree, Shiprocket, and other regional payment/messaging APIs all integrate the same way.
+#
 ### How do I migrate from Make or Zapier to n8n?
-The migration isn't automatic â€” you rebuild workflows node by node. Start with your simplest 2-3 node workflows to learn n8n's interface. Run both old and new workflows in parallel for 3â€“5 days to validate output matches. Cancel your cloud subscription only after 2 weeks of stable n8n operation. The full cost math for why it's worth it is in the [n8n vs Make vs Zapier comparison](/blog/n8n-vs-make-vs-zapier-indie-dev).
+#
+The migration isn't automatic — you rebuild workflows node by node. Start with your simplest 2-3 node workflows to learn n8n's interface. Run both old and new workflows in parallel for 3–5 days to validate output matches. Cancel your cloud subscription only after 2 weeks of stable n8n operation. The full cost math for why it's worth it is in the [n8n vs Make vs Zapier comparison](/blog/n8n-vs-make-vs-zapier-indie-dev).
+#
 ---
+#
 ## What You Built
+#
 n8n is running on your Hetzner VPS: Docker container, Redis queue mode, Nginx with SSL, automatic weekly updates, and daily data backups. Unlimited executions, $0 extra infrastructure cost.
+#
 **Your next steps:**
+#
 ![n8n Docker containers and workflows running on Hetzner VPS](/images/posts/self-hosting-n8n-hetzner-vps/02-n8n-live-status.png)
-*Real output from the live Hetzner VPS â€” captured March 2026*
+*Real output from the live Hetzner VPS — captured March 2026*
+#
 ![n8n Docker containers running with health check returning ok](/images/posts/self-hosting-n8n-hetzner-vps/03-docker-containers-live.png)
-*Live terminal output captured from the Hetzner VPS â€” March 2026*
+*Live terminal output captured from the Hetzner VPS — March 2026*
+#
 ![n8n Docker Compose config with worker webhook and Redis queue](/images/posts/self-hosting-n8n-hetzner-vps/04-docker-compose.png)
-*Generated from live VPS data â€” March 2026*
-1. **Build the daily health check** â€” Workflow 2 above. Five minutes to set up and it tells you before users do when something breaks.
-2. **Connect to Claude API** â€” add an HTTP Request node pointing at `https://api.anthropic.com/v1/messages` and you have an AI layer in any workflow. Full integration guide at [WhatsApp AI assistant with n8n](/blog/whatsapp-ai-assistant-n8n-claude-api).
-3. **Add the self-healing supervisor** â€” the [Bayesian VPS supervisor](/blog/self-healing-vps-monitor-nodejs) monitors n8n alongside every other service and auto-restarts it if it crashes, sending you an alert only when human intervention is genuinely needed.
+*Generated from live VPS data — March 2026*
+#
+#
+#
+#
+1. **Build the daily health check** — Workflow 2 above. Five minutes to set up and it tells you before users do when something breaks.
+2. **Connect to Claude API** — add an HTTP Request node pointing at `https://api.anthropic.com/v1/messages` and you have an AI layer in any workflow. Full integration guide at [WhatsApp AI assistant with n8n](/blog/whatsapp-ai-assistant-n8n-claude-api).
+3. **Add the self-healing supervisor** — the [Bayesian VPS supervisor](/blog/self-healing-vps-monitor-nodejs) monitors n8n alongside every other service and auto-restarts it if it crashes, sending you an alert only when human intervention is genuinely needed.
+#
+#
 ---
+#
 ## Real Cost: Self-Hosted n8n vs n8n Cloud vs Make
+#
 The economics of self-hosting n8n only make sense if you understand what you're comparing against. Here's the real monthly cost at different workflow volumes:
+#
 | Option | 10k executions/month | 50k executions/month | 200k executions/month |
 |---|---|---|---|
 | n8n Cloud Starter | $20 | $50 | $120 |
 | Make Core | $9 | $29 | $99 |
 | Self-hosted on Hetzner CPX22 | $5.2 flat | $5.2 flat | $5.2 flat |
-Self-hosted n8n has zero per-execution cost. The $5.2/month is your entire infrastructure bill â€” whether you run 100 workflows or 1 million. This is why it's the right choice for any indie developer who has a VPS already running.
-The hidden cost is setup time â€” roughly 2â€“3 hours the first time. After that, maintenance is under 30 minutes per month (mostly updates via the command from Step 6). If your time is worth more than $5.2 per hour and you never want to think about it, n8n Cloud is worth it. For everyone else, self-hosting wins.
+#
+Self-hosted n8n has zero per-execution cost. The $5.2/month is your entire infrastructure bill — whether you run 100 workflows or 1 million. This is why it's the right choice for any indie developer who has a VPS already running.
+#
+The hidden cost is setup time — roughly 2–3 hours the first time. After that, maintenance is under 30 minutes per month (mostly updates via the command from Step 6). If your time is worth more than $5.2 per hour and you never want to think about it, n8n Cloud is worth it. For everyone else, self-hosting wins.
+#
 <Callout type="info" title="The break-even point">
-If you're running any other service on a Hetzner VPS â€” a Next.js app, FastAPI backend, anything â€” n8n is effectively free to add. It uses ~180MB RAM at idle on a 4GB server. You're already paying for the VPS.
+If you're running any other service on a Hetzner VPS — a Next.js app, FastAPI backend, anything — n8n is effectively free to add. It uses ~180MB RAM at idle on a 4GB server. You're already paying for the VPS.
 </Callout>
+#
 ## Keeping n8n Updated
+#
 n8n releases updates frequently. To update without losing your workflows (all stored in the Docker volume):
+#
 ```bash
 docker pull n8nio/n8n
 docker stop n8n
@@ -364,12 +496,21 @@ docker rm n8n
 # Re-run the exact docker run command from Step 3
 ```
 <Callout type="tip" title="Expected output">
-(command runs silently â€” no output means success)
+#
+(command runs silently — no output means success)
+#
 </Callout>
-Your workflows, credentials, and execution history are all in `/home/n8n-data` â€” the volume you mounted. The container can be destroyed and recreated freely without losing anything.
-Check the [n8n changelog](https://github.com/n8n-io/n8n/releases) before major version updates â€” occasionally breaking changes require a workflow adjustment.
+#
+Your workflows, credentials, and execution history are all in `/root/n8n-data` — the volume you mounted. The container can be destroyed and recreated freely without losing anything.
+#
+Check the [n8n changelog](https://github.com/n8n-io/n8n/releases) before major version updates — occasionally breaking changes require a workflow adjustment.
+#
 ---
-## Final Takeaway
-Self-hosted n8n on Hetzner is the highest ROI DevOps decision I've made as an indie developer. â‚¹0 extra per month for automation infrastructure that would otherwise cost $20â€“80/month on n8n Cloud or Zapier.
-The 30-minute setup is a one-time cost. After that, n8n runs in Docker, survives reboots, and handles every workflow without manual intervention. I've had one issue in 6 months â€” an n8n version update that broke a node â€” fixed in 10 minutes.
-**Next:** Wire up your first real workflow â€” the [WhatsApp AI assistant with Claude API](/blog/whatsapp-ai-assistant-n8n-claude-api) is a good starting point. Six nodes, under 3-second response time, runs on this same setup.
+#
+## The Takeaway
+#
+Self-hosted n8n on Hetzner is the highest ROI DevOps decision I've made as an indie developer. ₹0 extra per month for automation infrastructure that would otherwise cost $20–80/month on n8n Cloud or Zapier.
+#
+The 30-minute setup is a one-time cost. After that, n8n runs in Docker, survives reboots, and handles every workflow without manual intervention. I've had one issue in 6 months — an n8n version update that broke a node — fixed in 10 minutes.
+#
+**Next:** Wire up your first real workflow — the [WhatsApp AI assistant with Claude API](/blog/whatsapp-ai-assistant-n8n-claude-api) is a good starting point. Six nodes, under 3-second response time, runs on this same setup.

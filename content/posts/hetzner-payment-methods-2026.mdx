@@ -1,0 +1,70 @@
+---
+title: "Hetzner Payment Methods in 2026 — Cards That Work"
+slug: "hetzner-payment-methods-2026"
+description: "Hetzner payment options in 2026: cards that pass RBI 3DS, virtual prepaid paths, Wise/Wise Virtual USD, and practical steps to keep the VPS paid."
+date: "2026-03-27"
+updatedAt: "2026-03-27"
+author: "Ankit Sorathiya"
+category: "indie-hacking"
+tags: [hetzner, payments, india, vps]
+keyword: "hetzner payment methods 2026"
+featured: false
+featuredImage: /images/posts/hetzner-payment-methods-2026/featured.jpg
+schema: "article"
+difficulty: "beginner"
+timeToComplete: "10 minutes"
+excerpt: "The exact cards, wallets, and loopbacks that actually pay Hetzner reliably in 2026, plus a repeatable validation checklist and contingency plans."
+toc: true
+---
+
+Hetzner keeps increasing the number of affordable VPS slots, but payment hiccups from India, the EU, and other markets still block every second signup. This guide lists the cards and virtual accounts that work today, the fallbacks that keep your VPS online, and the exact steps I run before adding any payment method.
+
+If you are still onboarding through the homepage, head back to [blixamo.com](/), visit the [resources hub](/tag/deployment) for the broader deployment cluster, and know this article sits inside [/category/indie-hacking](/category/indie-hacking) while tying into the [/guides/vps-cloud-for-developers-guide](/guides/vps-cloud-for-developers-guide) pillar that covers every operational detail. Also cross-reference [How to pay for Hetzner from India](/blog/pay-hetzner-from-india) and [Hetzner Alternatives for Cheap VPS Hosting in 2026](/blog/hetzner-alternatives-cheap-vps-2026) for the payment + provider story.
+
+## TL;DR
+
+- **Best default:** Niyo Global debit card (international mode enabled).
+- **Recurring reliability:** Wise multi-currency USD card / balance.
+- **Backup:** Kotak 811 virtual card + local credit card with international flag.
+- **RBI 3DS trick:** Load enough balance, verify OTP, keep card active.
+- **Checklist:** verify limit, confirm recurring permissions, keep proof of transaction.
+
+## What actually trips Hetzner up?
+
+Hetzner charges the verification amount in EUR (~€0.99) and then reuses the card for recurring monthly bills. Big debit cards block that pattern because:
+
+- Banks expect RBI 3DS OTP for each international recurring charge.
+- Cards without recurring permission fail after the first month.
+- Some cards limit monthly international volume to Rs 20,000 or Rs 50,000.
+
+The fix is to pick cards designed for global subscriptions: Wise, TransferWise, Niyo Global, or even a credit card with explicit recurring permission.
+
+## The working list for 2026
+
+1. **Niyo Global Forex+ debit** — best default. Enable International Usage, load Rs 600, pay the verification charge, and note the bank rarely blocks recurring invoices. Use this card for GitHub, OpenAI, and Hetzner simultaneously. If you want the deeper card catalog, also compare the stories in [Indian Debit Cards for Developer Tools](/blog/indian-debit-cards-dev-tools).
+2. **Wise USD balance + virtual Visa** — top choice when you pay multiple international services. Keep Rs 5,000 equivalent in USD, use the virtual card for Hetzner, and route other tools like Claude API through the same balance.
+3. **Kotak 811 virtual debit** — keep it as a backup. Low friction, zero annual cost. Works when you need a second card for staging or test servers.
+4. **Capital credit card with international spending enabled** — good when you already have one. Helpful when you need to pay from a corporate account with supplier invoices.
+
+## Step-by-step: How I add a card
+
+1. Pick the card: Niyo first, Wise second. Have the login ready.
+2. Confirm international spending: enable it in the mobile app, set OTP/3DS acceptance to “auto approve”.
+3. Load balance: deposit Rs 1,000 to cover the first invoice plus margin.
+4. Pay Hetzner: add the card, complete the verification OTP, and wait for the €0.99 reversal.
+5. Monitor invoices: ensure future bills succeed. If a failure happens, switch to Wise or re-verify.
+
+## Related reading
+
+|| Need a full deployment path? [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner) shows the entire stack that uses this VPS.
+|| Want to run five apps on one server? [Run multiple projects on one VPS](/blog/multiple-projects-single-vps) explains the ports and PM2 layout I use after paying the bill.
+
+## What to do when the card fails
+
+- Retry with Wise coupon/limit at Hetzner’s billing page—Wise returns the authorization almost instantly.
+- Switch to Kotak 811 for one invoice, then move the recurring to another card.
+- Keep a clean payment log. That’s crucial for `GSC` referencing the `/tag/deployment` hub and verifying the homepage canonical remains stable.
+
+## What next?
+
+Once your payment method is stable, read [How to pay for Hetzner from India](/blog/pay-hetzner-from-india) for the same task in Indian banking detail, and follow [Self-hosting resources](/blog/self-hosting-resources) for more infrastructure steps.

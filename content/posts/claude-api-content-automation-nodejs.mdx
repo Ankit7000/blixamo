@@ -26,6 +26,8 @@ I let 15 MDX articles pile up, then lost an afternoon finding the same problems 
 
 Fixing that drift manually was boring and expensive. So I built a Node.js fixer that runs every morning at 8am, scans the content folder against a 30-rule checklist, applies deterministic cleanup first, then uses Claude Haiku for the structural rewrites that still need language judgment.
 
+If you want the broader Claude workflows that inspired this fixer—the prompting patterns, long-context reasoning, and productivity anchoring—start with the [Claude AI guide](/blog/claude-ai-guide) before wiring this automation into your stack.
+
 As of March 2026, that workflow had corrected 40+ issues across 15 posts without touching slugs, URLs, or the underlying publishing flow. If you want the publishing setup this sits on top of, read the [Next.js MDX blog guide](/blog/nextjs-mdx-blog-2026) first.
 
 

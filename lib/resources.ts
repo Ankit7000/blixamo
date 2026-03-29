@@ -103,6 +103,10 @@ const POPULAR_GUIDE_SLUGS = [
   'n8n-complete-guide-2026',
   'google-search-console-self-hosted-nextjs',
   'coolify-complete-guide-2026',
+  'tailwind-css-tips',
+  'nextjs-mdx-remote-rsc-edge-runtime-fix',
+  'ubuntu-vps-hardening-checklist',
+  'n8n-fastapi-hetzner-vps',
 ] as const
 
 const COMPARISON_SLUGS = [
@@ -143,7 +147,10 @@ const VPS_CLOUD_SLUGS = [
   'hetzner-vs-aws-lightsail-2026',
   'hetzner-vs-vultr-vs-linode-2026',
   'hetzner-vs-aws-2026',
+  'ssh-security-hardening-vps-2026',
   'vps-security-harden-ubuntu-2026',
+  'ubuntu-vps-hardening-checklist',
+  'compromised-vps-recovery-2026',
 ] as const
 
 const SELF_HOSTING_SLUGS = [
@@ -159,6 +166,7 @@ const AUTOMATION_SLUGS = [
   'n8n-complete-guide-2026',
   'n8n-vs-make-vs-zapier-indie-dev',
   'claude-api-content-automation-nodejs',
+  'n8n-fastapi-hetzner-vps',
   'build-telegram-bot-claude-api-python',
   'whatsapp-ai-assistant-n8n-claude-api',
 ] as const
@@ -376,13 +384,6 @@ const CATEGORY_DISCOVERY_CARDS: CuratedCard[] = [
     accentColor: CATEGORY_META['self-hosting'].color,
   },
   {
-    title: 'Automation',
-    description: 'Workflow automation, n8n, scripting, integrations, cron jobs, and automation systems.',
-    href: '/category/automation',
-    icon: '↻',
-    accentColor: CATEGORY_META.automation.color,
-  },
-  {
     title: 'AI & Automation',
     description: 'AI tools, automation workflows, APIs, AI integrations, and building AI-powered applications.',
     href: '/category/ai',
@@ -390,11 +391,11 @@ const CATEGORY_DISCOVERY_CARDS: CuratedCard[] = [
     accentColor: CATEGORY_META.ai.color,
   },
   {
-    title: 'Developer Tools',
-    description: 'Databases, APIs, automation tools, productivity tools, and development software.',
-    href: '/category/developer-tools',
-    icon: '⚙',
-    accentColor: CATEGORY_META['developer-tools'].color,
+    title: 'How To',
+    description: 'Step-by-step tutorials, guides, setup instructions, and troubleshooting.',
+    href: '/category/how-to',
+    icon: 'CLI',
+    accentColor: CATEGORY_META['how-to'].color,
   },
   {
     title: 'Web Development',
@@ -404,6 +405,13 @@ const CATEGORY_DISCOVERY_CARDS: CuratedCard[] = [
     accentColor: CATEGORY_META['web-dev'].color,
   },
   {
+    title: 'Automation',
+    description: 'Workflow automation, n8n, scripting, integrations, cron jobs, and automation systems.',
+    href: '/category/automation',
+    icon: '↻',
+    accentColor: CATEGORY_META.automation.color,
+  },
+  {
     title: 'Indie Hacking',
     description: 'SaaS ideas, MVP building, monetization, payment gateways, growth strategies, and startup tools.',
     href: '/category/indie-hacking',
@@ -411,18 +419,18 @@ const CATEGORY_DISCOVERY_CARDS: CuratedCard[] = [
     accentColor: CATEGORY_META['indie-hacking'].color,
   },
   {
+    title: 'Developer Tools',
+    description: 'Databases, APIs, automation tools, productivity tools, and development software.',
+    href: '/category/developer-tools',
+    icon: '⚙',
+    accentColor: CATEGORY_META['developer-tools'].color,
+  },
+  {
     title: 'Free Tools',
     description: 'Free hosting, free software, open-source tools, and free developer resources.',
     href: '/category/free-tools',
     icon: '◎',
     accentColor: CATEGORY_META['free-tools'].color,
-  },
-  {
-    title: 'How To',
-    description: 'Step-by-step tutorials, guides, setup instructions, and troubleshooting.',
-    href: '/category/how-to',
-    icon: 'CLI',
-    accentColor: CATEGORY_META['how-to'].color,
   },
 ] as const
 

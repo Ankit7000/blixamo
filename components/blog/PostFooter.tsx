@@ -14,6 +14,9 @@ interface PostFooterProps {
   comparisonsHub?: PillarPage | null
   relatedComparisons?: Post[]
   freeToolLinks?: Post[]
+  sameCategoryPosts?: Post[]
+  samePillarPosts?: Post[]
+  popularGuides?: Post[]
 }
 
 export function PostFooter({
@@ -24,6 +27,9 @@ export function PostFooter({
   comparisonsHub = null,
   relatedComparisons = [],
   freeToolLinks = [],
+  sameCategoryPosts = [],
+  samePillarPosts = [],
+  popularGuides = [],
 }: PostFooterProps) {
   const categoryMeta = getCategoryMeta(post.category)
   const comparisonLink = relatedComparisons[0]
@@ -56,13 +62,13 @@ export function PostFooter({
                 {pillarPage ? pillarPage.title : 'Open the pillar-guide layer for the strongest cluster entry points'}
               </span>
             </Link>
-            <Link href="/community" className="article-explore-link">
-              <span className="article-nav-label">Community Hub</span>
-              <span className="article-nav-title">Open discussions, build stories, and weekly resources</span>
-            </Link>
             <Link href="/blog" className="article-explore-link">
               <span className="article-nav-label">Blog Index</span>
               <span className="article-nav-title">Browse the full article archive</span>
+            </Link>
+            <Link href="/community" className="article-explore-link">
+              <span className="article-nav-label">Community Hub</span>
+              <span className="article-nav-title">Open discussions, build stories, and weekly resources</span>
             </Link>
             <Link href={comparisonLink ? `/blog/${comparisonLink.slug}` : `${PILLAR_BASE_PATH}/comparisons-hub`} className="article-explore-link">
               <span className="article-nav-label">Related Comparison</span>
@@ -84,6 +90,53 @@ export function PostFooter({
             </Link>
           </div>
         </div>
+
+        {sameCategoryPosts.length > 0 && (
+          <div className="article-share-panel">
+            <p className="article-share-eyebrow">Same category posts</p>
+            <h2 className="article-share-title">More reads in {categoryMeta.label}</h2>
+            <div className="article-explore-grid">
+              {sameCategoryPosts.map((entry) => (
+                <Link key={entry.slug} href={`/blog/${entry.slug}`} className="article-explore-link">
+                  <span className="article-nav-label">Same Category</span>
+                  <span className="article-nav-title">{entry.title}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {samePillarPosts.length > 0 && (
+          <div className="article-share-panel">
+            <p className="article-share-eyebrow">Same pillar posts</p>
+            <h2 className="article-share-title">
+              {pillarPage ? `More reads in ${pillarPage.title}` : 'More reads in the same pillar cluster'}
+            </h2>
+            <div className="article-explore-grid">
+              {samePillarPosts.map((entry) => (
+                <Link key={entry.slug} href={`/blog/${entry.slug}`} className="article-explore-link">
+                  <span className="article-nav-label">Same Pillar</span>
+                  <span className="article-nav-title">{entry.title}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {popularGuides.length > 0 && (
+          <div className="article-share-panel">
+            <p className="article-share-eyebrow">Popular guides</p>
+            <h2 className="article-share-title">Strong articles to keep the hub path moving</h2>
+            <div className="article-explore-grid">
+              {popularGuides.map((entry) => (
+                <Link key={entry.slug} href={`/blog/${entry.slug}`} className="article-explore-link">
+                  <span className="article-nav-label">Popular Guide</span>
+                  <span className="article-nav-title">{entry.title}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="article-share-panel">
           <p className="article-share-eyebrow">Share this guide</p>

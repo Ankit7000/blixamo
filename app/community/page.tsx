@@ -1,6 +1,9 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { PostCard } from '@/components/blog/PostCard'
+import { getAllPosts, type Post } from '@/lib/posts'
 import { RESOURCE_HUB_PATH } from '@/lib/resources'
+import { getResourceHubContent } from '@/lib/resources'
 
 export const metadata: Metadata = {
   title: 'Community Hub | Blixamo',
@@ -121,6 +124,17 @@ function CommunityCard({ card }: { card: CommunityCard }) {
 }
 
 export default function CommunityPage() {
+  const allPosts = getAllPosts()
+  const hub = getResourceHubContent(allPosts)
+  const practicalReads = [
+    ...hub.webDevelopment,
+    ...hub.indieDevSaas,
+    ...hub.popularGuides,
+    ...hub.deploymentGuides,
+    ...hub.selfHosting,
+    ...hub.automation,
+  ].filter((post, index, collection): post is Post => collection.findIndex((entry) => entry.slug === post.slug) === index).slice(0, 6)
+
   return (
     <div style={{ maxWidth: '1160px', margin: '0 auto', padding: '2.5rem 1rem 3rem' }}>
       <section className="home-resource-promo">
@@ -132,6 +146,9 @@ export default function CommunityPage() {
             tool recommendations, weekly resources, and the guides that help developers ship real projects on their own infrastructure.
           </p>
           <div className="home-hero-actions">
+            <Link href="/" className="home-hero-button home-hero-button-secondary">
+              Homepage
+            </Link>
             <Link href={RESOURCE_HUB_PATH} className="home-hero-button home-hero-button-primary">
               Start Here
             </Link>
@@ -181,6 +198,77 @@ export default function CommunityPage() {
         <div className="home-quick-grid">
           {BUILDING_SHOWCASE.map((card) => (
             <CommunityCard key={card.title} card={card} />
+          ))}
+        </div>
+      </section>
+
+      <section id="popular-community-reads" className="home-section-shell">
+        <div className="home-section-head home-section-head-inline">
+          <div>
+            <div className="home-section-kicker">Popular Articles</div>
+            <h2 className="home-section-title">High-signal reads the community hub should keep in circulation</h2>
+            <p className="home-section-description">
+              Use these pages to move from broad discussion into the strongest deployment, tooling, and infrastructure articles.
+            </p>
+          </div>
+          <Link href="/blog" className="home-section-link">
+            Browse all articles
+          </Link>
+        </div>
+        <div className="home-post-grid">
+          {hub.popularArticles.map((post) => (
+            <PostCard key={post.slug} post={post} />
+          ))}
+        </div>
+      </section>
+
+      <section id="community-comparisons" className="home-section-shell">
+        <div className="home-section-head home-section-head-inline">
+          <div>
+            <div className="home-section-kicker">Comparison Pages</div>
+            <h2 className="home-section-title">Decision pages that help discussions turn into practical next steps</h2>
+          </div>
+          <Link href="/guides/comparisons-hub" className="home-section-link">
+            Open comparisons hub
+          </Link>
+        </div>
+        <div className="home-post-grid">
+          {hub.comparisons.slice(0, 6).map((post) => (
+            <PostCard key={post.slug} post={post} />
+          ))}
+        </div>
+      </section>
+
+      <section id="practical-community-reads" className="home-section-shell">
+        <div className="home-section-head home-section-head-inline">
+          <div>
+            <div className="home-section-kicker">Practical Reads</div>
+            <h2 className="home-section-title">Hands-on articles worth surfacing from the community layer</h2>
+          </div>
+          <Link href={RESOURCE_HUB_PATH} className="home-section-link">
+            Open resources hub
+          </Link>
+        </div>
+        <div className="home-post-grid">
+          {practicalReads.map((post) => (
+            <PostCard key={post.slug} post={post} />
+          ))}
+        </div>
+      </section>
+
+      <section id="latest-community-reads" className="home-section-shell">
+        <div className="home-section-head home-section-head-inline">
+          <div>
+            <div className="home-section-kicker">Latest Articles</div>
+            <h2 className="home-section-title">Fresh guides and updates connected back into the main site hubs</h2>
+          </div>
+          <Link href="/blog" className="home-section-link">
+            Open latest archive
+          </Link>
+        </div>
+        <div className="home-post-grid">
+          {hub.latestArticles.map((post) => (
+            <PostCard key={post.slug} post={post} />
           ))}
         </div>
       </section>

@@ -1,0 +1,103 @@
+---
+title: "n8n + FastAPI on Hetzner VPS 2026 — Automation & APIs"
+slug: "n8n-fastapi-hetzner-vps"
+description: "Self-host n8n with FastAPI on a Hetzner VPS: Docker Compose config, PostgreSQL, Redis, SSL, monitoring, and secure exposure."
+date: "2026-03-27"
+updatedAt: "2026-03-27"
+author: "Ankit Sorathiya"
+category: "automation"
+tags: [n8n, fastapi, hetzner, automation]
+keyword: "n8n fastapi hetzner vps"
+featured: false
+featuredImage: /images/posts/n8n-fastapi-hetzner-vps/featured.jpg
+schema: "howto"
+difficulty: "intermediate"
+timeToComplete: "45 minutes"
+excerpt: "Deploy n8n alongside a FastAPI backend on Hetzner in 2026: Docker Compose, SSL, monitoring, and operational guardrails."
+toc: true
+---
+
+n8n plus a FastAPI backend makes a powerful automation + API combo on Hetzner. That stack belongs to [/category/automation](/category/automation) and the [/guides/automation-guide-for-developers](/guides/automation-guide-for-developers) pillar, and it fits naturally into the [blixamo.com](/) homepage narrative. After this setup, reinforce it with the [/tag/deployment](/tag/deployment) resources hub for monitoring, and keep the Hetzner payment chain from the [Hetzner Payment Methods in 2026](/blog/hetzner-payment-methods-2026) article in mind.
+
+## TL;DR
+
+- Docker Compose with n8n, FastAPI, PostgreSQL, Redis.
+- Use Hetzner CPX22 (4GB) with UFW, swap, and fail2ban.
+- Expose n8n/ FastAPI through Nginx reverse proxy + SSL via Certbot.
+- Automate health checks using [Best VPS Monitoring Tools in 2026](/blog/best-vps-monitoring-tools-2026).
+- Pair with [Ubuntu VPS Hardening Checklist](/blog/ubuntu-vps-hardening-checklist) for security.
+
+## Architecture overview
+
+1. **Hetzner CPX22** as the host, snapshot schedule in place.
+2. **Docker Compose** stack (n8n, FastAPI, PostgreSQL, Redis, Traefik or Nginx).
+3. **Reverse proxy** handles SSL, domain, and rate limiting.
+4. **Monitoring + automation** send alerts to Telegram/Slack.
+5. **Automated backups** to Hetzner snapshots or object storage.
+
+## Compose snippet
+
+```yaml
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: secure
+
+  redis:
+    image: redis:7
+
+  fastapi:
+    build: ./fastapi
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgres://postgres:secure@postgres:5432/fastapi
+
+  n8n:
+    image: n8nio/n8n:latest
+    ports:
+      - "5678:5678"
+    environment:
+      DB_TYPE: postgres
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PASSWORD: secure
+      EXECUTIONS_PROCESS: main
+
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - fastapi
+      - n8n
+```
+
+## Post-deploy steps
+
+- Run Certbot for `n8n.example.com` and `api.example.com`.
+- Add UFW rules per [Ubuntu VPS Hardening Checklist](/blog/ubuntu-vps-hardening-checklist) (ports 80,443,5678,8000).
+- Enable Hetzner monitoring + UptimeRobot from [Best VPS Monitoring Tools in 2026](/blog/best-vps-monitoring-tools-2026).
+- Automate health checks via `n8n` (see [Self-Healing VPS Monitor 2026](/blog/self-healing-vps-monitor-nodejs)).
+
+## Related content
+
+1. `[Run multiple projects on one VPS](/blog/multiple-projects-single-vps)` for the underlying port architecture.
+2. `[Hetzner Alternatives for Cheap VPS Hosting](/blog/hetzner-alternatives-cheap-vps-2026)` if you need another provider.
+
+Also see:
+
+- [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner)
+- [How to pay for Hetzner from India](/blog/pay-hetzner-from-india)
+
+## What next?
+
+Add this page to your automation hub, reverse proxy the routes to `n8n` and `FastAPI`, then link the stack back to `/tag/deployment` and the homepage for crawl weight.

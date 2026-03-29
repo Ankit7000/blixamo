@@ -56,7 +56,7 @@ Before you build the assistant, make sure you have:
 
 If you want to keep the infrastructure lightweight, this fits well on the same kind of setup described in [Docker Compose on VPS production setup](/blog/docker-compose-production-vps-2026).
 
-## Step 1 of 5 â€” Run WAHA
+## Step 1 of 5 — Run WAHA
 
 WAHA is the bridge between WhatsApp and your workflow. The simplest way to start is running it in Docker.
 
@@ -73,7 +73,7 @@ The volume mount matters. Without it, your WhatsApp session disappears whenever 
 
 After the container is up, start a session in the WAHA dashboard or API and scan the QR code with your phone. Once the session is connected, you have the transport layer working.
 
-## Step 2 of 5 â€” Create the n8n Webhook Workflow
+## Step 2 of 5 — Create the n8n Webhook Workflow
 
 The first version of the workflow can stay small:
 
@@ -95,7 +95,7 @@ body = {{ $json.body.payload.body }}
 
 Keep the data shape simple. You can add message history, routing, and richer context later.
 
-## Step 3 of 5 â€” Call Claude API From n8n
+## Step 3 of 5 — Call Claude API From n8n
 
 You do not need a special SDK for the first version. n8n's HTTP Request node is enough.
 
@@ -125,7 +125,7 @@ The short system prompt matters more than people think. WhatsApp is not email. L
 
 If you want more ideas for working with the model layer itself, read [Claude AI guide](/blog/claude-ai-guide) and [Claude API + Node.js automation](/blog/claude-api-content-automation-nodejs).
 
-## Step 4 of 5 â€” Send the Reply Back Through WAHA
+## Step 4 of 5 — Send the Reply Back Through WAHA
 
 Once n8n gets a response from Claude, call WAHA again to send the text back to the same chat.
 
@@ -140,7 +140,7 @@ At this point, the assistant works. You can message the number, n8n receives the
 
 The first thing I would test is not the AI quality. It is whether the end-to-end flow is stable across multiple messages and a WAHA restart.
 
-## Step 5 of 5 â€” Add Basic Guardrails
+## Step 5 of 5 — Add Basic Guardrails
 
 A WhatsApp bot gets risky when it is too eager. Add these guardrails before you call it finished:
 
