@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getPostsByCategory, getAllCategories, getAllPosts } from '@/lib/posts'
 import { PostCard } from '@/components/blog/PostCard'
+import { TemplateLinkBar } from '@/components/layout/TemplateLinkBar'
 import { getCategoryMeta } from '@/lib/categories'
 import { getCategoryClusterContent, getRelatedCategoryLinks, getResourceHubContent, RESOURCE_HUB_PATH } from '@/lib/resources'
 import { notFound } from 'next/navigation'
@@ -208,6 +209,11 @@ export default async function CategoryPage({ params }: Props) {
 
   return (
     <div style={{ maxWidth: '1100px', margin: '2.5rem auto', padding: '0 1rem' }}>
+      <TemplateLinkBar
+        relatedHref={clusterContent.pillarPages[0]?.href || clusterContent.hubSection.href}
+        relatedLabel={clusterContent.pillarPages[0]?.title || clusterContent.hubSection.title}
+      />
+
       <div style={{ marginBottom: '2rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--border)' }}>
         <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>Category</div>
         <h1 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-primary)' }}>{meta.label}</h1>

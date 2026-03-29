@@ -3,6 +3,7 @@ import Image from 'next/image'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { PostCard } from '@/components/blog/PostCard'
+import { TemplateLinkBar } from '@/components/layout/TemplateLinkBar'
 import { EmailCapture } from '@/components/monetization/EmailCapture'
 import { getAllPosts } from '@/lib/posts'
 import { getResourceHubContent, RESOURCE_HUB_TAG } from '@/lib/resources'
@@ -176,6 +177,10 @@ export default async function TagPage({ params }: Props) {
 
   return (
     <div className="resource-hub-shell">
+      <div style={{ maxWidth: '1160px', margin: '0 auto', padding: '2.5rem 1rem 0' }}>
+        <TemplateLinkBar relatedHref="/guides/comparisons-hub" relatedLabel="Comparisons Hub" />
+      </div>
+
       <section className="resource-hub-hero">
         <div className="resource-hub-hero-copy">
           <div className="home-section-kicker">Blixamo Resources</div>

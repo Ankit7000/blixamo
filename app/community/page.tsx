@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { PostCard } from '@/components/blog/PostCard'
+import { TemplateLinkBar } from '@/components/layout/TemplateLinkBar'
 import { getAllPosts, type Post } from '@/lib/posts'
 import { RESOURCE_HUB_PATH } from '@/lib/resources'
 import { getResourceHubContent } from '@/lib/resources'
@@ -169,6 +170,8 @@ export default function CommunityPage() {
 
   return (
     <div style={{ maxWidth: '1160px', margin: '0 auto', padding: '2.5rem 1rem 3rem' }}>
+      <TemplateLinkBar relatedHref="/guides/self-hosting-complete-guide" relatedLabel="Self Hosting Guide" />
+
       <section className="home-resource-promo">
         <div className="home-resource-promo-copy">
           <div className="home-section-kicker">Community Hub</div>

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getAllPosts } from '@/lib/posts'
 import { PostCard } from '@/components/blog/PostCard'
+import { TemplateLinkBar } from '@/components/layout/TemplateLinkBar'
 import { Pagination } from '@/components/ui/Pagination'
 import { getResourceHubContent, RESOURCE_HUB_PATH } from '@/lib/resources'
 import type { Metadata } from 'next'
@@ -21,6 +22,8 @@ export default function BlogIndexPage() {
 
   return (
     <div style={{ maxWidth: '1100px', margin: '2.5rem auto', padding: '0 1rem' }}>
+      <TemplateLinkBar relatedHref="/guides/deploy-apps-on-vps-complete-guide" relatedLabel="Deploy Apps on VPS Guide" />
+
       <section
         style={{
           marginBottom: '2rem',

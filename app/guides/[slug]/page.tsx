@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { PostCard } from '@/components/blog/PostCard'
+import { TemplateLinkBar } from '@/components/layout/TemplateLinkBar'
 import { getAllPosts } from '@/lib/posts'
 import { PILLAR_BASE_PATH, PILLAR_RESOURCE_HUB_PATH, getAllPillarPages, getPillarDefinitions, getPillarPageBySlug } from '@/lib/pillars'
 
@@ -83,6 +84,8 @@ export default async function PillarPage({ params }: Props) {
 
   return (
     <div style={{ maxWidth: '1120px', margin: '0 auto', padding: '2.5rem 1rem 3rem' }}>
+      <TemplateLinkBar relatedHref={pillar.primaryCategory.href} relatedLabel={pillar.primaryCategory.label} />
+
       <section className="home-resource-promo">
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div className="home-section-kicker">{pillar.eyebrow}</div>

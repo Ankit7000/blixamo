@@ -6,6 +6,7 @@ import { PostFooter } from '@/components/blog/PostFooter'
 import { TableOfContents } from '@/components/blog/TableOfContents'
 import { RelatedPosts } from '@/components/blog/RelatedPosts'
 import { ReadingProgress } from '@/components/blog/ReadingProgress'
+import { TemplateLinkBar } from '@/components/layout/TemplateLinkBar'
 import { EmailCapture } from '@/components/monetization/EmailCapture'
 import { notFound } from 'next/navigation'
 import rehypeSlug from 'rehype-slug'
@@ -129,6 +130,9 @@ export default async function PostPage({ params }: Props) {
 
       <div className="article-page-shell">
         <PostHeader post={post} pillarPage={pillarPage} />
+        <div style={{ maxWidth: '1120px', margin: '0 auto', padding: '0 1rem' }}>
+          <TemplateLinkBar relatedHref={pillarPage?.href || `/category/${post.category}`} relatedLabel={pillarPage ? pillarPage.title : categoryMeta.label} />
+        </div>
 
         <div className="post-layout article-layout-grid">
           <div />

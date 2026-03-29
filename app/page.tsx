@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { WebsiteJsonLd } from '@/components/seo/JsonLd'
 import { PostCard } from '@/components/blog/PostCard'
+import { TemplateLinkBar } from '@/components/layout/TemplateLinkBar'
 import { getAllPosts, type Post } from '@/lib/posts'
 import { getResourceHubContent, RESOURCE_HUB_PATH } from '@/lib/resources'
 
@@ -190,6 +191,10 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 1rem' }}>
+        <TemplateLinkBar relatedHref="/community" relatedLabel="Community" />
+      </div>
 
       <section id="start-here" className="home-section-shell">
         <div className="home-resource-promo">
