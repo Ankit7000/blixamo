@@ -1,4 +1,4 @@
-name: Deploy Blixamo
+﻿name: Deploy Blixamo
 
 on:
   push:
@@ -12,22 +12,28 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
-      - name: Trigger webhook deploy
+      - name: Setup SSH
         run: |
-          PAYLOAD='{"ref":"master"}'
-          SIG=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "blixamo-deploy-secret" | sed 's/.*= //')
-          curl --fail --silent --show-error \
-            -X POST https://blixamo.com/deploy \
-            -H "Content-Type: application/json" \
-            -H "X-Hub-Signature-256: sha256=$SIG" \
-            -d "$PAYLOAD"
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H 77.42.17.13 >> ~/.ssh/known_hosts
 
-      - name: Wait for build
-        run: sleep 45
+      - name: Deploy to VPS
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@77.42.17.13 \
+            "chmod +x /var/www/blixamo/deploy.sh && bash /var/www/blixamo/deploy.sh"
 
       - name: Health check
         run: |
-          curl --fail --silent --show-error https://blixamo.com/ > /dev/null
-          echo "Site is live"
+          sleep 5
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://blixamo.com/)
+          echo "Health check status: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "Health check FAILED with status $STATUS"
+            exit 1
+          fi
+          echo "Site is live and healthy"
