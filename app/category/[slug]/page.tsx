@@ -77,7 +77,9 @@ const CATEGORY_ARCHIVE_CONTENT: Record<string, CategoryArchiveContent> = {
     importantSlugs: [
       'hetzner-vs-digitalocean-vs-vultr-india',
       'hetzner-vs-aws-lightsail-2026',
+      'ssh-security-hardening-vps-2026',
       'vps-security-harden-ubuntu-2026',
+      'compromised-vps-recovery-2026',
       'hetzner-vs-aws-2026',
     ],
   },

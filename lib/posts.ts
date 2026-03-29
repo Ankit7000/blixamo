@@ -10,7 +10,7 @@ const WEAK_ARTICLE_BOOSTS_BY_CATEGORY: Record<string, Set<string>> = {
   'how-to': new Set(['build-telegram-bot-claude-api-python']),
   'indie-hacking': new Set(['razorpay-integration-nextjs-india', 'wise-vs-payoneer-india-freelancer']),
   'self-hosting': new Set(['self-hosting-resources']),
-  'vps-cloud': new Set(['hetzner-vs-aws-2026']),
+  'vps-cloud': new Set(['hetzner-vs-aws-2026', 'ssh-security-hardening-vps-2026', 'compromised-vps-recovery-2026']),
   'web-dev': new Set(['nextjs-mdx-remote-rsc-edge-runtime-fix', 'tailwind-css-tips']),
 }
 
