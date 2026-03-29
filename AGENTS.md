@@ -148,6 +148,31 @@ If structural changes were made, update the relevant docs/*.md file.
 
 ---
 
+## Blixamo deployment workflow
+
+Deploy branch: master
+
+After making changes:
+1. Commit changes
+2. Push to origin/master
+3. Do not run manual deploy unless explicitly asked
+
+Production deploy:
+- GitHub Actions auto-deploys on push to master
+- Remote deploy command is: bash /var/www/blixamo/build.sh
+
+Server:
+- SSH alias: blixamo
+- Host: 204.168.203.255
+- User: bot
+- App path: /var/www/blixamo
+
+Runtime rules:
+
+- blixamo runs under bot PM2
+- blixamo-webhook remains under root PM2
+- never move the main app back to root PM2
+
 ## Documentation Update Rules
 
 | Change Made | Update These Docs |
