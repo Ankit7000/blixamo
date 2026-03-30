@@ -46,6 +46,13 @@ type PillarResourceLinkDefinition = {
   description: string
 }
 
+type PillarDecisionSupportGroup = {
+  title: string
+  description: string
+  links: readonly PillarResourceLinkDefinition[]
+  nextStep: PillarResourceLinkDefinition
+}
+
 type PillarCategoryLink = {
   slug: string
   label: string
@@ -92,6 +99,9 @@ type PillarDefinition = {
   toolSlugs: readonly string[]
   learningPathSlugs: readonly string[]
   comparisonGroups?: readonly PillarPostGroupDefinition[]
+  heroPrimaryAction?: PillarResourceLinkDefinition
+  comparisonStartRoutes?: readonly PillarResourceLinkDefinition[]
+  decisionSupportGroups?: readonly PillarDecisionSupportGroup[]
   relatedResourceLinks: readonly PillarResourceLinkDefinition[]
 }
 
@@ -136,6 +146,9 @@ export type PillarPage = {
   learningPath: Post[]
   topicArticles: Post[]
   relatedArticles: Post[]
+  heroPrimaryAction?: PillarResourceLinkDefinition
+  comparisonStartRoutes: PillarResourceLinkDefinition[]
+  decisionSupportGroups: PillarDecisionSupportGroup[]
   relatedResources: PillarResourceLinkDefinition[]
   articleCount: number
 }
@@ -858,15 +871,15 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
     whyItMatters: 'Comparison traffic is high intent. Readers are usually close to spending money, committing to a workflow, or locking in a platform, so the next click matters more than a generic archive ever will.',
     heroEntry: {
       heading: 'Choose your comparison lane:',
-      text: 'Hosting if you are still buying infrastructure, deployment if the server is already settled, automation if you are replacing repeated work, AI if the model workflow is the decision, and developer tools if the bottleneck is inside daily software.',
+      text: 'Start with hosting when budget or provider choice is blocking you, deployment when you need the cleanest ship path, automation when you are replacing repeated work, and AI when the model workflow is the decision.',
     },
-    startHere: 'Open the comparison group closest to the live decision: hosting first if you are buying infrastructure, deployment next if you are choosing a platform path, automation if you are replacing manual work, AI if you are choosing model workflow, and developer tools if the bottleneck is in day-to-day software.',
+    startHere: 'Open the comparison group closest to the live decision: hosting if you are buying infrastructure, deployment if you are choosing how to ship, automation if you are replacing repeated work, and AI if you are choosing a model workflow. If you still need category basics, use the matching pillar first.',
     notFor: 'Do not start here if you still need the basics of a category. Use the matching pillar first when you need orientation, setup order, or context before a head-to-head verdict makes sense.',
     quickDecisions: [
-      { label: 'Use this hub', text: 'if the shortlist is real and one decision is actively blocking progress.' },
-      { label: 'Use a topic pillar first', text: 'if you still need context, sequencing, or setup order.' },
-      { label: 'Compare one layer only', text: 'if multiple parts of the stack are still unsettled.' },
-      { label: 'Stop comparing', text: 'once one option is good enough for the current workload and the next step is implementation.' },
+      { label: 'Start with the blocking decision', text: 'not the most interesting title. This page works only when one real choice is in front of you.' },
+      { label: 'Use a topic pillar first', text: 'if you still need context, setup order, or the basics before a verdict is useful.' },
+      { label: 'Compare one layer only', text: 'so hosting, deployment, automation, and AI choices do not blur into each other.' },
+      { label: 'Stop after good enough', text: 'once one option clearly fits the current workload and the next step is setup.' },
     ],
     goodFit: [
       'Readers who already know the shortlist and want a verdict quickly.',
@@ -880,12 +893,12 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
       'You plan to compare hosting, deployment, automation, and tooling all at once.',
       'You are unwilling to stop once one option is clearly good enough.',
     ],
-    decisionTableTitle: 'Choose the decision lane that matches the blocker in front of you',
+    decisionTableTitle: 'Choose the comparison lane that matches the blocker in front of you',
     decisionTableRows: [
-      { option: 'Topic pillar', bestFor: 'Readers who still need context before a verdict is useful.', watchOutFor: 'It is slower if the shortlist is already clear.', startWith: 'Open a pillar first when the decision is still fuzzy.' },
-      { option: 'Direct comparison', bestFor: 'Two or three realistic options competing for one role.', watchOutFor: 'It creates noise if the requirements are still vague.', startWith: 'Use it when one choice is actively blocking progress.' },
-      { option: 'Roundup or directory', bestFor: 'Broader software exploration after a comparison leaves a shortlist.', watchOutFor: 'It can reopen decisions you already closed.', startWith: 'Use it only when the verdict still leaves you with a category to narrow.' },
-      { option: 'Implementation guide', bestFor: 'Turning a verdict into action without more debate.', watchOutFor: 'It is the wrong starting point if the winner is still unclear.', startWith: 'Open it immediately after the comparison lands.' },
+      { option: 'Hosting comparison', bestFor: 'Provider, price, region, and VPS-value decisions.', watchOutFor: 'It is the wrong first click if the provider is already chosen.', startWith: 'Open this lane when hosting cost or support expectations are still open.' },
+      { option: 'Deployment comparison', bestFor: 'Choosing between manual deploys and self-hosted platform paths.', watchOutFor: 'It adds noise if the real blocker is still infrastructure.', startWith: 'Open this lane when the server is settled and ship-path complexity is the question.' },
+      { option: 'Automation comparison', bestFor: 'Choosing the simplest workflow platform without overbuilding.', watchOutFor: 'It is premature if you do not yet have a repeated task worth automating.', startWith: 'Open this lane when the workflow job is clear and the tooling is not.' },
+      { option: 'AI or workflow comparison', bestFor: 'Model or day-to-day software choices inside an existing stack.', watchOutFor: 'It can become a distraction if infrastructure or deployment is the real blocker.', startWith: 'Use it after the hosting and deployment layers are stable enough.' },
     ],
     commonMistakes: [
       'Opening every comparison page in the hub instead of picking one active decision.',
@@ -899,10 +912,10 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
       'Use it when 2 tools, hosts, or models are competing for the same role in your stack right now.',
       'Use it when you want the decision layer first and the implementation details second.',
     ],
-    bestToolsIntro: 'Use these directory-style pages after a comparison points you toward a category of tools or a broader shortlist. They are for the moment when the verdict is clear but the surrounding stack still needs shape.',
-    guidesIntro: 'These core reads are what you open after a verdict when you need context or implementation, not more debate. They are especially useful when a comparison tells you which lane won but you still need to understand how to use it well.',
+    bestToolsIntro: 'Use these only after a comparison leaves you with a narrower category to finish, not as the first stop. They help when the verdict is mostly clear but you still need to shape the surrounding stack without reopening the core decision.',
+    guidesIntro: 'These are the implementation and context reads you open after a verdict, not before it. Use them once a comparison narrows the lane and the next question becomes how to ship, host, or operate the winning path safely.',
     comparisonsIntro: 'This full comparison grid is for decision-ready readers who want every active verdict page in one place. Start with the group below that matches your current buying or tooling decision, then use the matching pillar as the next stop after the verdict lands.',
-    recommendedSetupIntro: 'A useful comparison workflow is simple: compare one layer of the stack, close that decision, then move into the matching pillar or implementation page instead of reopening every other debate.',
+    recommendedSetupIntro: 'A useful comparison workflow is simple: compare one layer of the stack, close that decision, then move into the matching setup guide or pillar instead of reopening every other debate.',
     recommendedSetup: [
       'Start with the comparison closest to the decision in front of you right now, not the one with the most interesting title.',
       'After each verdict, open the matching topic pillar so implementation keeps moving instead of turning into more comparison loops.',
@@ -917,9 +930,9 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
       'Ship or test the winner before reopening other debates.',
       'Return to this hub only when the next stack layer truly becomes the blocker.',
     ],
-    topicArticlesIntro: 'Use the full topic map when you want every comparison connected to the same cluster of supporting guides and tool pages. It is the easiest way to move from verdict to action without losing the architecture of the site.',
-    relatedArticlesIntro: 'These are the strongest next reads if you want a fast verdict and a clean follow-up path. They are a good fit for readers who already know the shortlist and just need the highest-signal decision pages.',
-    conclusion: 'Use this page as the decision center for the site. Open the comparison that matches the active choice, take the verdict, then move straight into the pillar or implementation read that helps you ship the winner.',
+    topicArticlesIntro: 'Use the full topic map when you want every comparison connected to the supporting setup guides, pillars, and follow-up reads that turn a verdict into action. It is the easiest way to move from choice to implementation without losing the site architecture.',
+    relatedArticlesIntro: 'These are the strongest next reads if you want a fast verdict and a practical follow-up path. They work best for readers who already know the decision type and now want the cleanest next click.',
+    conclusion: 'Use this page as the verdict engine for the site. Open the comparison that matches the active decision, take the tradeoff clearly, then move straight into the setup guide or pillar that helps you ship the winner.',
     finalRecommendations: [
       { label: 'Beginner', text: 'Use the matching topic pillar first unless the shortlist is already real and urgent.' },
       { label: 'Decision-ready', text: 'Compare one layer of the stack, take the verdict, then move on immediately.' },
@@ -927,17 +940,60 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
       { label: 'Not ready yet', text: 'Stop comparing and define the workload if you still cannot name the exact blocker in one sentence.' },
     ],
     faq: [
-      { question: 'Should I start with the comparisons hub or a topic pillar?', answer: 'Start here when the options are already clear and the decision is active. Start with a topic pillar when you still need context, setup order, or a basic map of the category.' },
-      { question: 'How do I choose which comparison to open first?', answer: 'Open the comparison that matches the decision blocking you right now. If you cannot name the immediate choice, you probably need the matching pillar page before you need a head-to-head verdict.' },
-      { question: 'What should I do after reading a comparison?', answer: 'Go straight to the matching topic pillar or the strongest implementation article for the winner. The goal is to turn the verdict into action quickly, not to keep browsing more comparisons.' },
-      { question: 'Are these comparison pages verdict first or neutral?', answer: 'They are meant to help real developers close decisions, so the useful ones should lean toward a clear recommendation instead of pretending every option is equally good.' },
-      { question: 'Why are tool pages linked from a comparisons hub?', answer: 'Because some verdicts still leave you with a category choice or a shortlist to finish. The linked tool pages help you connect a narrow comparison outcome to the rest of the workflow.' },
-      { question: 'When should I stop comparing and just ship?', answer: 'Stop comparing when one option is clearly good enough for the current workload and the remaining differences are edge cases you may never hit. Most stacks do not need a perfect winner. They need a decision.' },
+      { question: 'Should I start with the comparisons hub or a topic pillar?', answer: 'Start here when the shortlist is real and one decision is actively blocking progress. Start with a topic pillar when you still need context, setup order, or the basics of the category before a verdict is useful.' },
+      { question: 'What is the best first comparison for a beginner?', answer: 'Usually Hetzner vs AWS Lightsail or Coolify vs CapRover. Those comparisons are easier to map to a real next step because the decision is concrete: hosting value on one side, deployment path on the other.' },
+      { question: 'How do I know whether I should open a hosting, deployment, or automation comparison first?', answer: 'Ask which choice is actually blocking work today. If you have not chosen where the app will live, start with hosting. If the server is already settled but the ship path is unclear, start with deployment. If the workload is manual and repetitive, start with automation.' },
+      { question: 'What should I do after reading a comparison?', answer: 'Move straight into the matching setup guide or pillar. Hosting verdicts should lead into the VPS and cloud pillar, deployment verdicts into the deployment guide, and self-hosting-heavy verdicts into the self-hosting pillar. Do not reopen unrelated comparisons first.' },
+      { question: 'When should I stop comparing and just ship?', answer: 'Stop when one option is clearly good enough for the current workload and the remaining differences are edge cases you are unlikely to hit soon. Most stacks do not need the perfect winner. They need a clean decision and a practical next step.' },
+      { question: 'Why are some tool or directory pages still linked from this hub?', answer: 'Because some verdicts narrow the lane but still leave you with a smaller shortlist inside that lane. Those pages are here only as follow-up support, not as the main point of the comparisons hub.' },
     ],
     guideSlugs: ['best-free-developer-tools-2026', 'free-vps-hosting-2026', 'n8n-complete-guide-2026', 'coolify-complete-guide-2026'],
     comparisonSlugs: COMPARISON_SLUGS,
     toolSlugs: ['best-free-developer-tools-2026', 'best-postgresql-gui-free', 'best-ai-tools-2026', 'free-vps-hosting-2026'],
     learningPathSlugs: ['hetzner-vs-digitalocean-vs-vultr-india', 'coolify-vs-caprover-2026', 'n8n-vs-make-vs-zapier-indie-dev', 'claude-vs-chatgpt-developers'],
+    heroPrimaryAction: {
+      label: 'Open comparison routes',
+      href: '#comparison-start-here',
+      description: 'Jump straight to the route chooser if you already know this page is the right decision hub.',
+    },
+    comparisonStartRoutes: [
+      { label: 'Easiest path to deploy apps', href: '/blog/coolify-vs-caprover-2026', description: 'Start here if you are choosing the cleanest deployment path between platform-style options on a VPS.' },
+      { label: 'Cheapest serious hosting option', href: '/blog/hetzner-vs-aws-lightsail-2026', description: 'Read this first if monthly cost matters but you still want a realistic production hosting choice.' },
+      { label: 'Most control over hosting and deployment', href: '/blog/hetzner-vs-aws-2026', description: 'Use this route when ownership, flexibility, and long-term control matter more than convenience defaults.' },
+      { label: 'Simpler automation without overbuilding', href: '/blog/n8n-vs-make-vs-zapier-indie-dev', description: 'Open this comparison if you want the lightest workflow platform that still fits the job.' },
+    ],
+    decisionSupportGroups: [
+      {
+        title: 'Best comparisons for beginners',
+        description: 'These are the safest first comparison pages if you are new to self-hosting, VPS buying, or choosing between managed simplicity and self-hosted control.',
+        links: [
+          { label: 'Hetzner vs AWS Lightsail', href: '/blog/hetzner-vs-aws-lightsail-2026', description: 'The clearest beginner-friendly hosting tradeoff between cost and simplicity.' },
+          { label: 'Coolify vs CapRover', href: '/blog/coolify-vs-caprover-2026', description: 'A simple first deployment-platform comparison if you already know you want a self-hosted UI layer.' },
+          { label: 'n8n vs Make vs Zapier', href: '/blog/n8n-vs-make-vs-zapier-indie-dev', description: 'The easiest first automation verdict if your real question is how much workflow tool you actually need.' },
+        ],
+        nextStep: { label: 'After the verdict, go to the deployment guide', href: `${PILLAR_BASE_PATH}/deploy-apps-on-vps-complete-guide`, description: 'Use the deployment pillar next if the comparison helped you choose a ship path and you want the practical setup route.' },
+      },
+      {
+        title: 'Best comparisons for cost',
+        description: 'Use these if monthly spend, value, or avoiding the wrong paid default is the main filter rather than maximum convenience.',
+        links: [
+          { label: 'Hetzner vs AWS Lightsail', href: '/blog/hetzner-vs-aws-lightsail-2026', description: 'Best first read when you want serious hosting value without drifting into overkill cloud spend.' },
+          { label: 'Oracle Cloud Free vs Hetzner', href: '/blog/oracle-cloud-free-vs-hetzner-2026', description: 'Useful when you are deciding between free-tier temptation and a small paid VPS that is easier to trust.' },
+          { label: 'Hetzner vs Vultr vs Linode', href: '/blog/hetzner-vs-vultr-vs-linode-2026', description: 'Use this when the question is better long-term value across developer-friendly VPS providers.' },
+        ],
+        nextStep: { label: 'After the verdict, go to the VPS and cloud guide', href: `${PILLAR_BASE_PATH}/vps-cloud-for-developers-guide`, description: 'Use the VPS pillar next if a cost-sensitive hosting comparison helped you choose a provider and you now need the setup path.' },
+      },
+      {
+        title: 'Best comparisons for control',
+        description: 'These are the strongest reads if you are optimizing for ownership, self-hosted flexibility, and fewer managed-platform constraints.',
+        links: [
+          { label: 'Hetzner vs AWS', href: '/blog/hetzner-vs-aws-2026', description: 'Start here if the real question is how much control and infrastructure ownership you want to carry.' },
+          { label: 'Coolify vs CapRover', href: '/blog/coolify-vs-caprover-2026', description: 'Best deployment-platform comparison if you want a self-hosted route without handing everything to a managed platform.' },
+          { label: 'n8n vs Make vs Zapier', href: '/blog/n8n-vs-make-vs-zapier-indie-dev', description: 'Useful when self-hosted automation control matters more than the easiest SaaS workflow default.' },
+        ],
+        nextStep: { label: 'After the verdict, go to the self-hosting guide', href: `${PILLAR_BASE_PATH}/self-hosting-complete-guide`, description: 'Use the self-hosting pillar next if the comparison pushed you toward more ownership and you want the practical operating path.' },
+      },
+    ],
     comparisonGroups: [
       {
         title: 'Hosting and VPS comparisons',
@@ -967,7 +1023,7 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
     ],
     relatedResourceLinks: [
       { label: 'Resources Hub', href: PILLAR_RESOURCE_HUB_PATH, description: 'Return to the hub if you want to move from decision pages into guided topic browsing.' },
-      { label: 'Developer Tools Pillar', href: `${PILLAR_BASE_PATH}/developer-tools-directory`, description: 'Open the developer-tools pillar if the decision is really about tooling choices inside your workflow.' },
+      { label: 'Developer Tools Pillar', href: `${PILLAR_BASE_PATH}/developer-tools-directory`, description: 'Open the developer-tools pillar only if a comparison still leaves you with a broader workflow-tool shortlist to finish.' },
       { label: 'VPS and Cloud Pillar', href: `${PILLAR_BASE_PATH}/vps-cloud-for-developers-guide`, description: 'Open the VPS pillar if the comparison is about providers and infrastructure decisions.' },
     ],
   },
@@ -1063,6 +1119,9 @@ function buildPillarPage(definition: PillarDefinition, posts: Post[]): PillarPag
     learningPath: learningPath.slice(0, 8),
     topicArticles,
     relatedArticles,
+    heroPrimaryAction: definition.heroPrimaryAction,
+    comparisonStartRoutes: [...(definition.comparisonStartRoutes ?? [])],
+    decisionSupportGroups: [...(definition.decisionSupportGroups ?? [])],
     relatedResources: [...definition.relatedResourceLinks],
     articleCount: topicArticles.length,
   }

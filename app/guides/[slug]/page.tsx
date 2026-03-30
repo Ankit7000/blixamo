@@ -145,6 +145,7 @@ export default async function PillarPage({ params }: Props) {
         .some((categorySlug) => pillarCategorySlugs.has(categorySlug))
     )
     .slice(0, 4)
+  const hasComparisonDecisionSupport = pillar.comparisonStartRoutes.length > 0 || pillar.decisionSupportGroups.length > 0
 
   return (
     <div style={{ maxWidth: '1120px', margin: '0 auto', padding: '2.5rem 1rem 3rem' }}>
@@ -184,9 +185,15 @@ export default async function PillarPage({ params }: Props) {
             <Link href={PILLAR_RESOURCE_HUB_PATH} className="home-hero-button home-hero-button-primary">
               Open resources hub
             </Link>
-            <Link href={pillar.primaryCategory.href} className="home-hero-button home-hero-button-secondary">
-              Browse {pillar.primaryCategory.label}
-            </Link>
+            {pillar.heroPrimaryAction ? (
+              <Link href={pillar.heroPrimaryAction.href} className="home-hero-button home-hero-button-secondary">
+                {pillar.heroPrimaryAction.label}
+              </Link>
+            ) : (
+              <Link href={pillar.primaryCategory.href} className="home-hero-button home-hero-button-secondary">
+                Browse {pillar.primaryCategory.label}
+              </Link>
+            )}
           </div>
         </div>
 
@@ -252,6 +259,54 @@ export default async function PillarPage({ params }: Props) {
         </div>
         <DecisionTable rows={pillar.decisionTableRows} />
       </section>
+
+      {pillar.comparisonStartRoutes.length > 0 && (
+        <section id="comparison-start-here" className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+          <div className="home-section-head">
+            <div className="home-section-kicker">Start here</div>
+            <h2 className="home-section-title">Start with this comparison if you want</h2>
+            <p className="home-section-description">
+              Use these route choices when the page is clearly the right hub but you still need the fastest first comparison.
+            </p>
+          </div>
+          <div className="home-discovery-grid">
+            {pillar.comparisonStartRoutes.map((route) => (
+              <ResourceCard key={route.href} title={route.label} description={route.description} href={route.href} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {pillar.decisionSupportGroups.length > 0 && (
+        <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+          <div className="home-section-head">
+            <div className="home-section-kicker">Best comparison picks</div>
+            <h2 className="home-section-title">Use these comparison sets when beginner-friendliness, cost, or control is the real filter</h2>
+            <p className="home-section-description">
+              This keeps the hub comparison-first. Pick the filter that matters most, open the comparison that fits it, then move into the setup guide linked underneath.
+            </p>
+          </div>
+          <div className="home-resource-promo-grid">
+            {pillar.decisionSupportGroups.map((group) => (
+              <div key={group.title} className="home-resource-promo-card">
+                <h3 style={{ margin: 0, fontSize: '1rem', color: 'var(--text-primary)' }}>{group.title}</h3>
+                <p style={{ margin: 0 }}>{group.description}</p>
+                <ul style={{ margin: 0, paddingLeft: '1.1rem', display: 'grid', gap: '0.75rem' }}>
+                  {group.links.map((link) => (
+                    <li key={link.href}>
+                      <Link href={link.href}>{link.label}</Link>. {link.description}
+                    </li>
+                  ))}
+                </ul>
+                <p style={{ margin: 0 }}>
+                  <strong><Link href={group.nextStep.href}>{group.nextStep.label}</Link>.</strong>{' '}
+                  {group.nextStep.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
         <div className="home-section-head">
@@ -332,11 +387,13 @@ export default async function PillarPage({ params }: Props) {
 
       <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
         <div className="home-section-head">
-          <div className="home-section-kicker">Recommended tools</div>
-          <h2 className="home-section-title">Use the strongest supporting pages before you choose the stack</h2>
+          <div className="home-section-kicker">{hasComparisonDecisionSupport ? 'After the verdict' : 'Recommended tools'}</div>
+          <h2 className="home-section-title">{hasComparisonDecisionSupport ? 'Use these support pages only if the comparison leaves you with a shortlist' : 'Use the strongest supporting pages before you choose the stack'}</h2>
           <p className="home-section-description">{pillar.bestToolsIntro}</p>
           <p className="home-section-description" style={{ margin: 0 }}>
-            Open the card that matches the active bottleneck. Skip the rest until that supporting-tool choice is actually clear.
+            {hasComparisonDecisionSupport
+              ? 'These are follow-up pages, not the first click. Use them only when the comparison narrowed the lane but did not fully close the choice.'
+              : 'Open the card that matches the active bottleneck. Skip the rest until that supporting-tool choice is actually clear.'}
           </p>
         </div>
         <div className="home-post-grid">
@@ -348,11 +405,13 @@ export default async function PillarPage({ params }: Props) {
 
       <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
         <div className="home-section-head">
-          <div className="home-section-kicker">Continue Learning</div>
-          <h2 className="home-section-title">Start with these core reads inside the cluster</h2>
+          <div className="home-section-kicker">{hasComparisonDecisionSupport ? 'Next setup guides' : 'Continue Learning'}</div>
+          <h2 className="home-section-title">{hasComparisonDecisionSupport ? 'After the comparison, move into the matching setup guide' : 'Start with these core reads inside the cluster'}</h2>
           <p className="home-section-description">{pillar.guidesIntro}</p>
           <p className="home-section-description" style={{ margin: 0 }}>
-            Treat these cards as the execution lane. Start with the first read that matches your current state and ignore the advanced branches until the base path works.
+            {hasComparisonDecisionSupport
+              ? 'Pick the guide that matches the verdict you just landed on. This is the clean bridge from decision content into implementation.'
+              : 'Treat these cards as the execution lane. Start with the first read that matches your current state and ignore the advanced branches until the base path works.'}
           </p>
         </div>
         <div className="home-post-grid">
@@ -541,12 +600,19 @@ export default async function PillarPage({ params }: Props) {
             <Link href={PILLAR_RESOURCE_HUB_PATH} className="home-hero-button home-hero-button-secondary">
               Return to resources hub
             </Link>
-            <Link href={pillar.primaryCategory.href} className="home-hero-button home-hero-button-secondary">
-              Browse {pillar.primaryCategory.label}
-            </Link>
+            {pillar.heroPrimaryAction ? (
+              <Link href={pillar.heroPrimaryAction.href} className="home-hero-button home-hero-button-secondary">
+                {pillar.heroPrimaryAction.label}
+              </Link>
+            ) : (
+              <Link href={pillar.primaryCategory.href} className="home-hero-button home-hero-button-secondary">
+                Browse {pillar.primaryCategory.label}
+              </Link>
+            )}
           </div>
         </div>
       </section>
     </div>
   )
 }
+
