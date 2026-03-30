@@ -44,6 +44,7 @@ export default async function PillarPage({ params }: Props) {
 
   if (!pillar) notFound()
 
+  const firstLearningPost = pillar.learningPath[0]
   const relatedResources = [
     { title: 'Homepage', description: 'Return to the main site hub and top-level discovery paths.', href: '/' },
     { title: 'Resources Hub', description: 'Open the central resources hub for start-here paths and topic navigation.', href: PILLAR_RESOURCE_HUB_PATH },
@@ -94,6 +95,12 @@ export default async function PillarPage({ params }: Props) {
           </h1>
           <p className="home-section-description">{pillar.description}</p>
           <p className="home-section-description" style={{ margin: 0 }}>{pillar.intro}</p>
+          {firstLearningPost && (
+            <p className="home-section-description" style={{ margin: 0 }}>
+              <strong>Best first click:</strong>{' '}
+              <Link href={`/blog/${firstLearningPost.slug}`}>{firstLearningPost.title}</Link>. {pillar.startHere}
+            </p>
+          )}
           <div className="home-resource-points">
             <span>{pillar.articleCount} primary articles</span>
             <span>{pillar.guides.length} guides</span>
@@ -125,6 +132,14 @@ export default async function PillarPage({ params }: Props) {
             <span className="home-curated-eyebrow">Why it matters</span>
             <p style={{ margin: 0 }}>{pillar.whyItMatters}</p>
           </div>
+          <div className="home-resource-promo-card">
+            <span className="home-curated-eyebrow">Start here if</span>
+            <p style={{ margin: 0 }}>{pillar.startHere}</p>
+          </div>
+          <div className="home-resource-promo-card">
+            <span className="home-curated-eyebrow">Not the first stop if</span>
+            <p style={{ margin: 0 }}>{pillar.notFor}</p>
+          </div>
         </div>
       </section>
 
@@ -132,6 +147,9 @@ export default async function PillarPage({ params }: Props) {
         <div className="home-section-head">
           <div className="home-section-kicker">When to use it</div>
           <h2 className="home-section-title">Use this pillar when this is the problem in front of you</h2>
+          <p className="home-section-description">
+            This section is the quickest way to confirm whether you should stay here, jump straight into the first article, or back up into another pillar before you make the topic more complicated than it needs to be.
+          </p>
         </div>
         <ul className="resource-path-steps">
           {pillar.whenToUse.map((item) => (
@@ -159,6 +177,9 @@ export default async function PillarPage({ params }: Props) {
         <div className="home-section-head">
           <div className="home-section-kicker">Explore Categories</div>
           <h2 className="home-section-title">Category routes connected to this guide</h2>
+          <p className="home-section-description">
+            Use these category pages when you want the wider neighborhood around this pillar. They are useful if the current guide gets you close to the answer but you still need adjacent articles, broader archives, or another angle on the same cluster.
+          </p>
         </div>
         <div className="home-discovery-grid">
           {categoryLinks.map((category) => (
@@ -172,6 +193,9 @@ export default async function PillarPage({ params }: Props) {
           <div className="home-section-head">
             <div className="home-section-kicker">Related Guides</div>
             <h2 className="home-section-title">Other pillar guides in the same topic neighborhood</h2>
+            <p className="home-section-description">
+              Open these when the current topic touches another decision lane. They help you move sideways into the right cluster without losing the crawl path back to the homepage, resources hub, categories, and supporting articles.
+            </p>
           </div>
           <div className="home-discovery-grid">
             {relatedPillarPages.map((page) => (
@@ -197,7 +221,8 @@ export default async function PillarPage({ params }: Props) {
       <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
         <div className="home-section-head">
           <div className="home-section-kicker">Continue Learning</div>
-          <h2 className="home-section-title">Start with these implementation reads inside the cluster</h2>
+          <h2 className="home-section-title">Start with these core reads inside the cluster</h2>
+          <p className="home-section-description">{pillar.guidesIntro}</p>
         </div>
         <div className="home-post-grid">
           {pillar.guides.map((post) => (
@@ -206,10 +231,38 @@ export default async function PillarPage({ params }: Props) {
         </div>
       </section>
 
+      {pillar.comparisonGroups.length > 0 && (
+        <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+          <div className="home-section-head">
+            <div className="home-section-kicker">Comparison lanes</div>
+            <h2 className="home-section-title">Start with the comparison group that matches the active decision</h2>
+            <p className="home-section-description">
+              This extra grouping is for decision-ready readers. It helps you avoid opening every head-to-head page at once and points you toward the next pillar or implementation lane after the verdict lands.
+            </p>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            {pillar.comparisonGroups.map((group) => (
+              <div key={group.title} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div className="home-section-head" style={{ gap: '0.5rem' }}>
+                  <h3 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '1.35rem', fontWeight: 800 }}>{group.title}</h3>
+                  <p className="home-section-description" style={{ margin: 0 }}>{group.description}</p>
+                </div>
+                <div className="home-post-grid">
+                  {group.posts.map((post) => (
+                    <PostCard key={post.slug} post={post} />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
         <div className="home-section-head">
           <div className="home-section-kicker">Comparisons</div>
           <h2 className="home-section-title">Decision pages that connect to this cluster</h2>
+          <p className="home-section-description">{pillar.comparisonsIntro}</p>
         </div>
         <div className="home-post-grid">
           {pillar.comparisons.map((post) => (
@@ -250,9 +303,7 @@ export default async function PillarPage({ params }: Props) {
         <div className="home-section-head">
           <div className="home-section-kicker">Articles in this topic</div>
           <h2 className="home-section-title">All cluster articles connected to this pillar</h2>
-          <p className="home-section-description">
-            Use this section as the full topic map for the cluster. Every article below is part of this pillar path and links back into the same guide, category, and resource-hub structure.
-          </p>
+          <p className="home-section-description">{pillar.topicArticlesIntro}</p>
         </div>
         <div className="home-post-grid">
           {pillar.topicArticles.map((post) => (
@@ -265,6 +316,7 @@ export default async function PillarPage({ params }: Props) {
         <div className="home-section-head">
           <div className="home-section-kicker">Related articles</div>
           <h2 className="home-section-title">Core reads connected to this pillar</h2>
+          <p className="home-section-description">{pillar.relatedArticlesIntro}</p>
         </div>
         <div className="home-post-grid">
           {pillar.relatedArticles.map((post) => (
@@ -277,6 +329,9 @@ export default async function PillarPage({ params }: Props) {
         <div className="home-section-head">
           <div className="home-section-kicker">FAQ</div>
           <h2 className="home-section-title">Common questions around this topic cluster</h2>
+          <p className="home-section-description">
+            These questions are written for readers who are deciding whether this is the right entry point, what to click next, and what mistakes are easiest to avoid before they go deeper into the cluster.
+          </p>
         </div>
         <div className="home-resource-promo-grid">
           {pillar.faq.map((item) => (
@@ -293,6 +348,11 @@ export default async function PillarPage({ params }: Props) {
           <div className="home-section-kicker">Conclusion</div>
           <h2 className="home-section-title" style={{ marginTop: '0.75rem' }}>Use this page as the main entry point for this cluster</h2>
           <p className="home-section-description" style={{ marginTop: '0.75rem' }}>{pillar.conclusion}</p>
+          {firstLearningPost && (
+            <p className="home-section-description" style={{ marginTop: '0.75rem' }}>
+              If you want the cleanest next step, start with <Link href={`/blog/${firstLearningPost.slug}`}>{firstLearningPost.title}</Link> and then return here when you need the rest of the cluster map.
+            </p>
+          )}
           <div className="home-hero-actions" style={{ marginTop: '1rem' }}>
             <Link href="/" className="home-hero-button home-hero-button-secondary">
               Go to homepage

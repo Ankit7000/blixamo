@@ -9,6 +9,18 @@ type PillarFaq = {
   answer: string
 }
 
+type PillarPostGroupDefinition = {
+  title: string
+  description: string
+  slugs: readonly string[]
+}
+
+type PillarPostGroup = {
+  title: string
+  description: string
+  posts: Post[]
+}
+
 type PillarResourceLinkDefinition = {
   label: string
   href: string
@@ -34,17 +46,24 @@ type PillarDefinition = {
   intro: string
   whatIs: string
   whyItMatters: string
+  startHere: string
+  notFor: string
   whenToUse: readonly string[]
   bestToolsIntro: string
+  guidesIntro: string
+  comparisonsIntro: string
   recommendedSetupIntro: string
   recommendedSetup: readonly string[]
   learningPathIntro: string
+  topicArticlesIntro: string
+  relatedArticlesIntro: string
   conclusion: string
   faq: readonly PillarFaq[]
   guideSlugs: readonly string[]
   comparisonSlugs: readonly string[]
   toolSlugs: readonly string[]
   learningPathSlugs: readonly string[]
+  comparisonGroups?: readonly PillarPostGroupDefinition[]
   relatedResourceLinks: readonly PillarResourceLinkDefinition[]
 }
 
@@ -59,16 +78,23 @@ export type PillarPage = {
   intro: string
   whatIs: string
   whyItMatters: string
+  startHere: string
+  notFor: string
   whenToUse: string[]
   bestToolsIntro: string
+  guidesIntro: string
+  comparisonsIntro: string
   recommendedSetupIntro: string
   recommendedSetup: string[]
   learningPathIntro: string
+  topicArticlesIntro: string
+  relatedArticlesIntro: string
   conclusion: string
   faq: PillarFaq[]
   primaryArticles: Post[]
   guides: Post[]
   comparisons: Post[]
+  comparisonGroups: PillarPostGroup[]
   tools: Post[]
   learningPath: Post[]
   topicArticles: Post[]
@@ -160,29 +186,37 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
     eyebrow: 'Self Hosting',
     primaryCategory: 'self-hosting',
     supportingCategories: ['how-to', 'vps-cloud', 'automation'],
-    intro: 'This page organizes the self-hosting side of Blixamo into one path so readers can move from setup to operations without losing context.',
-    whatIs: 'Self-hosting here means running your own apps, automation, analytics, and supporting services on infrastructure you control.',
-    whyItMatters: 'It matters because control, cost, and visibility usually improve when the stack is small and intentional.',
+    intro: 'Start here if you want to run useful apps and services on your own VPS without turning one cheap server into a messy side project. The goal is a small self-hosted stack you can understand, recover, and keep online.',
+    whatIs: 'Self-hosting here means running real app workloads, automation, analytics, and supporting services on infrastructure you control instead of outsourcing every layer to SaaS.',
+    whyItMatters: 'Self-hosting pays off when it lowers recurring cost, gives you better control over data and deploy flow, and keeps the stack small enough that one developer can still operate it calmly.',
+    startHere: 'If you are new, start with one practical service that is worth owning now, usually app deployment, analytics, or an automation workflow. Add monitoring, recovery, and extra services only after the first workload is stable.',
+    notFor: 'Do not start here if you only need to ship one app quickly and do not want to operate supporting services yet. In that case, open the deployment pillar first and keep the stack minimal.',
     whenToUse: [
-      'Use it when you want more control over cost, data, and deploy flow.',
-      'Use it when hosted tools are becoming expensive or limiting.',
-      'Use it when you want one clear route from VPS setup into a working stack.',
+      'Use it when hosted tools are getting expensive and you want more control without jumping straight into a complex home-lab setup.',
+      'Use it when you need a clear path from first app to supporting services such as analytics, automation, and monitoring.',
+      'Use it when you want production discipline around a self-hosted stack instead of adding random containers whenever a new tool looks interesting.',
     ],
-    bestToolsIntro: 'These supporting reads help with the platform, low-cost tools, and surrounding stack choices.',
-    recommendedSetupIntro: 'A strong self-hosted setup is small, understandable, and easy to recover.',
+    bestToolsIntro: 'Use these support pages when you are narrowing the platform, low-cost tooling, and surrounding stack choices that sit around the services you host yourself. They matter most after you know what the first self-hosted workload should be.',
+    guidesIntro: 'Open these reads when you are ready to run something real. Beginners should start with the broad self-hosting setup article, then pick one concrete workload such as Coolify, n8n, or Plausible before adding recovery and monitoring layers.',
+    comparisonsIntro: 'Comparison pages matter once the first service is clear and you are deciding between platforms or providers. Skip them for now if you are still figuring out whether to self-host at all or what belongs on the server first.',
+    recommendedSetupIntro: 'The best self-hosted stack for most developers is boring on purpose: one VPS, one deployment path, a few services that earn their place, and an exit plan if something breaks.',
     recommendedSetup: [
-      'Secure the VPS first, then install app tooling.',
-      'Add services one layer at a time instead of all at once.',
-      'Use comparison pages only where the platform choice changes the operational burden.',
-      'Keep one main deployment path and document it clearly.',
+      'Secure the VPS first, then choose the first app or service that saves money or removes the most vendor friction.',
+      'Add core services one layer at a time: deployment, then analytics or automation, then recovery and monitoring.',
+      'Do not self-host critical email, complex databases, or too many dashboards first. Earn the operational complexity slowly.',
+      'Use comparison pages only when the platform choice changes how much work you will carry every week.',
     ],
-    learningPathIntro: 'Follow this path if you want to move from broad self-hosting context into a working production stack.',
-    conclusion: 'Use this page as the self-hosting control panel for the site, then branch into deployment or infrastructure decisions only when needed.',
+    learningPathIntro: 'Follow this path if you want to move from broad self-hosting context into a working stack with a sane progression: first workload, repeatable deploy path, then operations discipline.',
+    topicArticlesIntro: 'This is the full self-hosting cluster. Use it when you already know the subtopic you need or when you want to see how app hosting, automation, analytics, monitoring, and recovery fit together under one operating model.',
+    relatedArticlesIntro: 'These are the strongest next reads if you want a faster path without browsing the entire cluster. They work well for developers who already know the first service they want to self-host.',
+    conclusion: 'Use this page as the self-hosting entry point when the question is what to host yourself, what to delay, and how to keep the stack from getting sloppy. Start with one service that clearly earns the extra control, then move into deployment or infrastructure only when the next decision actually demands it.',
     faq: [
-      { question: 'What should I self-host first?', answer: 'Start with the workload that saves money or removes the most vendor friction, usually app deployment, automation, or analytics.' },
-      { question: 'Is self-hosting cheaper than SaaS?', answer: 'Often yes when the stack stays lean. The savings disappear if you create a fragile pile of services you do not need.' },
-      { question: 'Do I need Docker for self-hosting?', answer: 'Not always, but it helps once you manage more than one service. The linked guides show where that tradeoff becomes worth it.' },
-      { question: 'Where should I go after this page?', answer: 'Move into the setup guides first, then use the comparison and tool pages to narrow the stack.' },
+      { question: 'What should I self-host first as a developer?', answer: 'Start with the workload that saves money or removes the most vendor friction right away, usually app deployment, analytics, or one automation workflow. That gives you a quick win without forcing you to operate a full platform on day 1.' },
+      { question: 'What should I avoid self-hosting first?', answer: 'Avoid the services that create the most operational pain if they fail, especially email, large databases you do not fully understand yet, and a pile of admin dashboards you will not maintain. Get one simple service stable first.' },
+      { question: 'Is self-hosting actually cheaper than SaaS?', answer: 'Often yes when the stack stays lean and the VPS already covers more than one useful workload. The savings disappear when you add services just because they are open source and not because they solve a real cost or control problem.' },
+      { question: 'Do I need Docker for self-hosting?', answer: 'Not always. Docker becomes useful once you are running more than one service or you want cleaner repeatability across deploys. If you are still learning the basics, a simpler path can be easier to debug.' },
+      { question: 'When should I read comparisons instead of setup guides?', answer: 'Read setup guides first when you are still proving that the workload belongs on your server. Read comparisons once the workload is fixed and the open question is which platform or provider should carry it.' },
+      { question: 'Where should I go after this page?', answer: 'Open the self-hosting setup reads first, then jump to the deployment pillar if the next task is shipping an app, or the VPS pillar if the next decision is about hosting and hardening.' },
     ],
     guideSlugs: ['self-hosting-resources', 'coolify-complete-guide-2026', 'self-hosting-n8n-hetzner-vps', 'self-host-plausible-analytics-2026', 'self-healing-vps-monitor-nodejs'],
     comparisonSlugs: ['coolify-vs-caprover-2026', 'oracle-cloud-free-vs-hetzner-2026', 'hetzner-vs-aws-lightsail-2026'],
@@ -201,29 +235,37 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
     eyebrow: 'Deployment',
     primaryCategory: 'how-to',
     supportingCategories: ['self-hosting', 'vps-cloud', 'web-dev'],
-    intro: 'This page is the deployment lane for the site. It connects the articles that take you from raw server setup to a repeatable production deploy flow.',
-    whatIs: 'Deploying apps on a VPS is the layer between infrastructure choice and a live product. It includes setup, proxy, runtime, SSL, and verification.',
-    whyItMatters: 'It matters because deployment pain usually comes from gaps between steps, not from one command failing in isolation.',
+    intro: 'Start here if you need the fastest safe path from localhost to a production VPS. This guide is for developers who want a reliable sequence, not another pile of half-remembered shell commands.',
+    whatIs: 'Deploying apps on a VPS is the layer between buying a server and running a dependable live product. It includes server prep, runtime choice, proxy setup, SSL, domain wiring, and production checks.',
+    whyItMatters: 'Most deployment pain comes from sequencing mistakes rather than from one broken command. Skip server prep, proxy rules, or final checks and the stack becomes fragile fast.',
+    startHere: 'If the server does not exist yet, open the VPS setup guide first. If the box is ready, choose the deploy path that matches your stack: raw Node and PM2 for minimal apps, Docker Compose for multi-service setups, or a platform-style workflow if you want a friendlier control layer.',
+    notFor: 'This is not the best first stop if you are still choosing a provider or comparing clouds. Pick the server first in the VPS and cloud pillar, then come back here when the deployment path is the real decision.',
     whenToUse: [
-      'Use it when you are moving from localhost to a real server.',
-      'Use it when you want a repeatable VPS deploy path instead of one-off shell history.',
-      'Use it when the next problem is production setup rather than app code.',
+      'Use it when you are moving from localhost to a real VPS and want one sequence you can repeat later.',
+      'Use it when you need to choose between a minimal manual deploy, Docker Compose, or a platform-style workflow.',
+      'Use it when the next problem is production setup, proxying, SSL, domains, or post-deploy verification rather than app code.',
     ],
-    bestToolsIntro: 'These supporting reads help with the platform and tooling around the deploy itself.',
-    recommendedSetupIntro: 'A good VPS deployment setup is a path you can rerun, debug, and explain.',
+    bestToolsIntro: 'These supporting reads help once you are choosing the software around the deploy itself, from platform layers to database tooling and workflow helpers. They matter after the basic deploy sequence is clear.',
+    guidesIntro: 'Read these in order if you want the safest path: prepare the server, pick the runtime or platform, add reverse proxy and SSL, then run the checks that prove the app is actually production ready. This section is for builders who want implementation first, not more theory.',
+    comparisonsIntro: 'Use the comparison pages when the deploy path is still open and you need to pick a platform or hosting shape. Skip them if you already know the stack and just need the step-by-step execution.',
+    recommendedSetupIntro: 'A good VPS deployment flow is boring and rerunnable. You should be able to explain it from server prep to production checks without opening five random terminal history snippets.',
     recommendedSetup: [
-      'Provision and secure the VPS before app tooling.',
-      'Pick one deploy method, one proxy layer, and one production validation path.',
-      'Use comparison pages only where the platform choice changes the workload.',
-      'Write the final process down as a sequence instead of a loose list of commands.',
+      'Provision and secure the VPS before touching app tooling, domains, or SSL.',
+      'Pick one deploy method for the current app: raw Node and PM2, Docker Compose, or a platform-style workflow. Do not mix all 3 unless you have a real reason.',
+      'Get the app running first, then add reverse proxy, domain, and SSL in that order so troubleshooting stays simple.',
+      'Finish with production checks such as restart behavior, logs, health verification, and indexing or monitoring only after the site is truly live.',
     ],
-    learningPathIntro: 'If you want the shortest route to a live deployment, follow these guides in order and do not skip setup or verification.',
-    conclusion: 'Treat this page as the deploy checklist for the whole site. It is the fastest way to connect setup, app deployment, and the details that usually get missed.',
+    learningPathIntro: 'If you want the shortest route to a live deployment, follow these guides in order and do not skip setup, proxy, or verification. That is where most avoidable deployment mistakes happen.',
+    topicArticlesIntro: 'This full deployment cluster is useful when you already know the specific step you need: server prep, reverse proxy, app shipping, Compose, Coolify, or post-launch checks. It is the quickest way to stay inside one production path without drifting across unrelated topics.',
+    relatedArticlesIntro: 'These are the core deployment reads worth opening first if you do not want to scan the entire topic map. They cover the setup, runtime, and verification decisions that break most first VPS launches.',
+    conclusion: 'Treat this page as the fastest reliable route from local app to production VPS. Start with the server state you actually have, choose one deployment path, and only open comparisons when the tool choice is still unresolved.',
     faq: [
-      { question: 'What is the best first deployment guide to read?', answer: 'Start with the VPS setup guide if the server is not ready yet. If the box already exists, jump to the app deploy guide.' },
-      { question: 'Do I need Coolify to deploy on a VPS?', answer: 'No. Coolify is one route, not the only route. This pillar includes both platform-assisted and more manual paths.' },
-      { question: 'Where do reverse proxy and SSL fit in?', answer: 'They fit after the app can run and before you call the stack production-ready. The linked Nginx guide covers that layer directly.' },
-      { question: 'What should I read after the deploy guides?', answer: 'Move into the VPS pillar for infrastructure tradeoffs or the self-hosting pillar for the rest of the stack around the app.' },
+      { question: 'What is the best first article to read before deploying on a VPS?', answer: 'Start with the VPS setup guide if the server is not ready yet. If the server already exists and is reachable, jump to the deployment article that matches your runtime or platform choice.' },
+      { question: 'How do I choose between PM2, Docker Compose, and a platform workflow?', answer: 'Use PM2 for the simplest single-app Node deployments, Docker Compose for multi-service stacks you want to define clearly, and a platform workflow when you value a friendlier UI more than maximum manual control.' },
+      { question: 'What are the most common VPS deployment mistakes?', answer: 'The usual failures are skipping server hardening, mixing too many deploy methods, adding SSL before the app actually works, and never testing what happens after a reboot or crash. The safest fix is to keep the sequence simple.' },
+      { question: 'Where do reverse proxy and SSL fit in the sequence?', answer: 'They come after the app runs cleanly on the server and before you call the stack production ready. Proxy first, domain next, SSL after that, then production checks.' },
+      { question: 'Do I need Coolify to deploy on a VPS?', answer: 'No. Coolify is one path, not the default answer for every app. This pillar keeps manual, Compose-based, and platform-style routes separate so you can choose the level of abstraction you actually want.' },
+      { question: 'What should I read after the deployment guides?', answer: 'Move into the VPS pillar for provider or security decisions, or into the self-hosting pillar if the next step is adding the services around the deployed app.' },
     ],
     guideSlugs: ['vps-setup-guide', 'deploy-nextjs-coolify-hetzner', 'docker-compose-production-vps-2026', 'how-to-self-host-nextjs-on-vps', 'nginx-reverse-proxy-guide-2026', 'google-search-console-self-hosted-nextjs'],
     comparisonSlugs: ['coolify-vs-caprover-2026', 'hetzner-vs-aws-lightsail-2026', 'oracle-cloud-free-vs-hetzner-2026'],
@@ -242,29 +284,37 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
     eyebrow: 'VPS & Cloud',
     primaryCategory: 'vps-cloud',
     supportingCategories: ['self-hosting', 'how-to', 'developer-tools'],
-    intro: 'This is the infrastructure decision layer for the site. Use it when you need to choose a host, compare the major options, and understand what happens after the server is live.',
-    whatIs: 'VPS and cloud decisions are the foundation under the rest of the stack. This topic covers host selection, price-to-performance tradeoffs, and server hardening.',
-    whyItMatters: 'It matters because picking the wrong provider or skipping hardening creates pain that no deployment tool can hide later.',
+    intro: 'Start here if you are deciding what kind of server to buy, which provider deserves your money, and what to lock down before the first deploy. This is the infrastructure decision page, not a generic cloud glossary.',
+    whatIs: 'VPS and cloud choices are the foundation under the rest of the stack. The topic covers provider selection, price-to-performance tradeoffs, basic server setup, hardening, monitoring, and recovery.',
+    whyItMatters: 'A weak infrastructure choice creates pain that no deployment tool can hide later. Cheap is fine when the workload is honest. Cheap and careless is where the real trouble starts.',
+    startHere: 'If you have never bought a VPS before, start with the cheapest practical hosting read or the broadest provider comparison. If you already have a server and the concern is security, skip straight to hardening and recovery.',
+    notFor: 'Do not start here if your provider is already chosen and your only problem is getting the app live. In that case, the deployment pillar is the faster first click.',
     whenToUse: [
-      'Use it before you buy a VPS or move away from a more expensive cloud setup.',
-      'Use it when you need real provider comparisons instead of marketing checklists.',
-      'Use it when the next problem is server security, not application code.',
+      'Use it before you buy a first VPS, switch providers, or move away from a more expensive cloud default.',
+      'Use it when you need real provider framing: cheap first VPS, production VPS, comparison-first buying, or security-first operation.',
+      'Use it when the next problem is server cost, hardening, backup thinking, monitoring, or recovery rather than application code.',
     ],
-    bestToolsIntro: 'These supporting reads help with the operational side of running infrastructure after the provider decision is made.',
-    recommendedSetupIntro: 'The best infrastructure setup for most readers here is the one that stays cheap, understandable, and strong enough for production.',
+    bestToolsIntro: 'Use these supporting pages for the operational software around infrastructure after the provider decision is made. They help with visibility, safety, and practical day-to-day server management.',
+    guidesIntro: 'These guides are the execution path after you narrow the provider decision. Read them in a simple order: cheap hosting context or provider choice first, hardening second, recovery thinking third, deployment only after the server base is trustworthy.',
+    comparisonsIntro: 'Open these comparison pages when you are actively choosing where the app should live. They are best for decision-ready readers, not for people who still need basic VPS concepts explained first.',
+    recommendedSetupIntro: 'Most developers do not need an elaborate cloud architecture. They need a provider they can afford, a server they can secure, and a clear handoff into deployment.',
     recommendedSetup: [
-      'Compare providers before you commit to a deployment platform.',
-      'Treat security and backup thinking as part of setup, not an afterthought.',
-      'Use one provider comparison and one hardening guide as your baseline.',
-      'Move into the deployment pillar once the infrastructure choice is settled.',
+      'Decide the workload first: cheap first VPS, production app server, or platform host. Provider choice gets easier once the job is clear.',
+      'Compare providers before you commit to a deployment platform so tool preference does not hide infrastructure cost and reliability tradeoffs.',
+      'Treat hardening, backups, and monitoring as part of setup from day 1, not as cleanup work for later.',
+      'Once the provider choice is settled, move into the deployment pillar and stop reopening the infrastructure decision unless the workload changes.',
     ],
-    learningPathIntro: 'If you are still undecided on provider choice, follow this path from broad host selection into security and then deployment.',
-    conclusion: 'This page is where infrastructure decisions on Blixamo come together. Start here when the main question is hosting, cost, or server reliability.',
+    learningPathIntro: 'If you are still undecided, follow this path from host selection into hardening and then deployment. That keeps the decision grounded in cost, security, and what you actually plan to run.',
+    topicArticlesIntro: 'Use the full cluster below when you already know the subtopic you need: free hosting options, provider comparisons, security hardening, monitoring, recovery, or the bridge into deployment. It is the complete infrastructure lane for the site.',
+    relatedArticlesIntro: 'These are the strongest infrastructure reads to open first if you do not want the entire map. They cover buying, securing, and stabilizing a VPS before the stack grows.',
+    conclusion: 'Use this page as the main infrastructure decision point on Blixamo. Start with the provider and workload framing, lock in the minimum security discipline, then move into deployment once the server choice actually makes sense.',
     faq: [
-      { question: 'Which VPS comparison should I read first?', answer: 'Start with the comparison closest to the providers you are considering now. That keeps the decision practical.' },
-      { question: 'Is a cheap VPS enough for real apps?', answer: 'Often yes, if the workload is modest and the stack stays lean. Several articles in this cluster are built around that exact tradeoff.' },
-      { question: 'What matters more: price or ease of use?', answer: 'The useful question is which provider gives you the lowest operational drag for the workload you are actually running.' },
-      { question: 'Where do I go after choosing a provider?', answer: 'Move into the deployment pillar if you are ready to ship an app, or into the self-hosting pillar if you are building a wider stack of services.' },
+      { question: 'What should I decide before buying a VPS?', answer: 'Decide the workload, budget ceiling, region needs, and how much operational work you are willing to carry. Those 4 answers matter more than any provider landing page feature list.' },
+      { question: 'Is a cheap VPS enough for production?', answer: 'Often yes for lean apps and modest traffic. The key is being honest about the workload and pairing the cheap server with hardening, backups, and realistic expectations instead of magical thinking.' },
+      { question: 'Which VPS comparison should I read first?', answer: 'Read the comparison closest to the providers you are seriously considering now. If you have no shortlist at all, start with the broadest Hetzner and alternatives comparisons before drilling down.' },
+      { question: 'Should I read hardening guides before or after I buy the server?', answer: 'Read at least one hardening guide before buying so you understand the responsibility you are taking on. Apply the hardening steps immediately after setup and before the app is public.' },
+      { question: 'What matters more: low price or ease of use?', answer: 'The better question is which provider gives you the lowest operational drag for the workload you actually have. The cheapest provider is not the best choice if it creates avoidable friction every week.' },
+      { question: 'Where should I go after choosing a provider?', answer: 'Move into the deployment pillar if you are ready to ship an app, or into the self-hosting pillar if you are building a broader stack of services on top of that server.' },
     ],
     guideSlugs: [
       'free-vps-hosting-2026',
@@ -298,29 +348,37 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
     eyebrow: 'Developer Tools',
     primaryCategory: 'developer-tools',
     supportingCategories: ['ai', 'web-dev', 'free-tools'],
-    intro: 'This page turns the tool-related content on Blixamo into a usable directory. It is the best place to start if you want software recommendations and workflow upgrades.',
-    whatIs: 'A developer tools directory should help you narrow choices, not just dump a list. This one combines curated picks, implementation reads, and the comparisons that matter.',
-    whyItMatters: 'It matters because tooling affects every later decision: how you write, deploy, debug, and maintain work.',
+    intro: 'Start here when the bottleneck is in your workflow rather than your hosting: coding, debugging, database work, AI assistance, frontend velocity, or daily developer ergonomics. This page is a curated software map, not a generic tools archive.',
+    whatIs: 'A useful developer tools directory helps you narrow choices by job to be done. This one connects broad roundups, practical implementation reads, and the comparison pages that matter once the shortlist gets small.',
+    whyItMatters: 'Tooling decisions quietly shape how fast you ship and how much friction you carry. A good tool earns back time. A bad one keeps taxing the same workflow every day.',
+    startHere: 'If you feel overwhelmed, start with the broad developer-tools roundup, then jump to the workflow that is actually painful right now: AI coding help, API work, database clients, docs, frontend workflow, or performance.',
+    notFor: 'Do not start here if your real problem is hosting, server hardening, or deployment sequence. Those questions belong in the VPS and deployment pillars before you optimize the software around them.',
     whenToUse: [
-      'Use it when you want practical software picks instead of generic roundups.',
-      'Use it when the current bottleneck is tooling, not hosting or deployment.',
-      'Use it when you need both a tool recommendation and the next article that shows how it fits into real work.',
+      'Use it when you want practical software picks instead of another giant list of tools you will never install.',
+      'Use it when the current bottleneck is coding, debugging, docs, database work, API exploration, or frontend workflow rather than infrastructure.',
+      'Use it when you need both a recommendation and the next article that shows how that tool fits into real work.',
     ],
-    bestToolsIntro: 'These are the highest-value tool pages in the cluster, covering general developer software, database tooling, AI tools, and workflow support.',
-    recommendedSetupIntro: 'A good developer tool stack is smaller than people think. Choose the few tools that directly improve shipping, debugging, and maintainability.',
+    bestToolsIntro: 'These are the strongest software shortlists in the cluster, covering best overall picks, best free options, database tools, AI coding help, and workflow upgrades that matter to day-to-day development.',
+    guidesIntro: 'Use these reads when you already know the job to be done and want the applied context around it. They are especially useful for developers who need to connect a tool choice to a real Next.js, MDX, performance, or AI workflow.',
+    comparisonsIntro: 'Comparison pages help once the shortlist is narrow and 2 tools genuinely compete for the same slot. If the problem is still broad, stay in the directory and use the roundups first.',
+    recommendedSetupIntro: 'A good developer tool stack is smaller than people think. Start broad, narrow fast, and only keep the tools that directly improve shipping, debugging, and maintainability.',
     recommendedSetup: [
-      'Start with one broad tools list, then narrow into the specific database, AI, or frontend decision you actually need to make.',
-      'Use comparison reads only when the tools compete directly for the same slot in your workflow.',
-      'Pair recommendation pages with one implementation article so the tool choice stays grounded.',
+      'Start with one broad tools list, then narrow into the specific workflow job that is hurting most right now.',
+      'Use best overall, best free, and best underrated logic to cut the shortlist before you open direct comparisons.',
+      'Pair recommendation pages with one implementation article so the tool choice stays grounded in real usage.',
       'Keep free and open source alternatives in scope whenever the paid default is not clearly better.',
     ],
-    learningPathIntro: 'Follow this path if you want to move from broad tooling picks into specific frontend, AI, and workflow decisions.',
-    conclusion: 'Use this directory as the main tool-selection layer on the site. Start broad, narrow quickly, and only dive into comparisons when two options are genuinely competing.',
+    learningPathIntro: 'Follow this path if you want to move from broad tooling picks into specific database, AI, frontend, and workflow decisions without getting buried in tabs.',
+    topicArticlesIntro: 'This is the full tools cluster for developers. Use it when you want to browse by job to be done instead of by category label, or when you need to connect roundups, comparisons, and implementation reads inside one workflow lane.',
+    relatedArticlesIntro: 'These are the fastest high-signal reads if you do not want the whole directory at once. They are a good entry point for developers who already know what kind of tool decision they need to make.',
+    conclusion: 'Use this directory as the main software map for your developer workflow. Start with the job that is currently slowing you down, narrow quickly, and only move into head-to-head comparisons when 2 options are truly competing.',
     faq: [
-      { question: 'What should I read first in the tools cluster?', answer: 'Start with the broad developer tools roundup if your choices are still wide open. If the decision is already narrow, jump straight to the matching read.' },
-      { question: 'Does this page include AI tools too?', answer: 'Yes. AI tools are folded into this directory because they are part of the developer workflow, not a separate hype category.' },
-      { question: 'Why are implementation guides included in a tools directory?', answer: 'Because a tool recommendation without applied context is weak. The implementation reads show where those tools fit into real projects.' },
-      { question: 'Where should I go for broader software comparisons?', answer: 'Open the comparisons hub if the main task is choosing between two competing tools or platforms instead of browsing a directory of options.' },
+      { question: 'What should I read first in the tools cluster?', answer: 'Start with the broad developer-tools roundup if your choices are still wide open. If the problem is already narrow, such as database clients or AI coding tools, jump straight to the matching workflow page.' },
+      { question: 'Is this page for coding tools only?', answer: 'No. It covers the wider developer workflow: coding, AI assistance, API work, database tooling, docs, frontend workflow, and the implementation reads that show where those tools fit.' },
+      { question: 'Does this page include AI tools too?', answer: 'Yes. AI tools are part of the developer workflow, so they belong here when the search intent is about software choice and day-to-day usefulness rather than pure model comparison.' },
+      { question: 'Why are implementation guides included in a tools directory?', answer: 'Because a tool recommendation without applied context is weak. The implementation reads show what the tool is good for, what kind of project it fits, and when you are overcomplicating the choice.' },
+      { question: 'When should I open the comparisons hub instead?', answer: 'Open comparisons when the shortlist is already tight and you are trying to decide between 2 competing options. Stay here when you still need orientation and a broader software map.' },
+      { question: 'Where should I go if budget is the main filter?', answer: 'Open the free-tools pillar if the main question is how to reduce software spend without hurting workflow quality. That page is built around cost-saving and open source decisions first.' },
     ],
     guideSlugs: ['getting-started-with-nextjs', 'nextjs-mdx-blog-2026', 'nextjs-mdx-remote-rsc-edge-runtime-fix', 'nextjs-performance-optimization-2026', 'tailwind-css-tips', 'claude-ai-guide'],
     comparisonSlugs: ['tailwind-css-vs-css-modules', 'claude-vs-chatgpt-developers', 'claude-api-vs-openai-gpt4-2026', 'coolify-vs-caprover-2026'],
@@ -339,29 +397,37 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
     eyebrow: 'Automation',
     primaryCategory: 'automation',
     supportingCategories: ['ai', 'self-hosting', 'developer-tools'],
-    intro: 'This pillar page groups the automation content on Blixamo into one lane so readers can move from platform choice to concrete workflows without losing the bigger system picture.',
-    whatIs: 'Developer automation is the layer where scripts, workflow tools, APIs, and messaging systems remove repetitive work.',
-    whyItMatters: 'It matters because automation compounds. A useful workflow can save time every week, reduce mistakes, and turn one-off tasks into reusable systems.',
+    intro: 'Start here if you want automation that actually removes work instead of creating a second job. This page is built for developers choosing what to automate first, which platform to use, and when AI belongs in the workflow.',
+    whatIs: 'Developer automation is where scripts, workflow tools, APIs, bots, and AI-assisted steps turn repeated tasks into reusable systems. The useful question is not whether to automate. It is what to automate first and how much orchestration the task really needs.',
+    whyItMatters: 'Automation compounds when it targets a real bottleneck. One good workflow saves time every week. One overbuilt workflow becomes another system you have to babysit.',
+    startHere: 'If you are new, start with one repeatable workflow that already hurts: lead routing, content enrichment, notifications, or an internal bot. Learn the n8n basics first, then add AI only where it clearly improves the output.',
+    notFor: 'Do not start here if you are just curious about automation with no repeated task in mind. You will end up building a clever workflow that solves nothing and still needs maintenance.',
     whenToUse: [
-      'Use it when repeated manual tasks are slowing down development or operations.',
-      'Use it when you need a practical path into n8n or API-driven workflows.',
-      'Use it when you want AI in the loop as part of an automation system instead of a standalone chat tool.',
+      'Use it when repeated manual tasks are slowing down development, support, content ops, or internal tooling work.',
+      'Use it when you need a practical path into n8n, bot workflows, API integrations, or AI-assisted automation.',
+      'Use it when you want one clear first workflow instead of a vague plan to automate everything later.',
     ],
-    bestToolsIntro: 'These reads help with picking the right workflow platform and the supporting AI tools around it.',
-    recommendedSetupIntro: 'A strong automation setup usually begins with one clear bottleneck. Build one repeatable workflow first, then expand.',
+    bestToolsIntro: 'Use these supporting reads when you are choosing the platform and surrounding AI tools that will carry the workflow. They are most useful after you identify the real bottleneck you want to remove.',
+    guidesIntro: 'These are the implementation reads for builders who want outcome first. Start with the n8n foundation, then move into one concrete workflow such as content automation, bots, messaging, or self-hosted orchestration.',
+    comparisonsIntro: 'Comparison pages matter when you are choosing a workflow platform or AI model path. Skip them until you know whether the job is orchestration, messaging, AI enrichment, or a simple script that does not need a visual workflow tool.',
+    recommendedSetupIntro: 'A strong automation stack begins with one bottleneck, one platform, and one workflow that saves time immediately. Anything beyond that is optional until the first automation proves itself.',
     recommendedSetup: [
-      'Start with one automation platform and one workflow that saves time immediately.',
-      'Use comparison reads before switching platforms, not after you have already committed.',
-      'Keep self-hosting in scope if cost or control are driving the decision.',
-      'Bring AI into the workflow only where it improves the output, not because it is available.',
+      'Start with one platform and one workflow that saves time this week, not a roadmap of 12 automations you might build someday.',
+      'Choose between n8n basics, AI workflows, bots, or self-hosted automation based on the job, not on which tool feels trendy.',
+      'Use comparison reads before switching platforms, not after you already committed time to the wrong one.',
+      'Bring AI into the workflow only where it improves the result enough to justify added cost, latency, or failure points.',
     ],
-    learningPathIntro: 'If you are starting from scratch, follow this path from platform understanding into a concrete automation workflow.',
-    conclusion: 'Use this page as the automation hub for the site. Start with the n8n foundation, move into one practical workflow, then use the linked comparisons and tool pages when you need to choose.',
+    learningPathIntro: 'If you are starting from scratch, follow this path from platform understanding into one practical workflow. That gives you the fastest path to a useful automation without drowning in options.',
+    topicArticlesIntro: 'This full automation cluster is for readers who already know the lane they need: n8n basics, AI-assisted flows, bots, integrations, or self-hosted orchestration. It is the complete topic map once you are ready to go deeper.',
+    relatedArticlesIntro: 'These are the best next reads if you want a practical first automation path without browsing every post in the cluster.',
+    conclusion: 'Use this page as the automation entry point when you want one outcome-led workflow path instead of an abstract productivity rabbit hole. Start with the bottleneck, pick the lightest tool that fits it, and expand only after the first automation earns trust.',
     faq: [
-      { question: 'Should I start with n8n or with custom code?', answer: 'Start with the one that matches the problem. If you need visible orchestration and fast iteration, n8n is a strong entry point.' },
-      { question: 'Does automation here include AI workflows?', answer: 'Yes. The cluster includes AI-assisted automations where models are part of a broader system, not just a separate tool recommendation.' },
-      { question: 'Can I self-host these automations cheaply?', answer: 'Often yes. Several pieces in this cluster are built around low-cost VPS hosting and practical self-hosted workflows.' },
-      { question: 'What should I read after the main automation guide?', answer: 'Open the comparison reads if you are choosing a platform, or move into the self-hosting and deployment pillars if the next question is how to run the stack.' },
+      { question: 'What should developers automate first?', answer: 'Automate the repeated task that already wastes time every week, such as notifications, lead routing, content enrichment, internal reports, or support handoffs. Do not start with a workflow that only looks impressive in a demo.' },
+      { question: 'Should I start with n8n or with custom code?', answer: 'Start with the one that matches the job. Use n8n when visible orchestration, connectors, and quick iteration matter. Use custom code when the workflow is simple, heavily custom, or better expressed directly in your application.' },
+      { question: 'What should I avoid automating too early?', answer: 'Avoid workflows with messy business rules, poor source data, or unclear ownership. Automation multiplies confusion just as easily as it multiplies speed.' },
+      { question: 'Does automation here include AI workflows?', answer: 'Yes. The cluster includes AI-assisted automations where models are one step inside a broader system, not a separate chat tool pretending to be a workflow.' },
+      { question: 'Can I self-host these automations cheaply?', answer: 'Often yes. Several articles in this cluster are built around low-cost VPS hosting and practical self-hosted automation stacks, especially when control and recurring cost matter.' },
+      { question: 'What should I read after the main automation guide?', answer: 'Open the comparison pages if you are still choosing a platform, or move into the self-hosting and deployment pillars if the next question is how to run the workflow reliably.' },
     ],
     guideSlugs: ['n8n-complete-guide-2026', 'claude-api-content-automation-nodejs', 'build-telegram-bot-claude-api-python', 'whatsapp-ai-assistant-n8n-claude-api', 'self-hosting-n8n-hetzner-vps'],
     comparisonSlugs: ['n8n-vs-make-vs-zapier-indie-dev', 'claude-api-vs-openai-gpt4-2026', 'claude-api-vs-openai-cost-india'],
@@ -380,29 +446,37 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
     eyebrow: 'Free Tools',
     primaryCategory: 'free-tools',
     supportingCategories: ['developer-tools', 'indie-hacking', 'self-hosting'],
-    intro: 'This page gathers the strongest cost-saving software content on Blixamo into one place so readers can cut tool spend without weakening the developer workflow.',
-    whatIs: 'Free tools content here is primarily about usable software: open source replacements, budget-first developer tooling, and no-cost workflow picks that earn their place.',
-    whyItMatters: 'It matters because software spend grows quietly. A better free-tool stack lowers recurring cost while keeping enough quality to keep shipping.',
+    intro: 'Start here when budget is near zero and you still need a stack that can ship real work. This pillar is for cutting software spend without turning the free-tools category into a catch-all for every article that happens to mention price.',
+    whatIs: 'Free tools content here is about usable software first: open source replacements, budget-first developer tooling, and no-cost workflow picks that earn their place in a working stack.',
+    whyItMatters: 'Software spend grows quietly. A deliberate free-tool stack cuts recurring cost, protects runway, and proves where the paid option actually matters instead of assuming every default SaaS deserves your money.',
+    startHere: 'If your budget is near zero, start with the broad free-tool and open source roundups, then move into the workflow closest to your bottleneck: API work, documentation, Git, diagrams, or broader developer-stack spend.',
+    notFor: 'Do not use this as the first stop for VPS buying, uptime monitoring, deployment platforms, PostgreSQL GUI decisions, or Docker management roundups when cost is only secondary. Those belong in their primary topic clusters.',
     whenToUse: [
-      'Use it when the main constraint is budget rather than feature breadth.',
+      'Use it when the main constraint is budget rather than maximum feature breadth.',
       'Use it when you want open source or free alternatives before committing to paid SaaS.',
-      'Use it when every software decision needs to justify its recurring cost.',
+      'Use it when every software decision needs to justify its recurring cost to a lean team, side project, or solo business.',
     ],
-    bestToolsIntro: 'These are the strongest low-cost and free-tool reads on the site, covering open source replacements, API clients, docs tools, diagram tools, Git workflow picks, and broader software roundups.',
-    recommendedSetupIntro: 'The best free-tool setup is usually a deliberate mix of no-cost tools, one or two paid tools that clearly earn their place, and a workflow that stays easy to defend.',
+    bestToolsIntro: 'These are the strongest budget-first software pages on the site, covering open source replacements, API testing, docs tools, Git workflow picks, diagram tools, and broader free developer-tool roundups.',
+    guidesIntro: 'Open these if you want to build a free stack by workflow rather than by category label. Start broad, then move into the one tool lane that is draining money right now instead of trying to replace every paid product at once.',
+    comparisonsIntro: 'The comparison pages here are supportive, not the center of the taxonomy. Use them only when they naturally reinforce the cost decision. If the main search intent is infrastructure, deployment, or provider choice, stay in those primary clusters instead.',
+    recommendedSetupIntro: 'The best free-tool setup is a deliberate mix of no-cost software, one or two paid tools that clearly earn their place, and a workflow that stays simple enough to defend.',
     recommendedSetup: [
       'Start with broad free-tool roundups before choosing workflow-specific tools.',
-      'Use open source replacements where they remove real monthly spend without adding fragile maintenance.',
-      'Pick one tool per workflow layer first: API work, documentation, Git, diagrams, and deployment support.',
-      'Keep the developer-tools and indie-hacking guides nearby when cost and workflow quality need to stay balanced together.',
+      'Use open source alternatives where they remove real monthly spend without creating fragile maintenance work.',
+      'Pick one tool per workflow layer first: API work, documentation, Git, diagrams, and broader developer tooling.',
+      'Pay for software only where the paid option clearly saves enough time or risk to justify the recurring cost.',
     ],
-    learningPathIntro: 'Follow this path if your goal is to lower software spend while still ending up with a workable developer stack.',
-    conclusion: 'Use this page when budget is the first constraint. It links the best free tools, the most useful open source swaps, and the supporting reads that turn those choices into a practical software stack.',
+    learningPathIntro: 'Follow this path if your goal is to lower software spend without ending up with a weak stack. It starts broad, then narrows into the workflows where free options matter most.',
+    topicArticlesIntro: 'This full cluster is for readers building a budget-first stack. Use it when you want to browse every relevant free-tools article by problem solved, not just by category label or whatever page mentions the word free.',
+    relatedArticlesIntro: 'These are the best next reads if you want a cost-saving win quickly without opening the entire cluster. They are especially useful for developers tightening software spend right now.',
+    conclusion: 'Use this page when budget is the first filter and software quality still matters. Start with the broad stack-level roundups, then move into the exact workflow that is costing you money, and keep infrastructure or deployment decisions in their proper clusters.',
     faq: [
-      { question: 'Are free tools good enough for production work?', answer: 'Often yes, when the tool choice is deliberate. The best free options here are free because they fit a lean stack well.' },
-      { question: 'Should I avoid paid tools completely?', answer: 'No. The goal is not zero spend at all costs. The goal is to pay only where the paid option clearly earns its place.' },
-      { question: 'Does this cluster only include articles with the word free in the title?', answer: 'No. The filter is search intent. The pages here are the ones where free, open source, or cost-saving software is the primary decision lens.' },
-      { question: 'What is the next step after this page?', answer: 'Start with the broad lists, then move into the one article closest to your current workflow bottleneck, whether that is API work, docs, Git, diagrams, or broader stack spend.' },
+      { question: 'Are free tools good enough for production work?', answer: 'Often yes when the choice is deliberate and the tool fits a lean workflow. Free does not mean weak. It only becomes a problem when the tool is free but badly aligned with the job.' },
+      { question: 'When is the free option enough?', answer: 'The free option is enough when it covers the core workflow cleanly and the missing paid features would not save meaningful time or reduce meaningful risk. That is the threshold this pillar is built around.' },
+      { question: 'Should I avoid paid tools completely?', answer: 'No. The goal is not zero spend at all costs. The goal is to pay only where the paid option clearly earns its place through speed, reliability, or reduced maintenance.' },
+      { question: 'Why are some non-free-tools pages linked from this pillar?', answer: 'Because a few supporting pages help explain the surrounding workflow or business tradeoff. They are included only when they reinforce a budget-first software decision, not when they belong in another taxonomy lane.' },
+      { question: 'Does this cluster only include articles with the word free in the title?', answer: 'No. The filter is search intent, not wording. Pages belong here when free, open source, or cost-saving software is the main decision lens.' },
+      { question: 'What is the next step after this page?', answer: 'Start with the broad lists, then move into the one article closest to your current workflow bottleneck, whether that is API work, docs, Git, diagrams, or broader software spend.' },
     ],
     guideSlugs: [
       'open-source-tools-2026',
@@ -442,34 +516,69 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
     eyebrow: 'Comparisons',
     primaryCategory: 'developer-tools',
     supportingCategories: ['vps-cloud', 'automation', 'ai', 'free-tools'],
-    intro: 'This page collects the head-to-head decision content on Blixamo so readers can jump straight into the tradeoffs instead of hunting across categories.',
-    whatIs: 'A comparisons hub is the decision layer of the site. It groups the articles where tools, platforms, or providers are competing for the same job.',
-    whyItMatters: 'It matters because comparison articles are high intent. Readers are usually close to a decision, which means the surrounding links need to point to the right next step.',
+    intro: 'Start here when you already know the options and need a verdict, tradeoff breakdown, and next step. This is the decision-ready hub for readers who are done browsing and want to close one choice at a time.',
+    whatIs: 'A comparisons hub is the verdict layer of the site. It groups the pages where tools, platforms, providers, and workflow options compete for the same job inside a real developer stack.',
+    whyItMatters: 'Comparison traffic is high intent. Readers are usually close to spending money, committing to a workflow, or locking in a platform, so the next click matters more than a generic archive ever will.',
+    startHere: 'Open the comparison group closest to the live decision: hosting first if you are buying infrastructure, deployment next if you are choosing a platform path, automation if you are replacing manual work, AI if you are choosing model workflow, and developer tools if the bottleneck is in day-to-day software.',
+    notFor: 'Do not start here if you still need the basics of a category. Use the matching pillar first when you need orientation, setup order, or context before a head-to-head verdict makes sense.',
     whenToUse: [
-      'Use it when you already know the options and need a verdict or tradeoff breakdown.',
-      'Use it when two tools, hosts, or models are competing for the same role in your stack.',
+      'Use it when you already know the options and need a verdict or tradeoff breakdown fast.',
+      'Use it when 2 tools, hosts, or models are competing for the same role in your stack right now.',
       'Use it when you want the decision layer first and the implementation details second.',
     ],
-    bestToolsIntro: 'These directory-style pages help once a comparison points you toward a category of tools or a broader shortlist.',
-    recommendedSetupIntro: 'A useful comparison workflow is simple: compare, decide, then move into the implementation or pillar page that matches the winner.',
+    bestToolsIntro: 'Use these directory-style pages after a comparison points you toward a category of tools or a broader shortlist. They are for the moment when the verdict is clear but the surrounding stack still needs shape.',
+    guidesIntro: 'These core reads are what you open after a verdict when you need context or implementation, not more debate. They are especially useful when a comparison tells you which lane won but you still need to understand how to use it well.',
+    comparisonsIntro: 'This full comparison grid is for decision-ready readers who want every active verdict page in one place. Start with the group below that matches your current buying or tooling decision, then use the matching pillar as the next stop after the verdict lands.',
+    recommendedSetupIntro: 'A useful comparison workflow is simple: compare one layer of the stack, close that decision, then move into the matching pillar or implementation page instead of reopening every other debate.',
     recommendedSetup: [
-      'Start with the comparison closest to the actual decision in front of you right now.',
-      'Use the matching topic pillar after the comparison so you can implement the decision without losing context.',
-      'Keep a broader tools or free-tools page nearby when you need a shortlist after the comparison.',
-      'Avoid comparing everything at once. Pick one layer of the stack and close that decision first.',
+      'Start with the comparison closest to the decision in front of you right now, not the one with the most interesting title.',
+      'After each verdict, open the matching topic pillar so implementation keeps moving instead of turning into more comparison loops.',
+      'Keep a broader tools or free-tools page nearby when the verdict still leaves you with a shortlist rather than one winner.',
+      'Do not compare everything at once. Close one layer of the stack, then move to the next.',
     ],
-    learningPathIntro: 'Follow this path if you want to move from provider comparisons into platform, automation, and tool decisions in a deliberate order.',
-    conclusion: 'Use this page as the decision center for the site. Open the comparison you need, then branch into the matching pillar or tool directory once the verdict is clear.',
+    learningPathIntro: 'Follow this path if you want to close comparisons in a deliberate order: hosting first, deployment second, automation third, then AI or workflow tooling once the infrastructure choices are settled.',
+    topicArticlesIntro: 'Use the full topic map when you want every comparison connected to the same cluster of supporting guides and tool pages. It is the easiest way to move from verdict to action without losing the architecture of the site.',
+    relatedArticlesIntro: 'These are the strongest next reads if you want a fast verdict and a clean follow-up path. They are a good fit for readers who already know the shortlist and just need the highest-signal decision pages.',
+    conclusion: 'Use this page as the decision center for the site. Open the comparison that matches the active choice, take the verdict, then move straight into the pillar or implementation read that helps you ship the winner.',
     faq: [
-      { question: 'Should I start with the comparisons hub or a topic pillar?', answer: 'Start here when the options are already clear and the decision is active. Start with a topic pillar when you still need context first.' },
-      { question: 'Are all comparison posts listed here?', answer: 'This hub is built to surface the high-intent comparison content across hosting, automation, AI, frontend, and financial workflow decisions.' },
-      { question: 'What should I do after reading a comparison?', answer: 'Go straight to the matching topic pillar or the strongest implementation article that fits the winner.' },
-      { question: 'Why are tool pages linked from a comparisons hub?', answer: 'Because many comparison outcomes still require a broader shortlist or a supporting tools page before you lock the rest of the stack.' },
+      { question: 'Should I start with the comparisons hub or a topic pillar?', answer: 'Start here when the options are already clear and the decision is active. Start with a topic pillar when you still need context, setup order, or a basic map of the category.' },
+      { question: 'How do I choose which comparison to open first?', answer: 'Open the comparison that matches the decision blocking you right now. If you cannot name the immediate choice, you probably need the matching pillar page before you need a head-to-head verdict.' },
+      { question: 'What should I do after reading a comparison?', answer: 'Go straight to the matching topic pillar or the strongest implementation article for the winner. The goal is to turn the verdict into action quickly, not to keep browsing more comparisons.' },
+      { question: 'Are these comparison pages verdict first or neutral?', answer: 'They are meant to help real developers close decisions, so the useful ones should lean toward a clear recommendation instead of pretending every option is equally good.' },
+      { question: 'Why are tool pages linked from a comparisons hub?', answer: 'Because some verdicts still leave you with a category choice or a shortlist to finish. The linked tool pages help you connect a narrow comparison outcome to the rest of the workflow.' },
+      { question: 'When should I stop comparing and just ship?', answer: 'Stop comparing when one option is clearly good enough for the current workload and the remaining differences are edge cases you may never hit. Most stacks do not need a perfect winner. They need a decision.' },
     ],
     guideSlugs: ['best-free-developer-tools-2026', 'free-vps-hosting-2026', 'n8n-complete-guide-2026', 'coolify-complete-guide-2026'],
     comparisonSlugs: COMPARISON_SLUGS,
     toolSlugs: ['best-free-developer-tools-2026', 'best-postgresql-gui-free', 'best-ai-tools-2026', 'free-vps-hosting-2026'],
     learningPathSlugs: ['hetzner-vs-digitalocean-vs-vultr-india', 'coolify-vs-caprover-2026', 'n8n-vs-make-vs-zapier-indie-dev', 'claude-vs-chatgpt-developers'],
+    comparisonGroups: [
+      {
+        title: 'Hosting and VPS comparisons',
+        description: 'Open these first if the active decision is where the app should live. After you pick a provider, move straight into the VPS and cloud pillar or the deployment pillar instead of reopening the hosting debate.',
+        slugs: ['hetzner-vs-aws-2026', 'hetzner-vs-aws-lightsail-2026', 'hetzner-vs-digitalocean-vs-vultr-india', 'hetzner-vs-vultr-vs-linode-2026', 'oracle-cloud-free-vs-hetzner-2026'],
+      },
+      {
+        title: 'Deployment and platform comparisons',
+        description: 'These are for readers who already have a server plan and now need to choose the operational layer. Use the deployment pillar next if the winner is clear and the remaining job is implementation.',
+        slugs: ['coolify-vs-caprover-2026'],
+      },
+      {
+        title: 'Automation comparisons',
+        description: 'Use this lane when the bottleneck is repeated work and you are choosing the orchestration tool. Once the verdict lands, open the automation pillar and build one useful workflow before adding more.',
+        slugs: ['n8n-vs-make-vs-zapier-indie-dev'],
+      },
+      {
+        title: 'AI comparisons',
+        description: 'These are for developers choosing between model workflows, coding assistants, or API tradeoffs. The next stop after a verdict is usually the AI or developer-tools pillar, not another model benchmark.',
+        slugs: ['claude-vs-chatgpt-developers', 'claude-api-vs-openai-gpt4-2026', 'claude-api-vs-openai-cost-india'],
+      },
+      {
+        title: 'Developer workflow comparisons',
+        description: 'This group helps when the decision is inside your day-to-day toolchain rather than infrastructure. Open the developer-tools or free-tools pillars next if the comparison still leaves you with a shortlist to explore.',
+        slugs: ['tailwind-css-vs-css-modules', 'wise-vs-payoneer-india-freelancer'],
+      },
+    ],
     relatedResourceLinks: [
       { label: 'Resources Hub', href: PILLAR_RESOURCE_HUB_PATH, description: 'Return to the hub if you want to move from decision pages into guided topic browsing.' },
       { label: 'Developer Tools Pillar', href: `${PILLAR_BASE_PATH}/developer-tools-directory`, description: 'Open the developer-tools pillar if the decision is really about tooling choices inside your workflow.' },
@@ -512,6 +621,13 @@ function buildPillarPage(definition: PillarDefinition, posts: Post[]): PillarPag
   const primaryArticles = getPrimaryArticlesForPillar(definition, posts)
   const guides = uniquePosts([...pickPosts(posts, definition.guideSlugs), ...primaryArticles])
   const comparisons = uniquePosts([...pickPosts(posts, definition.comparisonSlugs), ...primaryArticles.filter((post) => isComparisonPost(post))])
+  const comparisonGroups = (definition.comparisonGroups ?? [])
+    .map((group) => ({
+      title: group.title,
+      description: group.description,
+      posts: uniquePosts(pickPosts(posts, group.slugs)),
+    }))
+    .filter((group) => group.posts.length > 0)
   const tools = uniquePosts(pickPosts(posts, definition.toolSlugs))
   const learningPath = uniquePosts(pickPosts(posts, definition.learningPathSlugs))
   const topicArticles = uniquePosts([...primaryArticles, ...guides, ...comparisons, ...tools, ...learningPath])
@@ -531,16 +647,23 @@ function buildPillarPage(definition: PillarDefinition, posts: Post[]): PillarPag
     intro: definition.intro,
     whatIs: definition.whatIs,
     whyItMatters: definition.whyItMatters,
+    startHere: definition.startHere,
+    notFor: definition.notFor,
     whenToUse: [...definition.whenToUse],
     bestToolsIntro: definition.bestToolsIntro,
+    guidesIntro: definition.guidesIntro,
+    comparisonsIntro: definition.comparisonsIntro,
     recommendedSetupIntro: definition.recommendedSetupIntro,
     recommendedSetup: [...definition.recommendedSetup],
     learningPathIntro: definition.learningPathIntro,
+    topicArticlesIntro: definition.topicArticlesIntro,
+    relatedArticlesIntro: definition.relatedArticlesIntro,
     conclusion: definition.conclusion,
     faq: [...definition.faq],
     primaryArticles,
     guides: guides.slice(0, 8),
     comparisons: comparisons.slice(0, 12),
+    comparisonGroups,
     tools: tools.slice(0, 8),
     learningPath: learningPath.slice(0, 8),
     topicArticles,
