@@ -44,7 +44,10 @@ export default async function PillarPage({ params }: Props) {
 
   if (!pillar) notFound()
 
-  const firstLearningPost = pillar.learningPath[0]
+  const groupedComparisonSlugs = new Set(
+    pillar.comparisonGroups.flatMap((group) => group.posts.map((post) => post.slug))
+  )
+  const remainingComparisons = pillar.comparisons.filter((post) => !groupedComparisonSlugs.has(post.slug))
   const relatedResources = [
     { title: 'Homepage', description: 'Return to the main site hub and top-level discovery paths.', href: '/' },
     { title: 'Resources Hub', description: 'Open the central resources hub for start-here paths and topic navigation.', href: PILLAR_RESOURCE_HUB_PATH },
@@ -95,12 +98,16 @@ export default async function PillarPage({ params }: Props) {
           </h1>
           <p className="home-section-description">{pillar.description}</p>
           <p className="home-section-description" style={{ margin: 0 }}>{pillar.intro}</p>
-          {firstLearningPost && (
-            <p className="home-section-description" style={{ margin: 0 }}>
-              <strong>Best first click:</strong>{' '}
-              <Link href={`/blog/${firstLearningPost.slug}`}>{firstLearningPost.title}</Link>. {pillar.startHere}
-            </p>
-          )}
+          <p className="home-section-description" style={{ margin: 0 }}>
+            <strong>{pillar.heroEntry.heading}</strong>{' '}
+            {pillar.heroEntry.href && pillar.heroEntry.label ? (
+              <>
+                <Link href={pillar.heroEntry.href}>{pillar.heroEntry.label}</Link>. {pillar.heroEntry.text}
+              </>
+            ) : (
+              pillar.heroEntry.text
+            )}
+          </p>
           <div className="home-resource-points">
             <span>{pillar.articleCount} primary articles</span>
             <span>{pillar.guides.length} guides</span>
@@ -160,10 +167,10 @@ export default async function PillarPage({ params }: Props) {
 
       <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
         <div className="home-section-head">
-          <div className="home-section-kicker">This guide is part of</div>
-          <h2 className="home-section-title">Use these hub routes to understand where this guide sits on the site</h2>
+          <div className="home-section-kicker">Keep moving</div>
+          <h2 className="home-section-title">Use these routes when you need the next level up, a side path, or a wider view</h2>
           <p className="home-section-description">
-            This guide links back into the homepage, resources hub, community page, blog archive, and category structure so readers can move up and sideways through the cluster.
+            Stay on this page if the current lane matches the problem in front of you. Open these links when you need broader discovery, a different topic entry point, or the next hub that helps you move without losing context.
           </p>
         </div>
         <div className="home-discovery-grid">
@@ -258,18 +265,20 @@ export default async function PillarPage({ params }: Props) {
         </section>
       )}
 
-      <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
-        <div className="home-section-head">
-          <div className="home-section-kicker">Comparisons</div>
-          <h2 className="home-section-title">Decision pages that connect to this cluster</h2>
-          <p className="home-section-description">{pillar.comparisonsIntro}</p>
-        </div>
-        <div className="home-post-grid">
-          {pillar.comparisons.map((post) => (
-            <PostCard key={post.slug} post={post} />
-          ))}
-        </div>
-      </section>
+      {remainingComparisons.length > 0 && (
+        <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+          <div className="home-section-head">
+            <div className="home-section-kicker">Comparisons</div>
+            <h2 className="home-section-title">Decision pages that connect to this cluster</h2>
+            <p className="home-section-description">{pillar.comparisonsIntro}</p>
+          </div>
+          <div className="home-post-grid">
+            {remainingComparisons.map((post) => (
+              <PostCard key={post.slug} post={post} />
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
         <div className="home-section-head">
@@ -348,11 +357,15 @@ export default async function PillarPage({ params }: Props) {
           <div className="home-section-kicker">Conclusion</div>
           <h2 className="home-section-title" style={{ marginTop: '0.75rem' }}>Use this page as the main entry point for this cluster</h2>
           <p className="home-section-description" style={{ marginTop: '0.75rem' }}>{pillar.conclusion}</p>
-          {firstLearningPost && (
-            <p className="home-section-description" style={{ marginTop: '0.75rem' }}>
-              If you want the cleanest next step, start with <Link href={`/blog/${firstLearningPost.slug}`}>{firstLearningPost.title}</Link> and then return here when you need the rest of the cluster map.
-            </p>
-          )}
+          <p className="home-section-description" style={{ marginTop: '0.75rem' }}>
+            {pillar.heroEntry.href && pillar.heroEntry.label ? (
+              <>
+                If you want the cleanest next step, start with <Link href={pillar.heroEntry.href}>{pillar.heroEntry.label}</Link> and return here when you need the next guide, comparison, or category path.
+              </>
+            ) : (
+              pillar.heroEntry.text
+            )}
+          </p>
           <div className="home-hero-actions" style={{ marginTop: '1rem' }}>
             <Link href="/" className="home-hero-button home-hero-button-secondary">
               Go to homepage
@@ -372,3 +385,4 @@ export default async function PillarPage({ params }: Props) {
     </div>
   )
 }
+
