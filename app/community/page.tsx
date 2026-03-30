@@ -7,9 +7,9 @@ import { RESOURCE_HUB_PATH } from '@/lib/resources'
 import { getResourceHubContent } from '@/lib/resources'
 
 export const metadata: Metadata = {
-  title: 'Community Hub | Blixamo',
+  title: 'Developer Community Hub',
   description:
-    'Developer discussions, indie hacker stories, tool recommendations, VPS setups, weekly resources, and practical questions around self-hosting and shipping software.',
+    'Developer community hub for self-hosting, VPS setups, free tools, build stories, and practical paths into Blixamo guides and category clusters.',
   alternates: { canonical: 'https://blixamo.com/community' },
 }
 
@@ -79,6 +79,12 @@ const COMMUNITY_LINKS: CommunityCard[] = [
     eyebrow: 'Pillar Guide',
   },
   {
+    title: 'Free Tools Category',
+    description: 'Browse the free-tools cluster directly when you want open source replacements, budget stacks, and lean software picks.',
+    href: '/category/free-tools',
+    eyebrow: 'Category',
+  },
+  {
     title: 'About Blixamo',
     description: 'See how the publication is organized and what topics the site focuses on across deployment, tooling, and operations.',
     href: '/about',
@@ -127,6 +133,26 @@ function CommunityCard({ card }: { card: CommunityCard }) {
 export default function CommunityPage() {
   const allPosts = getAllPosts()
   const hub = getResourceHubContent(allPosts)
+  const communityStats = [
+    {
+      label: 'Indexed-ready paths',
+      value: `${hub.pillarPages.length} pillar guides`,
+      description: 'Authority pages that connect categories, comparisons, and practical articles.',
+      href: `${RESOURCE_HUB_PATH}#authority-pages`,
+    },
+    {
+      label: 'Main topic clusters',
+      value: `${hub.categoryCards.length} categories`,
+      description: 'Browsable hubs for self-hosting, free tools, web development, VPS, automation, and more.',
+      href: `${RESOURCE_HUB_PATH}#resource-categories`,
+    },
+    {
+      label: 'Current article base',
+      value: `${hub.stats.articles} articles`,
+      description: 'Production-focused reads that this page helps route visitors toward instead of leaving them in a dead-end archive.',
+      href: '/blog',
+    },
+  ]
   const startLearningCards = hub.pillarPages.slice(0, 4).map((page) => ({
     title: page.title,
     description: page.description,
@@ -210,6 +236,35 @@ export default function CommunityPage() {
         </div>
       </section>
 
+      <section id="why-community" className="home-section-shell">
+        <div className="home-section-head">
+          <div className="home-section-kicker">Why This Page Exists</div>
+          <h2 className="home-section-title">This is a crawlable community map, not a thin archive page</h2>
+          <p className="home-section-description">
+            Blixamo does not run a generic forum. The community hub exists to connect recurring developer questions to the strongest
+            parts of the site: category hubs, pillar guides, comparison pages, and practical build logs. If someone lands here first,
+            they should be able to move into the right topic cluster in one click instead of bouncing back to search.
+          </p>
+          <p className="home-section-description" style={{ marginTop: '0.85rem' }}>
+            That matters for readers and for crawl depth. This route surfaces the current structure of the site, highlights the main
+            build paths, and keeps discussion-oriented intent tied to real technical content such as self-hosting guides, free-tools
+            roundups, VPS hardening workflows, and tool comparison pages.
+          </p>
+        </div>
+
+        <div className="home-discovery-grid">
+          {communityStats.map((item) => (
+            <Link key={item.label} href={item.href} className="home-discovery-card">
+              <div className="home-discovery-body">
+                <h3>{item.label}</h3>
+                <p style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{item.value}</p>
+                <p>{item.description}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       <section id="discussions" className="home-section-shell">
         <div className="home-section-head">
           <div className="home-section-kicker">Community Topics</div>
@@ -258,6 +313,10 @@ export default function CommunityPage() {
         <div className="home-section-head">
           <div className="home-section-kicker">What People Are Building</div>
           <h2 className="home-section-title">Use the community hub to branch into real product and infrastructure paths</h2>
+          <p className="home-section-description">
+            These routes cover the patterns that show up most often on the site: self-hosted stacks, AI-assisted workflows,
+            free-tool-driven MVP builds, and low-cost infrastructure choices that still feel production-ready.
+          </p>
         </div>
         <div className="home-quick-grid">
           {BUILDING_SHOWCASE.map((card) => (
@@ -390,6 +449,9 @@ export default function CommunityPage() {
           <div className="home-hero-actions" style={{ marginTop: '1rem' }}>
             <Link href={RESOURCE_HUB_PATH} className="home-hero-button home-hero-button-secondary">
               Resource Hub
+            </Link>
+            <Link href="/category/free-tools" className="home-hero-button home-hero-button-secondary">
+              Free Tools
             </Link>
             <Link href="/category/indie-hacking" className="home-hero-button home-hero-button-secondary">
               Indie Hacking

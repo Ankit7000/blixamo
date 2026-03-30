@@ -14,6 +14,9 @@ type CategoryArchiveContent = {
   audience: string
   articleTypes: string
   importantSlugs: string[]
+  metadataTitle?: string
+  metadataDescription?: string
+  editorialNote?: string
 }
 
 const CATEGORY_ARCHIVE_CONTENT: Record<string, CategoryArchiveContent> = {
@@ -114,6 +117,9 @@ const CATEGORY_ARCHIVE_CONTENT: Record<string, CategoryArchiveContent> = {
       'open-source-tools-2026',
       'free-tools-indian-indie-developer',
     ],
+    metadataTitle: 'Free Tools for Developers',
+    metadataDescription: 'Free tools for developers, open source replacements, and budget-friendly stack guides that reduce SaaS spend without making the workflow worse.',
+    editorialNote: 'This category is intentionally curated instead of padded. The goal is not to list every free app on the internet. The goal is to collect the free and open source tools that fit real developer workflows, connect them back to the broader Blixamo resource hub, and keep the strongest next reads visible from one page.',
   },
 }
 
@@ -137,10 +143,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const canonicalSlug = normalizeCategorySlug(slug)
   const meta = getCategoryMeta(canonicalSlug)
+  const archiveContent = CATEGORY_ARCHIVE_CONTENT[canonicalSlug]
 
   return {
-    title: `${meta.label} Articles`,
-    description: meta.description,
+    title: archiveContent?.metadataTitle || `${meta.label} Articles`,
+    description: archiveContent?.metadataDescription || meta.description,
     alternates: { canonical: `https://blixamo.com/category/${canonicalSlug}` },
   }
 }
@@ -329,6 +336,20 @@ export default async function CategoryPage({ params }: Props) {
             ))}
           </ul>
         </div>
+
+        {archiveContent?.editorialNote && (
+          <div style={{ marginTop: '1.25rem' }}>
+            <h2 style={{ margin: '0 0 0.45rem', fontSize: '1rem', color: 'var(--text-primary)' }}>Why This Category Matters</h2>
+            <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.8 }}>
+              {archiveContent.editorialNote}
+            </p>
+            <p style={{ margin: '0.85rem 0 0', color: 'var(--text-secondary)', lineHeight: 1.8 }}>
+              Right now this hub includes {posts.length} directly assigned article{posts.length !== 1 ? 's' : ''}, plus connected
+              pillar guides, related tool pages, the community hub, and the main resources lane. That keeps the page useful even when
+              the core category stays selective instead of turning into a low-quality archive.
+            </p>
+          </div>
+        )}
 
         {relatedCategories.length > 0 && (
           <div style={{ marginTop: '1.25rem' }}>
