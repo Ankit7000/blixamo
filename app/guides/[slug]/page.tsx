@@ -19,6 +19,66 @@ function ResourceCard({ title, description, href }: { title: string; description
   )
 }
 
+function BulletList({ items }: { items: string[] }) {
+  return (
+    <ul style={{ margin: 0, paddingLeft: '1.1rem', display: 'grid', gap: '0.75rem' }}>
+      {items.map((item) => (
+        <li key={item}>{item}</li>
+      ))}
+    </ul>
+  )
+}
+
+function DecisionTable({
+  rows,
+}: {
+  rows: { option: string; bestFor: string; watchOutFor: string; startWith: string }[]
+}) {
+  return (
+    <div style={{ overflowX: 'auto' }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '720px' }}>
+        <thead>
+          <tr>
+            {['Option', 'Best for', 'Watch out for', 'Start here when'].map((heading) => (
+              <th
+                key={heading}
+                style={{
+                  textAlign: 'left',
+                  padding: '0.9rem 1rem',
+                  borderBottom: '1px solid rgba(148, 163, 184, 0.24)',
+                  color: 'var(--text-primary)',
+                  fontSize: '0.95rem',
+                }}
+              >
+                {heading}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.option}>
+              <td
+                style={{
+                  padding: '1rem',
+                  borderBottom: '1px solid rgba(148, 163, 184, 0.16)',
+                  color: 'var(--text-primary)',
+                  fontWeight: 700,
+                }}
+              >
+                {row.option}
+              </td>
+              <td style={{ padding: '1rem', borderBottom: '1px solid rgba(148, 163, 184, 0.16)' }}>{row.bestFor}</td>
+              <td style={{ padding: '1rem', borderBottom: '1px solid rgba(148, 163, 184, 0.16)' }}>{row.watchOutFor}</td>
+              <td style={{ padding: '1rem', borderBottom: '1px solid rgba(148, 163, 184, 0.16)' }}>{row.startWith}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
 export async function generateStaticParams() {
   return getPillarDefinitions().map((pillar) => ({ slug: pillar.slug }))
 }
@@ -152,6 +212,64 @@ export default async function PillarPage({ params }: Props) {
 
       <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
         <div className="home-section-head">
+          <div className="home-section-kicker">Quick decisions</div>
+          <h2 className="home-section-title">Get the direction right before you open the full cluster</h2>
+          <p className="home-section-description">
+            This is the fast answer layer for people who want to decide what to do first, who this guide is actually for,
+            and when they should back out into another path instead of clicking every card below.
+          </p>
+        </div>
+        <div className="home-resource-promo-grid">
+          <div className="home-resource-promo-card">
+            <span className="home-curated-eyebrow">Quick decision box</span>
+            <div style={{ display: 'grid', gap: '0.9rem' }}>
+              {pillar.quickDecisions.map((item) => (
+                <p key={item.label} style={{ margin: 0 }}>
+                  <strong>{item.label}</strong>{' '}
+                  <span>{item.text}</span>
+                </p>
+              ))}
+            </div>
+          </div>
+          <div className="home-resource-promo-card">
+            <span className="home-curated-eyebrow">Good fit for</span>
+            <BulletList items={pillar.goodFit} />
+          </div>
+          <div className="home-resource-promo-card">
+            <span className="home-curated-eyebrow">Not ideal if</span>
+            <BulletList items={pillar.avoidIf} />
+          </div>
+        </div>
+      </section>
+
+      <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+        <div className="home-section-head">
+          <div className="home-section-kicker">Decision table</div>
+          <h2 className="home-section-title">{pillar.decisionTableTitle}</h2>
+          <p className="home-section-description">
+            Use this table before you open more links. It is meant to reduce decision fatigue, not add another layer of browsing.
+          </p>
+        </div>
+        <DecisionTable rows={pillar.decisionTableRows} />
+      </section>
+
+      <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+        <div className="home-section-head">
+          <div className="home-section-kicker">Common mistakes</div>
+          <h2 className="home-section-title">What people usually get wrong in this lane</h2>
+          <p className="home-section-description">
+            These are the avoidable errors that create extra work, wasted money, or the wrong next click once the topic starts to branch.
+          </p>
+        </div>
+        <ul className="resource-path-steps">
+          {pillar.commonMistakes.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+        <div className="home-section-head">
           <div className="home-section-kicker">When to use it</div>
           <h2 className="home-section-title">Use this pillar when this is the problem in front of you</h2>
           <p className="home-section-description">
@@ -217,6 +335,9 @@ export default async function PillarPage({ params }: Props) {
           <div className="home-section-kicker">Recommended tools</div>
           <h2 className="home-section-title">Use the strongest supporting pages before you choose the stack</h2>
           <p className="home-section-description">{pillar.bestToolsIntro}</p>
+          <p className="home-section-description" style={{ margin: 0 }}>
+            Open the card that matches the active bottleneck. Skip the rest until that supporting-tool choice is actually clear.
+          </p>
         </div>
         <div className="home-post-grid">
           {pillar.tools.map((post) => (
@@ -230,6 +351,9 @@ export default async function PillarPage({ params }: Props) {
           <div className="home-section-kicker">Continue Learning</div>
           <h2 className="home-section-title">Start with these core reads inside the cluster</h2>
           <p className="home-section-description">{pillar.guidesIntro}</p>
+          <p className="home-section-description" style={{ margin: 0 }}>
+            Treat these cards as the execution lane. Start with the first read that matches your current state and ignore the advanced branches until the base path works.
+          </p>
         </div>
         <div className="home-post-grid">
           {pillar.guides.map((post) => (
@@ -245,6 +369,9 @@ export default async function PillarPage({ params }: Props) {
             <h2 className="home-section-title">Start with the comparison group that matches the active decision</h2>
             <p className="home-section-description">
               This extra grouping is for decision-ready readers. It helps you avoid opening every head-to-head page at once and points you toward the next pillar or implementation lane after the verdict lands.
+            </p>
+            <p className="home-section-description" style={{ margin: 0 }}>
+              Use these only when the choice is live. If you already know the winner, skip forward into implementation.
             </p>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -271,6 +398,9 @@ export default async function PillarPage({ params }: Props) {
             <div className="home-section-kicker">Comparisons</div>
             <h2 className="home-section-title">Decision pages that connect to this cluster</h2>
             <p className="home-section-description">{pillar.comparisonsIntro}</p>
+            <p className="home-section-description" style={{ margin: 0 }}>
+              Open these if the choice is still unsettled. Skip them when the decision is already made and the job is execution.
+            </p>
           </div>
           <div className="home-post-grid">
             {remainingComparisons.map((post) => (
@@ -300,6 +430,17 @@ export default async function PillarPage({ params }: Props) {
           <p className="home-section-description">{pillar.learningPathIntro}</p>
         </div>
         <ol className="resource-path-steps">
+          {pillar.shortestPath.map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </ol>
+        <div className="home-section-head" style={{ marginTop: '1.5rem', gap: '0.5rem' }}>
+          <h3 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '1.2rem', fontWeight: 800 }}>Then use these linked reads in order</h3>
+          <p className="home-section-description" style={{ margin: 0 }}>
+            This keeps the path linear for beginners without removing the wider hub structure around it.
+          </p>
+        </div>
+        <ol className="resource-path-steps">
           {pillar.learningPath.map((post) => (
             <li key={post.slug}>
               <Link href={`/blog/${post.slug}`}>{post.title}</Link>
@@ -313,6 +454,9 @@ export default async function PillarPage({ params }: Props) {
           <div className="home-section-kicker">Articles in this topic</div>
           <h2 className="home-section-title">All cluster articles connected to this pillar</h2>
           <p className="home-section-description">{pillar.topicArticlesIntro}</p>
+          <p className="home-section-description" style={{ margin: 0 }}>
+            This is the full map, not the first stop. Use it when you know the subtopic you need and want the wider cluster around it.
+          </p>
         </div>
         <div className="home-post-grid">
           {pillar.topicArticles.map((post) => (
@@ -326,10 +470,31 @@ export default async function PillarPage({ params }: Props) {
           <div className="home-section-kicker">Related articles</div>
           <h2 className="home-section-title">Core reads connected to this pillar</h2>
           <p className="home-section-description">{pillar.relatedArticlesIntro}</p>
+          <p className="home-section-description" style={{ margin: 0 }}>
+            Start here if you want momentum without scanning the full archive or the entire topic grid.
+          </p>
         </div>
         <div className="home-post-grid">
           {pillar.relatedArticles.map((post) => (
             <PostCard key={post.slug} post={post} />
+          ))}
+        </div>
+      </section>
+
+      <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+        <div className="home-section-head">
+          <div className="home-section-kicker">Final recommendation</div>
+          <h2 className="home-section-title">Use this recommendation block if you want a clean next move</h2>
+          <p className="home-section-description">
+            This is the closure layer for readers who reached the end of the page and want a clear recommendation instead of one more branch.
+          </p>
+        </div>
+        <div className="home-resource-promo-grid">
+          {pillar.finalRecommendations.map((item) => (
+            <div key={item.label} className="home-resource-promo-card">
+              <h3 style={{ margin: 0, fontSize: '1rem', color: 'var(--text-primary)' }}>{item.label}</h3>
+              <p style={{ margin: 0 }}>{item.text}</p>
+            </div>
           ))}
         </div>
       </section>
@@ -385,4 +550,3 @@ export default async function PillarPage({ params }: Props) {
     </div>
   )
 }
-

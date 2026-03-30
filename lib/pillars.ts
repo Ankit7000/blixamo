@@ -16,6 +16,18 @@ type PillarHeroEntry = {
   text: string
 }
 
+type PillarLabeledPoint = {
+  label: string
+  text: string
+}
+
+type PillarDecisionTableRow = {
+  option: string
+  bestFor: string
+  watchOutFor: string
+  startWith: string
+}
+
 type PillarPostGroupDefinition = {
   title: string
   description: string
@@ -56,6 +68,12 @@ type PillarDefinition = {
   heroEntry: PillarHeroEntry
   startHere: string
   notFor: string
+  quickDecisions: readonly PillarLabeledPoint[]
+  goodFit: readonly string[]
+  avoidIf: readonly string[]
+  decisionTableTitle: string
+  decisionTableRows: readonly PillarDecisionTableRow[]
+  commonMistakes: readonly string[]
   whenToUse: readonly string[]
   bestToolsIntro: string
   guidesIntro: string
@@ -63,9 +81,11 @@ type PillarDefinition = {
   recommendedSetupIntro: string
   recommendedSetup: readonly string[]
   learningPathIntro: string
+  shortestPath: readonly string[]
   topicArticlesIntro: string
   relatedArticlesIntro: string
   conclusion: string
+  finalRecommendations: readonly PillarLabeledPoint[]
   faq: readonly PillarFaq[]
   guideSlugs: readonly string[]
   comparisonSlugs: readonly string[]
@@ -89,6 +109,12 @@ export type PillarPage = {
   heroEntry: PillarHeroEntry
   startHere: string
   notFor: string
+  quickDecisions: PillarLabeledPoint[]
+  goodFit: string[]
+  avoidIf: string[]
+  decisionTableTitle: string
+  decisionTableRows: PillarDecisionTableRow[]
+  commonMistakes: string[]
   whenToUse: string[]
   bestToolsIntro: string
   guidesIntro: string
@@ -96,9 +122,11 @@ export type PillarPage = {
   recommendedSetupIntro: string
   recommendedSetup: string[]
   learningPathIntro: string
+  shortestPath: string[]
   topicArticlesIntro: string
   relatedArticlesIntro: string
   conclusion: string
+  finalRecommendations: PillarLabeledPoint[]
   faq: PillarFaq[]
   primaryArticles: Post[]
   guides: Post[]
@@ -206,6 +234,38 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
     },
     startHere: 'If you are new, start with one practical service that is worth owning now, usually app deployment, analytics, or an automation workflow. Add monitoring, recovery, and extra services only after the first workload is stable.',
     notFor: 'Do not start here if you only need to ship one app quickly and do not want to operate supporting services yet. In that case, open the deployment pillar first and keep the stack minimal.',
+    quickDecisions: [
+      { label: 'Choose self-hosting', text: 'if lower recurring cost and more control matter more than convenience.' },
+      { label: 'Choose one service first', text: 'if you want a safe entry point instead of a full platform on day 1.' },
+      { label: 'Choose a UI-led path', text: 'if you want self-hosting with less command-line friction and clearer guardrails.' },
+      { label: 'Choose managed hosting', text: 'if you do not want backups, monitoring, and recovery on your plate yet.' },
+    ],
+    goodFit: [
+      'Indie hackers who are tired of paying SaaS prices for simple workloads.',
+      'Developers who want more control over deploy flow, data, and surrounding services.',
+      'Builders who are comfortable adding backups, monitoring, and recovery as the stack grows.',
+      'Teams or solo operators who want one small VPS to carry multiple useful services.',
+    ],
+    avoidIf: [
+      'You want zero-maintenance hosting and do not want to think about operations.',
+      'You are still unclear which single workload should move off SaaS first.',
+      'You plan to self-host critical email, heavy databases, or every dashboard immediately.',
+      'You do not have time for backups, monitoring, and a basic recovery plan.',
+    ],
+    decisionTableTitle: 'Choose the self-hosting shape that matches your current appetite for ops',
+    decisionTableRows: [
+      { option: 'Managed hosting', bestFor: 'Fast shipping with almost no ops work.', watchOutFor: 'Less control and higher long-term cost.', startWith: 'Stay managed if convenience still matters most.' },
+      { option: 'One-app self-hosting', bestFor: 'Developers testing whether ownership is worth it.', watchOutFor: 'You still need backups and a recovery path.', startWith: 'Move one clear workload first, usually app deploy or analytics.' },
+      { option: 'Platform-led self-hosting', bestFor: 'Builders who want UI help without giving up the VPS.', watchOutFor: 'The platform can hide complexity until something breaks.', startWith: 'Use Coolify or a similar layer after the server basics are clear.' },
+      { option: 'Full self-hosted stack', bestFor: 'Experienced operators with a stable first service already running.', watchOutFor: 'Complexity grows fast if every new tool gets a container.', startWith: 'Expand only after the first workload is stable and monitored.' },
+    ],
+    commonMistakes: [
+      'Self-hosting too many tools before one service is stable.',
+      'Skipping backups because the stack still feels small.',
+      'Adding monitoring and recovery only after the first outage.',
+      'Choosing tools because they are popular instead of because they remove real vendor friction.',
+      'Starting with the riskiest services instead of the easiest useful win.',
+    ],
     whenToUse: [
       'Use it when hosted tools are getting expensive and you want more control without jumping straight into a complex home-lab setup.',
       'Use it when you need a clear path from first app to supporting services such as analytics, automation, and monitoring.',
@@ -222,9 +282,22 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
       'Use comparison pages only when the platform choice changes how much work you will carry every week.',
     ],
     learningPathIntro: 'Follow this path if you want to move from broad self-hosting context into a working stack with a sane progression: first workload, repeatable deploy path, then operations discipline.',
+    shortestPath: [
+      'Choose the first workload that clearly earns the extra control.',
+      'Use one VPS and one deployment path instead of a pile of tools.',
+      'Deploy the first service before you add side systems.',
+      'Add backups, monitoring, and recovery immediately after the first win.',
+      'Compare platforms later, only if the weekly maintenance burden changes.',
+    ],
     topicArticlesIntro: 'This is the full self-hosting cluster. Use it when you already know the subtopic you need or when you want to see how app hosting, automation, analytics, monitoring, and recovery fit together under one operating model.',
     relatedArticlesIntro: 'These are the strongest next reads if you want a faster path without browsing the entire cluster. They work well for developers who already know the first service they want to self-host.',
     conclusion: 'Use this page as the self-hosting entry point when the question is what to host yourself, what to delay, and how to keep the stack from getting sloppy. Start with one service that clearly earns the extra control, then move into deployment or infrastructure only when the next decision actually demands it.',
+    finalRecommendations: [
+      { label: 'Beginner', text: 'Start with one VPS and one service that saves money or removes obvious vendor friction.' },
+      { label: 'Budget-focused', text: 'Keep the stack lean and avoid services that create heavy maintenance for small savings.' },
+      { label: 'Advanced', text: 'Compare platforms only after the first workload is stable enough to expose the real operational tradeoffs.' },
+      { label: 'Not ready yet', text: 'Stay managed for now if you cannot commit to backups, monitoring, and a recovery plan.' },
+    ],
     faq: [
       { question: 'What should I self-host first as a developer?', answer: 'Start with the workload that saves money or removes the most vendor friction right away, usually app deployment, analytics, or one automation workflow. That gives you a quick win without forcing you to operate a full platform on day 1.' },
       { question: 'What should I avoid self-hosting first?', answer: 'Avoid the services that create the most operational pain if they fail, especially email, large databases you do not fully understand yet, and a pile of admin dashboards you will not maintain. Get one simple service stable first.' },
@@ -261,6 +334,38 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
     },
     startHere: 'If the server does not exist yet, open the VPS setup guide first. If the box is ready, choose the deploy path that matches your stack: raw Node and PM2 for minimal apps, Docker Compose for multi-service setups, or a platform-style workflow if you want a friendlier control layer.',
     notFor: 'This is not the best first stop if you are still choosing a provider or comparing clouds. Pick the server first in the VPS and cloud pillar, then come back here when the deployment path is the real decision.',
+    quickDecisions: [
+      { label: 'Choose PM2', text: 'if this is a simple Node app and you want the lightest possible path.' },
+      { label: 'Choose Docker Compose', text: 'if the app needs multiple services and you want a clear declarative setup.' },
+      { label: 'Choose a platform layer', text: 'if you want a friendlier VPS workflow with more UI and less manual glue.' },
+      { label: 'Choose managed hosting', text: 'if you do not want to own server restarts, logs, proxying, and SSL.' },
+    ],
+    goodFit: [
+      'Developers moving from localhost to their first real VPS.',
+      'Builders leaving Vercel, Netlify, or another managed default for cost or control reasons.',
+      'Teams who want one repeatable deployment sequence they can explain and rerun.',
+      'Operators who are comfortable handling logs, restarts, proxy rules, and basic server maintenance.',
+    ],
+    avoidIf: [
+      'You are still choosing the provider or the server shape itself.',
+      'You want zero-maintenance hosting and no operational responsibility.',
+      'You plan to mix PM2, Compose, and platform workflows on the same first project without a clear reason.',
+      'You are not ready to own health checks, restarts, logs, and SSL troubleshooting.',
+    ],
+    decisionTableTitle: 'Pick the VPS deployment path that matches the app and the team',
+    decisionTableRows: [
+      { option: 'Managed platform', bestFor: 'Teams who want the app live without learning server operations.', watchOutFor: 'Less flexibility and less control over cost and architecture.', startWith: 'Stay managed if deployment speed matters more than ownership.' },
+      { option: 'Raw Node + PM2', bestFor: 'Single-app Node deployments with minimal moving parts.', watchOutFor: 'More manual work around proxying, environments, and service layout.', startWith: 'Use it when the app is simple and you want to learn the basics clearly.' },
+      { option: 'Docker Compose', bestFor: 'Apps with multiple services that need a repeatable deployment definition.', watchOutFor: 'You still need to understand networking, storage, and restart behavior.', startWith: 'Choose Compose when the stack is bigger than one process.' },
+      { option: 'Platform on VPS', bestFor: 'Builders who want a friendlier self-hosted deployment layer.', watchOutFor: 'A UI does not remove the need for backups, monitoring, and server basics.', startWith: 'Adopt it after the server is prepared and the app shape is known.' },
+    ],
+    commonMistakes: [
+      'Skipping server prep and hardening because the app deploy feels more urgent.',
+      'Mixing multiple deployment methods before one path works cleanly.',
+      'Adding domain and SSL before the app works reliably on the server.',
+      'Never testing reboot behavior, logs, or health checks after the first successful deploy.',
+      'Treating the first VPS like a place to host every app and experiment immediately.',
+    ],
     whenToUse: [
       'Use it when you are moving from localhost to a real VPS and want one sequence you can repeat later.',
       'Use it when you need to choose between a minimal manual deploy, Docker Compose, or a platform-style workflow.',
@@ -277,9 +382,22 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
       'Finish with production checks such as restart behavior, logs, health verification, and indexing or monitoring only after the site is truly live.',
     ],
     learningPathIntro: 'If you want the shortest route to a live deployment, follow these guides in order and do not skip setup, proxy, or verification. That is where most avoidable deployment mistakes happen.',
+    shortestPath: [
+      'Prepare and secure the server before touching the app.',
+      'Choose one deployment method for the current app.',
+      'Get the app working locally on the VPS first.',
+      'Add reverse proxy, domain, and SSL in that order.',
+      'Verify reboot behavior, logs, health checks, and production readiness.',
+    ],
     topicArticlesIntro: 'This full deployment cluster is useful when you already know the specific step you need: server prep, reverse proxy, app shipping, Compose, Coolify, or post-launch checks. It is the quickest way to stay inside one production path without drifting across unrelated topics.',
     relatedArticlesIntro: 'These are the core deployment reads worth opening first if you do not want to scan the entire topic map. They cover the setup, runtime, and verification decisions that break most first VPS launches.',
     conclusion: 'Treat this page as the fastest reliable route from local app to production VPS. Start with the server state you actually have, choose one deployment path, and only open comparisons when the tool choice is still unresolved.',
+    finalRecommendations: [
+      { label: 'Beginner', text: 'Start with one app and one clear path, usually PM2 or a friendly platform layer, not both.' },
+      { label: 'Multi-service stack', text: 'Use Docker Compose once the app genuinely needs more than one service.' },
+      { label: 'Advanced', text: 'Compare platform layers only after the manual sequence is clear enough that you can judge the tradeoff.' },
+      { label: 'Not ready for ops', text: 'Stay managed if proxying, logs, restarts, and SSL are still chores you do not want to own.' },
+    ],
     faq: [
       { question: 'What is the best first article to read before deploying on a VPS?', answer: 'Start with the VPS setup guide if the server is not ready yet. If the server already exists and is reachable, jump to the deployment article that matches your runtime or platform choice.' },
       { question: 'How do I choose between PM2, Docker Compose, and a platform workflow?', answer: 'Use PM2 for the simplest single-app Node deployments, Docker Compose for multi-service stacks you want to define clearly, and a platform workflow when you value a friendlier UI more than maximum manual control.' },
@@ -314,6 +432,38 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
     },
     startHere: 'If you have never bought a VPS before, start with the cheapest practical hosting read or the broadest provider comparison. If you already have a server and the concern is security, skip straight to hardening and recovery.',
     notFor: 'Do not start here if your provider is already chosen and your only problem is getting the app live. In that case, the deployment pillar is the faster first click.',
+    quickDecisions: [
+      { label: 'Choose a cheap VPS', text: 'if the workload is honest, small, and you are willing to learn the basics.' },
+      { label: 'Choose a bigger cloud default', text: 'if simplicity, ecosystem fit, or managed add-ons matter more than raw price.' },
+      { label: 'Choose hardening now', text: 'if the server already exists and security is the blocker.' },
+      { label: 'Choose the deployment pillar instead', text: 'if the provider is settled and the only real problem is shipping the app.' },
+    ],
+    goodFit: [
+      'Developers buying a first VPS or switching providers.',
+      'Builders moving away from expensive managed hosting defaults.',
+      'Teams who want a realistic view of price, hardening, monitoring, and recovery.',
+      'Operators who know the server choice will shape every later deployment decision.',
+    ],
+    avoidIf: [
+      'You already chose the provider and now just need a deployment sequence.',
+      'You want fully managed infrastructure with almost no server responsibility.',
+      'You are not prepared to treat backups, hardening, and monitoring as part of setup.',
+      'You are looking for enterprise architecture guidance rather than lean developer hosting choices.',
+    ],
+    decisionTableTitle: 'Choose the infrastructure lane that matches the workload, not the hype',
+    decisionTableRows: [
+      { option: 'Cheap VPS', bestFor: 'Lean apps, side projects, and developers who want price control.', watchOutFor: 'You own the hardening, backups, and operational discipline.', startWith: 'Use it when the workload is modest and the budget is tight.' },
+      { option: 'Mainstream cloud', bestFor: 'Teams that want ecosystem depth or managed add-ons around the app.', watchOutFor: 'Costs climb fast if you only needed a simple VPS.', startWith: 'Choose it when the surrounding services matter more than raw server price.' },
+      { option: 'Free tier hosting', bestFor: 'Experiments, learning, and workloads with very soft constraints.', watchOutFor: 'Limits, instability, and weak upgrade paths for serious use.', startWith: 'Use it only when the app can tolerate the tradeoffs.' },
+      { option: 'Managed hosting', bestFor: 'People who want to avoid owning infrastructure decisions entirely.', watchOutFor: 'Less control and fewer chances to optimize cost at the server level.', startWith: 'Stay managed if operations are not part of the goal.' },
+    ],
+    commonMistakes: [
+      'Buying based on headline specs before defining the workload.',
+      'Treating backups and hardening as cleanup work for later.',
+      'Choosing the cheapest provider without checking weekly operational drag.',
+      'Reopening provider debates after the server is already good enough.',
+      'Ignoring recovery thinking until after the first security or uptime problem.',
+    ],
     whenToUse: [
       'Use it before you buy a first VPS, switch providers, or move away from a more expensive cloud default.',
       'Use it when you need real provider framing: cheap first VPS, production VPS, comparison-first buying, or security-first operation.',
@@ -330,9 +480,22 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
       'Once the provider choice is settled, move into the deployment pillar and stop reopening the infrastructure decision unless the workload changes.',
     ],
     learningPathIntro: 'If you are still undecided, follow this path from host selection into hardening and then deployment. That keeps the decision grounded in cost, security, and what you actually plan to run.',
+    shortestPath: [
+      'Define the workload and budget ceiling first.',
+      'Compare the few providers that honestly fit that workload.',
+      'Pick one provider and secure the server immediately.',
+      'Add backups and monitoring before public traffic matters.',
+      'Move into deployment once the infrastructure choice is settled.',
+    ],
     topicArticlesIntro: 'Use the full cluster below when you already know the subtopic you need: free hosting options, provider comparisons, security hardening, monitoring, recovery, or the bridge into deployment. It is the complete infrastructure lane for the site.',
     relatedArticlesIntro: 'These are the strongest infrastructure reads to open first if you do not want the entire map. They cover buying, securing, and stabilizing a VPS before the stack grows.',
     conclusion: 'Use this page as the main infrastructure decision point on Blixamo. Start with the provider and workload framing, lock in the minimum security discipline, then move into deployment once the server choice actually makes sense.',
+    finalRecommendations: [
+      { label: 'Beginner', text: 'Choose the simplest affordable VPS that honestly fits the workload and learn the basics on that.' },
+      { label: 'Budget-focused', text: 'Pick the smallest practical server, then spend the saved money on backups, monitoring, or one good managed add-on if needed.' },
+      { label: 'Advanced', text: 'Compare provider edge cases only after the workload, region, and operational model are already clear.' },
+      { label: 'Not ready for ops', text: 'Stay managed if backups, security, and recovery still feel like burdens rather than responsibilities you want.' },
+    ],
     faq: [
       { question: 'What should I decide before buying a VPS?', answer: 'Decide the workload, budget ceiling, region needs, and how much operational work you are willing to carry. Those 4 answers matter more than any provider landing page feature list.' },
       { question: 'Is a cheap VPS enough for production?', answer: 'Often yes for lean apps and modest traffic. The key is being honest about the workload and pairing the cheap server with hardening, backups, and realistic expectations instead of magical thinking.' },
@@ -382,6 +545,38 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
     },
     startHere: 'If you feel overwhelmed, start with the broad developer-tools roundup, then jump to the workflow that is actually painful right now: coding speed, API work, database clients, frontend workflow, or performance. Do not browse this like a directory of everything you could install.',
     notFor: 'Do not start here if your real problem is hosting, server hardening, or deployment sequence. Those questions belong in the VPS and deployment pillars before you optimize the software around them.',
+    quickDecisions: [
+      { label: 'Choose a roundup first', text: 'if the bottleneck is broad and you still need orientation.' },
+      { label: 'Choose a direct comparison', text: 'if the shortlist is already down to two realistic options.' },
+      { label: 'Choose an implementation guide', text: 'if you already know the job and need applied context.' },
+      { label: 'Choose the free-tools pillar', text: 'if cost is the real filter and software quality comes second.' },
+    ],
+    goodFit: [
+      'Developers with a real workflow bottleneck in coding, API work, docs, databases, or frontend velocity.',
+      'Teams who want practical recommendations instead of giant generic lists.',
+      'Builders who want a recommendation and the next article that shows how the tool fits real work.',
+      'Readers who are willing to narrow quickly instead of collecting endless options.',
+    ],
+    avoidIf: [
+      'Your real blocker is infrastructure, deployment, or server hardening.',
+      'You are browsing tools out of curiosity with no clear pain point.',
+      'You already know the winning tool and just need implementation steps.',
+      'Budget is the only real filter and quality tradeoffs are acceptable.',
+    ],
+    decisionTableTitle: 'Choose the tool-content format that matches the kind of decision you need',
+    decisionTableRows: [
+      { option: 'Broad roundup', bestFor: 'Readers who still need orientation around a workflow category.', watchOutFor: 'It is easy to keep browsing without closing the decision.', startWith: 'Open a roundup when the job is still broad.' },
+      { option: 'Direct comparison', bestFor: 'Shortlists where two tools truly compete for one slot.', watchOutFor: 'Comparing too early creates noise instead of clarity.', startWith: 'Use it only when the shortlist is already tight.' },
+      { option: 'Implementation guide', bestFor: 'Developers who already know the tool lane and want applied context.', watchOutFor: 'The guide is weaker if the tool decision is still wide open.', startWith: 'Pair one guide with the tool you are most likely to adopt.' },
+      { option: 'Free-tools pass', bestFor: 'Budget reviews where recurring spend is the real bottleneck.', watchOutFor: 'Cheap is not useful if the workflow gets worse.', startWith: 'Switch to the free-tools pillar when cost dominates the decision.' },
+    ],
+    commonMistakes: [
+      'Installing overlapping tools before naming the actual bottleneck.',
+      'Paying for multiple tools that solve nearly the same workflow job.',
+      'Opening comparisons before the shortlist is narrow enough to matter.',
+      'Optimizing software choices when the real problem is infrastructure or process.',
+      'Choosing tools because they look impressive instead of because they remove friction.',
+    ],
     whenToUse: [
       'Use it when you want practical software picks instead of another giant list of tools you will never install.',
       'Use it when the current bottleneck is coding, debugging, docs, database work, API exploration, or frontend workflow rather than infrastructure.',
@@ -398,9 +593,22 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
       'Keep free and open source alternatives in scope whenever the paid default is not clearly better.',
     ],
     learningPathIntro: 'Follow this path if you want to move from broad tooling picks into specific database, AI, frontend, and workflow decisions without getting buried in tabs.',
+    shortestPath: [
+      'Name the workflow bottleneck before you open another tools page.',
+      'Use one roundup to narrow the category fast.',
+      'Read one comparison only if two options still look equally strong.',
+      'Pair the likely winner with one implementation guide.',
+      'Lock the tool in and revisit alternatives later only if the workflow still hurts.',
+    ],
     topicArticlesIntro: 'This is the full tools cluster for developers. Use it when you want to browse by job to be done instead of by category label, or when you need to connect roundups, comparisons, and implementation reads inside one workflow lane.',
     relatedArticlesIntro: 'These are the fastest high-signal reads if you do not want the whole directory at once. They are a good entry point for developers who already know what kind of tool decision they need to make.',
     conclusion: 'Use this directory as the main software map for your developer workflow. Start with the job that is currently slowing you down, narrow quickly, and only move into head-to-head comparisons when 2 options are truly competing.',
+    finalRecommendations: [
+      { label: 'Beginner', text: 'Fix one painful workflow first instead of reworking the whole toolchain.' },
+      { label: 'Budget-focused', text: 'Open the free-tools pillar as soon as price becomes the main filter.' },
+      { label: 'Advanced', text: 'Use comparisons only on close calls and keep implementation context nearby.' },
+      { label: 'Not ready yet', text: 'Do not install anything new until you can name the exact bottleneck you want to remove.' },
+    ],
     faq: [
       { question: 'What should I read first in the tools cluster?', answer: 'Start with the broad developer-tools roundup if your choices are still wide open. If the problem is already narrow, such as database clients or AI coding tools, jump straight to the matching workflow page.' },
       { question: 'Is this page for coding tools only?', answer: 'No. It covers the wider developer workflow: coding, AI assistance, API work, database tooling, docs, frontend workflow, and the implementation reads that show where those tools fit.' },
@@ -435,6 +643,38 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
     },
     startHere: 'If you are new, start with one repeatable workflow that already hurts: lead routing, content enrichment, notifications, or an internal bot. Solo builders should learn the n8n basics first. More advanced users can jump straight to platform or AI-workflow decisions.',
     notFor: 'Do not start here if you are just curious about automation with no repeated task in mind. You will end up building a clever workflow that solves nothing and still needs maintenance.',
+    quickDecisions: [
+      { label: 'Choose one workflow first', text: 'if you want automation that starts paying off this week.' },
+      { label: 'Choose n8n', text: 'if visual orchestration and connectors matter more than writing everything in code.' },
+      { label: 'Choose code or scripts', text: 'if the workflow is simple and belongs close to the app.' },
+      { label: 'Choose AI carefully', text: 'only when it improves the outcome enough to justify the extra failure points.' },
+    ],
+    goodFit: [
+      'Developers with a repeated task in support, content, notifications, or internal workflows.',
+      'Solo builders who want one useful workflow instead of a big automation roadmap.',
+      'Teams choosing between n8n, custom code, bots, or AI-enriched flows.',
+      'Readers willing to monitor failures and own the workflow after launch.',
+    ],
+    avoidIf: [
+      'You do not have one repeated task that already hurts.',
+      'You want to automate everything at once because the idea feels exciting.',
+      'The source data, ownership, or business rules are still messy.',
+      'You are adding AI because it sounds advanced rather than because it improves the workflow.',
+    ],
+    decisionTableTitle: 'Choose the automation shape that fits the job, not the trend',
+    decisionTableRows: [
+      { option: 'Simple code or script', bestFor: 'Tight, app-owned workflows with clear logic.', watchOutFor: 'It can become hard to see or hand off if the process grows.', startWith: 'Use code when the task is small and deterministic.' },
+      { option: 'n8n workflow', bestFor: 'Visible orchestration, connectors, and quick iteration across services.', watchOutFor: 'A workflow tool still needs error handling and ownership.', startWith: 'Use n8n when the process spans multiple tools or APIs.' },
+      { option: 'Bot or messaging flow', bestFor: 'User-facing automations around chat, support, or notifications.', watchOutFor: 'State and handoff logic get messy fast.', startWith: 'Adopt it after the base workflow is stable.' },
+      { option: 'AI-enriched automation', bestFor: 'Steps where model judgment materially improves the result.', watchOutFor: 'Higher cost, latency, and more failure modes.', startWith: 'Add AI only after the non-AI workflow already works.' },
+    ],
+    commonMistakes: [
+      'Automating a vague process instead of a clearly repeated task.',
+      'Adding AI before the non-AI workflow is reliable.',
+      'Building multiple workflows before one proves its value.',
+      'Ignoring logging, retries, and ownership for failed runs.',
+      'Self-hosting the automation stack before the workflow itself is worth keeping.',
+    ],
     whenToUse: [
       'Use it when repeated manual tasks are slowing down development, support, content ops, or internal tooling work.',
       'Use it when you need a practical path into n8n, bot workflows, API integrations, or AI-assisted automation.',
@@ -451,9 +691,22 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
       'Bring AI into the workflow only where it improves the result enough to justify added cost, latency, or failure points.',
     ],
     learningPathIntro: 'If you are starting from scratch, follow this path from platform understanding into one practical workflow. That gives you the fastest path to a useful automation without drowning in options.',
+    shortestPath: [
+      'Pick one repeated task with a clear owner and outcome.',
+      'Map the trigger, inputs, outputs, and failure points.',
+      'Choose the lightest tool that fits the workflow.',
+      'Ship one workflow, then add alerts or logging around failures.',
+      'Expand into AI, bots, or self-hosting only after the first win is stable.',
+    ],
     topicArticlesIntro: 'This full automation cluster is for readers who already know the lane they need: n8n basics, AI-assisted flows, bots, integrations, or self-hosted orchestration. It is the complete topic map once you are ready to go deeper.',
     relatedArticlesIntro: 'These are the best next reads if you want a practical first automation path without browsing every post in the cluster.',
     conclusion: 'Use this page as the automation entry point when you want one outcome-led workflow path instead of an abstract productivity rabbit hole. Start with the bottleneck, pick the lightest tool that fits it, and expand only after the first automation earns trust.',
+    finalRecommendations: [
+      { label: 'Beginner', text: 'Build one workflow that saves time every week before you touch comparisons or platform sprawl.' },
+      { label: 'Budget-focused', text: 'Use the lightest tool that solves the job and self-host only when the workflow is already worth operating.' },
+      { label: 'Advanced', text: 'Add AI or multi-step orchestration only after the base workflow is measurable and reliable.' },
+      { label: 'Not ready yet', text: 'Document the process first if the task is still messy, political, or poorly owned.' },
+    ],
     faq: [
       { question: 'What should developers automate first?', answer: 'Automate the repeated task that already wastes time every week, such as notifications, lead routing, content enrichment, internal reports, or support handoffs. Do not start with a workflow that only looks impressive in a demo.' },
       { question: 'Should I start with n8n or with custom code?', answer: 'Start with the one that matches the job. Use n8n when visible orchestration, connectors, and quick iteration matter. Use custom code when the workflow is simple, heavily custom, or better expressed directly in your application.' },
@@ -490,6 +743,38 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
     },
     startHere: 'If your budget is near zero, start with the broad free-tool and open source roundups, then move into the workflow closest to your bottleneck: API work, documentation, Git, diagrams, or broader developer-stack spend.',
     notFor: 'Do not use this as the first stop for VPS buying, uptime monitoring, deployment platforms, PostgreSQL GUI decisions, or Docker management roundups when cost is only secondary. Those belong in their primary topic clusters.',
+    quickDecisions: [
+      { label: 'Start here', text: 'if budget is the main constraint and recurring software spend needs to drop now.' },
+      { label: 'Replace one workflow first', text: 'if one SaaS bill is hurting more than the rest.' },
+      { label: 'Keep a mixed stack', text: 'if a paid tool still clearly earns its place.' },
+      { label: 'Leave this pillar', text: 'if the real decision is infrastructure, deployment, or software quality rather than cost.' },
+    ],
+    goodFit: [
+      'Indie hackers, solo builders, and lean teams reviewing software spend.',
+      'Developers who want open source or free options before defaulting to paid SaaS.',
+      'Readers who can test one replacement at a time instead of changing everything blindly.',
+      'Teams willing to pay selectively where the paid option clearly saves time or risk.',
+    ],
+    avoidIf: [
+      'Cost is only a minor consideration and quality or speed matters more.',
+      'You are making an infrastructure or deployment decision, not a software-spend decision.',
+      'You want to replace every paid tool immediately just because free sounds better.',
+      'The switching cost is higher than the savings and you already know that.',
+    ],
+    decisionTableTitle: 'Choose the cost-saving strategy that fits the workflow and the runway',
+    decisionTableRows: [
+      { option: 'Stay paid', bestFor: 'Critical workflows where the current tool clearly earns its cost.', watchOutFor: 'You may keep paying for comfort rather than value.', startWith: 'Stay paid if the switching risk is obviously higher than the savings.' },
+      { option: 'Mixed stack', bestFor: 'Teams that want savings without forcing free tools into every slot.', watchOutFor: 'You still need discipline around what deserves a paid seat.', startWith: 'Replace one expensive workflow at a time.' },
+      { option: 'Free SaaS or freemium', bestFor: 'Lightweight workflows that do not need self-hosting complexity.', watchOutFor: 'Limits and upgrade pressure appear quickly on serious use.', startWith: 'Use it when the free plan genuinely covers the core job.' },
+      { option: 'Open source or self-hosted', bestFor: 'Builders who want cost control and are comfortable owning the workflow.', watchOutFor: 'Operational overhead can erase the headline savings.', startWith: 'Choose it when the maintenance cost is still lower than the recurring bill.' },
+    ],
+    commonMistakes: [
+      'Trying to replace every paid tool in one pass.',
+      'Ignoring the maintenance cost hidden inside a so-called free option.',
+      'Choosing a free tool that misses the one feature the workflow actually needs.',
+      'Treating open source as automatically better even when it adds fragile operational work.',
+      'Forcing cost savings into workflows where paid software already pays for itself.',
+    ],
     whenToUse: [
       'Use it when the main constraint is budget rather than maximum feature breadth.',
       'Use it when you want open source or free alternatives before committing to paid SaaS.',
@@ -506,9 +791,22 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
       'Pay for software only where the paid option clearly saves enough time or risk to justify the recurring cost.',
     ],
     learningPathIntro: 'Follow this path if your goal is to lower software spend without ending up with a weak stack. It starts broad, then narrows into the workflows where free options matter most.',
+    shortestPath: [
+      'Audit which tool or workflow is costing the most right now.',
+      'Start with one broad roundup to find realistic free options.',
+      'Test one replacement in the workflow with the clearest savings.',
+      'Keep a mixed stack if the paid option still wins on time or risk.',
+      'Repeat only after one replacement proves itself in real work.',
+    ],
     topicArticlesIntro: 'This full cluster is for readers building a budget-first stack. Use it when you want to browse every relevant free-tools article by problem solved, not just by category label or whatever page mentions the word free.',
     relatedArticlesIntro: 'These are the best next reads if you want a cost-saving win quickly without opening the entire cluster. They are especially useful for developers tightening software spend right now.',
     conclusion: 'Use this page when budget is the first filter and software quality still matters. Start with the broad stack-level roundups, then move into the exact workflow that is costing you money, and keep infrastructure or deployment decisions in their proper clusters.',
+    finalRecommendations: [
+      { label: 'Beginner', text: 'Replace one expensive workflow first and prove the free option in real use before changing anything else.' },
+      { label: 'Budget-focused', text: 'Keep a mixed stack and pay only where the premium option clearly saves time or reduces risk.' },
+      { label: 'Advanced', text: 'Self-host only when the operational cost is still lower than the software bill you are removing.' },
+      { label: 'Not ready yet', text: 'Keep the paid tool if the switching cost is higher than the savings and you already depend on it.' },
+    ],
     faq: [
       { question: 'Are free tools good enough for production work?', answer: 'Often yes when the choice is deliberate and the tool fits a lean workflow. Free does not mean weak. It only becomes a problem when the tool is free but badly aligned with the job.' },
       { question: 'When is the free option enough?', answer: 'The free option is enough when it covers the core workflow cleanly and the missing paid features would not save meaningful time or reduce meaningful risk. That is the threshold this pillar is built around.' },
@@ -564,6 +862,38 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
     },
     startHere: 'Open the comparison group closest to the live decision: hosting first if you are buying infrastructure, deployment next if you are choosing a platform path, automation if you are replacing manual work, AI if you are choosing model workflow, and developer tools if the bottleneck is in day-to-day software.',
     notFor: 'Do not start here if you still need the basics of a category. Use the matching pillar first when you need orientation, setup order, or context before a head-to-head verdict makes sense.',
+    quickDecisions: [
+      { label: 'Use this hub', text: 'if the shortlist is real and one decision is actively blocking progress.' },
+      { label: 'Use a topic pillar first', text: 'if you still need context, sequencing, or setup order.' },
+      { label: 'Compare one layer only', text: 'if multiple parts of the stack are still unsettled.' },
+      { label: 'Stop comparing', text: 'once one option is good enough for the current workload and the next step is implementation.' },
+    ],
+    goodFit: [
+      'Readers who already know the shortlist and want a verdict quickly.',
+      'Builders making a live buying, hosting, tooling, or platform decision.',
+      'Developers who want a clear next click after the verdict instead of more browsing.',
+      'Teams willing to close one stack decision before opening the next one.',
+    ],
+    avoidIf: [
+      'You still need basic category orientation, setup order, or concept framing.',
+      'You are opening comparisons for fun rather than because one choice is blocking work.',
+      'You plan to compare hosting, deployment, automation, and tooling all at once.',
+      'You are unwilling to stop once one option is clearly good enough.',
+    ],
+    decisionTableTitle: 'Choose the decision lane that matches the blocker in front of you',
+    decisionTableRows: [
+      { option: 'Topic pillar', bestFor: 'Readers who still need context before a verdict is useful.', watchOutFor: 'It is slower if the shortlist is already clear.', startWith: 'Open a pillar first when the decision is still fuzzy.' },
+      { option: 'Direct comparison', bestFor: 'Two or three realistic options competing for one role.', watchOutFor: 'It creates noise if the requirements are still vague.', startWith: 'Use it when one choice is actively blocking progress.' },
+      { option: 'Roundup or directory', bestFor: 'Broader software exploration after a comparison leaves a shortlist.', watchOutFor: 'It can reopen decisions you already closed.', startWith: 'Use it only when the verdict still leaves you with a category to narrow.' },
+      { option: 'Implementation guide', bestFor: 'Turning a verdict into action without more debate.', watchOutFor: 'It is the wrong starting point if the winner is still unclear.', startWith: 'Open it immediately after the comparison lands.' },
+    ],
+    commonMistakes: [
+      'Opening every comparison page in the hub instead of picking one active decision.',
+      'Comparing tools before the requirements or workload are clear.',
+      'Reopening a decision that is already good enough for the current stack.',
+      'Using comparisons as procrastination instead of moving into implementation.',
+      'Treating neutrality as more useful than a clear verdict with tradeoffs.',
+    ],
     whenToUse: [
       'Use it when you already know the options and need a verdict or tradeoff breakdown fast.',
       'Use it when 2 tools, hosts, or models are competing for the same role in your stack right now.',
@@ -580,9 +910,22 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
       'Do not compare everything at once. Close one layer of the stack, then move to the next.',
     ],
     learningPathIntro: 'Follow this path if you want to close comparisons in a deliberate order: hosting first, deployment second, automation third, then AI or workflow tooling once the infrastructure choices are settled.',
+    shortestPath: [
+      'Name the single decision that is blocking work right now.',
+      'Open the matching comparison lane and take the verdict.',
+      'Move directly into the related pillar or implementation guide.',
+      'Ship or test the winner before reopening other debates.',
+      'Return to this hub only when the next stack layer truly becomes the blocker.',
+    ],
     topicArticlesIntro: 'Use the full topic map when you want every comparison connected to the same cluster of supporting guides and tool pages. It is the easiest way to move from verdict to action without losing the architecture of the site.',
     relatedArticlesIntro: 'These are the strongest next reads if you want a fast verdict and a clean follow-up path. They are a good fit for readers who already know the shortlist and just need the highest-signal decision pages.',
     conclusion: 'Use this page as the decision center for the site. Open the comparison that matches the active choice, take the verdict, then move straight into the pillar or implementation read that helps you ship the winner.',
+    finalRecommendations: [
+      { label: 'Beginner', text: 'Use the matching topic pillar first unless the shortlist is already real and urgent.' },
+      { label: 'Decision-ready', text: 'Compare one layer of the stack, take the verdict, then move on immediately.' },
+      { label: 'Advanced', text: 'Treat this hub as a sequencing tool so you do not reopen solved choices just because another comparison looks interesting.' },
+      { label: 'Not ready yet', text: 'Stop comparing and define the workload if you still cannot name the exact blocker in one sentence.' },
+    ],
     faq: [
       { question: 'Should I start with the comparisons hub or a topic pillar?', answer: 'Start here when the options are already clear and the decision is active. Start with a topic pillar when you still need context, setup order, or a basic map of the category.' },
       { question: 'How do I choose which comparison to open first?', answer: 'Open the comparison that matches the decision blocking you right now. If you cannot name the immediate choice, you probably need the matching pillar page before you need a head-to-head verdict.' },
@@ -693,6 +1036,12 @@ function buildPillarPage(definition: PillarDefinition, posts: Post[]): PillarPag
     heroEntry: definition.heroEntry,
     startHere: definition.startHere,
     notFor: definition.notFor,
+    quickDecisions: [...definition.quickDecisions],
+    goodFit: [...definition.goodFit],
+    avoidIf: [...definition.avoidIf],
+    decisionTableTitle: definition.decisionTableTitle,
+    decisionTableRows: [...definition.decisionTableRows],
+    commonMistakes: [...definition.commonMistakes],
     whenToUse: [...definition.whenToUse],
     bestToolsIntro: definition.bestToolsIntro,
     guidesIntro: definition.guidesIntro,
@@ -700,9 +1049,11 @@ function buildPillarPage(definition: PillarDefinition, posts: Post[]): PillarPag
     recommendedSetupIntro: definition.recommendedSetupIntro,
     recommendedSetup: [...definition.recommendedSetup],
     learningPathIntro: definition.learningPathIntro,
+    shortestPath: [...definition.shortestPath],
     topicArticlesIntro: definition.topicArticlesIntro,
     relatedArticlesIntro: definition.relatedArticlesIntro,
     conclusion: definition.conclusion,
+    finalRecommendations: [...definition.finalRecommendations],
     faq: [...definition.faq],
     primaryArticles,
     guides: guides.slice(0, 8),
