@@ -249,10 +249,10 @@ export default async function TagPage({ params }: Props) {
           <ResourceSummaryCard
             count={hub.stats.tools}
             label="Free tool/resource pages"
-            detail="Free tools, free VPS options, and practical budget stack picks."
+            detail="Free software, open-source tools, and practical budget-conscious workflow picks."
             kind="tools"
             imageSrc="/images/resources/free-tools-resources.webp"
-            imageAlt="Free tools and resource pages visual with free VPS options and budget stack picks"
+            imageAlt="Free tools and resource pages visual with open-source software and budget-conscious workflow picks"
           />
         </div>
       </section>
@@ -542,7 +542,7 @@ export default async function TagPage({ params }: Props) {
         <div className="home-section-head home-section-head-inline">
           <div>
           <div className="home-section-kicker">Free Tools</div>
-          <h2 className="home-section-title">Free tools, free VPS options, and practical resource pages worth saving</h2>
+          <h2 className="home-section-title">Free and open source tools worth keeping in your developer stack</h2>
           </div>
           <Link href="/category/free-tools" className="home-section-link">
             Browse free tools

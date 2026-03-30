@@ -9,7 +9,7 @@ import { getResourceHubContent } from '@/lib/resources'
 export const metadata: Metadata = {
   title: 'Developer Community Hub',
   description:
-    'Developer community hub for self-hosting, VPS setups, free tools, build stories, and practical paths into Blixamo guides and category clusters.',
+    'Developer community hub for browsing categories, pillar guides, free tools, latest reads, and practical paths into Blixamo topic clusters.',
   alternates: { canonical: 'https://blixamo.com/community' },
 }
 
@@ -153,12 +153,59 @@ export default function CommunityPage() {
       href: '/blog',
     },
   ]
-  const startLearningCards = hub.pillarPages.slice(0, 4).map((page) => ({
-    title: page.title,
-    description: page.description,
-    href: page.href,
-    eyebrow: 'Pillar Guide',
-  }))
+  const startHereCards: CommunityCard[] = [
+    {
+      title: 'Homepage',
+      description: 'Use the homepage when you want the broadest overview of the site before choosing a narrower topic lane.',
+      href: '/',
+      eyebrow: 'Start Here',
+    },
+    {
+      title: 'Resources Hub',
+      description: 'Jump into the main start-here hub for learning paths, comparisons, category clusters, and pillar guides.',
+      href: RESOURCE_HUB_PATH,
+      eyebrow: 'Start Here',
+    },
+    {
+      title: 'Free Tools Category',
+      description: 'Browse free tools for developers when the main goal is cutting software spend without weakening the workflow.',
+      href: '/category/free-tools',
+      eyebrow: 'Start Here',
+    },
+    {
+      title: 'Developer Tools Guide',
+      description: 'Open the tools directory when you want broad software picks before narrowing into a specific workflow decision.',
+      href: '/guides/developer-tools-directory',
+      eyebrow: 'Start Here',
+    },
+    {
+      title: 'Self Hosting Guide',
+      description: 'Use the self-hosting pillar when you want the fastest route into infrastructure, app stacks, and operations.',
+      href: '/guides/self-hosting-complete-guide',
+      eyebrow: 'Start Here',
+    },
+    {
+      title: 'Blog Archive',
+      description: 'Open the archive when you want the latest useful reads after you understand the main topic structure.',
+      href: '/blog',
+      eyebrow: 'Start Here',
+    },
+  ]
+  const featuredPillarSlugs = [
+    'deploy-apps-on-vps-complete-guide',
+    'self-hosting-complete-guide',
+    'developer-tools-directory',
+    'free-tools-for-developers',
+  ]
+  const startLearningCards = featuredPillarSlugs
+    .map((slug) => hub.pillarPages.find((page) => page.slug === slug))
+    .filter((page): page is NonNullable<typeof page> => Boolean(page))
+    .map((page) => ({
+      title: page.title,
+      description: page.description,
+      href: page.href,
+      eyebrow: 'Pillar Guide',
+    }))
   const continueExploringCards: CommunityCard[] = [
     {
       title: 'Homepage',
@@ -185,6 +232,7 @@ export default function CommunityPage() {
       eyebrow: 'Continue Exploring',
     },
   ]
+  const freeToolDiscoveryCards = hub.freeTools.slice(0, 6)
   const practicalReads = [
     ...hub.webDevelopment,
     ...hub.indieDevSaas,
@@ -201,10 +249,11 @@ export default function CommunityPage() {
       <section className="home-resource-promo">
         <div className="home-resource-promo-copy">
           <div className="home-section-kicker">Community Hub</div>
-          <h1 className="home-section-title">Developer discussions, build stories, VPS setups, and practical resource sharing.</h1>
+          <h1 className="home-section-title">The developer community hub for practical builds, free tools, and useful next reads.</h1>
           <p className="home-section-description">
-            This page is the community layer for Blixamo. Use it to move between discussions, indie hacker stories,
-            tool recommendations, weekly resources, and the guides that help developers ship real projects on their own infrastructure.
+            This page is the community discovery layer for Blixamo. Use it to browse major categories, find useful guides,
+            discover free tools for developers, follow learning paths, and move into the latest practical reads without
+            getting stuck on a flat archive page.
           </p>
           <div className="home-hero-actions">
             <Link href="/" className="home-hero-button home-hero-button-secondary">
@@ -212,6 +261,9 @@ export default function CommunityPage() {
             </Link>
             <Link href={RESOURCE_HUB_PATH} className="home-hero-button home-hero-button-primary">
               Start Here
+            </Link>
+            <Link href="/category/free-tools" className="home-hero-button home-hero-button-secondary">
+              Free Tools
             </Link>
             <Link href="/guides/self-hosting-complete-guide" className="home-hero-button home-hero-button-secondary">
               Self Hosting Guide
@@ -232,6 +284,27 @@ export default function CommunityPage() {
                 Open
               </Link>
             </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="community-start-here" className="home-section-shell">
+        <div className="home-section-head home-section-head-inline">
+          <div>
+            <div className="home-section-kicker">Start Here</div>
+            <h2 className="home-section-title">Use these paths if this is your first stop on the site</h2>
+            <p className="home-section-description">
+              The goal is to give readers and crawlers a clean route into the homepage, the resources hub, the free-tools cluster,
+              and the strongest guide layers without repeating the same links everywhere else.
+            </p>
+          </div>
+          <Link href={RESOURCE_HUB_PATH} className="home-section-link">
+            Open resources hub
+          </Link>
+        </div>
+        <div className="home-quick-grid">
+          {startHereCards.map((card) => (
+            <CommunityCard key={card.title} card={card} />
           ))}
         </div>
       </section>
@@ -305,6 +378,28 @@ export default function CommunityPage() {
         <div className="home-quick-grid">
           {startLearningCards.map((card) => (
             <CommunityCard key={card.title} card={card} />
+          ))}
+        </div>
+      </section>
+
+      <section id="free-tools-discovery" className="home-section-shell">
+        <div className="home-section-head home-section-head-inline">
+          <div>
+            <div className="home-section-kicker">Free Tools</div>
+            <h2 className="home-section-title">Budget-first software picks worth opening from the community hub</h2>
+            <p className="home-section-description">
+              If the main goal is lowering software spend, this is the cleanest branch from the community hub into the
+              native free-tools cluster. Start with the category hub, then use these curated reads to narrow into API
+              clients, docs tooling, Git workflow helpers, diagrams, and open-source replacements.
+            </p>
+          </div>
+          <Link href="/category/free-tools" className="home-section-link">
+            Browse free tools
+          </Link>
+        </div>
+        <div className="home-post-grid">
+          {freeToolDiscoveryCards.map((post) => (
+            <PostCard key={post.slug} post={post} />
           ))}
         </div>
       </section>
@@ -441,12 +536,16 @@ export default function CommunityPage() {
       <section id="community-links" className="home-section-shell">
         <div className="home-newsletter-panel">
           <div className="home-section-kicker">Community Links</div>
-          <h2 className="home-section-title" style={{ marginTop: '0.75rem' }}>Use Blixamo as the hub until dedicated community channels expand</h2>
+          <h2 className="home-section-title" style={{ marginTop: '0.75rem' }}>Use this page as the handoff point into the rest of the site</h2>
           <p className="home-section-description" style={{ marginTop: '0.75rem' }}>
-            Dedicated Discord and Telegram spaces can be added later. For now, the strongest community paths are the
-            resource hub, the pillar guides, the blog archive, and the category pages that connect the discussions back to real reads.
+            Dedicated chat channels can come later. Right now the strongest community paths are the homepage, the resources hub,
+            the free-tools category, the pillar guides, and the blog archive. Use those pages to keep exploring instead of
+            treating the community route as a dead end.
           </p>
           <div className="home-hero-actions" style={{ marginTop: '1rem' }}>
+            <Link href="/" className="home-hero-button home-hero-button-secondary">
+              Homepage
+            </Link>
             <Link href={RESOURCE_HUB_PATH} className="home-hero-button home-hero-button-secondary">
               Resource Hub
             </Link>
@@ -468,3 +567,4 @@ export default function CommunityPage() {
     </div>
   )
 }
+

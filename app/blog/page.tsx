@@ -44,6 +44,9 @@ export default function BlogIndexPage() {
           <Link href={RESOURCE_HUB_PATH} className="home-hero-button home-hero-button-primary">
             Resources Hub
           </Link>
+          <Link href="/category/free-tools" className="home-hero-button home-hero-button-secondary">
+            Free Tools
+          </Link>
           <Link href="/community" className="home-hero-button home-hero-button-secondary">
             Community
           </Link>
@@ -92,7 +95,7 @@ export default function BlogIndexPage() {
           </Link>
         </div>
         <div className="home-discovery-grid">
-          {hub.categoryCards.slice(0, 6).map((card) => (
+          {hub.categoryCards.map((card) => (
             <Link key={card.title} href={card.href} className="home-discovery-card">
               <div className="home-discovery-icon" style={{ color: card.accentColor }}>
                 {card.icon}

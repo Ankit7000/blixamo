@@ -7,6 +7,12 @@ const postsDirectory = path.join(process.cwd(), 'content/posts')
 
 const WEAK_ARTICLE_BOOSTS_BY_CATEGORY: Record<string, Set<string>> = {
   'developer-tools': new Set(['best-vpn-for-developers-2026']),
+  'free-tools': new Set([
+    'best-free-api-testing-tools-2026',
+    'best-free-documentation-tools-2026',
+    'best-free-git-tools-2026',
+    'best-free-diagram-tools-2026',
+  ]),
   'how-to': new Set(['build-telegram-bot-claude-api-python']),
   'indie-hacking': new Set(['razorpay-integration-nextjs-india', 'wise-vs-payoneer-india-freelancer']),
   'self-hosting': new Set(['self-hosting-resources']),

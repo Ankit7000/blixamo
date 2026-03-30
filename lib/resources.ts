@@ -125,11 +125,11 @@ const COMPARISON_SLUGS = [
 
 const FREE_TOOL_SLUGS = [
   'best-free-developer-tools-2026',
-  'best-postgresql-gui-free',
-  'free-vps-hosting-2026',
-  'best-ai-tools-2026',
-  'free-tools-indian-indie-developer',
   'open-source-tools-2026',
+  'best-free-api-testing-tools-2026',
+  'best-free-documentation-tools-2026',
+  'best-free-git-tools-2026',
+  'best-free-diagram-tools-2026',
 ] as const
 
 const DEPLOYMENT_GUIDE_SLUGS = [
@@ -310,13 +310,15 @@ const LEARNING_PATHS: LearningPathDefinition[] = [
   {
     id: 'free-dev-tools',
     title: 'If you want free developer tools',
-    description: 'Start with the strongest free-tool roundups, then move into open source replacements and budget stack picks.',
+    description: 'Start with the broad roundup, then move into focused API, docs, Git, diagram, and open source picks that keep software spend low.',
     href: `${RESOURCE_HUB_PATH}#resources-free-tools`,
     slugs: [
       'best-free-developer-tools-2026',
-      'best-postgresql-gui-free',
       'open-source-tools-2026',
-      'free-tools-indian-indie-developer',
+      'best-free-api-testing-tools-2026',
+      'best-free-documentation-tools-2026',
+      'best-free-git-tools-2026',
+      'best-free-diagram-tools-2026',
     ],
   },
 ] as const
@@ -427,7 +429,7 @@ const CATEGORY_DISCOVERY_CARDS: CuratedCard[] = [
   },
   {
     title: 'Free Tools',
-    description: 'Free hosting, free software, open-source tools, and free developer resources.',
+    description: 'Free software, open-source developer tools, and budget-first workflow picks worth using long term.',
     href: '/category/free-tools',
     icon: '◎',
     accentColor: CATEGORY_META['free-tools'].color,
@@ -524,7 +526,7 @@ const HERO_PANELS: CuratedCard[] = [
   },
   {
     title: 'Best Free Dev Tools',
-    description: 'Free tools, PostgreSQL clients, and budget-friendly software picks.',
+    description: 'Budget-first software picks, open-source alternatives, and practical free tools for developers.',
     href: `${RESOURCE_HUB_PATH}#resources-free-tools`,
     icon: 'OSS',
     accentColor: CATEGORY_META['free-tools'].color,
@@ -566,7 +568,7 @@ const HERO_SIGNAL_LINKS: CuratedCard[] = [
   },
   {
     title: 'Free Tools',
-    description: 'Browse free tools and budget stacks.',
+    description: 'Browse free tools, open-source picks, and budget-first developer workflows.',
     href: '/category/free-tools',
   },
 ] as const
@@ -661,7 +663,7 @@ const RESOURCE_HUB_ENTRY_CARDS: CuratedCard[] = [
   },
   {
     title: 'Free Tools',
-    description: 'Jump into saveable pages for free tools, PostgreSQL GUIs, and budget stacks.',
+    description: 'Jump into saveable pages for free tools, open-source replacements, and budget-first software picks.',
     href: `${RESOURCE_HUB_PATH}#resources-free-tools`,
     eyebrow: 'Free',
     icon: '06',
@@ -855,7 +857,7 @@ const AUTHORITY_PAGE_DEFINITIONS: AuthorityPageDefinition[] = [
   {
     id: 'free-tools-for-developers',
     title: 'Free Tools for Developers',
-    description: 'Use this page as the main free-tools hub for open source replacements, free services, and budget stack picks.',
+    description: 'Use this page as the main free-tools hub for open source replacements, free software, and budget-conscious workflow picks.',
     slug: 'open-source-tools-2026',
     categories: ['free-tools', 'developer-tools', 'indie-hacking'],
     cluster: 'Free Tools',
@@ -1050,9 +1052,11 @@ const CATEGORY_CLUSTER_MAP: Record<string, CategoryClusterDefinition> = {
   'free-tools': {
     hubSection: HUB_SECTIONS['free-tools'],
     guideSlugs: [
-      'best-free-developer-tools-2026',
       'open-source-tools-2026',
-      'free-tools-indian-indie-developer',
+      'best-free-api-testing-tools-2026',
+      'best-free-documentation-tools-2026',
+      'best-free-git-tools-2026',
+      'best-free-diagram-tools-2026',
     ],
     comparisonSlugs: [
       'best-postgresql-gui-free',

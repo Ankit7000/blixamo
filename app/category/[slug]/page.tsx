@@ -19,6 +19,13 @@ type CategoryArchiveContent = {
   editorialNote?: string
 }
 
+type CategoryHubCard = {
+  title: string
+  description: string
+  href: string
+  eyebrow: string
+}
+
 const CATEGORY_ARCHIVE_CONTENT: Record<string, CategoryArchiveContent> = {
   'how-to': {
     intro: 'This category collects practical guides for developers who want clear steps, real commands, and production-ready outcomes instead of generic tutorials.',
@@ -110,16 +117,19 @@ const CATEGORY_ARCHIVE_CONTENT: Record<string, CategoryArchiveContent> = {
     ],
   },
   'free-tools': {
-    intro: 'This category highlights free and open source tools that help developers cut SaaS spend without sacrificing useful functionality.',
-    audience: 'Developers looking for strong free alternatives, open source replacements, and lean stacks that still feel production-ready.',
-    articleTypes: 'Free tool roundups, open source replacements, budget stack recommendations, and curated savings-focused guides.',
+    intro: 'This category collects budget-first and open-source software picks for developers who want to reduce recurring tool spend without turning their workflow into a compromise.',
+    audience: 'Developers, indie hackers, and builders looking for free or open-source software that still earns a place in day-to-day API, docs, Git, diagram, and shipping workflows.',
+    articleTypes: 'Free tool roundups, open-source replacements, focused workflow shortlists, and savings-first software guides that stay useful after the first click.',
     importantSlugs: [
       'open-source-tools-2026',
-      'free-tools-indian-indie-developer',
+      'best-free-api-testing-tools-2026',
+      'best-free-documentation-tools-2026',
+      'best-free-git-tools-2026',
+      'best-free-diagram-tools-2026',
     ],
     metadataTitle: 'Free Tools for Developers',
-    metadataDescription: 'Free tools for developers, open source replacements, and budget-friendly stack guides that reduce SaaS spend without making the workflow worse.',
-    editorialNote: 'This category is intentionally curated instead of padded. The goal is not to list every free app on the internet. The goal is to collect the free and open source tools that fit real developer workflows, connect them back to the broader Blixamo resource hub, and keep the strongest next reads visible from one page.',
+    metadataDescription: 'Free tools for developers, open-source software, and budget-first workflow guides that help cut recurring tool spend without weakening quality.',
+    editorialNote: 'This category is intentionally curated instead of padded. The goal is not to list every app with the word free in the headline. The goal is to collect the pages where free, open source, or cost-saving software is the primary search intent, then connect those reads back to the broader Blixamo hub structure.',
   },
 }
 
@@ -213,6 +223,58 @@ export default async function CategoryPage({ params }: Props) {
       href: clusterContent.hubSection.href,
     },
   ].filter((link, index, collection) => collection.findIndex((entry) => entry.href === link.href) === index)
+  const freeToolsTopicCards =
+    canonicalSlug === 'free-tools'
+      ? [
+          'best-free-api-testing-tools-2026',
+          'best-free-documentation-tools-2026',
+          'best-free-git-tools-2026',
+          'best-free-diagram-tools-2026',
+        ]
+          .map((topicSlug) => allPosts.find((post) => post.slug === topicSlug))
+          .filter((post): post is NonNullable<typeof post> => Boolean(post))
+      : []
+  const freeToolsWorkflowCards: CategoryHubCard[] =
+    canonicalSlug === 'free-tools'
+      ? [
+          {
+            title: 'Start with the category hub',
+            description: 'Use this archive when you want the native free-tools cluster before branching into adjacent developer-tools or indie-hacking decisions.',
+            href: '/category/free-tools',
+            eyebrow: 'Best Starting Points',
+          },
+          {
+            title: 'Use the free-tools pillar',
+            description: 'Open the pillar guide when you want a curated parent path for budget-first software picks and open-source replacements.',
+            href: '/guides/free-tools-for-developers',
+            eyebrow: 'Best Starting Points',
+          },
+          {
+            title: 'Explore the community hub',
+            description: 'Move into the community discovery layer if you want more tools, categories, latest reads, and broader site navigation.',
+            href: '/community',
+            eyebrow: 'Browse by Workflow',
+          },
+          {
+            title: 'Open the resources hub',
+            description: 'Return to the start-here hub for learning paths, comparisons, the blog archive, and neighboring topic lanes.',
+            href: RESOURCE_HUB_PATH,
+            eyebrow: 'Browse by Workflow',
+          },
+          {
+            title: 'Browse developer tools',
+            description: 'Go to developer tools when the software quality decision matters more than the price filter alone.',
+            href: '/category/developer-tools',
+            eyebrow: 'Related Categories',
+          },
+          {
+            title: 'Browse indie hacking',
+            description: 'Use the indie-hacking cluster when low-cost tooling needs to connect back to MVP, monetization, and shipping decisions.',
+            href: '/category/indie-hacking',
+            eyebrow: 'Related Categories',
+          },
+        ]
+      : []
 
   return (
     <div style={{ maxWidth: '1100px', margin: '2.5rem auto', padding: '0 1rem' }}>
@@ -379,6 +441,81 @@ export default async function CategoryPage({ params }: Props) {
           </div>
         )}
       </section>
+
+      {canonicalSlug === 'free-tools' && freeToolsTopicCards.length > 0 && (
+        <section style={{ marginBottom: '2rem' }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-end',
+            gap: '1rem',
+            marginBottom: '1rem',
+          }}>
+            <div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.45rem', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
+                Popular Free Tool Topics
+              </div>
+              <h2 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--text-primary)' }}>
+                Start with the most useful workflow-specific pages
+              </h2>
+              <p style={{ margin: '0.55rem 0 0', color: 'var(--text-secondary)', lineHeight: 1.75 }}>
+                These topic pages keep the category focused on software decisions where free and open-source tooling is the primary filter, not an afterthought.
+              </p>
+            </div>
+            <Link href="/guides/free-tools-for-developers" className="home-section-link">
+              Open free-tools pillar
+            </Link>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+            {freeToolsTopicCards.map(post => <PostCard key={post.slug} post={post} />)}
+          </div>
+        </section>
+      )}
+
+      {canonicalSlug === 'free-tools' && freeToolsWorkflowCards.length > 0 && (
+        <section style={{ marginBottom: '2rem' }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-end',
+            gap: '1rem',
+            marginBottom: '1rem',
+          }}>
+            <div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.45rem', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
+                Browse By Workflow
+              </div>
+              <h2 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--text-primary)' }}>
+                Use these paths to keep exploring without weakening taxonomy
+              </h2>
+              <p style={{ margin: '0.55rem 0 0', color: 'var(--text-secondary)', lineHeight: 1.75 }}>
+                The links below connect this category to the homepage, the resources hub, the community hub, the blog archive, the free-tools pillar, and the neighboring categories that naturally support budget-first software decisions.
+              </p>
+            </div>
+            <Link href="/community" className="home-section-link">
+              Explore community hub
+            </Link>
+          </div>
+
+          <div className="home-quick-grid">
+            {freeToolsWorkflowCards.map((card) => (
+              <Link key={card.href} href={card.href} className="home-curated-card">
+                <div className="home-curated-top">
+                  <span className="home-curated-eyebrow">{card.eyebrow}</span>
+                  <span className="home-curated-arrow">Open</span>
+                </div>
+                <h3 className="home-curated-title">{card.title}</h3>
+                <p className="home-curated-copy">{card.description}</p>
+                <div className="home-curated-footer">
+                  <span>Follow this path</span>
+                  <span>Read more</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {clusterContent.pillarPages.length > 0 && (
         <section style={{ marginBottom: '2rem' }}>
