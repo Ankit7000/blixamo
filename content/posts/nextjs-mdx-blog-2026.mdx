@@ -104,6 +104,8 @@ You do not need a complicated CMS SDK for the first version.
 
 Your posts library should read files, parse frontmatter, compute reading time, and expose helpers like `getAllPosts()` and `getPostBySlug()`.
 
+If this exact setup works in dev but breaks after deploy, the [next-mdx-remote/rsc Edge Runtime error](/blog/nextjs-mdx-remote-rsc-edge-runtime-fix) guide covers the Node.js runtime mismatch that usually causes it.
+
 ```ts
 import fs from "fs";
 import path from "path";

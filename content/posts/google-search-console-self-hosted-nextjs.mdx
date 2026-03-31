@@ -28,6 +28,8 @@ Self-hosted Next.js sites don't get automatic GSC integration. No Vercel dashboa
 
 This guide covers the exact GSC setup for a self-hosted Next.js blog on Hetzner: ownership verification, sitemap submission, and a CLI tool I built to request indexing from the terminal without opening a browser.
 
+One warning before you request indexing: make sure the article actually renders in a real production build. If an MDX route breaks only after deploy with an Edge Runtime or `fs` error, fix that first with [Fix next-mdx-remote/rsc Edge Error in Next.js 15](/blog/nextjs-mdx-remote-rsc-edge-runtime-fix).
+
 <Callout type="info" title="TL;DR">
 - **Verify ownership** via HTML meta tag in your Next.js layout — takes 2 minutes
 - **Submit sitemap** at `/sitemap.xml` — Next.js App Router auto-generates it

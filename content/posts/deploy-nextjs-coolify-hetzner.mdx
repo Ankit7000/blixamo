@@ -93,6 +93,8 @@ Set the env vars before the first real deploy, especially anything under `NEXT_P
 
 Click deploy and watch the logs. The first deploy is where you catch missing packages, incorrect build commands, and bad environment values.
 
+A common failure after deploy is a [file-backed MDX route inheriting Edge runtime](/blog/nextjs-mdx-remote-rsc-edge-runtime-fix) instead of Node.js, which usually only shows up once you run a real production build.
+
 ## Step 8: Point DNS and Wait for SSL
 
 Point your A record at the Hetzner server IP. If you use Cloudflare, keep it on DNS-only until SSL is issued cleanly.
@@ -118,6 +120,10 @@ DNS is usually the problem. Double-check the record and keep Cloudflare unproxie
 ### The app starts but looks broken
 
 That usually means environment variables are missing or the build-time values were wrong.
+
+### A content route fails only after deploy
+
+If the app uses local MDX files, check whether a page is inheriting Edge runtime while the content path still depends on Node.js APIs. The quickest fix is usually in [Fix next-mdx-remote/rsc Edge Error in Next.js 15](/blog/nextjs-mdx-remote-rsc-edge-runtime-fix).
 
 ### Port confusion
 
