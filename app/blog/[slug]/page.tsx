@@ -88,7 +88,6 @@ export default async function PostPage({ params }: Props) {
         entry.slug !== post.slug && collection.findIndex((candidate) => candidate.slug === entry.slug) === index
     )
     .slice(0, 3)
-  const topRelatedArticles = clusterRelatedPosts.slice(0, 3)
   const sameCategoryPosts = allPosts
     .filter((entry) => entry.slug !== post.slug && entry.category === post.category)
     .slice(0, 3)
@@ -165,19 +164,6 @@ export default async function PostPage({ params }: Props) {
                     <span className="article-nav-title">Open {pillarPage.title}</span>
                   </Link>
                 </div>
-                {topRelatedArticles.length > 0 && (
-                  <>
-                    <p className="article-share-eyebrow" style={{ marginTop: '1rem' }}>Related cluster articles</p>
-                    <div className="article-explore-grid">
-                      {topRelatedArticles.map((entry) => (
-                        <Link key={entry.slug} href={`/blog/${entry.slug}`} className="article-explore-link">
-                          <span className="article-nav-label">Related Read</span>
-                          <span className="article-nav-title">{entry.title}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  </>
-                )}
               </section>
             )}
 
