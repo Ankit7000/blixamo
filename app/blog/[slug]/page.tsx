@@ -3,7 +3,6 @@ import { MDXRemote } from 'next-mdx-remote/rsc'
 import { JsonLd, FaqJsonLd } from '@/components/seo/JsonLd'
 import { PostHeader } from '@/components/blog/PostHeader'
 import { PostFooter } from '@/components/blog/PostFooter'
-import { TableOfContents } from '@/components/blog/TableOfContents'
 import { RelatedPosts } from '@/components/blog/RelatedPosts'
 import { ReadingProgress } from '@/components/blog/ReadingProgress'
 import { EmailCapture } from '@/components/monetization/EmailCapture'
@@ -110,9 +109,6 @@ export default async function PostPage({ params }: Props) {
                 </div>
               </section>
             )}
-
-            <TableOfContents content={post.content} className="toc-inline" />
-
             <div className="prose article-prose">
               <MDXRemote
                 source={post.content}
