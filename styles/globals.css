@@ -640,6 +640,442 @@ img { max-width: 100%; height: auto; display: block; }
   }
 }
 
+/* ---- Homepage visual polish ---- */
+.home-page-root {
+  padding-bottom: 2.5rem;
+}
+
+.home-page-root .home-hero-shell {
+  border-bottom: 0;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.18), transparent 28%),
+    radial-gradient(circle at 85% 12%, rgba(249, 115, 22, 0.16), transparent 24%),
+    linear-gradient(180deg, #f8fafc 0%, #eef2ff 40%, rgba(255, 255, 255, 0.96) 100%);
+}
+
+.home-page-root .home-hero-shell::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 140px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, var(--bg) 100%);
+  pointer-events: none;
+}
+
+.home-page-root .home-hero {
+  position: relative;
+  z-index: 1;
+  padding: 4.1rem 1rem 1.9rem;
+  gap: 1.75rem;
+  align-items: stretch;
+}
+
+.home-page-root .home-hero-copy {
+  gap: 1rem;
+}
+
+.home-page-root .home-hero-kicker {
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.home-page-root .home-hero-title {
+  max-width: 10.5ch;
+}
+
+.home-page-root .home-hero-description {
+  max-width: 56ch;
+  font-size: 1.03rem;
+}
+
+.home-intent-grid,
+.home-role-grid {
+  display: grid;
+  gap: 0.95rem;
+}
+
+.home-intent-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 0.3rem;
+}
+
+.home-intent-card,
+.home-page-root .home-role-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  min-height: 190px;
+  padding: 1rem 1.05rem;
+  border-radius: 1.35rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  color: inherit;
+  text-decoration: none;
+  overflow: hidden;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.home-intent-card::before,
+.home-page-root .home-role-card::before,
+.home-page-root .home-homepage-section::before,
+.home-page-root .article-card::before,
+.home-page-root .home-curated-card::before,
+.home-page-root .home-discovery-card::before,
+.home-page-root .resource-path-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), transparent 34%);
+  pointer-events: none;
+}
+
+.home-intent-card:hover,
+.home-intent-card:focus-visible,
+.home-page-root .home-role-card:hover,
+.home-page-root .home-role-card:focus-visible,
+.home-page-root .article-card:hover,
+.home-page-root .home-curated-card:hover,
+.home-page-root .home-discovery-card:hover,
+.home-page-root .resource-path-card:hover {
+  transform: translateY(-3px);
+}
+
+.home-intent-card:hover,
+.home-intent-card:focus-visible {
+  box-shadow: 0 22px 48px rgba(15, 23, 42, 0.12);
+}
+
+.home-intent-top,
+.home-intent-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.home-intent-eyebrow,
+.home-intent-arrow {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.home-intent-arrow {
+  color: var(--text-muted);
+}
+
+.home-intent-title {
+  font-size: 1.22rem;
+  line-height: 1.12;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.home-intent-copy {
+  font-size: 0.92rem;
+  line-height: 1.68;
+  color: var(--text-secondary);
+  flex: 1;
+}
+
+.home-intent-meta {
+  margin-top: auto;
+  font-size: 0.79rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.home-page-root .home-hero-visual {
+  gap: 1.1rem;
+}
+
+.home-page-root .home-role-board {
+  padding: 1.35rem;
+  border-radius: 1.6rem;
+  background:
+    radial-gradient(circle at top right, rgba(37, 99, 235, 0.12), transparent 28%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 250, 252, 0.98) 100%);
+  box-shadow: 0 28px 70px rgba(15, 23, 42, 0.12);
+}
+
+.home-page-root .home-hub-board-head {
+  margin-bottom: 0.25rem;
+}
+
+.home-role-description {
+  margin-top: 0.55rem;
+  max-width: 36ch;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.home-role-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.home-page-root .home-role-card {
+  min-height: 0;
+  padding: 0.95rem 1rem;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.home-page-root .home-role-card-active {
+  background:
+    linear-gradient(180deg, rgba(37, 99, 235, 0.14) 0%, rgba(255, 255, 255, 0.9) 100%);
+  border-color: rgba(37, 99, 235, 0.18);
+}
+
+.home-page-root .home-role-card strong {
+  font-size: 0.98rem;
+}
+
+.home-page-root .home-role-card span {
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.home-page-root .home-trust-strip {
+  margin-top: 0.25rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.home-page-root .home-hub-stat {
+  position: relative;
+  padding: 1rem 1.05rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.home-page-root .home-hub-stat strong {
+  font-size: 1.55rem;
+  line-height: 1;
+}
+
+.home-page-root .home-hub-stat span {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.home-page-root .home-homepage-section {
+  position: relative;
+  margin-top: 1.35rem;
+  padding: 2.15rem 1.2rem 2.2rem;
+  border-radius: 1.7rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.92) 100%);
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.08);
+}
+
+.home-page-root .home-homepage-section-muted {
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 30%),
+    linear-gradient(180deg, rgba(248, 250, 252, 0.95) 0%, rgba(255, 255, 255, 0.96) 100%);
+}
+
+.home-page-root .home-section-head {
+  margin-bottom: 1.6rem;
+}
+
+.home-page-root .home-section-title {
+  max-width: 22ch;
+}
+
+.home-page-root .home-section-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0.65rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.home-page-root .home-curated-card,
+.home-page-root .home-discovery-card,
+.home-page-root .resource-path-card,
+.home-page-root .home-resource-promo {
+  position: relative;
+  border-radius: 1.35rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 250, 252, 0.92) 100%);
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.08);
+}
+
+.home-page-root .home-curated-card,
+.home-page-root .resource-path-card {
+  min-height: 0;
+}
+
+.home-page-root .home-curated-card,
+.home-page-root .home-discovery-card,
+.home-page-root .resource-path-card {
+  border-color: rgba(15, 23, 42, 0.08);
+}
+
+.home-page-root .home-curated-title,
+.home-page-root .home-discovery-body h3,
+.home-page-root .resource-path-card h3 {
+  font-size: 1.08rem;
+}
+
+.home-page-root .home-discovery-card {
+  min-height: 156px;
+}
+
+.home-page-root .home-discovery-icon {
+  width: 2.85rem;
+  height: 2.85rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.home-page-root .resource-path-card {
+  gap: 0.8rem;
+}
+
+.home-page-root .resource-path-steps {
+  margin-top: 0.15rem;
+}
+
+.home-page-root .article-card {
+  position: relative;
+  isolation: isolate;
+  border-radius: 1.35rem !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.97) 0%, rgba(248, 250, 252, 0.94) 100%) !important;
+  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08);
+}
+
+.home-page-root .article-card > a:first-child::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 45%;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0) 0%, rgba(15, 23, 42, 0.14) 100%);
+  pointer-events: none;
+}
+
+.home-page-root .article-card > a:first-child img {
+  transition: transform 0.35s ease;
+}
+
+.home-page-root .article-card:hover > a:first-child img {
+  transform: scale(1.04);
+}
+
+.home-page-root .category-badge {
+  border: 1px solid rgba(37, 99, 235, 0.14);
+  background: rgba(37, 99, 235, 0.08);
+}
+
+.home-page-root #community .home-quick-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+[data-theme="dark"] .home-page-root .home-hero-shell {
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.24), transparent 28%),
+    radial-gradient(circle at 90% 10%, rgba(249, 115, 22, 0.2), transparent 24%),
+    linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(17, 24, 39, 0.98) 52%, var(--bg) 100%);
+}
+
+[data-theme="dark"] .home-page-root .home-intent-card,
+[data-theme="dark"] .home-page-root .home-role-board,
+[data-theme="dark"] .home-page-root .home-role-card,
+[data-theme="dark"] .home-page-root .home-hub-stat,
+[data-theme="dark"] .home-page-root .home-homepage-section,
+[data-theme="dark"] .home-page-root .home-curated-card,
+[data-theme="dark"] .home-page-root .home-discovery-card,
+[data-theme="dark"] .home-page-root .resource-path-card,
+[data-theme="dark"] .home-page-root .home-resource-promo,
+[data-theme="dark"] .home-page-root .article-card,
+[data-theme="dark"] .home-page-root .home-section-link {
+  background: rgba(15, 23, 42, 0.72) !important;
+  border-color: rgba(148, 163, 184, 0.18) !important;
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.28);
+}
+
+[data-theme="dark"] .home-page-root .home-homepage-section-muted,
+[data-theme="dark"] .home-page-root .home-role-card-active {
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.16), transparent 28%),
+    rgba(15, 23, 42, 0.76) !important;
+}
+
+[data-theme="dark"] .home-page-root .category-badge {
+  background: rgba(37, 99, 235, 0.14);
+  border-color: rgba(96, 165, 250, 0.18);
+}
+
+@media (max-width: 1024px) {
+  .home-page-root .home-hero {
+    gap: 1.3rem;
+  }
+
+  .home-intent-grid,
+  .home-role-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .home-page-root .home-trust-strip,
+  .home-page-root #community .home-quick-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .home-page-root {
+    padding-bottom: 1.8rem;
+  }
+
+  .home-page-root .home-hero {
+    padding: 2.35rem 0.9rem 1.2rem;
+  }
+
+  .home-intent-grid,
+  .home-role-grid,
+  .home-page-root .home-trust-strip,
+  .home-page-root #community .home-quick-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-intent-card,
+  .home-page-root .home-role-card {
+    min-height: 0;
+  }
+
+  .home-page-root .home-homepage-section {
+    margin-top: 1rem;
+    padding: 1.55rem 0.95rem 1.7rem;
+    border-radius: 1.35rem;
+  }
+
+  .home-page-root .home-section-head {
+    margin-bottom: 1.2rem;
+  }
+
+  .home-page-root .home-section-link {
+    min-height: 40px;
+    padding: 0.6rem 0.88rem;
+  }
+
+  .home-page-root .home-discovery-card,
+  .home-page-root .home-curated-card,
+  .home-page-root .resource-path-card,
+  .home-page-root .article-card {
+    border-radius: 1.15rem !important;
+  }
+}
+
 /* ---- Resource hub + homepage portal additions ---- */
 .home-hub-board,
 .home-curated-card,

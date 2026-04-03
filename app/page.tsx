@@ -24,6 +24,11 @@ type RouteCard = HubCard & {
   footerSecondary: string
 }
 
+type IntentLane = HubCard & {
+  routeLabel: string
+  accentColor: string
+}
+
 function uniquePosts(posts: Post[]): Post[] {
   const seen = new Set<string>()
   return posts.filter((post) => {
@@ -54,43 +59,91 @@ export default function HomePage() {
   const allPosts = getAllPosts()
   const hub = getResourceHubContent(allPosts)
   const tutorials = uniquePosts([...hub.startHere, ...hub.deploymentGuides, ...hub.webDevelopment]).slice(0, 6)
+  const intentLanes = [
+    {
+      title: 'Deployment',
+      description: 'Go straight into VPS deploy workflows, production setup, Nginx, SSL, and repeatable launch guides.',
+      href: RESOURCE_HUB_PATH,
+      eyebrow: 'Main lane',
+      routeLabel: '/tag/deployment',
+      accentColor: '#2563eb',
+    },
+    {
+      title: 'Self-Hosting',
+      description: 'Use this lane for running apps, automation, analytics, and services on infrastructure you control.',
+      href: '/category/self-hosting',
+      eyebrow: 'Category lane',
+      routeLabel: '/category/self-hosting',
+      accentColor: '#059669',
+    },
+    {
+      title: 'Comparisons',
+      description: 'Open high-intent decision pages for hosting, platforms, tools, and developer stack tradeoffs.',
+      href: '/guides/comparisons-hub',
+      eyebrow: 'Guide lane',
+      routeLabel: '/guides/comparisons-hub',
+      accentColor: '#d97706',
+    },
+    {
+      title: 'Web Development',
+      description: 'Browse Next.js, MDX, performance, CSS, and production web development guides without extra noise.',
+      href: '/category/web-dev',
+      eyebrow: 'Category lane',
+      routeLabel: '/category/web-dev',
+      accentColor: '#ea580c',
+    },
+  ] satisfies IntentLane[]
   const routeCards = [
     {
+      title: 'Homepage',
+      description: 'Broad brand page and first router for the whole site.',
+      href: '/',
+      eyebrow: 'Now',
+      footerPrimary: 'Current page',
+      footerSecondary: 'Start here',
+    },
+    {
       title: 'Deployment hub',
-      description: 'Use /tag/deployment as the main operational hub when you want the clearest route into deployment guides, categories, and strong article clusters.',
+      description: 'Deep discovery surface for deployment, lanes, and strong linked clusters.',
       href: RESOURCE_HUB_PATH,
       eyebrow: 'Hub',
       footerPrimary: '/tag/deployment',
-      footerSecondary: 'Main entry point',
+      footerSecondary: 'Operational hub',
     },
     {
-      title: 'Category lanes',
-      description: 'Open category pages when you already know the topic lane and want a tighter cluster than the homepage can provide.',
+      title: 'Category lane',
+      description: 'Use topic pages when you know the subject and want tighter navigation.',
       href: '/category/self-hosting',
       eyebrow: 'Category',
       footerPrimary: '/category/self-hosting',
-      footerSecondary: 'Topic-first browsing',
+      footerSecondary: 'Topic-first',
     },
     {
-      title: 'Pillar guides',
-      description: 'Use guide pages when you want authority-style navigation that connects articles, comparisons, and related surfaces inside one cluster.',
+      title: 'Guide page',
+      description: 'Authority surface that connects articles, comparisons, and related routes.',
       href: '/guides/comparisons-hub',
       eyebrow: 'Guide',
       footerPrimary: '/guides/comparisons-hub',
-      footerSecondary: 'Authority pages',
+      footerSecondary: 'Authority',
     },
     {
-      title: 'Blog archive',
-      description: 'Jump into the archive only when you already know the article you want or need the full list of recent posts.',
+      title: 'Archive',
+      description: 'Full article list when you already know what you want to browse.',
       href: '/blog',
       eyebrow: 'Archive',
       footerPrimary: '/blog',
-      footerSecondary: 'Everything in one place',
+      footerSecondary: 'Full list',
     },
   ] satisfies RouteCard[]
   const featuredPaths = hub.learningPaths.filter((path) =>
     ['deploy-apps', 'self-host-services', 'choose-vps', 'automation-workflows'].includes(path.id)
   )
+  const coverageStats = [
+    { value: hub.stats.articles, label: 'Articles' },
+    { value: hub.categoryCards.length, label: 'Categories' },
+    { value: hub.pillarPages.length, label: 'Pillar guides' },
+    { value: hub.stats.comparisons, label: 'Comparisons' },
+  ]
   const communityCards = [
     {
       title: 'Developer discussions',
@@ -115,83 +168,93 @@ export default function HomePage() {
   return (
     <>
       <WebsiteJsonLd />
+      <div className="home-page-root">
+        <section className="home-hero-shell">
+          <div className="home-hero">
+            <div className="home-hero-copy">
+              <div className="home-hero-kicker">Blixamo Developer Hub</div>
+              <h1 className="home-hero-title">Deployment, self-hosting, comparisons, and web development for developers</h1>
+              <p className="home-hero-description">
+                Use Blixamo to get into deployment guides, self-hosting workflows, comparison pages, and web development articles
+                without digging through a generic blog archive.
+              </p>
 
-      <section className="home-hero-shell">
-        <div className="home-hero">
-          <div className="home-hero-copy">
-            <div className="home-hero-kicker">Blixamo Developer Hub</div>
-            <h1 className="home-hero-title">Deployment, self-hosting, comparisons, and web development for developers</h1>
-            <p className="home-hero-description">
-              Use Blixamo to get into deployment guides, self-hosting workflows, comparison pages, and web development articles
-              without digging through a generic blog archive.
-            </p>
-
-            <div className="home-hero-actions">
-              <Link href={RESOURCE_HUB_PATH} className="home-hero-button home-hero-button-primary">
-                Deployment Hub
-              </Link>
-              <Link href="/category/self-hosting" className="home-hero-button home-hero-button-secondary">
-                Self-Hosting
-              </Link>
-              <Link href="/guides/comparisons-hub" className="home-hero-button home-hero-button-secondary">
-                Comparisons
-              </Link>
-              <Link href="/category/web-dev" className="home-hero-button home-hero-button-secondary">
-                Web Development
-              </Link>
-            </div>
-          </div>
-
-          <div className="home-hero-visual">
-            <div className="home-hub-board">
-              <div className="home-hub-board-head">
-                <div>
-                  <div className="home-side-eyebrow">Route Roles</div>
-                  <h2 className="home-hub-board-title">Homepage routes traffic. The deployment hub handles deeper discovery.</h2>
-                </div>
-                <Link href={RESOURCE_HUB_PATH} className="home-section-link">
-                  Open hub
-                </Link>
-              </div>
-
-              <div className="home-hub-panel-grid">
-                {routeCards.map((card) => (
-                  <Link key={card.title} href={card.href} className="home-hub-panel">
-                    <span className="home-hub-panel-icon">{card.eyebrow}</span>
-                    <strong>{card.title}</strong>
-                    <span>{card.description}</span>
-                    <span className="home-curated-footer" style={{ marginTop: '0.2rem' }}>
-                      <span>{card.footerPrimary}</span>
-                      <span>{card.footerSecondary}</span>
-                    </span>
+              <div className="home-intent-grid">
+                {intentLanes.map((lane) => (
+                  <Link
+                    key={lane.title}
+                    href={lane.href}
+                    className="home-intent-card"
+                    style={{
+                      background: `linear-gradient(180deg, ${lane.accentColor}12 0%, rgba(255, 255, 255, 0.96) 55%)`,
+                      borderColor: `${lane.accentColor}26`,
+                      boxShadow: `0 18px 44px ${lane.accentColor}14`,
+                    }}
+                  >
+                    <div className="home-intent-top">
+                      <span className="home-intent-eyebrow" style={{ color: lane.accentColor }}>
+                        {lane.eyebrow}
+                      </span>
+                      <span className="home-intent-arrow">Open</span>
+                    </div>
+                    <h2 className="home-intent-title">{lane.title}</h2>
+                    <p className="home-intent-copy">{lane.description}</p>
+                    <div className="home-intent-meta">
+                      <span>{lane.routeLabel}</span>
+                      <span>High intent</span>
+                    </div>
                   </Link>
                 ))}
               </div>
+            </div>
 
-              <div className="home-hub-stat-row">
-                <div className="home-hub-stat">
-                  <strong>{hub.pillarPages.length}</strong>
-                  <span>Pillar guides</span>
+            <div className="home-hero-visual">
+              <div className="home-hub-board home-role-board">
+                <div className="home-hub-board-head">
+                  <div>
+                    <div className="home-side-eyebrow">Route Roles</div>
+                    <h2 className="home-hub-board-title">One homepage. Five clear route roles.</h2>
+                    <p className="home-role-description">
+                      The homepage routes traffic cleanly, then hands deeper browsing to the right surface.
+                    </p>
+                  </div>
+                  <Link href={RESOURCE_HUB_PATH} className="home-section-link">
+                    Open hub
+                  </Link>
                 </div>
-                <div className="home-hub-stat">
-                  <strong>{hub.categoryCards.length}</strong>
-                  <span>Categories</span>
+
+                <div className="home-role-grid">
+                  {routeCards.map((card) => (
+                    <Link
+                      key={card.title}
+                      href={card.href}
+                      className={`home-hub-panel home-role-card${card.title === 'Homepage' ? ' home-role-card-active' : ''}`}
+                    >
+                      <span className="home-hub-panel-icon">{card.eyebrow}</span>
+                      <strong>{card.title}</strong>
+                      <span>{card.description}</span>
+                      <span className="home-curated-footer" style={{ marginTop: '0.2rem' }}>
+                        <span>{card.footerPrimary}</span>
+                        <span>{card.footerSecondary}</span>
+                      </span>
+                    </Link>
+                  ))}
                 </div>
-                <div className="home-hub-stat">
-                  <strong>{hub.stats.comparisons}</strong>
-                  <span>Comparisons</span>
-                </div>
-                <div className="home-hub-stat">
-                  <strong>{hub.stats.articles}</strong>
-                  <span>Articles</span>
+
+                <div className="home-hub-stat-row home-trust-strip">
+                  {coverageStats.map((stat) => (
+                    <div key={stat.label} className="home-hub-stat">
+                      <strong>{stat.value}</strong>
+                      <span>{stat.label}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section id="categories" className="home-section-shell">
+        <section id="categories" className="home-section-shell home-homepage-section home-homepage-section-muted">
         <div className="home-section-head home-section-head-inline">
           <div>
             <div className="home-section-kicker">Topic Lanes</div>
@@ -219,9 +282,9 @@ export default function HomePage() {
             </Link>
           ))}
         </div>
-      </section>
+        </section>
 
-      <section id="pillar-guides" className="home-section-shell">
+        <section id="pillar-guides" className="home-section-shell home-homepage-section">
         <div className="home-section-head home-section-head-inline">
           <div>
             <div className="home-section-kicker">Pillar Guides</div>
@@ -248,9 +311,9 @@ export default function HomePage() {
             </Link>
           ))}
         </div>
-      </section>
+        </section>
 
-      <section id="comparisons" className="home-section-shell">
+        <section id="comparisons" className="home-section-shell home-homepage-section home-homepage-section-muted">
         <div className="home-section-head home-section-head-inline">
           <div>
             <div className="home-section-kicker">Comparisons</div>
@@ -265,9 +328,9 @@ export default function HomePage() {
             <PostCard key={post.slug} post={post} />
           ))}
         </div>
-      </section>
+        </section>
 
-      <section id="learning-paths" className="home-section-shell">
+        <section id="learning-paths" className="home-section-shell home-homepage-section">
         <div className="home-section-head home-section-head-inline">
           <div>
             <div className="home-section-kicker">Featured Paths</div>
@@ -298,9 +361,9 @@ export default function HomePage() {
             </div>
           ))}
         </div>
-      </section>
+        </section>
 
-      <section id="free-tools" className="home-section-shell">
+        <section id="free-tools" className="home-section-shell home-homepage-section home-homepage-section-muted">
         <div className="home-section-head home-section-head-inline">
           <div>
             <div className="home-section-kicker">Free Tools</div>
@@ -315,9 +378,9 @@ export default function HomePage() {
             <PostCard key={post.slug} post={post} />
           ))}
         </div>
-      </section>
+        </section>
 
-      <section id="tutorials" className="home-section-shell">
+        <section id="tutorials" className="home-section-shell home-homepage-section">
         <div className="home-section-head home-section-head-inline">
           <div>
             <div className="home-section-kicker">Tutorials</div>
@@ -332,9 +395,9 @@ export default function HomePage() {
             <PostCard key={post.slug} post={post} />
           ))}
         </div>
-      </section>
+        </section>
 
-      <section id="popular-guides" className="home-section-shell">
+        <section id="popular-guides" className="home-section-shell home-homepage-section home-homepage-section-muted">
         <div className="home-section-head home-section-head-inline">
           <div>
             <div className="home-section-kicker">Popular Guides</div>
@@ -349,9 +412,9 @@ export default function HomePage() {
             <PostCard key={post.slug} post={post} />
           ))}
         </div>
-      </section>
+        </section>
 
-      <section id="community" className="home-section-shell">
+        <section id="community" className="home-section-shell home-homepage-section">
         <div className="home-resource-promo">
           <div className="home-resource-promo-copy">
             <div className="home-section-kicker">Community</div>
@@ -375,9 +438,9 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-      </section>
+        </section>
 
-      <section id="latest-articles" className="home-section-shell">
+        <section id="latest-articles" className="home-section-shell home-homepage-section home-homepage-section-muted">
         <div className="home-section-head home-section-head-inline">
           <div>
             <div className="home-section-kicker">Latest Articles</div>
@@ -392,7 +455,8 @@ export default function HomePage() {
             <PostCard key={post.slug} post={post} />
           ))}
         </div>
-      </section>
+        </section>
+      </div>
     </>
   )
 }
