@@ -1130,6 +1130,10 @@ export function getRelatedCategoryLinks(category: string): RelatedCategoryLink[]
     })
 }
 
+export function getRelatedCategorySlugs(category: string): string[] {
+  return [...(RELATED_CATEGORY_MAP[category] || [])]
+}
+
 export function getCategoryClusterContent(category: string, posts: Post[]): CategoryClusterContent {
   const normalizedCategory = category.toLowerCase().trim()
   const cluster = CATEGORY_CLUSTER_MAP[normalizedCategory] || {

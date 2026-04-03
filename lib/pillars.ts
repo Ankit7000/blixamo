@@ -29,12 +29,14 @@ type PillarDecisionTableRow = {
 }
 
 type PillarPostGroupDefinition = {
+  id: string
   title: string
   description: string
   slugs: readonly string[]
 }
 
 type PillarPostGroup = {
+  id: string
   title: string
   description: string
   posts: Post[]
@@ -167,6 +169,21 @@ const COMPARISON_SLUGS = [
   'tailwind-css-vs-css-modules',
   'wise-vs-payoneer-india-freelancer',
 ] as const
+
+const COMPARISON_GROUP_BY_ARTICLE: Record<string, string> = {
+  'claude-api-vs-openai-cost-india': 'ai-model-comparisons',
+  'claude-api-vs-openai-gpt4-2026': 'ai-model-comparisons',
+  'claude-vs-chatgpt-developers': 'ai-model-comparisons',
+  'coolify-vs-caprover-2026': 'self-hosting-platforms',
+  'hetzner-vs-aws-2026': 'vps-providers',
+  'hetzner-vs-aws-lightsail-2026': 'vps-providers',
+  'hetzner-vs-digitalocean-vs-vultr-india': 'vps-providers',
+  'hetzner-vs-vultr-vs-linode-2026': 'vps-providers',
+  'n8n-vs-make-vs-zapier-indie-dev': 'automation-platforms',
+  'oracle-cloud-free-vs-hetzner-2026': 'vps-providers',
+  'tailwind-css-vs-css-modules': 'frontend-workflow-comparisons',
+  'wise-vs-payoneer-india-freelancer': 'freelancer-finance-tools',
+}
 
 const PRIMARY_PILLAR_BY_ARTICLE: Record<string, string> = {
   'best-ai-tools-2026': 'developer-tools-directory',
@@ -996,29 +1013,40 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
     ],
     comparisonGroups: [
       {
-        title: 'Hosting and VPS comparisons',
+        id: 'vps-providers',
+        title: 'VPS provider comparisons',
         description: 'Open these first if the active decision is where the app should live. After you pick a provider, move straight into the VPS and cloud pillar or the deployment pillar instead of reopening the hosting debate.',
         slugs: ['hetzner-vs-aws-2026', 'hetzner-vs-aws-lightsail-2026', 'hetzner-vs-digitalocean-vs-vultr-india', 'hetzner-vs-vultr-vs-linode-2026', 'oracle-cloud-free-vs-hetzner-2026'],
       },
       {
-        title: 'Deployment and platform comparisons',
+        id: 'self-hosting-platforms',
+        title: 'Self-hosting platform comparisons',
         description: 'These are for readers who already have a server plan and now need to choose the operational layer. Use the deployment pillar next if the winner is clear and the remaining job is implementation.',
         slugs: ['coolify-vs-caprover-2026'],
       },
       {
-        title: 'Automation comparisons',
+        id: 'automation-platforms',
+        title: 'Automation platform comparisons',
         description: 'Use this lane when the bottleneck is repeated work and you are choosing the orchestration tool. Once the verdict lands, open the automation pillar and build one useful workflow before adding more.',
         slugs: ['n8n-vs-make-vs-zapier-indie-dev'],
       },
       {
-        title: 'AI comparisons',
+        id: 'ai-model-comparisons',
+        title: 'AI model comparisons',
         description: 'These are for developers choosing between model workflows, coding assistants, or API tradeoffs. The next stop after a verdict is usually the AI or developer-tools pillar, not another model benchmark.',
         slugs: ['claude-vs-chatgpt-developers', 'claude-api-vs-openai-gpt4-2026', 'claude-api-vs-openai-cost-india'],
       },
       {
-        title: 'Developer workflow comparisons',
-        description: 'This group helps when the decision is inside your day-to-day toolchain rather than infrastructure. Open the developer-tools or free-tools pillars next if the comparison still leaves you with a shortlist to explore.',
-        slugs: ['tailwind-css-vs-css-modules', 'wise-vs-payoneer-india-freelancer'],
+        id: 'frontend-workflow-comparisons',
+        title: 'Frontend workflow comparisons',
+        description: 'This group helps when the decision is inside your frontend toolchain rather than infrastructure. Open the developer-tools or free-tools pillars next if the comparison still leaves you with a shortlist to explore.',
+        slugs: ['tailwind-css-vs-css-modules'],
+      },
+      {
+        id: 'freelancer-finance-tools',
+        title: 'Freelancer finance comparisons',
+        description: 'Use this lane for payout, transfer, and finance-tool choices that affect freelancers and indie builders more than infrastructure architecture.',
+        slugs: ['wise-vs-payoneer-india-freelancer'],
       },
     ],
     relatedResourceLinks: [
@@ -1065,6 +1093,7 @@ function buildPillarPage(definition: PillarDefinition, posts: Post[]): PillarPag
   const comparisons = uniquePosts([...pickPosts(posts, definition.comparisonSlugs), ...primaryArticles.filter((post) => isComparisonPost(post))])
   const comparisonGroups = (definition.comparisonGroups ?? [])
     .map((group) => ({
+      id: group.id,
       title: group.title,
       description: group.description,
       posts: uniquePosts(pickPosts(posts, group.slugs)),
@@ -1145,8 +1174,33 @@ export function getPrimaryPillarForPost(post: Pick<Post, 'slug'>, posts: Post[])
   return pillarSlug ? getPillarPageBySlug(pillarSlug, posts) : null
 }
 
+function normalizeRecommendationKey(value: string): string {
+  return value.trim().toLowerCase().replace(/[\s_]+/g, '-')
+}
+
+export function getPostComparisonGroup(
+  post: Pick<Post, 'slug'> & Partial<Pick<Post, 'comparisonGroup'>>
+): string | null {
+  if (post.comparisonGroup) {
+    return normalizeRecommendationKey(post.comparisonGroup)
+  }
+
+  return COMPARISON_GROUP_BY_ARTICLE[post.slug] || null
+}
+
+export function getPostRecommendationScope(
+  post: Pick<Post, 'slug'> & Partial<Pick<Post, 'comparisonGroup' | 'relatedScope'>>
+): string | null {
+  if (post.relatedScope) {
+    return normalizeRecommendationKey(post.relatedScope)
+  }
+
+  const comparisonGroup = getPostComparisonGroup(post)
+  return comparisonGroup ? `comparison:${comparisonGroup}` : null
+}
+
 export function getScopedPillarTopicArticlesForPost(
-  post: Pick<Post, 'slug' | 'category'>,
+  post: Pick<Post, 'slug' | 'category'> & Partial<Pick<Post, 'comparisonGroup' | 'relatedScope'>>,
   posts: Post[],
   pillarPage?: PillarPage | null
 ): Post[] {
@@ -1157,8 +1211,9 @@ export function getScopedPillarTopicArticlesForPost(
     return resolvedPillar.topicArticles
   }
 
-  const matchingComparisonGroup = resolvedPillar.comparisonGroups.find((group) =>
-    group.posts.some((entry) => entry.slug === post.slug)
+  const comparisonGroup = getPostComparisonGroup(post)
+  const matchingComparisonGroup = resolvedPillar.comparisonGroups.find(
+    (group) => group.id === comparisonGroup || group.posts.some((entry) => entry.slug === post.slug)
   )
 
   if (matchingComparisonGroup) {
