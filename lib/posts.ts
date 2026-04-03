@@ -97,6 +97,19 @@ function getTagOverlapCount(base: Pick<Post, 'tags'>, candidate: Pick<Post, 'tag
   return candidate.tags.filter((tag) => base.tags.includes(tag)).length
 }
 
+function isIndiaSpecificPost(post: Pick<Post, 'slug' | 'title' | 'keyword' | 'tags'>): boolean {
+  const haystack = [
+    post.slug,
+    post.title,
+    post.keyword,
+    ...post.tags,
+  ]
+    .join(' ')
+    .toLowerCase()
+
+  return /\bindia(n)?\b/.test(haystack)
+}
+
 function sortByRelevance(base: Post, posts: Post[]): Post[] {
   return [...posts].sort((a, b) => {
     const scoreA = getTagOverlapCount(base, a)
@@ -232,6 +245,7 @@ export function getPostRecommendationSections(
   const allOtherPosts = posts.filter((entry) => entry.slug !== post.slug)
   const currentScope = getPostRecommendationScope(post)
   const currentComparisonGroup = getPostComparisonGroup(post)
+  const currentPostIsIndiaSpecific = isIndiaSpecificPost(post)
   const validationIssues: RecommendationValidationIssue[] = []
   const seen = new Set<string>()
 
@@ -265,7 +279,17 @@ export function getPostRecommendationSections(
   const sameCategoryPosts = takeUniquePosts(
     sortByRelevance(
       post,
-      sameCategoryCandidates.filter((entry) => !hasBlockingRecommendationMismatch(post, entry))
+      sameCategoryCandidates.filter((entry) => {
+        if (hasBlockingRecommendationMismatch(post, entry)) return false
+
+        const sameScope = currentScope && getPostRecommendationScope(entry) === currentScope
+        const hasTagOverlap = getTagOverlapCount(post, entry) > 0
+
+        if (currentScope && !sameScope && !hasTagOverlap) return false
+        if (!currentPostIsIndiaSpecific && isIndiaSpecificPost(entry) && !sameScope) return false
+
+        return true
+      })
     ),
     seen,
     limit
@@ -274,7 +298,14 @@ export function getPostRecommendationSections(
   const overlappingTagPosts = takeUniquePosts(
     sortByRelevance(
       post,
-      overlappingTagCandidates.filter((entry) => !hasBlockingRecommendationMismatch(post, entry))
+      overlappingTagCandidates.filter((entry) => {
+        if (hasBlockingRecommendationMismatch(post, entry)) return false
+
+        const sameScope = currentScope && getPostRecommendationScope(entry) === currentScope
+        if (!currentPostIsIndiaSpecific && isIndiaSpecificPost(entry) && !sameScope) return false
+
+        return true
+      })
     ),
     seen,
     limit
@@ -300,6 +331,16 @@ export function getPostRecommendationSections(
             relatedSlug: entry.slug,
             source: 'same-pillar',
             reasons: reasons.length ? reasons : ['category-mismatch'],
+          })
+          return false
+        }
+
+        if (!currentPostIsIndiaSpecific && isIndiaSpecificPost(entry) && !sameScope) {
+          validationIssues.push({
+            currentSlug: post.slug,
+            relatedSlug: entry.slug,
+            source: 'same-pillar',
+            reasons: ['category-mismatch'],
           })
           return false
         }
