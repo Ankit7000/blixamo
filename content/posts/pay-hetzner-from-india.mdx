@@ -1,182 +1,141 @@
 ---
 title: "Pay Hetzner from India in 2026: Cards That Work"
-description: "Pay Hetzner from India in 2026 with the clearest first payment path, RBI and 3DS friction fixes, backup methods, and recurring billing advice."
+description: "Pay Hetzner from India in 2026 with the clearest card-first path, PayPal and bank transfer fallback guidance, and billing tips for Indian users."
 date: "2026-04-01"
-updatedAt: "2026-04-02"
+updatedAt: "2026-04-03"
 author: "Blixamo"
 category: "indie-hacking"
-tags: ["hetzner", "india", "indie-dev"]
+tags: ["hetzner", "india", "payments", "billing", "vps", "indie-dev"]
 keyword: "pay hetzner from india"
 featured: false
 featuredImage: "/images/posts/pay-hetzner-from-india/featured.jpg"
 schema: "article"
 canonical: "https://blixamo.com/blog/pay-hetzner-from-india"
+relatedScope: "hetzner-billing"
 ---
 
-If you need to **pay Hetzner from India**, the clearest first move is simple: start with a card that already works on foreign SaaS charges, make sure international online payments are enabled, and treat your Hetzner account as the source of truth for which backup methods you actually have. That matters because the usual failure is not "Hetzner does not accept Indian users." The failure is a mismatch between Hetzner's billing flow, your bank's RBI and 3DS behavior, and the card controls on your side.
+If you need to **pay Hetzner from India**, the cleanest first move is still simple: start with a card that already works on foreign software charges, make sure international online payments are enabled, and treat your Hetzner account as the only reliable source for which backup methods you actually have. The usual failure is not that Hetzner blocks India by default. The real failure is a mismatch between Hetzner billing, your bank's approval logic, and the way recurring international charges behave on your card.
 
-My recommendation is clear. Use a proven international credit card first if you have one. If you are debit-first, use only a debit card that already succeeds on foreign developer subscriptions. If the card flow turns messy, stop guessing and switch to the manual backup Hetzner actually shows in your account, usually PayPal or bank transfer if available.
+My recommendation is direct. Use a proven international credit card first if you have one. If you are debit-first, use only a debit card that already succeeds on foreign subscriptions. If the card flow gets messy, stop guessing and switch to the backup method Hetzner actually shows in your account, often PayPal or bank transfer depending on your account and billing setup.
 
-I rechecked Hetzner's current billing docs on April 2, 2026. Hetzner's payment overview says it accepts credit card, SEPA direct debit for eligible EUR accounts, bank transfer, and PayPal, and it also says not every method appears in every country or every account. That is why this page stays tightly focused on India-specific card friction, temporary verification behavior, and recurring billing reliability instead of turning into a generic payment-method roundup. If you want the wider map around this topic, keep [Hetzner Payment Methods in 2026](/blog/hetzner-payment-methods-2026), the [Resources Hub](/tag/deployment), the [VPS & Cloud guide](/guides/vps-cloud-for-developers-guide), and the [Indie Hacking category](/category/indie-hacking) open nearby.
+I rechecked the payment-method framing already documented in this content cluster on April 3, 2026. Hetzner's billing guidance says payment methods may include credit card, PayPal, bank transfer, and SEPA direct debit for eligible EUR setups, while also making clear that not every method appears in every country or every account. That is why this page stays India-first. It answers both **how to pay Hetzner from India** and **what payment methods Hetzner may support**, but it keeps the focus on India-specific friction, bank-side declines, recurring billing reliability, and final INR cost awareness. For the broader worldwide view, keep [Hetzner Payment Methods in 2026](/blog/hetzner-payment-methods-2026), the [Resources Hub](/tag/deployment), the [VPS & Cloud guide](/guides/vps-cloud-for-developers-guide), and the [Indie Hacking category](/category/indie-hacking) nearby.
 
 ## TL;DR
 
-- Use one proven international card as the first attempt, not a fresh experiment.
-- If it fails, fix one real issue before retrying, then use the backup method Hetzner actually exposes in your account.
-- Do not plan around rumored India-specific win rates or a fixed verification amount that Hetzner does not document.
+- Start with one international card that already works on foreign software or infrastructure charges.
+- If the payment fails, fix one real issue before retrying, then use the backup method Hetzner actually exposes in your account.
+- For India-based users, card payment is usually the most practical path, while bank transfer or SEPA are better understood as billing rails than the easiest day-one option.
 
-## Quick decision table
+## Can you pay Hetzner from India?
 
-| Payment path | Best for | Check before trying | My verdict |
-|---|---|---|---|
-| International credit card | Cleanest first payment | International online usage, enough headroom, issuer approval | Best first attempt |
-| Proven international debit card | Debit-first users with a known-good card | Visa or Mastercard rails, 3DS flow, overseas ecommerce enabled | Good second choice |
-| PayPal if visible in account | Manual recovery when card flow is messy | Whether Hetzner actually shows it for your account | Good fallback |
-| Bank transfer | Invoice must get paid | Customer number, reference details, settlement timing | Most reliable fallback |
+Yes, in many cases you can pay Hetzner from India, but the success rate depends more on your payment setup than on a simple yes-or-no country rule. Hetzner does support mainstream billing methods, but the exact mix can vary by account, billing situation, verification state, currency setup, and country. That is why two users can describe different payment screens without either one being wrong.
 
-![Hetzner billing and payment methods screen showing account-dependent options and invoice retry path](/images/posts/pay-hetzner-from-india/06-hetzner-billing-payment-screen.jpg)
-*The payment methods shown inside Hetzner Accounts are account-dependent, which is why your actual billing screen matters more than internet guesses.*
+For most India-based individuals, the practical question is not whether Hetzner supports India at all. The better question is which payment path is most likely to survive the first charge, the recurring billing cycle after that, and the usual international transaction friction from Indian banks.
 
-## Why paying Hetzner from India fails more often than people expect
+That is also why I would not plan this around one screenshot from Reddit or one tweet claiming that a specific card always works. The durable setup is one primary payment method that already behaves well on foreign online merchants, plus one backup route that your Hetzner account actually shows.
 
-The first reason is country-dependent availability. Hetzner explicitly says it does not offer every payment method in every country, and your account shows the methods available to you. So when one person sees PayPal and another does not, that is not necessarily a contradiction.
+## Hetzner payment methods: card, PayPal, bank transfer, and SEPA
 
-The second reason is bank-side friction. Indian banks, debit products, and fintech cards often behave differently on a foreign infrastructure merchant than they do on a local ecommerce site. RBI rules, 3DS prompts, merchant-category filters, or silent bank declines can all sit between "card added" and "invoice paid."
+If you are searching for **Hetzner payment methods**, the short answer is that your account may show card payment, PayPal, bank transfer, or SEPA direct debit, but the full set can vary depending on your account, country, billing setup, verification state, and invoice situation. That is the safest way to think about it.
 
-The third reason is that people confuse merchant acceptance with bank approval. Hetzner can support credit cards and still not get your specific card approved by the issuing bank. That is why the better question is not "Does Hetzner accept Indian cards?" It is "Does my bank reliably approve this kind of international recurring online merchant?"
+For India-based users, the most relevant options are usually:
 
-The fourth reason is bad retry behavior. Hetzner lets you retry from the invoice area after a failed automatic charge, but a retry only helps if something changed: the card controls, the bank approval, the card itself, or the backup method. Clicking the same button five times is not a payment strategy.
+- credit card
+- a debit card only if it already works well on foreign software merchants
+- PayPal if it is visible in the account
+- bank transfer as the reliable manual fallback
 
-## The cleanest card strategy from India
+SEPA matters more as a billing framework for eligible EUR bank accounts than as the easiest path for an individual user in India. If you are sitting in India and trying to get one Hetzner invoice paid today, SEPA is usually not the first practical answer. A card or another method already exposed inside Hetzner Accounts is normally more relevant.
 
-If you have a normal international credit card that already works on GitHub, cloud tools, or foreign subscriptions, use that first. It is still the lowest-friction starting point for Hetzner from India.
+The most important rule is simple: use your Hetzner billing screen as the source of truth. If PayPal appears there, it is real for your account. If it does not appear there, do not build your plan around it.
 
-If you are debit-first, use only a card that has already worked on foreign SaaS or infrastructure charges. This is where the dedicated [Indian debit cards for developer subscriptions guide](/blog/indian-debit-cards-dev-tools) becomes useful. That article compares card choices like Niyo, Wise, HDFC, and Kotak 811 at the bank and card level. This page is narrower: it is about getting Hetzner billing working with the least drama.
+## What works best for India users
 
-What I would not do is treat Hetzner as the first test case for a card you have never used internationally. If the card has never handled foreign recurring or verification-style flows before, you are taking two risks at once: card uncertainty and merchant uncertainty.
+For most India-based developers, **Hetzner credit card payment** is usually the cleanest first attempt. It is the lowest-friction path when the card already works on GitHub, cloud tools, API subscriptions, or other foreign online merchants. That matters because Hetzner billing problems from India often come from issuer-side risk controls, recurring-charge handling, or 3DS behavior rather than from the merchant category alone.
 
-The most reliable setup is boring on purpose:
-- one primary card that already works internationally
-- one manual backup visible inside Hetzner Accounts
-- enough balance or credit headroom for first charge and retries
+Debit cards can still work, but only use one if it has already succeeded on foreign subscriptions or international software billing. This is the same reason I keep pointing back to [Indian debit cards for developer subscriptions](/blog/indian-debit-cards-dev-tools). That article is where the bank-level card discussion belongs. This page is narrower: it is about choosing the least painful path to get Hetzner billing working from India.
 
-![Indian banking app card controls showing international usage, online transactions, and payment verification flow](/images/posts/pay-hetzner-from-india/07-card-verification-payment-method-screen.jpg)
-*Before retrying any Hetzner payment, check the card controls and the bank verification flow instead of assuming the merchant side is broken.*
+**Hetzner PayPal** can be a good fallback when it is available in your account and the card path becomes annoying. It is often easier for manual recovery than continuing to fight silent issuer declines. **Hetzner bank transfer** is the most dependable backup when the invoice simply needs to be settled. It is slower and less convenient, but it is often better than risking repeated card failures near a due date.
 
-## Temporary verification charge: what to expect
+## Credit card, debit card, PayPal, bank transfer, and SEPA from India
 
-This is the part that confuses many India-based users. Some cards can show a temporary verification or authorization line when you add or test a payment method. Treat that as a card-auth flow first, not as proof that recurring billing is permanently solved.
+### Credit card
 
-The important point is what not to claim. Hetzner's public billing docs do not publish a fixed India-specific verification amount. So if you see forum posts or social replies telling you "Hetzner always charges exactly X first," do not hard-code that into your planning. What matters is whether your bank marks the line as pending, settled, or reversed, and whether the actual invoice later gets paid cleanly.
+This is usually the best first attempt for India-based users. If the card already works on foreign recurring software charges, use it before trying to get clever with workarounds. Make sure international online usage is enabled, the card has enough headroom, and the bank is not blocking the merchant category.
 
-My rule here is simple:
-- if the verification line appears and then reverses, that is normal card-auth behavior
-- if it appears and the real invoice still fails, your billing setup is not fixed
-- if the bank blocks the verification itself, switch to a cleaner card instead of guessing
+### Debit card
 
-That is also why I care more about recurring reliability than one successful first authorization. One clean payment is useful. One clean payment plus one dependable backup path is what keeps production workloads safe.
+Use a debit card only if it already behaves well on foreign subscriptions. A debit card can work, but it is more vulnerable to issuer rules, international transaction controls, and recurring billing friction. If you are already debit-first, use a proven card, not a fresh experiment.
 
-## What to do before the first Hetzner payment attempt
+### PayPal
 
-Start by choosing the right account currency. Hetzner says you pick either EUR or USD when creating the account, and that currency cannot be changed later without creating a new account and transferring products. So choose deliberately.
+PayPal may appear in some Hetzner accounts and can be useful when the card path gets messy. The key word is may. Do not assume it will be there for every India-based user. If it is visible in your account, it can be one of the easiest manual recovery options.
 
-Then check the actual card controls. Make sure international online payments are enabled. Make sure the card is not frozen or limited. Make sure the card has real headroom. Do not leave exactly enough money for the base amount and then hope the bank behaves perfectly.
+### Bank transfer
 
-Next, look at Hetzner Accounts before assuming any backup path. If PayPal is visible, it is a real option for you. If it is not visible, stop planning around it. If bank transfer is available, note the instructions and customer reference details before you need them under pressure.
+Bank transfer is less convenient than a successful card setup, but it is often the most dependable fallback once an invoice exists and you just need the payment to settle. For many users, that makes it a billing recovery tool rather than the first-choice setup method.
 
-Finally, treat payment setup as part of infrastructure readiness. If you are building a low-cost stack around Hetzner, [Build a SaaS MVP for $5/Month](/blog/build-saas-mvp-zero-budget-2026) is the broader playbook, but the billing path still has to be solid before you trust the box with anything important.
+### SEPA
 
-## What to do when the first Hetzner charge fails
+SEPA is real in Hetzner billing, but for most individual users in India it is not the most practical route. It makes more sense for eligible EUR banking setups than for someone in India trying to get a first server paid with minimal friction. In practice, it is better to think of SEPA as part of Hetzner's billing architecture, not as the default India-friendly path.
 
-Do not brute-force retries. Hetzner says you can go into Hetzner Accounts, open Invoices, choose Overview, click Pay now, and retry, but retries are limited. That makes each retry valuable.
+## Common payment failures from India
 
-Retry once only after you fix one real thing. Enable international ecommerce if it was off. Approve the bank challenge. Raise the spending limit. Unfreeze the card. If nothing changed, the second attempt is usually just the first failure repeated.
+The first common failure is a bank-side decline. Your bank may block the charge even when international usage is enabled. That is because "international on" is only one layer. Recurring merchant approval, risk controls, 3DS prompts, or foreign ecommerce filters can still kill the payment.
 
-If that still fails, switch to a cleaner card, not a random one. Use the card that already works on foreign SaaS billing. The goal is to separate "bank problem" from "Hetzner problem" as fast as possible.
+The second common failure is retrying the same broken path. If Hetzner lets you retry an invoice, only do that after you change something real: enable the card properly, approve the bank challenge, increase the limit, use a better card, or switch to another visible method like PayPal or bank transfer.
 
-If the account shows PayPal or bank transfer, use the manual backup before the invoice gets old. Hetzner notes that overdue cases can eventually narrow the payment options further. That is why I would rather pay manually than let a first invoice drift into a service-risk problem.
+The third failure is confusing one successful authorization with a stable billing setup. A temporary card verification line can happen, but that does not mean recurring billing is solved. The real test is whether the actual invoice is paid cleanly and whether the next billing cycle is likely to behave the same way.
 
-![Payment decision flow for paying Hetzner from India from first card attempt to PayPal or bank transfer fallback](/images/posts/pay-hetzner-from-india/09-payment-decision-flow-diagram.jpg)
-*This is the practical recovery path: one clean first attempt, one focused retry, then a backup path that actually settles the invoice.*
+The fourth failure is letting the invoice age while you keep experimenting. If a card path is still unstable, the better move is usually to settle the invoice through the safest backup method you have and then clean up the recurring setup later.
 
-## Which option should you use?
+## Billing, recurring payments, and INR cost expectations
 
-Here is the practical decision flow.
+This is where **Hetzner billing India** becomes more than a yes-or-no payment question. The first concern is recurring reliability. A payment method that survives the first setup but fails on the next cycle is not a good production choice. That is why I care more about predictable renewals than about one lucky first charge.
 
-- **Use an international credit card first** if you already have one that behaves well on foreign subscriptions. This is the cleanest path for most India-based developers.
-- **Use a proven international debit card second** if you do not want to use credit and the card already works on foreign SaaS merchants. Do not make Hetzner your first experiment.
-- **Use PayPal if Hetzner shows it** when the card flow becomes messy and you need a human-friendly manual recovery path.
-- **Use bank transfer when certainty matters more than convenience** and the invoice simply needs to be settled without more issuer drama.
+The second concern is final INR cost. Even when the EUR amount looks small, the real charge in rupees can move because of forex conversion and bank markup. If you are cost-sensitive, check the effective INR after the first successful payment instead of assuming the bank rate will stay friendly. The base server price is only part of the story. The final INR line includes currency conversion behavior, and sometimes bank fees or markups make a bigger difference than people expect.
 
-My actual recommendation is early and blunt: solve this as a reliability problem, not a card-ranking hobby. One proven primary card plus one backup path beats endlessly chasing "the one Indian card that always works." If you want the bank-level shortlist, go to [Indian debit cards for developer subscriptions](/blog/indian-debit-cards-dev-tools). If you want the broader foreign-balance question, [Wise vs Payoneer India for freelancers](/blog/wise-vs-payoneer-india-freelancer) is the better next read.
+The third concern is manual fallback under pressure. If you are running a server you actually depend on, do not wait until an overdue invoice to figure out whether PayPal or bank transfer is available. Check that early, note the billing details, and keep the backup path documented. That matters even more if you are running a small self-hosted stack from [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner), [Run Multiple Projects on One VPS](/blog/multiple-projects-single-vps), or [VPS Setup Guide](/blog/vps-setup-guide), because billing problems are infrastructure problems once the server matters.
 
-![Niyo vs Wise vs HDFC vs Kotak 811 comparison visual for international reliability, RBI friction, and recurring billing](/images/posts/pay-hetzner-from-india/08-niyo-wise-hdfc-kotak-811-comparison.jpg)
-*Use this as the quick visual shortlist, but keep the final decision tied to Hetzner billing reliability rather than generic card popularity.*
+## Which Hetzner payment method should you use from India?
 
-## Troubleshooting Hetzner payment problems from India
+My practical recommendation is still the same:
 
-### The payment method you expected is missing
+- Use an international credit card first if you already trust it on foreign software billing.
+- Use a debit card only if it has already worked on similar merchants.
+- Use PayPal when it is visible in the account and you need a cleaner manual fallback.
+- Use bank transfer when certainty matters more than convenience.
 
-Most likely cause: country or account-level availability. Hetzner says not all payment methods are offered in every country, and your account lists what is available to you. Fix the plan, not the assumption.
-
-### The card fails instantly
-
-Most likely cause: bank block, international ecommerce disabled, or a card product that behaves badly on foreign infrastructure merchants. Check bank controls first, then retry once after fixing one real thing.
-
-### The card passed once but you still do not trust renewals
-
-That usually means you proved authorization, not resilience. Keep the same primary card, keep enough headroom near invoice time, and document your manual backup before the next billing cycle arrives.
-
-### The invoice is already late
-
-Do not keep testing cards at that point. Use the best available manual option and get the invoice settled first. Billing recovery is more important than preserving the perfect card setup story.
-
-## Full comparison table
-
-| Option | Automatic or manual | Officially documented by Hetzner | India-specific watchout | Best use case |
-|---|---|---|---|---|
-| Credit card | Automatic | Yes | Issuer approval still matters | First setup and renewals |
-| Proven international debit card | Depends on issuer behavior | Not documented as a separate path | RBI, 3DS, and merchant filtering can interfere | Debit-first users with a known-good card |
-| PayPal | Manual | Yes | May not appear in every account | Recovery when card flow is messy |
-| Bank transfer | Manual | Yes | Slower, but less dependent on card behavior | Most dependable backup for urgent invoice settlement |
-| SEPA direct debit | Automatic | Yes | Usually irrelevant for India-based users | EU banking setups only |
+That is also why this page and [Hetzner Payment Methods in 2026](/blog/hetzner-payment-methods-2026) should both exist. That page is the wider global reference around **how to pay Hetzner** and what methods may appear. This page is the India-specific decision and troubleshooting layer for people dealing with Indian banks, recurring billing friction, and final rupee cost.
 
 ## FAQ
 
-### Can I pay Hetzner from India with a debit card?
+### What payment methods does Hetzner accept for India-based users?
 
-Yes, sometimes, but treat it as bank behavior rather than a Hetzner guarantee. A debit card is most likely to work when it runs on mainstream international rails, already succeeds on foreign subscriptions, and has international online payments enabled. If it fails once, fix one real issue before retrying.
+Hetzner payment methods may include credit card, PayPal, bank transfer, and SEPA direct debit, but the exact mix can vary by account, country, billing setup, and verification state. The safest rule is to trust the payment methods shown inside your own Hetzner account rather than assuming every option is universal.
 
-### Which payment method should I try first from India?
+### Can I pay Hetzner from India with a credit card?
 
-Start with the international credit card you already trust on foreign SaaS billing. If you do not have one, use a debit card only if it has already worked on similar international merchants. The backup option should come from whatever Hetzner actually exposes in your account.
+Yes, often you can. For most India-based users, a credit card that already works on foreign online software or infrastructure charges is usually the most practical first option. The real risk is bank-side approval and recurring billing behavior, not the basic existence of card support alone.
 
-### Why does an Indian card fail even when international usage is enabled?
+### Does Hetzner accept PayPal for India-based users?
 
-Because the toggle is only one layer. RBI or 3DS behavior, merchant-category filtering, issuer risk controls, recurring-billing rules, or silent foreign-merchant declines can still kill the payment. "International enabled" does not mean "approved for every global merchant."
+Yes, PayPal may be available, but not every account or country sees the same payment methods. If PayPal appears in your Hetzner account, it can be a useful fallback when card payment gets messy. If it does not appear, do not assume you can force it from outside the billing interface.
 
-### Does Hetzner accept PayPal from India?
+### Can I use bank transfer or SEPA from India?
 
-Sometimes, but only if PayPal is actually shown in your Hetzner account. Hetzner's docs list PayPal as an accepted manual payment method and also say that not every option is available in every country or every account.
+Yes, bank transfer is part of Hetzner billing, and SEPA direct debit is relevant for eligible EUR banking setups. For an individual user in India, bank transfer is usually the more practical backup. SEPA is more important as a billing method for eligible European banking arrangements than as the easiest India-first route.
 
-### What is the temporary verification charge on a Hetzner card setup?
+### Which Hetzner payment method works best for India users?
 
-Treat it as a possible authorization step, not as a fixed documented rule. Hetzner's public billing docs do not publish a fixed India-specific verification amount, so the important thing is whether your bank marks it as pending, settled, or reversed. Do not build your expectations around rumor screenshots.
+In many cases, a proven international credit card is the best first attempt because it is the easiest mix of speed and convenience. PayPal, when available, is a solid fallback. Bank transfer is the more dependable manual backup when the invoice simply needs to be settled without more card drama.
 
-### What happens if my Hetzner card payment fails?
+### Why is my Hetzner payment failing from India?
 
-Hetzner says you can retry from Hetzner Accounts through Invoices and Pay now, but retries are limited. Fix one real issue first, then retry. If that still fails, switch to a better card or use the manual backup visible in the account.
-
-### Is bank transfer the most dependable backup for Hetzner invoices?
-
-Yes, when certainty matters more than convenience. Hetzner officially supports bank transfer, and it remains the most dependable fallback when card billing gets messy. The cost is time and manual effort.
-
-### Can I change my Hetzner account currency later?
-
-No. Hetzner says the account currency is chosen at signup and cannot be changed later without a new account and product transfer flow. Pick deliberately before the first server goes live.
+The most common causes are bank-side declines, 3DS or issuer approval issues, recurring billing friction, international online controls, or retrying the same broken card path without fixing anything. A failed Hetzner payment from India is often an approval problem on the bank side, not proof that Hetzner does not support your country.
 
 ## What Next?
 
-If your blocker is still the payment method itself, go next to [Hetzner Payment Methods in 2026](/blog/hetzner-payment-methods-2026) and then [Indian debit cards for developer subscriptions](/blog/indian-debit-cards-dev-tools). If the bigger question is how to keep the whole low-cost setup workable after billing is solved, continue with [Build a SaaS MVP for $5/Month](/blog/build-saas-mvp-zero-budget-2026) and [Wise vs Payoneer India for freelancers](/blog/wise-vs-payoneer-india-freelancer).
+If you want the broader worldwide reference around **Hetzner payment methods**, go next to [Hetzner Payment Methods in 2026](/blog/hetzner-payment-methods-2026). If your next problem is the actual VPS stack after billing is solved, continue with [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner), [Run Multiple Projects on One VPS](/blog/multiple-projects-single-vps), and the [Resources Hub](/tag/deployment).
 
-For the broader cluster path, keep the [VPS & Cloud guide](/guides/vps-cloud-for-developers-guide), the [Resources Hub](/tag/deployment), the [Indie Hacking category](/category/indie-hacking), and the [community hub](/community) open while you move from payment reliability into the rest of the stack.
+For the wider cluster path, keep the [VPS & Cloud guide](/guides/vps-cloud-for-developers-guide), the [Indie Hacking category](/category/indie-hacking), and [Indian debit cards for developer subscriptions](/blog/indian-debit-cards-dev-tools) open while you move from payment setup into the rest of the hosting workflow.
