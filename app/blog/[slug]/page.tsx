@@ -17,7 +17,7 @@ import { Callout } from '@/components/blog/Callout'
 import { ArticleImage, ArticleTable, ProsCons, VerdictBox, VisualBlock } from '@/components/blog/MdxVisuals'
 import Link from 'next/link'
 import { getCategoryClusterContent, getResourceHubContent, RESOURCE_HUB_PATH } from '@/lib/resources'
-import { getComparisonsHub, getPrimaryPillarForPost } from '@/lib/pillars'
+import { getComparisonsHub, getPrimaryPillarForPost, getScopedPillarTopicArticlesForPost } from '@/lib/pillars'
 import { getCategoryMeta } from '@/lib/categories'
 
 type Props = { params: Promise<{ slug: string }> }
@@ -75,7 +75,7 @@ export default async function PostPage({ params }: Props) {
   const comparisonsHub = getComparisonsHub(allPosts)
   const relatedComparisons = clusterContent.comparisons.filter((entry) => entry.slug !== post.slug).slice(0, 2)
   const freeToolLinks = clusterContent.tools.filter((entry) => entry.slug !== post.slug).slice(0, 2)
-  const pillarClusterPosts = pillarPage?.topicArticles || []
+  const pillarClusterPosts = getScopedPillarTopicArticlesForPost(post, allPosts, pillarPage)
   const clusterRelatedPosts = [
     ...pillarClusterPosts,
     ...clusterContent.guides,

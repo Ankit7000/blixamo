@@ -1145,6 +1145,29 @@ export function getPrimaryPillarForPost(post: Pick<Post, 'slug'>, posts: Post[])
   return pillarSlug ? getPillarPageBySlug(pillarSlug, posts) : null
 }
 
+export function getScopedPillarTopicArticlesForPost(
+  post: Pick<Post, 'slug' | 'category'>,
+  posts: Post[],
+  pillarPage?: PillarPage | null
+): Post[] {
+  const resolvedPillar = pillarPage ?? getPrimaryPillarForPost(post, posts)
+  if (!resolvedPillar) return []
+
+  if (resolvedPillar.slug !== 'comparisons-hub') {
+    return resolvedPillar.topicArticles
+  }
+
+  const matchingComparisonGroup = resolvedPillar.comparisonGroups.find((group) =>
+    group.posts.some((entry) => entry.slug === post.slug)
+  )
+
+  if (matchingComparisonGroup) {
+    return matchingComparisonGroup.posts
+  }
+
+  return resolvedPillar.topicArticles.filter((entry) => entry.category === post.category)
+}
+
 export function getComparisonsHub(posts: Post[]): PillarPage | null {
   return getPillarPageBySlug('comparisons-hub', posts)
 }
