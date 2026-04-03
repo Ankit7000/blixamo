@@ -25,7 +25,7 @@ function extractHeadings(content: string): Heading[] {
   return headings.slice(0, 9)
 }
 
-export function TableOfContents({ content }: { content: string }) {
+export function TableOfContents({ content, className = '' }: { content: string; className?: string }) {
   const [active, setActive] = useState('')
   const headings = extractHeadings(content)
 
@@ -42,7 +42,7 @@ export function TableOfContents({ content }: { content: string }) {
   if (headings.length < 3) return null
 
   return (
-    <nav className="toc" aria-label="Table of contents">
+    <nav className={`toc ${className}`.trim()} aria-label="Table of contents">
       <p className="toc-title">In this article</p>
       <ul>
         {headings.map(h => (

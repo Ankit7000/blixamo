@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { AuthorBio } from './AuthorBio'
-import { ShareButtons } from './ShareButtons'
 import type { Post } from '@/lib/posts'
 
 interface PostFooterProps {
@@ -18,12 +17,6 @@ export function PostFooter({
     <section className="article-footer-shell">
       <div className="article-footer-stack">
         <AuthorBio name={post.author} />
-
-        <div className="article-share-panel">
-          <p className="article-share-eyebrow">Share this guide</p>
-          <h2 className="article-share-title">Help another developer find it faster</h2>
-          <ShareButtons title={post.title} slug={post.slug} />
-        </div>
 
         {(prev || next) && (
           <div className="post-nav-grid article-nav-grid">

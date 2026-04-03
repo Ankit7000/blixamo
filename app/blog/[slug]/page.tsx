@@ -111,6 +111,8 @@ export default async function PostPage({ params }: Props) {
               </section>
             )}
 
+            <TableOfContents content={post.content} className="toc-inline" />
+
             <div className="prose article-prose">
               <MDXRemote
                 source={post.content}
@@ -148,8 +150,6 @@ export default async function PostPage({ params }: Props) {
               </section>
             )}
           </article>
-
-          <TableOfContents content={post.content} />
         </div>
 
         <PostFooter

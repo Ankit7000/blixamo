@@ -2804,6 +2804,12 @@ img { max-width: 100%; height: auto; display: block; }
   padding: 0.38rem 0.6rem;
   line-height: 1.45;
 }
+.toc-inline {
+  position: static;
+  top: auto;
+  max-height: none;
+  margin: 0 0 1.35rem;
+}
 .article-footer-shell,
 .related-posts-shell {
   max-width: 760px;
@@ -3101,6 +3107,9 @@ img { max-width: 100%; height: auto; display: block; }
   }
   .article-layout-grid {
     gap: 1rem;
+  }
+  .toc-inline {
+    display: block !important;
   }
 }
 @media (max-width: 768px) {
