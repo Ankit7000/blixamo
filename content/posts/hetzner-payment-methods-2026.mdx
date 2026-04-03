@@ -90,6 +90,9 @@ My practical ranking looks like this:
 - bank transfer when the invoice simply needs to get paid
 - SEPA where the account and banking setup clearly support it
 
+![Payment decision flow showing card first, PayPal fallback, bank transfer fallback, and SEPA for eligible billing setups](/images/posts/hetzner-payment-methods-2026/01-payment-method-decision-flow.jpg)
+*A practical order of operations: start with the easiest visible method, then fall back based on what your account actually offers.*
+
 ## What to do if a payment method is missing or fails
 
 First, do not assume the missing method is a bug. It may simply not be available for your account, country, or billing state. That is frustrating, but it is better to accept that quickly than to build a plan around a method you do not actually have.

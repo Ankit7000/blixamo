@@ -49,6 +49,9 @@ SEPA matters more as a billing framework for eligible EUR bank accounts than as 
 
 The most important rule is simple: use your Hetzner billing screen as the source of truth. If PayPal appears there, it is real for your account. If it does not appear there, do not build your plan around it.
 
+![Hetzner billing screen showing available payment methods inside the account](/images/posts/pay-hetzner-from-india/06-hetzner-billing-payment-screen.jpg)
+*A real billing view is the safest way to confirm which payment methods are actually available for your account.*
+
 ## What works best for India users
 
 For most India-based developers, **Hetzner credit card payment** is usually the cleanest first attempt. It is the lowest-friction path when the card already works on GitHub, cloud tools, API subscriptions, or other foreign online merchants. That matters because Hetzner billing problems from India often come from issuer-side risk controls, recurring-charge handling, or 3DS behavior rather than from the merchant category alone.
@@ -97,6 +100,9 @@ The second concern is final INR cost. Even when the EUR amount looks small, the 
 
 The third concern is manual fallback under pressure. If you are running a server you actually depend on, do not wait until an overdue invoice to figure out whether PayPal or bank transfer is available. Check that early, note the billing details, and keep the backup path documented. That matters even more if you are running a small self-hosted stack from [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner), [Run Multiple Projects on One VPS](/blog/multiple-projects-single-vps), or [VPS Setup Guide](/blog/vps-setup-guide), because billing problems are infrastructure problems once the server matters.
 
+![Hetzner invoice view showing billing context and payment timing](/images/posts/pay-hetzner-from-india/04-hetzner-invoice.png)
+*Once an invoice exists, the practical question shifts from theory to settling the bill through the safest available payment path.*
+
 ## Which Hetzner payment method should you use from India?
 
 My practical recommendation is still the same:
@@ -107,6 +113,9 @@ My practical recommendation is still the same:
 - Use bank transfer when certainty matters more than convenience.
 
 That is also why this page and [Hetzner Payment Methods in 2026](/blog/hetzner-payment-methods-2026) should both exist. That page is the wider global reference around **how to pay Hetzner** and what methods may appear. This page is the India-specific decision and troubleshooting layer for people dealing with Indian banks, recurring billing friction, and final rupee cost.
+
+![Payment decision flow for paying Hetzner from India with card, PayPal, bank transfer, and SEPA paths](/images/posts/pay-hetzner-from-india/09-payment-decision-flow-diagram.jpg)
+*A simple fallback order: try the most practical card path first, then use the other payment methods your account actually exposes.*
 
 ## FAQ
 
