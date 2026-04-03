@@ -43,6 +43,11 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts
 
+      - name: Verify ads.txt source file
+        run: |
+          set -euo pipefail
+          node scripts/validate-ads-txt.js
+
       - name: Run production deploy
         run: |
           set -euo pipefail
@@ -55,3 +60,8 @@ jobs:
             -p "$SSH_PORT" \
             "$SSH_USER@$SSH_HOST" \
             "bash /var/www/blixamo/build.sh"
+
+      - name: Verify live ads.txt
+        run: |
+          set -euo pipefail
+          node scripts/verify-production-ads-txt.js

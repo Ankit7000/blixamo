@@ -8,7 +8,9 @@
     "start": "next start -p 3000",
     "build:local": "set NODE_ENV=production&& next build && next start -p 3000",
     "lint": "next lint",
-    "sitemap:check": "node scripts/validate-sitemap.js"
+    "sitemap:check": "node scripts/validate-sitemap.js",
+    "ads:check": "node scripts/validate-ads-txt.js",
+    "ads:verify:prod": "node scripts/verify-production-ads-txt.js"
   },
   "dependencies": {
     "autoprefixer": "^10.4.27",
