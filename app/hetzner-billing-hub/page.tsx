@@ -1,0 +1,292 @@
+import Link from 'next/link'
+import type { Metadata } from 'next'
+import { PostCard } from '@/components/blog/PostCard'
+import { getAllPosts, getPostFreshnessDate, type Post } from '@/lib/posts'
+
+export const metadata: Metadata = {
+  title: 'Hetzner Billing Hub',
+  description:
+    'A focused Blixamo mini hub for Hetzner billing and payment decisions: methods that may appear, India-specific friction, recurring billing follow-ups, and useful next reads.',
+  alternates: { canonical: 'https://blixamo.com/hetzner-billing-hub' },
+}
+
+type MiniHubCard = {
+  title: string
+  description: string
+  href: string
+  eyebrow: string
+}
+
+const TOP_READ_SLUGS = [
+  'hetzner-payment-methods-2026',
+  'pay-hetzner-from-india',
+  'deploy-nextjs-coolify-hetzner',
+  'hetzner-vs-aws-lightsail-2026',
+] as const
+
+const PRACTICAL_PATHS: MiniHubCard[] = [
+  {
+    title: 'Start with the global billing map',
+    description: 'Use this first when you need the clean reference for which Hetzner payment methods may appear and which one usually makes the best first attempt.',
+    href: '/blog/hetzner-payment-methods-2026',
+    eyebrow: 'Reference',
+  },
+  {
+    title: 'Fix the India-specific friction path',
+    description: 'Open this next when the real blocker is issuer declines, recurring international card behavior, or final INR cost rather than Hetzner itself.',
+    href: '/blog/pay-hetzner-from-india',
+    eyebrow: 'India',
+  },
+  {
+    title: 'Move from billing to a real server deploy',
+    description: 'Use this once payment is solved and the next question becomes the actual app workflow on a Hetzner VPS.',
+    href: '/blog/deploy-nextjs-coolify-hetzner',
+    eyebrow: 'Deploy',
+  },
+] as const
+
+const DECISION_PATHS: MiniHubCard[] = [
+  {
+    title: 'Use the global reference or the India page',
+    description: 'Stay on the worldwide billing reference unless the friction is clearly about Indian cards, recurring foreign charges, or the real INR cost.',
+    href: '/blog/pay-hetzner-from-india',
+    eyebrow: 'Decision',
+  },
+  {
+    title: 'Keep Hetzner or switch providers',
+    description: 'Open this when billing friction is forcing a wider platform choice instead of just a payment-method fix.',
+    href: '/blog/hetzner-vs-aws-lightsail-2026',
+    eyebrow: 'Compare',
+  },
+  {
+    title: 'Compare the cheaper path against other VPS options',
+    description: 'Use this when you need to decide whether Hetzner still wins once billing convenience, latency, and provider ergonomics are all in the equation.',
+    href: '/blog/hetzner-vs-digitalocean-vs-vultr-india',
+    eyebrow: 'Provider Fit',
+  },
+] as const
+
+const RELATED_LANES: MiniHubCard[] = [
+  {
+    title: 'VPS & Cloud category',
+    description: 'Go wider when the question shifts from Hetzner billing into host choice, server sizing, latency, and provider tradeoffs.',
+    href: '/category/vps-cloud',
+    eyebrow: 'Related Lane',
+  },
+  {
+    title: 'Deployment Hub',
+    description: 'Use the deployment hub when billing is settled and the next job is provisioning, deploying, or operating the server.',
+    href: '/tag/deployment',
+    eyebrow: 'Related Lane',
+  },
+  {
+    title: 'Community',
+    description: 'Open Community when you want fresher adjacent reads without widening into the full archive.',
+    href: '/community',
+    eyebrow: 'Related Lane',
+  },
+] as const
+
+function uniquePosts(posts: Post[]): Post[] {
+  const seen = new Set<string>()
+
+  return posts.filter((post) => {
+    if (seen.has(post.slug)) return false
+    seen.add(post.slug)
+    return true
+  })
+}
+
+function pickPostsBySlug(posts: Post[], slugs: readonly string[]): Post[] {
+  return slugs
+    .map((slug) => posts.find((post) => post.slug === slug))
+    .filter((post): post is Post => Boolean(post))
+}
+
+function pickFreshHetznerBillingReads(posts: Post[], limit = 4): Post[] {
+  return uniquePosts(
+    posts.filter((post) => {
+      const text = `${post.title} ${post.description} ${post.keyword} ${post.tags.join(' ')}`.toLowerCase()
+
+      return (
+        TOP_READ_SLUGS.includes(post.slug as (typeof TOP_READ_SLUGS)[number]) ||
+        ((post.category === 'indie-hacking' || post.category === 'vps-cloud' || post.category === 'how-to') &&
+          /hetzner|billing|payment|paypal|bank transfer|sepa|invoice|card|lightsail|digitalocean|vultr|deploy/.test(text))
+      )
+    })
+  )
+    .sort((a, b) => getPostFreshnessDate(b).getTime() - getPostFreshnessDate(a).getTime())
+    .slice(0, limit)
+}
+
+function MiniHubLinkCard({ card }: { card: MiniHubCard }) {
+  return (
+    <Link href={card.href} className="home-curated-card">
+      <div className="home-curated-top">
+        <span className="home-curated-eyebrow">{card.eyebrow}</span>
+        <span className="home-curated-arrow">Open</span>
+      </div>
+      <h3 className="home-curated-title">{card.title}</h3>
+      <p className="home-curated-copy">{card.description}</p>
+      <div className="home-curated-footer">
+        <span>Use this path</span>
+        <span>Read more</span>
+      </div>
+    </Link>
+  )
+}
+
+export default function HetznerBillingHubPage() {
+  const allPosts = getAllPosts()
+  const topReads = pickPostsBySlug(allPosts, TOP_READ_SLUGS)
+  const latestUsefulReads = pickFreshHetznerBillingReads(allPosts, 4)
+
+  return (
+    <div style={{ maxWidth: '1120px', margin: '0 auto', padding: '2.5rem 1rem 3rem' }}>
+      <section
+        style={{
+          marginBottom: '2rem',
+          paddingBottom: '1.5rem',
+          borderBottom: '1px solid var(--border)',
+        }}
+      >
+        <div className="home-section-kicker">Mini Hub</div>
+        <h1 className="home-section-title">Hetzner Billing Hub</h1>
+        <p className="home-section-description" style={{ maxWidth: '780px' }}>
+          A focused route for practical Hetzner billing and payment decisions: what methods may appear, what usually
+          works best, where India-specific friction changes the answer, and which deployment reads matter after billing
+          is solved.
+        </p>
+        <div className="home-hero-actions" style={{ marginTop: '1rem' }}>
+          <Link href="#top-reads" className="home-hero-button home-hero-button-primary">
+            Best starting reads
+          </Link>
+          <Link href="#latest-useful-reads" className="home-hero-button home-hero-button-secondary">
+            Latest useful reads
+          </Link>
+          <Link href="#billing-path" className="home-hero-button home-hero-button-secondary">
+            Billing path
+          </Link>
+        </div>
+      </section>
+
+      <section className="home-section-shell">
+        <div
+          style={{
+            padding: '1.1rem 1.2rem',
+            borderRadius: '0.95rem',
+            border: '1px solid var(--border)',
+            background: 'var(--surface)',
+          }}
+        >
+          <div className="home-section-kicker">What This Hub Is For</div>
+          <p style={{ margin: '0.55rem 0 0', color: 'var(--text-secondary)', lineHeight: 1.75 }}>
+            Use this page when the real question is not Hetzner setup in general, but which billing path to trust, when
+            to widen into India-specific payment friction, and what to read next once the invoice problem is out of the
+            way.
+          </p>
+        </div>
+      </section>
+
+      <section id="top-reads" className="home-section-shell">
+        <div className="home-section-head home-section-head-inline">
+          <div>
+            <div className="home-section-kicker">Top Reads</div>
+            <h2 className="home-section-title">Best starting reads for the Hetzner billing lane</h2>
+          </div>
+          <Link href="/category/vps-cloud" className="home-section-link">
+            Browse VPS and cloud
+          </Link>
+        </div>
+        <div className="home-post-grid">
+          {topReads.map((post) => (
+            <PostCard key={post.slug} post={post} />
+          ))}
+        </div>
+      </section>
+
+      <section id="latest-useful-reads" className="home-section-shell">
+        <div className="home-section-head home-section-head-inline">
+          <div>
+            <div className="home-section-kicker">Latest Useful Reads</div>
+            <h2 className="home-section-title">Current Hetzner billing and provider reads worth reopening</h2>
+          </div>
+          <Link href="/community" className="home-section-link">
+            Open community
+          </Link>
+        </div>
+        <div className="home-post-grid">
+          {latestUsefulReads.map((post) => (
+            <PostCard key={post.slug} post={post} />
+          ))}
+        </div>
+      </section>
+
+      <section id="billing-path" className="home-section-shell">
+        <div className="home-section-head home-section-head-inline">
+          <div>
+            <div className="home-section-kicker">Practical Payment-Method / Billing Path</div>
+            <h2 className="home-section-title">Go from visible payment methods to invoice recovery to a live Hetzner workflow</h2>
+          </div>
+          <Link href="/tag/deployment" className="home-section-link">
+            Open deployment hub
+          </Link>
+        </div>
+        <div className="home-quick-grid">
+          {PRACTICAL_PATHS.map((card) => (
+            <MiniHubLinkCard key={card.title} card={card} />
+          ))}
+        </div>
+      </section>
+
+      <section id="global-vs-india-path" className="home-section-shell">
+        <div className="home-section-head">
+          <div className="home-section-kicker">Global vs India-Specific Decision Path</div>
+          <h2 className="home-section-title">Stay on the worldwide billing reference until the payment friction becomes region-specific</h2>
+        </div>
+        <div className="home-quick-grid">
+          {DECISION_PATHS.map((card) => (
+            <MiniHubLinkCard key={card.title} card={card} />
+          ))}
+        </div>
+      </section>
+
+      <section className="home-section-shell">
+        <div className="home-section-head">
+          <div className="home-section-kicker">Related Lanes</div>
+          <h2 className="home-section-title">Move wider only when the question stops being about billing and payment flow</h2>
+        </div>
+        <div className="home-quick-grid">
+          {RELATED_LANES.map((card) => (
+            <MiniHubLinkCard key={card.title} card={card} />
+          ))}
+        </div>
+      </section>
+
+      <section className="home-section-shell">
+        <div
+          style={{
+            padding: '1.1rem 1.2rem',
+            borderRadius: '0.95rem',
+            border: '1px solid var(--border)',
+            background: 'var(--surface)',
+          }}
+        >
+          <div className="home-section-kicker">Keep Reading</div>
+          <p style={{ margin: '0.55rem 0 0', color: 'var(--text-secondary)', lineHeight: 1.75 }}>
+            Keep this hub for the Hetzner billing path. Jump to VPS and Cloud for the wider provider lane or Deployment
+            Hub once the box is ready to ship something real.
+          </p>
+          <div className="home-hero-actions" style={{ marginTop: '0.9rem' }}>
+            <Link href="/category/vps-cloud" className="home-hero-button home-hero-button-secondary">
+              VPS and Cloud
+            </Link>
+            <Link href="/tag/deployment" className="home-hero-button home-hero-button-secondary">
+              Deployment Hub
+            </Link>
+          </div>
+        </div>
+      </section>
+    </div>
+  )
+}

@@ -35,6 +35,7 @@ const DEV_TOOLS_WATCH_PATH = '/dev-tools-watch'
 const INFRASTRUCTURE_WATCH_PATH = '/infrastructure-watch'
 const NEXTJS_MDX_HUB_PATH = '/nextjs-mdx-hub'
 const COOLIFY_HUB_PATH = '/coolify-hub'
+const HETZNER_BILLING_HUB_PATH = '/hetzner-billing-hub'
 const BLOG_INDEX_PATH = '/blog'
 const ABOUT_PATH = '/about'
 const HOME_PATH = '/'
@@ -47,6 +48,7 @@ const HUB_SITEMAP_PATHS = [
   INFRASTRUCTURE_WATCH_PATH,
   NEXTJS_MDX_HUB_PATH,
   COOLIFY_HUB_PATH,
+  HETZNER_BILLING_HUB_PATH,
 ] as const
 const COMMUNITY_SITEMAP_PATHS = [COMMUNITY_PATH] as const
 const STATIC_SITEMAP_PATHS = [...CORE_SITEMAP_PATHS, ...HUB_SITEMAP_PATHS, ...COMMUNITY_SITEMAP_PATHS] as const
@@ -271,6 +273,13 @@ export function buildSitemapEntriesWithKinds(posts: readonly Post[] = getAllPost
     {
       kind: 'hub',
       url: `${SITEMAP_SITE_ORIGIN}${COOLIFY_HUB_PATH}`,
+      lastModified: BUILD_LAST_MODIFIED,
+      changeFrequency: 'weekly',
+      priority: 0.5,
+    },
+    {
+      kind: 'hub',
+      url: `${SITEMAP_SITE_ORIGIN}${HETZNER_BILLING_HUB_PATH}`,
       lastModified: BUILD_LAST_MODIFIED,
       changeFrequency: 'weekly',
       priority: 0.5,

@@ -272,9 +272,9 @@ export default async function CategoryPage({ params }: Props) {
         }
       : canonicalSlug === 'vps-cloud'
       ? {
-          label: 'Infrastructure Watch',
-          href: '/infrastructure-watch',
-          description: 'Use the infrastructure mini hub when you want a tighter current-watch layer for providers, platforms, pricing shifts, and self-hosting infrastructure decisions.',
+          label: 'Hetzner Billing Hub',
+          href: '/hetzner-billing-hub',
+          description: 'Use the Hetzner Billing Hub when the real question is payment methods, invoice friction, India-specific card issues, and what to read after billing is sorted.',
         }
       : canonicalSlug === 'self-hosting'
       ? {

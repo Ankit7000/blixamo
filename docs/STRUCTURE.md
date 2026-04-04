@@ -31,6 +31,8 @@
   Next.js MDX mini hub page.
 - `app/coolify-hub/page.tsx`
   Coolify mini hub page.
+- `app/hetzner-billing-hub/page.tsx`
+  Hetzner Billing mini hub page.
 - `app/contact/page.tsx`
   Contact page.
 - `app/privacy-policy/page.tsx`
@@ -119,6 +121,7 @@ Note:
 | `/infrastructure-watch` | `app/infrastructure-watch/page.tsx` | SSG |
 | `/nextjs-mdx-hub` | `app/nextjs-mdx-hub/page.tsx` | SSG |
 | `/coolify-hub` | `app/coolify-hub/page.tsx` | SSG |
+| `/hetzner-billing-hub` | `app/hetzner-billing-hub/page.tsx` | SSG |
 | `/contact` | `app/contact/page.tsx` | SSG |
 | `/privacy-policy` | `app/privacy-policy/page.tsx` | SSG |
 | `/terms` | `app/terms/page.tsx` | SSG |
@@ -150,12 +153,13 @@ Primary crawl path:
 - Infrastructure mini hub: `/infrastructure-watch`
 - Next.js MDX mini hub: `/nextjs-mdx-hub`
 - Coolify mini hub: `/coolify-hub`
+- Hetzner Billing mini hub: `/hetzner-billing-hub`
 - Article pages: `/blog/[slug]`
 - Community hub: `/community`
 
 Indexing intent:
 - Keep indexed: homepage, resources hub, categories, pillar guides, articles, about page, and community hub
-- Keep accessible but low priority: AI mini hub, Dev Tools mini hub, Infrastructure mini hub, Next.js MDX mini hub, Coolify mini hub, other tag pages, author pages, search, legal pages, and pagination
+- Keep accessible but low priority: AI mini hub, Dev Tools mini hub, Infrastructure mini hub, Next.js MDX mini hub, Coolify mini hub, Hetzner Billing mini hub, other tag pages, author pages, search, legal pages, and pagination
 - Use `noindex, follow` on low-value archive/utility routes rather than removing routes
 
 ---
