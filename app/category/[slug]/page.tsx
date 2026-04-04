@@ -264,6 +264,12 @@ export default async function CategoryPage({ params }: Props) {
           href: '/ai-for-developers',
           description: 'Use the AI mini hub when you want a tighter starting set of top reads, fresh posts, comparisons, and practical AI paths.',
         }
+      : canonicalSlug === 'developer-tools'
+      ? {
+          label: 'Dev Tools Watch',
+          href: '/dev-tools-watch',
+          description: 'Use the dev-tools mini hub when you want the tighter current-watch layer for software picks, alternatives, and worth-testing reads.',
+        }
       : canonicalSlug === 'web-dev'
       ? {
           label: 'Community',

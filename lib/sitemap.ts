@@ -31,12 +31,13 @@ export const SITEMAP_SITE_ORIGIN = 'https://blixamo.com'
 const BUILD_LAST_MODIFIED = new Date()
 const COMMUNITY_PATH = '/community'
 const AI_FOR_DEVELOPERS_PATH = '/ai-for-developers'
+const DEV_TOOLS_WATCH_PATH = '/dev-tools-watch'
 const BLOG_INDEX_PATH = '/blog'
 const ABOUT_PATH = '/about'
 const HOME_PATH = '/'
 
 const CORE_SITEMAP_PATHS = [HOME_PATH, ABOUT_PATH, BLOG_INDEX_PATH] as const
-const HUB_SITEMAP_PATHS = [RESOURCE_HUB_PATH, AI_FOR_DEVELOPERS_PATH] as const
+const HUB_SITEMAP_PATHS = [RESOURCE_HUB_PATH, AI_FOR_DEVELOPERS_PATH, DEV_TOOLS_WATCH_PATH] as const
 const COMMUNITY_SITEMAP_PATHS = [COMMUNITY_PATH] as const
 const STATIC_SITEMAP_PATHS = [...CORE_SITEMAP_PATHS, ...HUB_SITEMAP_PATHS, ...COMMUNITY_SITEMAP_PATHS] as const
 
@@ -232,6 +233,13 @@ export function buildSitemapEntriesWithKinds(posts: readonly Post[] = getAllPost
     {
       kind: 'hub',
       url: `${SITEMAP_SITE_ORIGIN}${AI_FOR_DEVELOPERS_PATH}`,
+      lastModified: BUILD_LAST_MODIFIED,
+      changeFrequency: 'weekly',
+      priority: 0.5,
+    },
+    {
+      kind: 'hub',
+      url: `${SITEMAP_SITE_ORIGIN}${DEV_TOOLS_WATCH_PATH}`,
       lastModified: BUILD_LAST_MODIFIED,
       changeFrequency: 'weekly',
       priority: 0.5,

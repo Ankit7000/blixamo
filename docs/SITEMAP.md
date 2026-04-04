@@ -13,6 +13,7 @@
 | `/about` | 0.5 | monthly | Yes |
 | `/community` | 0.6 | weekly | Yes |
 | `/ai-for-developers` | 0.5 | weekly | Yes |
+| `/dev-tools-watch` | 0.5 | weekly | Yes |
 | `/blog` | 0.8 | monthly | Yes |
 | `/tag/deployment` | 0.9 | weekly | Yes |
 | `/contact` | 0.3 | monthly | No |
@@ -140,10 +141,11 @@ Includes:
 3. `/community`
 4. `/blog`
 5. `/ai-for-developers`
-6. `/tag/deployment`
-7. `/category/[slug]` for every canonical category with at least one indexable post
-8. `/guides/[slug]` for all pillar pages
-9. `/blog/[slug]` for all canonical indexable posts
+6. `/dev-tools-watch`
+7. `/tag/deployment`
+8. `/category/[slug]` for every canonical category with at least one indexable post
+9. `/guides/[slug]` for all pillar pages
+10. `/blog/[slug]` for all canonical indexable posts
 
 Does not include:
 - `/search`

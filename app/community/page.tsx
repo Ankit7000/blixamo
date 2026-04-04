@@ -43,6 +43,12 @@ const BUILDING_SHOWCASE: CommunityCard[] = [
     href: '/blog/build-saas-mvp-zero-budget-2026',
     eyebrow: 'What People Are Building',
   },
+  {
+    title: 'Developer tools worth testing',
+    description: 'Use the dev-tools mini hub when you want current software picks, alternatives, and tool updates without opening the full archive.',
+    href: '/dev-tools-watch',
+    eyebrow: 'What People Are Building',
+  },
 ]
 
 function uniquePosts(posts: Post[]): Post[] {

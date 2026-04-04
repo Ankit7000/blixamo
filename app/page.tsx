@@ -93,6 +93,14 @@ export default function HomePage() {
       accentColor: '#7c3aed',
     },
     {
+      title: 'Dev Tools Watch',
+      description: 'Open the mini hub for developer tools worth testing, useful updates, and comparison reads that stay practical.',
+      href: '/dev-tools-watch',
+      eyebrow: 'Mini hub',
+      routeLabel: '/dev-tools-watch',
+      accentColor: '#d97706',
+    },
+    {
       title: 'Web Development',
       description: 'Browse Next.js, MDX, performance, CSS, and production web development guides without extra noise.',
       href: '/category/web-dev',
