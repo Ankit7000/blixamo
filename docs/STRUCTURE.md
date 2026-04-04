@@ -1,7 +1,7 @@
 # STRUCTURE.md - Blixamo Repository Architecture
 
 > Production site: https://blixamo.com
-> VPS: root@77.42.17.13 -> /var/www/blixamo
+> VPS: root@204.168.203.255 -> /var/www/blixamo
 > Last audited: 2026-03-29
 > Do not rename directories, move key files, or add routes without updating this doc.
 
@@ -27,6 +27,10 @@
   Dev Tools Watch mini hub page.
 - `app/infrastructure-watch/page.tsx`
   Infrastructure Watch mini hub page.
+- `app/nextjs-mdx-hub/page.tsx`
+  Next.js MDX mini hub page.
+- `app/coolify-hub/page.tsx`
+  Coolify mini hub page.
 - `app/contact/page.tsx`
   Contact page.
 - `app/privacy-policy/page.tsx`
@@ -113,6 +117,8 @@ Note:
 | `/ai-for-developers` | `app/ai-for-developers/page.tsx` | SSG |
 | `/dev-tools-watch` | `app/dev-tools-watch/page.tsx` | SSG |
 | `/infrastructure-watch` | `app/infrastructure-watch/page.tsx` | SSG |
+| `/nextjs-mdx-hub` | `app/nextjs-mdx-hub/page.tsx` | SSG |
+| `/coolify-hub` | `app/coolify-hub/page.tsx` | SSG |
 | `/contact` | `app/contact/page.tsx` | SSG |
 | `/privacy-policy` | `app/privacy-policy/page.tsx` | SSG |
 | `/terms` | `app/terms/page.tsx` | SSG |
@@ -142,12 +148,14 @@ Primary crawl path:
 - AI mini hub: `/ai-for-developers`
 - Dev Tools mini hub: `/dev-tools-watch`
 - Infrastructure mini hub: `/infrastructure-watch`
+- Next.js MDX mini hub: `/nextjs-mdx-hub`
+- Coolify mini hub: `/coolify-hub`
 - Article pages: `/blog/[slug]`
 - Community hub: `/community`
 
 Indexing intent:
 - Keep indexed: homepage, resources hub, categories, pillar guides, articles, about page, and community hub
-- Keep accessible but low priority: AI mini hub, other tag pages, author pages, search, legal pages, and pagination
+- Keep accessible but low priority: AI mini hub, Dev Tools mini hub, Infrastructure mini hub, Next.js MDX mini hub, Coolify mini hub, other tag pages, author pages, search, legal pages, and pagination
 - Use `noindex, follow` on low-value archive/utility routes rather than removing routes
 
 ---
@@ -184,4 +192,3 @@ Indexing intent:
 Important note:
 - `getAllCategories()` only returns categories used by current posts.
 - If no post uses a category, that category route is not pre-rendered.
-

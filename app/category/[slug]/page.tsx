@@ -276,6 +276,12 @@ export default async function CategoryPage({ params }: Props) {
           href: '/infrastructure-watch',
           description: 'Use the infrastructure mini hub when you want a tighter current-watch layer for providers, platforms, pricing shifts, and self-hosting infrastructure decisions.',
         }
+      : canonicalSlug === 'self-hosting'
+      ? {
+          label: 'Coolify Hub',
+          href: '/coolify-hub',
+          description: 'Use the Coolify Hub when the real question is platform fit, first deploys, multi-app VPS layout, and what to read after the initial install.',
+        }
       : canonicalSlug === 'web-dev'
       ? {
           label: 'Next.js MDX Hub',
