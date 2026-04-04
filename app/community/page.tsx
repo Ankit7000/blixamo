@@ -20,7 +20,6 @@ type CommunityCard = {
 
 type TopicLane = {
   title: string
-  description: string
   href: string
   posts: Post[]
 }
@@ -101,11 +100,12 @@ function TopicLaneCard({ lane }: { lane: TopicLane }) {
       }}
     >
       <div>
-        <div className="home-curated-eyebrow" style={{ marginBottom: '0.55rem' }}>
-          Latest by Topic
-        </div>
-        <h3 style={{ margin: 0, fontSize: '1.05rem', color: 'var(--text-primary)' }}>{lane.title}</h3>
-        <p style={{ margin: '0.55rem 0 0', color: 'var(--text-secondary)', lineHeight: 1.7 }}>{lane.description}</p>
+        <Link href={lane.href} style={{ textDecoration: 'none', color: 'inherit' }}>
+          <div className="home-curated-eyebrow" style={{ marginBottom: '0.55rem' }}>
+            Topic Scan
+          </div>
+          <h3 style={{ margin: 0, fontSize: '1.05rem', color: 'var(--text-primary)' }}>{lane.title}</h3>
+        </Link>
       </div>
 
       <div style={{ display: 'grid', gap: '0.75rem' }}>
@@ -131,7 +131,7 @@ function TopicLaneCard({ lane }: { lane: TopicLane }) {
       </div>
 
       <Link href={lane.href} className="home-section-link">
-        Explore topic
+        View topic lane
       </Link>
     </article>
   )
@@ -164,25 +164,21 @@ export default function CommunityPage() {
   const latestByTopic: TopicLane[] = [
     {
       title: 'AI & Automation',
-      description: 'The newest AI tooling, workflow automation, and API-driven builds worth following.',
       href: '/category/ai',
       posts: pickFreshPosts(allPosts.filter((post) => post.category === 'ai' || post.category === 'automation'), 3),
     },
     {
       title: 'Self Hosting',
-      description: 'Fresh self-hosting reads for app stacks, monitoring, analytics, and server-side operations.',
       href: '/category/self-hosting',
       posts: pickFreshPosts(allPosts.filter((post) => post.category === 'self-hosting'), 3),
     },
     {
       title: 'Web Development',
-      description: 'Recent Next.js, MDX, performance, and frontend workflow reads for shipping faster.',
       href: '/category/web-dev',
       posts: pickFreshPosts(allPosts.filter((post) => post.category === 'web-dev'), 3),
     },
     {
       title: 'VPS & Deployment',
-      description: 'Current hosting, hardening, and deploy reads for developers running real infrastructure.',
       href: '/category/vps-cloud',
       posts: pickFreshPosts(
         allPosts.filter((post) => post.category === 'vps-cloud' || post.category === 'how-to'),
@@ -367,14 +363,11 @@ export default function CommunityPage() {
         <div className="home-section-head home-section-head-inline">
           <div>
             <div className="home-section-kicker">Latest by Topic</div>
-            <h2 className="home-section-title">Fast scans for the main developer lanes</h2>
+            <h2 className="home-section-title">Quick scans for the main developer lanes</h2>
             <p className="home-section-description">
-              Use these compact topic blocks when you want the latest reads inside a cluster without opening a full category page first.
+              A lighter way to scan what is fresh in each lane without turning this page into another hub.
             </p>
           </div>
-          <Link href={RESOURCE_HUB_PATH} className="home-section-link">
-            Open resources hub
-          </Link>
         </div>
         <div className="home-discovery-grid">
           {latestByTopic.map((lane) => (
