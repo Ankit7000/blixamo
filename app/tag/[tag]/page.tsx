@@ -3,7 +3,6 @@ import Image from 'next/image'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { PostCard } from '@/components/blog/PostCard'
-import { TemplateLinkBar } from '@/components/layout/TemplateLinkBar'
 import { EmailCapture } from '@/components/monetization/EmailCapture'
 import { getAllPosts } from '@/lib/posts'
 import { getResourceHubContent, RESOURCE_HUB_TAG } from '@/lib/resources'
@@ -152,67 +151,59 @@ export default async function TagPage({ params }: Props) {
 
   const allPosts = getAllPosts()
   const hub = getResourceHubContent(allPosts)
-  const continueExploring = [
+  const topHubPaths = [
     {
-      title: 'Homepage',
-      description: 'Return to the main homepage to move into the broadest start-here sections, latest articles, and top-level site discovery paths.',
-      href: '/',
+      title: 'Deploy an app',
+      description: 'Go straight to deployment guides for Next.js, Docker, Coolify, and production checks.',
+      href: '#deployment-guides',
     },
     {
-      title: 'Community',
-      description: 'Open the community page for practical reads, popular guides, and another sitewide route back into categories and articles.',
-      href: '/community',
+      title: 'Self-host tools',
+      description: 'Open the self-hosting cluster for app stacks, analytics, automation, and recovery workflows.',
+      href: '#self-hosting',
     },
     {
-      title: 'Blog Index',
-      description: 'Use the full blog archive when you want to move from this permanent hub into the latest posts and broader article stream.',
-      href: '/blog',
+      title: 'Compare platforms',
+      description: 'Jump into hosting, deployment, and tool comparisons when you need a decision fast.',
+      href: '#resources-comparisons',
     },
     {
-      title: 'Comparisons Hub',
-      description: 'Jump straight into high-intent comparison pages for hosting, automation, tools, and platform choices.',
-      href: '/guides/comparisons-hub',
+      title: 'Manage a VPS',
+      description: 'Use the VPS section for setup, hardening, recovery, pricing tradeoffs, and operational upkeep.',
+      href: '#vps-cloud',
     },
   ]
 
   return (
     <div className="resource-hub-shell">
-      <div style={{ maxWidth: '1160px', margin: '0 auto', padding: '2.5rem 1rem 0' }}>
-        <TemplateLinkBar relatedHref="/guides/comparisons-hub" relatedLabel="Comparisons Hub" />
-      </div>
-
       <section className="resource-hub-hero">
         <div className="resource-hub-hero-copy">
-          <div className="home-section-kicker">Blixamo Resources</div>
-          <h1 className="resource-hub-title">Deployment, VPS, and self-hosting resources in one place.</h1>
+          <div className="home-section-kicker">Deployment Hub</div>
+          <h1 className="resource-hub-title">Deploy apps, self-host tools, compare platforms, and manage VPS workflows.</h1>
           <p className="resource-hub-description">
-            Use this hub to find the fastest path into Next.js deployment, Hetzner and VPS setup, Coolify, self-hosting,
-            server hardening, comparisons, and related developer infrastructure guides.
+            The main operational hub for practical deployment guides, self-hosting paths, comparison pages, and VPS management reads.
           </p>
           <div className="resource-hub-actions">
-            <Link href="/" className="home-hero-button home-hero-button-secondary">
-              Homepage
+            <Link href="#deployment-guides" className="home-hero-button home-hero-button-primary">
+              Deploy an app
             </Link>
-            <Link href="/community" className="home-hero-button home-hero-button-secondary">
-              Community
+            <Link href="#self-hosting" className="home-hero-button home-hero-button-secondary">
+              Self-host tools
             </Link>
-            <Link href="/blog" className="home-hero-button home-hero-button-secondary">
-              Blog
+            <Link href="#resources-comparisons" className="home-hero-button home-hero-button-secondary">
+              Compare platforms
             </Link>
-            <Link href="#resources-start-here" className="home-hero-button home-hero-button-primary">
-              Start Here
-            </Link>
-            <Link href="#learning-paths" className="home-hero-button home-hero-button-secondary">
-              Learning Paths
+            <Link href="#vps-cloud" className="home-hero-button home-hero-button-secondary">
+              Manage a VPS
             </Link>
           </div>
 
           <div className="resource-hub-link-grid">
-            {hub.resourceHubEntryCards.map((card) => (
+            {topHubPaths.map((card, index) => (
               <Link key={card.title} href={card.href} className="resource-hub-link-card">
                 <div className="home-curated-top">
-                  <span className="home-curated-eyebrow">{card.eyebrow}</span>
-                  <span className="home-curated-arrow">{card.icon}</span>
+                  <span className="home-curated-eyebrow">Path</span>
+                  <span className="home-curated-arrow">{`0${index + 1}`}</span>
                 </div>
                 <h2>{card.title}</h2>
                 <p>{card.description}</p>
@@ -257,22 +248,70 @@ export default async function TagPage({ params }: Props) {
         </div>
       </section>
 
-      <section className="home-section-shell">
-        <div className="home-section-head">
-          <div className="home-section-kicker">Continue Exploring</div>
-          <h2 className="home-section-title">Use the main site hubs around this resources page</h2>
-          <p className="home-section-description">
-            These links connect the resources hub back to the homepage, community page, blog archive, and comparison guide structure so the site stays strongly interlinked.
-          </p>
+      <section id="deployment-guides" className="home-section-shell">
+        <div className="home-section-head home-section-head-inline">
+          <div>
+          <div className="home-section-kicker">Deployment Guides</div>
+          <h2 className="home-section-title">Deployment workflows, setup paths, and production checks</h2>
+          </div>
+          <Link href="/category/how-to" className="home-section-link">
+            Browse all guides
+          </Link>
         </div>
-        <div className="home-discovery-grid">
-          {continueExploring.map((item) => (
-            <Link key={item.href} href={item.href} className="home-discovery-card">
-              <div className="home-discovery-body">
-                <h3>{item.title}</h3>
-                <p>{item.description}</p>
-              </div>
-            </Link>
+        <div className="home-post-grid">
+          {hub.deploymentGuides.map((post) => (
+            <PostCard key={post.slug} post={post} />
+          ))}
+        </div>
+      </section>
+
+      <section id="self-hosting" className="home-section-shell">
+        <div className="home-section-head home-section-head-inline">
+          <div>
+          <div className="home-section-kicker">Self Hosting</div>
+          <h2 className="home-section-title">Self-hosting guides for apps, services, analytics, and recovery</h2>
+          </div>
+          <Link href="/category/self-hosting" className="home-section-link">
+            Browse self hosting
+          </Link>
+        </div>
+        <div className="home-post-grid">
+          {hub.selfHosting.map((post) => (
+            <PostCard key={post.slug} post={post} />
+          ))}
+        </div>
+      </section>
+
+      <section id="resources-comparisons" className="home-section-shell">
+        <div className="home-section-head home-section-head-inline">
+          <div>
+            <div className="home-section-kicker">Comparisons</div>
+            <h2 className="home-section-title">Hosting, tool, and platform comparisons collected in one place</h2>
+          </div>
+          <Link href="/guides/comparisons-hub" className="home-section-link">
+            Open comparisons hub
+          </Link>
+        </div>
+        <div className="home-post-grid">
+          {hub.comparisons.map((post) => (
+            <PostCard key={post.slug} post={post} />
+          ))}
+        </div>
+      </section>
+
+      <section id="vps-cloud" className="home-section-shell">
+        <div className="home-section-head home-section-head-inline">
+          <div>
+          <div className="home-section-kicker">VPS &amp; Cloud</div>
+          <h2 className="home-section-title">Setup, hardening, recovery, and hosting tradeoffs</h2>
+          </div>
+          <Link href="/category/vps-cloud" className="home-section-link">
+            Browse VPS &amp; Cloud
+          </Link>
+        </div>
+        <div className="home-post-grid">
+          {hub.vpsCloud.map((post) => (
+            <PostCard key={post.slug} post={post} />
           ))}
         </div>
       </section>
@@ -280,9 +319,9 @@ export default async function TagPage({ params }: Props) {
       <section id="resources-start-here" className="home-section-shell">
         <div className="home-section-head">
           <div className="home-section-kicker">Start Here</div>
-          <h2 className="home-section-title">Foundational reads for first-time visitors</h2>
+          <h2 className="home-section-title">Best first reads for deployment and self-hosted setups</h2>
           <p className="home-section-description">
-            These are the best first reads if you want to understand the site fast and move into the right topic lane.
+            Start here if you want the quickest route into the right operational workflow.
           </p>
         </div>
         <div className="home-post-grid">
@@ -295,10 +334,9 @@ export default async function TagPage({ params }: Props) {
       <section id="authority-pages" className="home-section-shell">
         <div className="home-section-head">
           <div className="home-section-kicker">Pillar Guides</div>
-          <h2 className="home-section-title">Seven pillar pages that organize the strongest topic clusters on the site</h2>
+          <h2 className="home-section-title">Pillar guides for the main operational clusters</h2>
           <p className="home-section-description">
-            Use these pages as the main path into self-hosting, deployment, VPS decisions, developer tools,
-            automation, free tools, and high-intent comparisons.
+            Use these when you want the broader guide layer behind deployment, self-hosting, VPS, automation, and comparisons.
           </p>
         </div>
         <div className="home-quick-grid">
@@ -324,7 +362,7 @@ export default async function TagPage({ params }: Props) {
           <div className="home-section-kicker">Learning Paths</div>
           <h2 className="home-section-title">Choose a goal and follow the reading path</h2>
           <p className="home-section-description">
-            These path cards turn the site into a structured hub instead of a flat archive.
+            Pick the goal first, then follow the right sequence of reads.
           </p>
         </div>
         <div className="resource-path-grid">
@@ -353,9 +391,9 @@ export default async function TagPage({ params }: Props) {
       <section id="resource-categories" className="home-section-shell">
         <div className="home-section-head">
           <div className="home-section-kicker">Explore Categories</div>
-          <h2 className="home-section-title">Use the category grid as the main navigation layer</h2>
+          <h2 className="home-section-title">Browse deeper by topic when you need it</h2>
           <p className="home-section-description">
-            Deep browsing lives here instead of in a crowded top navigation bar.
+            Use categories for deeper browsing after you pick the main operational path.
           </p>
         </div>
         <div className="home-discovery-grid">
@@ -369,57 +407,6 @@ export default async function TagPage({ params }: Props) {
                 <p>{card.description}</p>
               </div>
             </Link>
-          ))}
-        </div>
-      </section>
-
-      <section id="deployment-guides" className="home-section-shell">
-        <div className="home-section-head home-section-head-inline">
-          <div>
-          <div className="home-section-kicker">Deployment Guides</div>
-          <h2 className="home-section-title">Deployment workflows, setup paths, and production checks</h2>
-          </div>
-          <Link href="/category/how-to" className="home-section-link">
-            Browse all guides
-          </Link>
-        </div>
-        <div className="home-post-grid">
-          {hub.deploymentGuides.map((post) => (
-            <PostCard key={post.slug} post={post} />
-          ))}
-        </div>
-      </section>
-
-      <section id="vps-cloud" className="home-section-shell">
-        <div className="home-section-head home-section-head-inline">
-          <div>
-          <div className="home-section-kicker">VPS &amp; Cloud</div>
-          <h2 className="home-section-title">Host selection, pricing tradeoffs, and server hardening</h2>
-          </div>
-          <Link href="/category/vps-cloud" className="home-section-link">
-            Browse VPS &amp; Cloud
-          </Link>
-        </div>
-        <div className="home-post-grid">
-          {hub.vpsCloud.map((post) => (
-            <PostCard key={post.slug} post={post} />
-          ))}
-        </div>
-      </section>
-
-      <section id="self-hosting" className="home-section-shell">
-        <div className="home-section-head home-section-head-inline">
-          <div>
-          <div className="home-section-kicker">Self Hosting</div>
-          <h2 className="home-section-title">Self-hosting guides for apps, services, analytics, and recovery</h2>
-          </div>
-          <Link href="/category/self-hosting" className="home-section-link">
-            Browse self hosting
-          </Link>
-        </div>
-        <div className="home-post-grid">
-          {hub.selfHosting.map((post) => (
-            <PostCard key={post.slug} post={post} />
           ))}
         </div>
       </section>
@@ -521,18 +508,6 @@ export default async function TagPage({ params }: Props) {
         </div>
         <div className="home-post-grid">
           {hub.indieDevSaas.map((post) => (
-            <PostCard key={post.slug} post={post} />
-          ))}
-        </div>
-      </section>
-
-      <section id="resources-comparisons" className="home-section-shell">
-        <div className="home-section-head">
-          <div className="home-section-kicker">Comparisons</div>
-          <h2 className="home-section-title">Hosting, tool, and platform comparisons collected in one place</h2>
-        </div>
-        <div className="home-post-grid">
-          {hub.comparisons.map((post) => (
             <PostCard key={post.slug} post={post} />
           ))}
         </div>
