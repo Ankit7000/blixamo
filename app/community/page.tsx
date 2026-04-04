@@ -46,33 +46,6 @@ const BUILDING_SHOWCASE: CommunityCard[] = [
   },
 ]
 
-const RETURN_PATHS: CommunityCard[] = [
-  {
-    title: 'Homepage',
-    description: 'Use the homepage for the broad site overview, then come back here when you want the newest useful reads.',
-    href: '/',
-    eyebrow: 'Core Hub',
-  },
-  {
-    title: 'Resources Hub',
-    description: 'Use the deployment hub when you want structured paths, pillar guides, and operational workflows.',
-    href: RESOURCE_HUB_PATH,
-    eyebrow: 'Operational Hub',
-  },
-  {
-    title: 'Comparisons Hub',
-    description: 'Jump into the strongest tool, hosting, and platform verdict pages when the next step is a decision.',
-    href: '/guides/comparisons-hub',
-    eyebrow: 'Guide',
-  },
-  {
-    title: 'Blog Archive',
-    description: 'Open the full archive when you want everything, not just the current picks surfaced on this page.',
-    href: '/blog',
-    eyebrow: 'Archive',
-  },
-]
-
 function uniquePosts(posts: Post[]): Post[] {
   const seen = new Set<string>()
 
@@ -413,9 +386,9 @@ export default function CommunityPage() {
       <section id="showcase" className="home-section-shell">
         <div className="home-section-head">
           <div className="home-section-kicker">What People Are Building</div>
-          <h2 className="home-section-title">Follow the kinds of projects and stacks developers keep circling back to</h2>
+          <h2 className="home-section-title">Projects and stacks developers keep circling back to</h2>
           <p className="home-section-description">
-            This section stays useful when you want ideas for where to go next, but it now supports the freshness role instead of replacing it.
+            Useful ideas for where to go next, without pulling the page back into broad site navigation.
           </p>
         </div>
         <div className="home-quick-grid">
@@ -429,7 +402,7 @@ export default function CommunityPage() {
         <div className="home-section-head home-section-head-inline">
           <div>
             <div className="home-section-kicker">Popular Guides</div>
-            <h2 className="home-section-title">Guide pages that still deserve a permanent place here</h2>
+            <h2 className="home-section-title">Guides worth keeping close</h2>
           </div>
           <Link href={`${RESOURCE_HUB_PATH}#authority-pages`} className="home-section-link">
             Browse all guides
@@ -442,30 +415,13 @@ export default function CommunityPage() {
         </div>
       </section>
 
-      <section id="popular-community-reads" className="home-section-shell">
-        <div className="home-section-head home-section-head-inline">
-          <div>
-            <div className="home-section-kicker">Popular Articles</div>
-            <h2 className="home-section-title">High-signal reads the page should keep in circulation</h2>
-          </div>
-          <Link href="/blog" className="home-section-link">
-            Browse all articles
-          </Link>
-        </div>
-        <div className="home-post-grid">
-          {hub.popularArticles.map((post) => (
-            <PostCard key={post.slug} post={post} />
-          ))}
-        </div>
-      </section>
-
       <section id="explore-categories" className="home-section-shell">
         <div className="home-section-head home-section-head-inline">
           <div>
             <div className="home-section-kicker">Explore Categories</div>
-            <h2 className="home-section-title">Topic lanes stay here, but lower and lighter</h2>
+            <h2 className="home-section-title">Topic lanes stay within reach</h2>
             <p className="home-section-description">
-              Categories still matter for depth, but they now support the page after the freshest content has already surfaced.
+              Categories still help with depth, but they now sit behind the fresher reads instead of leading the page.
             </p>
           </div>
           <Link href={`${RESOURCE_HUB_PATH}#resource-categories`} className="home-section-link">
@@ -489,18 +445,25 @@ export default function CommunityPage() {
 
       <section id="community-next-paths" className="home-section-shell">
         <div className="home-newsletter-panel">
-          <div className="home-section-kicker">Useful Next Paths</div>
-          <h2 className="home-section-title" style={{ marginTop: '0.75rem' }}>
-            Use Community for freshness, then switch to the right hub when you need structure
-          </h2>
+          <div className="home-section-kicker">Keep Reading</div>
+          <h2 className="home-section-title" style={{ marginTop: '0.75rem' }}>Freshness first, deeper paths when you need them</h2>
           <p className="home-section-description" style={{ marginTop: '0.75rem' }}>
-            Homepage stays the broad router. The resources hub stays the operational lane. Community now sits between them as the
-            page to revisit for the newest useful reading.
+            Community stays the return page for current reads. When you want more structure, jump into the archive, comparisons,
+            resources hub, or the main site overview.
           </p>
-          <div className="home-quick-grid" style={{ marginTop: '1.25rem' }}>
-            {RETURN_PATHS.map((card) => (
-              <CommunityCard key={card.title} card={card} />
-            ))}
+          <div className="home-hero-actions" style={{ marginTop: '1rem' }}>
+            <Link href="/blog" className="home-hero-button home-hero-button-primary">
+              Browse Blog
+            </Link>
+            <Link href="/guides/comparisons-hub" className="home-hero-button home-hero-button-secondary">
+              Comparisons Hub
+            </Link>
+            <Link href={RESOURCE_HUB_PATH} className="home-hero-button home-hero-button-secondary">
+              Resources Hub
+            </Link>
+            <Link href="/" className="home-hero-button home-hero-button-secondary">
+              Homepage
+            </Link>
           </div>
         </div>
       </section>
