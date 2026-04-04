@@ -19,6 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${name} — Author at Blixamo`,
     description: `Articles written by ${name} on Blixamo — tech, AI, tutorials, and developer tools.`,
     alternates: { canonical: `https://blixamo.com/author/${author}` },
+    robots: { index: false, follow: true },
   }
 }
 

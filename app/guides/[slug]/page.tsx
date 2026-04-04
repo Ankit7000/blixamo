@@ -1,0 +1,618 @@
+import Link from 'next/link'
+import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
+import { PostCard } from '@/components/blog/PostCard'
+import { TemplateLinkBar } from '@/components/layout/TemplateLinkBar'
+import { getAllPosts } from '@/lib/posts'
+import { PILLAR_BASE_PATH, PILLAR_RESOURCE_HUB_PATH, getAllPillarPages, getPillarDefinitions, getPillarPageBySlug } from '@/lib/pillars'
+
+type Props = { params: Promise<{ slug: string }> }
+
+function ResourceCard({ title, description, href }: { title: string; description: string; href: string }) {
+  return (
+    <Link href={href} className="home-discovery-card home-discovery-card-compact">
+      <div className="home-discovery-body">
+        <h3>{title}</h3>
+        <p>{description}</p>
+      </div>
+    </Link>
+  )
+}
+
+function BulletList({ items }: { items: string[] }) {
+  return (
+    <ul style={{ margin: 0, paddingLeft: '1.1rem', display: 'grid', gap: '0.75rem' }}>
+      {items.map((item) => (
+        <li key={item}>{item}</li>
+      ))}
+    </ul>
+  )
+}
+
+function DecisionTable({
+  rows,
+}: {
+  rows: { option: string; bestFor: string; watchOutFor: string; startWith: string }[]
+}) {
+  return (
+    <div style={{ overflowX: 'auto' }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '720px' }}>
+        <thead>
+          <tr>
+            {['Option', 'Best for', 'Watch out for', 'Start here when'].map((heading) => (
+              <th
+                key={heading}
+                style={{
+                  textAlign: 'left',
+                  padding: '0.9rem 1rem',
+                  borderBottom: '1px solid rgba(148, 163, 184, 0.24)',
+                  color: 'var(--text-primary)',
+                  fontSize: '0.95rem',
+                }}
+              >
+                {heading}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.option}>
+              <td
+                style={{
+                  padding: '1rem',
+                  borderBottom: '1px solid rgba(148, 163, 184, 0.16)',
+                  color: 'var(--text-primary)',
+                  fontWeight: 700,
+                }}
+              >
+                {row.option}
+              </td>
+              <td style={{ padding: '1rem', borderBottom: '1px solid rgba(148, 163, 184, 0.16)' }}>{row.bestFor}</td>
+              <td style={{ padding: '1rem', borderBottom: '1px solid rgba(148, 163, 184, 0.16)' }}>{row.watchOutFor}</td>
+              <td style={{ padding: '1rem', borderBottom: '1px solid rgba(148, 163, 184, 0.16)' }}>{row.startWith}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+export async function generateStaticParams() {
+  return getPillarDefinitions().map((pillar) => ({ slug: pillar.slug }))
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params
+  const posts = getAllPosts()
+  const pillar = getPillarPageBySlug(slug, posts)
+
+  if (!pillar) return {}
+
+  return {
+    title: pillar.title,
+    description: pillar.description,
+    alternates: { canonical: `https://blixamo.com${pillar.href}` },
+  }
+}
+
+export default async function PillarPage({ params }: Props) {
+  const { slug } = await params
+  const posts = getAllPosts()
+  const pillar = getPillarPageBySlug(slug, posts)
+
+  if (!pillar) notFound()
+
+  const groupedComparisonSlugs = new Set(
+    pillar.comparisonGroups.flatMap((group) => group.posts.map((post) => post.slug))
+  )
+  const remainingComparisons = pillar.comparisons.filter((post) => !groupedComparisonSlugs.has(post.slug))
+  const relatedResources = [
+    { title: 'Homepage', description: 'Return to the main site hub and top-level discovery paths.', href: '/' },
+    { title: 'Resources Hub', description: 'Open the central resources hub for start-here paths and topic navigation.', href: PILLAR_RESOURCE_HUB_PATH },
+    { title: 'Community Hub', description: 'Use the community layer to discover practical reads, comparisons, and current site entry points.', href: '/community' },
+    { title: 'Blog Archive', description: 'Browse the full article archive when you want to move from this guide into the latest sitewide content.', href: '/blog' },
+    { title: pillar.primaryCategory.label, description: pillar.primaryCategory.description, href: pillar.primaryCategory.href },
+    ...pillar.supportingCategories.map((category) => ({
+      title: category.label,
+      description: category.description,
+      href: category.href,
+    })),
+    ...(pillar.slug === 'comparisons-hub'
+      ? []
+      : [
+          {
+            title: 'Comparisons Hub',
+            description: 'Open the sitewide comparison hub for hosting, tooling, automation, and platform decisions.',
+            href: `${PILLAR_BASE_PATH}/comparisons-hub`,
+          },
+        ]),
+    ...pillar.relatedResources.map((resource) => ({
+      title: resource.label,
+      description: resource.description,
+      href: resource.href,
+    })),
+  ].filter((resource, index, collection) => collection.findIndex((entry) => entry.href === resource.href) === index)
+  const categoryLinks = [pillar.primaryCategory, ...pillar.supportingCategories].filter(
+    (category, index, collection) => collection.findIndex((entry) => entry.href === category.href) === index
+  )
+  const pillarCategorySlugs = new Set(categoryLinks.map((category) => category.slug))
+  const relatedPillarPages = getAllPillarPages(posts)
+    .filter((page) => page.slug !== pillar.slug)
+    .filter((page) =>
+      [page.primaryCategory.slug, ...page.supportingCategories.map((category) => category.slug)]
+        .some((categorySlug) => pillarCategorySlugs.has(categorySlug))
+    )
+    .slice(0, 4)
+  const hasComparisonDecisionSupport = pillar.comparisonStartRoutes.length > 0 || pillar.decisionSupportGroups.length > 0
+
+  return (
+    <div style={{ maxWidth: '1120px', margin: '0 auto', padding: '2.5rem 1rem 3rem' }}>
+      <TemplateLinkBar relatedHref={pillar.primaryCategory.href} relatedLabel={pillar.primaryCategory.label} />
+
+      <section className="home-resource-promo">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="home-section-kicker">{pillar.eyebrow}</div>
+          <h1 style={{ margin: 0, color: 'var(--text-primary)', fontSize: 'clamp(2rem, 5vw, 3.5rem)', lineHeight: 1.04, fontWeight: 800 }}>
+            {pillar.title}
+          </h1>
+          <p className="home-section-description">{pillar.description}</p>
+          <p className="home-section-description" style={{ margin: 0 }}>{pillar.intro}</p>
+          <p className="home-section-description" style={{ margin: 0 }}>
+            <strong>{pillar.heroEntry.heading}</strong>{' '}
+            {pillar.heroEntry.href && pillar.heroEntry.label ? (
+              <>
+                <Link href={pillar.heroEntry.href}>{pillar.heroEntry.label}</Link>. {pillar.heroEntry.text}
+              </>
+            ) : (
+              pillar.heroEntry.text
+            )}
+          </p>
+          <div className="home-resource-points">
+            <span>{pillar.articleCount} primary articles</span>
+            <span>{pillar.guides.length} guides</span>
+            <span>{pillar.comparisons.length} comparisons</span>
+            <span>{pillar.tools.length} tools</span>
+          </div>
+          <div className="home-hero-actions">
+            <Link href="/blog" className="home-hero-button home-hero-button-secondary">
+              Blog archive
+            </Link>
+            <Link href="/community" className="home-hero-button home-hero-button-secondary">
+              Community hub
+            </Link>
+            <Link href={PILLAR_RESOURCE_HUB_PATH} className="home-hero-button home-hero-button-primary">
+              Open resources hub
+            </Link>
+            {pillar.heroPrimaryAction ? (
+              <Link href={pillar.heroPrimaryAction.href} className="home-hero-button home-hero-button-secondary">
+                {pillar.heroPrimaryAction.label}
+              </Link>
+            ) : (
+              <Link href={pillar.primaryCategory.href} className="home-hero-button home-hero-button-secondary">
+                Browse {pillar.primaryCategory.label}
+              </Link>
+            )}
+          </div>
+        </div>
+
+        <div className="home-resource-promo-grid">
+          <div className="home-resource-promo-card">
+            <span className="home-curated-eyebrow">What is this topic</span>
+            <p style={{ margin: 0 }}>{pillar.whatIs}</p>
+          </div>
+          <div className="home-resource-promo-card">
+            <span className="home-curated-eyebrow">Why it matters</span>
+            <p style={{ margin: 0 }}>{pillar.whyItMatters}</p>
+          </div>
+          <div className="home-resource-promo-card">
+            <span className="home-curated-eyebrow">Start here if</span>
+            <p style={{ margin: 0 }}>{pillar.startHere}</p>
+          </div>
+          <div className="home-resource-promo-card">
+            <span className="home-curated-eyebrow">Not the first stop if</span>
+            <p style={{ margin: 0 }}>{pillar.notFor}</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+        <div className="home-section-head">
+          <div className="home-section-kicker">Quick decisions</div>
+          <h2 className="home-section-title">Get the direction right before you open the full cluster</h2>
+          <p className="home-section-description">
+            This is the fast answer layer for people who want to decide what to do first, who this guide is actually for,
+            and when they should back out into another path instead of clicking every card below.
+          </p>
+        </div>
+        <div className="home-resource-promo-grid">
+          <div className="home-resource-promo-card">
+            <span className="home-curated-eyebrow">Quick decision box</span>
+            <div style={{ display: 'grid', gap: '0.9rem' }}>
+              {pillar.quickDecisions.map((item) => (
+                <p key={item.label} style={{ margin: 0 }}>
+                  <strong>{item.label}</strong>{' '}
+                  <span>{item.text}</span>
+                </p>
+              ))}
+            </div>
+          </div>
+          <div className="home-resource-promo-card">
+            <span className="home-curated-eyebrow">Good fit for</span>
+            <BulletList items={pillar.goodFit} />
+          </div>
+          <div className="home-resource-promo-card">
+            <span className="home-curated-eyebrow">Not ideal if</span>
+            <BulletList items={pillar.avoidIf} />
+          </div>
+        </div>
+      </section>
+
+      <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+        <div className="home-section-head">
+          <div className="home-section-kicker">Decision table</div>
+          <h2 className="home-section-title">{pillar.decisionTableTitle}</h2>
+          <p className="home-section-description">
+            Use this table before you open more links. It is meant to reduce decision fatigue, not add another layer of browsing.
+          </p>
+        </div>
+        <DecisionTable rows={pillar.decisionTableRows} />
+      </section>
+
+      {pillar.comparisonStartRoutes.length > 0 && (
+        <section id="comparison-start-here" className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+          <div className="home-section-head">
+            <div className="home-section-kicker">Start here</div>
+            <h2 className="home-section-title">Start with this comparison if you want</h2>
+            <p className="home-section-description">
+              Use these route choices when the page is clearly the right hub but you still need the fastest first comparison.
+            </p>
+          </div>
+          <div className="home-discovery-grid">
+            {pillar.comparisonStartRoutes.map((route) => (
+              <ResourceCard key={route.href} title={route.label} description={route.description} href={route.href} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {pillar.decisionSupportGroups.length > 0 && (
+        <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+          <div className="home-section-head">
+            <div className="home-section-kicker">Best comparison picks</div>
+            <h2 className="home-section-title">Use these comparison sets when beginner-friendliness, cost, or control is the real filter</h2>
+            <p className="home-section-description">
+              This keeps the hub comparison-first. Pick the filter that matters most, open the comparison that fits it, then move into the setup guide linked underneath.
+            </p>
+          </div>
+          <div className="home-resource-promo-grid">
+            {pillar.decisionSupportGroups.map((group) => (
+              <div key={group.title} className="home-resource-promo-card">
+                <h3 style={{ margin: 0, fontSize: '1rem', color: 'var(--text-primary)' }}>{group.title}</h3>
+                <p style={{ margin: 0 }}>{group.description}</p>
+                <ul style={{ margin: 0, paddingLeft: '1.1rem', display: 'grid', gap: '0.75rem' }}>
+                  {group.links.map((link) => (
+                    <li key={link.href}>
+                      <Link href={link.href}>{link.label}</Link>. {link.description}
+                    </li>
+                  ))}
+                </ul>
+                <p style={{ margin: 0 }}>
+                  <strong><Link href={group.nextStep.href}>{group.nextStep.label}</Link>.</strong>{' '}
+                  {group.nextStep.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+        <div className="home-section-head">
+          <div className="home-section-kicker">Common mistakes</div>
+          <h2 className="home-section-title">What people usually get wrong in this lane</h2>
+          <p className="home-section-description">
+            These are the avoidable errors that create extra work, wasted money, or the wrong next click once the topic starts to branch.
+          </p>
+        </div>
+        <ul className="resource-path-steps">
+          {pillar.commonMistakes.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+        <div className="home-section-head">
+          <div className="home-section-kicker">When to use it</div>
+          <h2 className="home-section-title">Use this pillar when this is the problem in front of you</h2>
+          <p className="home-section-description">
+            This section is the quickest way to confirm whether you should stay here, jump straight into the first article, or back up into another pillar before you make the topic more complicated than it needs to be.
+          </p>
+        </div>
+        <ul className="resource-path-steps">
+          {pillar.whenToUse.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+        <div className="home-section-head">
+          <div className="home-section-kicker">Keep moving</div>
+          <h2 className="home-section-title">Use these routes when you need the next level up, a side path, or a wider view</h2>
+          <p className="home-section-description">
+            Stay on this page if the current lane matches the problem in front of you. Open these links when you need broader discovery, a different topic entry point, or the next hub that helps you move without losing context.
+          </p>
+        </div>
+        <div className="home-discovery-grid">
+          {relatedResources.map((resource) => (
+            <ResourceCard key={resource.href} title={resource.title} description={resource.description} href={resource.href} />
+          ))}
+        </div>
+      </section>
+
+      <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+        <div className="home-section-head">
+          <div className="home-section-kicker">Explore Categories</div>
+          <h2 className="home-section-title">Category routes connected to this guide</h2>
+          <p className="home-section-description">
+            Use these category pages when you want the wider neighborhood around this pillar. They are useful if the current guide gets you close to the answer but you still need adjacent articles, broader archives, or another angle on the same cluster.
+          </p>
+        </div>
+        <div className="home-discovery-grid">
+          {categoryLinks.map((category) => (
+            <ResourceCard key={category.href} title={category.label} description={category.description} href={category.href} />
+          ))}
+        </div>
+      </section>
+
+      {relatedPillarPages.length > 0 && (
+        <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+          <div className="home-section-head">
+            <div className="home-section-kicker">Related Guides</div>
+            <h2 className="home-section-title">Other pillar guides in the same topic neighborhood</h2>
+            <p className="home-section-description">
+              Open these when the current topic touches another decision lane. They help you move sideways into the right cluster without losing the crawl path back to the homepage, resources hub, categories, and supporting articles.
+            </p>
+          </div>
+          <div className="home-discovery-grid">
+            {relatedPillarPages.map((page) => (
+              <ResourceCard key={page.href} title={page.title} description={page.description} href={page.href} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+        <div className="home-section-head">
+          <div className="home-section-kicker">{hasComparisonDecisionSupport ? 'After the verdict' : 'Recommended tools'}</div>
+          <h2 className="home-section-title">{hasComparisonDecisionSupport ? 'Use these support pages only if the comparison leaves you with a shortlist' : 'Use the strongest supporting pages before you choose the stack'}</h2>
+          <p className="home-section-description">{pillar.bestToolsIntro}</p>
+          <p className="home-section-description" style={{ margin: 0 }}>
+            {hasComparisonDecisionSupport
+              ? 'These are follow-up pages, not the first click. Use them only when the comparison narrowed the lane but did not fully close the choice.'
+              : 'Open the card that matches the active bottleneck. Skip the rest until that supporting-tool choice is actually clear.'}
+          </p>
+        </div>
+        <div className="home-post-grid">
+          {pillar.tools.map((post) => (
+            <PostCard key={post.slug} post={post} />
+          ))}
+        </div>
+      </section>
+
+      <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+        <div className="home-section-head">
+          <div className="home-section-kicker">{hasComparisonDecisionSupport ? 'Next setup guides' : 'Continue Learning'}</div>
+          <h2 className="home-section-title">{hasComparisonDecisionSupport ? 'After the comparison, move into the matching setup guide' : 'Start with these core reads inside the cluster'}</h2>
+          <p className="home-section-description">{pillar.guidesIntro}</p>
+          <p className="home-section-description" style={{ margin: 0 }}>
+            {hasComparisonDecisionSupport
+              ? 'Pick the guide that matches the verdict you just landed on. This is the clean bridge from decision content into implementation.'
+              : 'Treat these cards as the execution lane. Start with the first read that matches your current state and ignore the advanced branches until the base path works.'}
+          </p>
+        </div>
+        <div className="home-post-grid">
+          {pillar.guides.map((post) => (
+            <PostCard key={post.slug} post={post} />
+          ))}
+        </div>
+      </section>
+
+      {pillar.comparisonGroups.length > 0 && (
+        <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+          <div className="home-section-head">
+            <div className="home-section-kicker">Comparison lanes</div>
+            <h2 className="home-section-title">Start with the comparison group that matches the active decision</h2>
+            <p className="home-section-description">
+              This extra grouping is for decision-ready readers. It helps you avoid opening every head-to-head page at once and points you toward the next pillar or implementation lane after the verdict lands.
+            </p>
+            <p className="home-section-description" style={{ margin: 0 }}>
+              Use these only when the choice is live. If you already know the winner, skip forward into implementation.
+            </p>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            {pillar.comparisonGroups.map((group) => (
+              <div key={group.title} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div className="home-section-head" style={{ gap: '0.5rem' }}>
+                  <h3 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '1.35rem', fontWeight: 800 }}>{group.title}</h3>
+                  <p className="home-section-description" style={{ margin: 0 }}>{group.description}</p>
+                </div>
+                <div className="home-post-grid">
+                  {group.posts.map((post) => (
+                    <PostCard key={post.slug} post={post} />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {remainingComparisons.length > 0 && (
+        <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+          <div className="home-section-head">
+            <div className="home-section-kicker">Comparisons</div>
+            <h2 className="home-section-title">Decision pages that connect to this cluster</h2>
+            <p className="home-section-description">{pillar.comparisonsIntro}</p>
+            <p className="home-section-description" style={{ margin: 0 }}>
+              Open these if the choice is still unsettled. Skip them when the decision is already made and the job is execution.
+            </p>
+          </div>
+          <div className="home-post-grid">
+            {remainingComparisons.map((post) => (
+              <PostCard key={post.slug} post={post} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+        <div className="home-section-head">
+          <div className="home-section-kicker">Recommended setup</div>
+          <h2 className="home-section-title">A clean way to move through this topic</h2>
+          <p className="home-section-description">{pillar.recommendedSetupIntro}</p>
+        </div>
+        <ul className="resource-path-steps">
+          {pillar.recommendedSetup.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+        <div className="home-section-head">
+          <div className="home-section-kicker">Learning path</div>
+          <h2 className="home-section-title">Read these in order if you want the shortest path</h2>
+          <p className="home-section-description">{pillar.learningPathIntro}</p>
+        </div>
+        <ol className="resource-path-steps">
+          {pillar.shortestPath.map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </ol>
+        <div className="home-section-head" style={{ marginTop: '1.5rem', gap: '0.5rem' }}>
+          <h3 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '1.2rem', fontWeight: 800 }}>Then use these linked reads in order</h3>
+          <p className="home-section-description" style={{ margin: 0 }}>
+            This keeps the path linear for beginners without removing the wider hub structure around it.
+          </p>
+        </div>
+        <ol className="resource-path-steps">
+          {pillar.learningPath.map((post) => (
+            <li key={post.slug}>
+              <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+        <div className="home-section-head">
+          <div className="home-section-kicker">Articles in this topic</div>
+          <h2 className="home-section-title">All cluster articles connected to this pillar</h2>
+          <p className="home-section-description">{pillar.topicArticlesIntro}</p>
+          <p className="home-section-description" style={{ margin: 0 }}>
+            This is the full map, not the first stop. Use it when you know the subtopic you need and want the wider cluster around it.
+          </p>
+        </div>
+        <div className="home-post-grid">
+          {pillar.topicArticles.map((post) => (
+            <PostCard key={post.slug} post={post} />
+          ))}
+        </div>
+      </section>
+
+      <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+        <div className="home-section-head">
+          <div className="home-section-kicker">Related articles</div>
+          <h2 className="home-section-title">Core reads connected to this pillar</h2>
+          <p className="home-section-description">{pillar.relatedArticlesIntro}</p>
+          <p className="home-section-description" style={{ margin: 0 }}>
+            Start here if you want momentum without scanning the full archive or the entire topic grid.
+          </p>
+        </div>
+        <div className="home-post-grid">
+          {pillar.relatedArticles.map((post) => (
+            <PostCard key={post.slug} post={post} />
+          ))}
+        </div>
+      </section>
+
+      <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+        <div className="home-section-head">
+          <div className="home-section-kicker">Final recommendation</div>
+          <h2 className="home-section-title">Use this recommendation block if you want a clean next move</h2>
+          <p className="home-section-description">
+            This is the closure layer for readers who reached the end of the page and want a clear recommendation instead of one more branch.
+          </p>
+        </div>
+        <div className="home-resource-promo-grid">
+          {pillar.finalRecommendations.map((item) => (
+            <div key={item.label} className="home-resource-promo-card">
+              <h3 style={{ margin: 0, fontSize: '1rem', color: 'var(--text-primary)' }}>{item.label}</h3>
+              <p style={{ margin: 0 }}>{item.text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+        <div className="home-section-head">
+          <div className="home-section-kicker">FAQ</div>
+          <h2 className="home-section-title">Common questions around this topic cluster</h2>
+          <p className="home-section-description">
+            These questions are written for readers who are deciding whether this is the right entry point, what to click next, and what mistakes are easiest to avoid before they go deeper into the cluster.
+          </p>
+        </div>
+        <div className="home-resource-promo-grid">
+          {pillar.faq.map((item) => (
+            <div key={item.question} className="home-resource-promo-card">
+              <h3 style={{ margin: 0, fontSize: '1rem', color: 'var(--text-primary)' }}>{item.question}</h3>
+              <p style={{ margin: 0 }}>{item.answer}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="home-section-shell" style={{ paddingLeft: 0, paddingRight: 0 }}>
+        <div className="home-newsletter-panel">
+          <div className="home-section-kicker">Conclusion</div>
+          <h2 className="home-section-title" style={{ marginTop: '0.75rem' }}>Use this page as the main entry point for this cluster</h2>
+          <p className="home-section-description" style={{ marginTop: '0.75rem' }}>{pillar.conclusion}</p>
+          <p className="home-section-description" style={{ marginTop: '0.75rem' }}>
+            {pillar.heroEntry.href && pillar.heroEntry.label ? (
+              <>
+                If you want the cleanest next step, start with <Link href={pillar.heroEntry.href}>{pillar.heroEntry.label}</Link> and return here when you need the next guide, comparison, or category path.
+              </>
+            ) : (
+              pillar.heroEntry.text
+            )}
+          </p>
+          <div className="home-hero-actions" style={{ marginTop: '1rem' }}>
+            <Link href="/" className="home-hero-button home-hero-button-secondary">
+              Go to homepage
+            </Link>
+            <Link href="/community" className="home-hero-button home-hero-button-secondary">
+              Open community hub
+            </Link>
+            <Link href={PILLAR_RESOURCE_HUB_PATH} className="home-hero-button home-hero-button-secondary">
+              Return to resources hub
+            </Link>
+            {pillar.heroPrimaryAction ? (
+              <Link href={pillar.heroPrimaryAction.href} className="home-hero-button home-hero-button-secondary">
+                {pillar.heroPrimaryAction.label}
+              </Link>
+            ) : (
+              <Link href={pillar.primaryCategory.href} className="home-hero-button home-hero-button-secondary">
+                Browse {pillar.primaryCategory.label}
+              </Link>
+            )}
+          </div>
+        </div>
+      </section>
+    </div>
+  )
+}
+

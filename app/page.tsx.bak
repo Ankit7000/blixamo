@@ -1,0 +1,317 @@
+import { getAllPosts, getFeaturedPosts } from '@/lib/posts'
+import { CATEGORY_META as CAT } from '@/lib/categories'
+import { PostCard } from '@/components/blog/PostCard'
+import { WebsiteJsonLd } from '@/components/seo/JsonLd'
+import { EmailCapture } from '@/components/monetization/EmailCapture'
+import Link from 'next/link'
+import Image from 'next/image'
+import type { Metadata } from 'next'
+
+export const revalidate = 1800
+
+export const metadata: Metadata = {
+  title: 'Blixamo — Self-Hosting, DevOps & AI Automation for Indie Developers',
+  description: 'Self-hosting, DevOps, AI automation and indie hacking guides for developers building real products on Hetzner and Next.js.',
+  alternates: { canonical: 'https://blixamo.com' },
+}
+
+const CATEGORY_META: Record<string, { icon: string; color: string; label: string; desc: string }> = {
+  'self-hosting': { icon: '🖥',  color: '#0891b2', label: 'Self-Hosting',         desc: 'Run your own apps on a €5/mo VPS.' },
+  devops:          { icon: '⚙️',  color: '#059669', label: 'DevOps & Infrastructure', desc: 'VPS, Nginx, PM2, Docker — real infra.' },
+  'ai-automation': { icon: '🤖', color: '#7c3aed', label: 'AI Automation',          desc: 'Claude API, n8n, and AI workflows.' },
+  'indie-hacking': { icon: '🚀', color: '#e11d48', label: 'Indie Hacking',          desc: 'SaaS, payments, building solo in India.' },
+  tools:          { icon: '🛠',  color: '#d97706', label: 'Tools & Comparison',   desc: 'Honest tool comparisons, no fluff.' },
+}
+
+// Featured articles driven by frontmatter featured:true — no rebuild needed to change
+// Falls back to first 3 posts if no featured posts set
+function getFeaturedSlugs(posts: ReturnType<typeof getAllPosts>) {
+  const featured = posts.filter(p => p.featured).slice(0, 3)
+  if (featured.length >= 2) return featured.map(p => ({ slug: p.slug, label: p.title }))
+  // fallback
+  return [
+    { slug: 'deploy-nextjs-coolify-hetzner',    label: 'Deploy Next.js on Hetzner with Coolify' },
+    { slug: 'multiple-projects-single-vps',     label: 'Run 5 Projects on One Hetzner VPS' },
+    { slug: 'nextjs-mdx-blog-2026',             label: 'Build a Next.js MDX Blog in 2026' },
+  ]
+}
+
+const TOOLS = [
+  { name: 'Next.js',    icon: '▲', href: 'https://nextjs.org' },
+  { name: 'Docker',     icon: '🐳', href: 'https://docker.com' },
+  { name: 'Cloudflare', icon: '🔶', href: 'https://cloudflare.com' },
+  { name: 'Hetzner',    icon: '🟠', href: 'https://hetzner.com' },
+  { name: 'Supabase',   icon: '⚡', href: 'https://supabase.com' },
+  { name: 'n8n',        icon: '🔁', href: 'https://n8n.io' },
+]
+
+export default function HomePage() {
+  const allPosts = getAllPosts()
+  const popular  = allPosts.slice(0, 5)
+  const latest   = allPosts.slice(0, 18)
+  const FEATURED_SLUGS = getFeaturedSlugs(allPosts)
+
+  return (
+    <>
+      <WebsiteJsonLd />
+
+      {/* ── STATS BAR ── */}
+      <div className="stats-bar">
+        <div className="stat-item">📝 <strong>{allPosts.length}</strong> articles</div>
+        <div className="stat-item">🖥 <strong>€5.19/mo</strong> Hetzner setup</div>
+        <div className="stat-item">⚡ <strong>Self-hosted</strong> on Hetzner CPX22</div>
+        <div className="stat-item">🇮🇳 <strong>India-first</strong> developer blog</div>
+      </div>
+
+      {/* ── 1. HERO ── */}
+      <section style={{
+        background: 'linear-gradient(135deg, var(--bg-subtle) 0%, var(--bg) 100%)',
+        borderBottom: '1px solid var(--border)',
+        padding: 'clamp(3rem, 8vw, 6rem) 1rem',
+      }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+            padding: '0.35rem 1rem', borderRadius: '2rem', marginBottom: '1.5rem',
+            background: 'var(--accent-soft)', border: '1px solid var(--accent)',
+            fontSize: '0.78rem', fontWeight: 700, color: 'var(--accent)', letterSpacing: '0.08em',
+          }}>
+            🚀 PRACTICAL DEV TUTORIALS
+          </div>
+          <h1 style={{
+            fontSize: 'clamp(2.2rem, 5.5vw, 3.5rem)', fontWeight: 900,
+            lineHeight: 1.1, color: 'var(--text-primary)', marginBottom: '1.25rem',
+          }}>
+            Self-hosting, DevOps & AI automation<br />
+            <span style={{ color: 'var(--accent)' }}>building real apps.</span>
+          </h1>
+          <p style={{
+            fontSize: 'clamp(1rem, 2.5vw, 1.2rem)', color: 'var(--text-secondary)',
+            lineHeight: 1.75, maxWidth: '640px', margin: '0 auto 2rem',
+          }}>
+            Learn how to deploy apps, self-host services, and build AI-powered tools
+            using technologies like <strong>Next.js</strong> and affordable infrastructure
+            such as <strong>Hetzner</strong>.
+          </p>
+          <div className="hero-cta-row" style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link href="/blog" style={{
+              padding: '0.8rem 2rem', background: 'var(--accent)', color: '#fff',
+              borderRadius: '0.6rem', fontWeight: 700, fontSize: '0.95rem',
+              boxShadow: '0 4px 20px rgba(108,99,255,0.35)',
+            }}>
+              Start Reading →
+            </Link>
+            <Link href="/blog/multiple-projects-single-vps" style={{
+              padding: '0.8rem 2rem', background: 'transparent', color: 'var(--text-primary)',
+              borderRadius: '0.6rem', fontWeight: 700, fontSize: '0.95rem',
+              border: '1px solid var(--border)',
+            }}>
+              Read the Latest Guide →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 2. FEATURED TUTORIALS ── */}
+      <section style={{ borderBottom: '1px solid var(--border)', padding: '3rem 1rem', background: 'var(--bg)' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.5rem' }}>
+            <span style={{ fontSize: '1.1rem' }}>⭐</span>
+            <h2 style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--text-primary)' }}>Featured Articles</h2>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(280px, 100%), 1fr))', gap: '1rem' }}>
+            {FEATURED_SLUGS.map(({ slug, label }, i) => {
+              const post = allPosts.find(p => p.slug === slug)
+              const title = post?.title || label
+              const desc  = post?.description || ''
+              const rt    = post?.readingTime || ''
+              const gradients = [
+                'linear-gradient(135deg, #6c63ff 0%, #a78bfa 100%)',
+                'linear-gradient(135deg, #0891b2 0%, #6c63ff 100%)',
+                'linear-gradient(135deg, #059669 0%, #0891b2 100%)',
+              ]
+              return (
+                <Link key={slug} href={`/blog/${slug}`} style={{
+                  display: 'block', borderRadius: '0.875rem', overflow: 'hidden',
+                  border: '1px solid var(--border)', background: 'var(--bg)',
+                  textDecoration: 'none', transition: 'transform 0.15s, box-shadow 0.15s',
+                }}>
+                  <div style={{ height: '6px', background: gradients[i] }} />
+                  <div style={{ padding: '1.25rem' }}>
+                    <div style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
+                      fontSize: '0.72rem', fontWeight: 700, color: '#f59e0b',
+                      marginBottom: '0.6rem', letterSpacing: '0.05em',
+                    }}>
+                      ⭐ FEATURED
+                    </div>
+                    <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.3, marginBottom: '0.5rem' }}>
+                      {title}
+                    </h3>
+                    {desc && (
+                      <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.6,
+                        display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', marginBottom: '0.75rem' }}>
+                        {desc}
+                      </p>
+                    )}
+                    {rt && <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>⏱ {rt}</span>}
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 3. CATEGORIES ── */}
+      <section style={{ borderBottom: '1px solid var(--border)', padding: '3rem 1rem', background: 'var(--bg-subtle)' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+          <h2 style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '1.5rem' }}>Browse by Topic</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(220px, 100%), 1fr))', gap: '1rem' }}>
+            {Object.entries(CATEGORY_META).map(([cat, meta]) => {
+              const count = allPosts.filter(p => p.category === cat).length
+              return (
+                <Link key={cat} href={`/category/${cat}`} style={{
+                  display: 'flex', alignItems: 'flex-start', gap: '1rem',
+                  padding: '1.25rem', background: 'var(--bg)',
+                  border: '1px solid var(--border)', borderRadius: '0.875rem',
+                  textDecoration: 'none',
+                }}>
+                  <div style={{
+                    width: '2.75rem', height: '2.75rem', borderRadius: '0.6rem', flexShrink: 0,
+                    background: `${meta.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '1.35rem',
+                  }}>
+                    {meta.icon}
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)', marginBottom: '0.2rem' }}>
+                      {meta.label}
+                    </div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                      {meta.desc}
+                    </div>
+                    <div style={{ fontSize: '0.72rem', color: meta.color, fontWeight: 700, marginTop: '0.4rem' }}>
+                      {count} article{count !== 1 ? 's' : ''}
+                    </div>
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 4. LATEST + 5. POPULAR + 7. AUTHOR ── */}
+      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '3rem 1rem', display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 300px', gap: '3rem' }}
+        className="homepage-grid">
+
+        {/* LEFT — Latest + Popular */}
+        <div>
+          {/* Latest Articles */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+            <h2 style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--text-primary)' }}>Latest Articles</h2>
+            <Link href="/blog" style={{ fontSize: '0.82rem', color: 'var(--accent)', fontWeight: 600 }}>View all →</Link>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(280px, 100%), 1fr))', gap: '1.25rem' }}>
+            {latest.map(post => <PostCard key={post.slug} post={post} />)}
+          </div>
+
+          {/* Popular Posts */}
+          <h2 style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '1.25rem' }}>
+            🔥 Popular on Blixamo
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0', border: '1px solid var(--border)', borderRadius: '0.875rem', overflow: 'hidden', background: 'var(--bg-subtle)' }}>
+            {popular.map((post, i) => (
+              <Link key={post.slug} href={`/blog/${post.slug}`} style={{
+                display: 'flex', gap: '1rem', alignItems: 'flex-start',
+                padding: '1rem 1.25rem',
+                borderBottom: i < popular.length - 1 ? '1px solid var(--border)' : 'none',
+                textDecoration: 'none', background: 'transparent',
+              }}>
+                <span style={{ fontSize: '1.3rem', fontWeight: 900, color: 'var(--accent)', minWidth: '2rem', lineHeight: 1.4, opacity: 0.6 }}>
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.35, marginBottom: '0.25rem' }}>
+                    {post.title}
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.5rem', fontSize: '0.75rem', color: 'var(--text-muted)', flexWrap: 'wrap' }}>
+                    <span>⏱ {post.readingTime}</span>
+                    <span>·</span>
+                    <span style={{ color: CATEGORY_META[post.category]?.color || 'var(--accent)', textTransform: 'capitalize' }}>
+                      {CATEGORY_META[post.category]?.icon} {post.category}
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* RIGHT SIDEBAR — Author, Tools, Newsletter */}
+        <aside className="homepage-sidebar" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+
+          {/* About Author */}
+          <div style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border)', borderRadius: '0.875rem', padding: '1.5rem' }}>
+            <img
+              src="/images/ankit.jpg"
+              alt="Ankit Sorathiya"
+              style={{
+                width: '3.5rem', height: '3.5rem', borderRadius: '50%', marginBottom: '1rem',
+                objectFit: 'cover', display: 'block',
+              }}
+            />
+            <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>
+              Ankit Sorathiya
+            </h3>
+            <div style={{ fontSize: '0.78rem', color: 'var(--accent)', fontWeight: 600, marginBottom: '0.75rem' }}>
+              Full-Stack Developer
+            </div>
+            <p style={{ fontSize: '0.83rem', color: 'var(--text-secondary)', lineHeight: 1.65, marginBottom: '1rem' }}>
+              Hi, I'm Ankit — a full-stack developer building apps with Next.js and Flutter.
+              On Blixamo I share practical tutorials about deployment, self-hosting, and developer tools.
+            </p>
+            <Link href="/about" style={{ fontSize: '0.82rem', color: 'var(--accent)', fontWeight: 600 }}>
+              Read my story →
+            </Link>
+          </div>
+
+          {/* Newsletter */}
+          <div style={{ background: 'linear-gradient(135deg, var(--accent-soft) 0%, var(--bg-subtle) 100%)', border: '1px solid var(--accent)', borderRadius: '0.875rem', padding: '1.5rem' }}>
+            <div style={{ fontSize: '1.5rem', marginBottom: '0.6rem' }}>📬</div>
+            <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
+              Join the Blixamo Newsletter
+            </h3>
+            <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.65, marginBottom: '1rem' }}>
+              Get developer tutorials about self-hosting apps, cheap cloud infrastructure, and AI tools for developers.
+            </p>
+            <EmailCapture placement="inline" />
+          </div>
+
+          {/* Developer Tools */}
+          <div style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border)', borderRadius: '0.875rem', padding: '1.25rem' }}>
+            <h3 style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.85rem' }}>
+              🛠 Tools I Use
+            </h3>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              {TOOLS.map(tool => (
+                <a key={tool.name} href={tool.href} target="_blank" rel="noopener noreferrer" style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
+                  padding: '0.35rem 0.75rem', background: 'var(--bg)',
+                  border: '1px solid var(--border)', borderRadius: '0.5rem',
+                  fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)',
+                  textDecoration: 'none',
+                }}>
+                  <span style={{ fontSize: '0.85rem' }}>{tool.icon}</span>
+                  {tool.name}
+                </a>
+              ))}
+            </div>
+          </div>
+
+        </aside>
+      </div>
+    </>
+  )
+}

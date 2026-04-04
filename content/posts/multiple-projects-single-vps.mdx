@@ -1,0 +1,175 @@
+---
+title: "Run Multiple Projects on One VPS in 2026 (Nginx + PM2 + Docker)"
+slug: "multiple-projects-single-vps"
+description: "How to run multiple apps on one 4GB VPS without port conflicts: Nginx reverse proxy, PM2, Docker, SSL, RAM planning, and the exact layout I use on Hetzner."
+date: "2026-03-16"
+updatedAt: "2026-03-27"
+author: "Ankit Sorathiya"
+category: "vps-cloud"
+tags: [hetzner, vps, nginx, pm2, docker, self-hosting, deployment]
+keyword: "multiple projects single vps"
+featured: false
+featuredImage: /images/posts/multiple-projects-single-vps/featured.png
+schema: "howto"
+---
+
+Yes, you can run multiple real projects on one small VPS. The trick is not "install Docker and hope." The trick is deciding what stays on the host, what goes in containers, how ports map, and when a single server stops being the right choice.
+
+This guide covers the exact pattern I use for low-cost app hosting on Hetzner: Nginx on ports 80 and 443, app processes behind it, Docker for stateful services where it helps, PM2 for lightweight Node apps, and a simple port map that keeps everything predictable.
+
+![Architecture diagram for multiple apps on one VPS](/images/posts/multiple-projects-single-vps/01-nginx-port-architecture.png)
+*The goal is not maximum cleverness. The goal is a server layout that stays easy to reason about six months later.*
+
+## TL;DR
+
+- a 4GB Hetzner VPS can run several small projects if the layout is disciplined
+- use **Nginx** as the public entry point on ports 80 and 443
+- use **PM2** for simple Node or Next.js apps
+- use **Docker Compose** for infra services like n8n, PostgreSQL, or Redis
+- keep an explicit port map and do not let services pick random host ports
+
+## Who This Setup Is For
+
+Use this approach if:
+
+- you are a solo developer or small team
+- you want to keep monthly infra cost low
+- your apps have modest traffic and similar trust boundaries
+- you want one server that is easy to deploy, monitor, and back up
+
+Do not use this as your default if one app is security-sensitive, one app is extremely CPU-heavy, or you need hard tenant isolation.
+
+## The Exact Architecture
+
+The cleanest setup is:
+
+- **Nginx on the host** for SSL termination and domain routing
+- **PM2 on the host** for simple app processes
+- **Docker Compose** for infrastructure or apps that are easier to manage as containers
+- **one documented port map** so every service has a known place
+
+Only Nginx should be public. Everything else should live on internal ports.
+
+## What Runs Where
+
+| Layer | What I put there | Why |
+| --- | --- | --- |
+| Host Nginx | domains, SSL, reverse proxy | one public entry point |
+| PM2 | Next.js apps, lightweight Node services | low overhead and easy restarts |
+| Docker Compose | n8n, databases, Redis, background services | cleaner stateful-service management |
+
+![PM2 process monitor with multiple live projects](/images/posts/multiple-projects-single-vps/01-pm2-monit-5-projects.png)
+*PM2 is enough for many small app processes if each service gets a fixed port and a clear name.*
+
+## Port Map That Does Not Turn Into Chaos
+
+| Service | Example domain | Internal port | Runtime |
+| --- | --- | --- | --- |
+| Main Next.js site | `blixamo.com` | `3001` | PM2 |
+| Second Next.js app | `app.example.com` | `3002` | PM2 |
+| API service | `api.example.com` | `3100` | PM2 or Docker |
+| n8n | `n8n.example.com` | `5678` | Docker |
+| Coolify dashboard | `coolify.example.com` | `8000` | Docker |
+
+Pick a numbering scheme once and keep it documented.
+
+![Live port and domain map for a single VPS setup](/images/posts/multiple-projects-single-vps/04-nginx-port-map.png)
+*A visible port map prevents accidental conflicts and makes new deploys much faster.*
+
+## How to Set It Up
+
+### 1. Put Nginx in front of everything
+
+```nginx
+server {
+  server_name app.example.com;
+  location / {
+    proxy_pass http://127.0.0.1:3002;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+}
+```
+
+### 2. Keep PM2 apps simple
+
+```bash
+pm2 start npm --name main-site -- start -- --port 3001
+pm2 start npm --name docs-site -- start -- --port 3002
+pm2 save
+```
+
+### 3. Use Docker Compose where it actually helps
+
+```yaml
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    ports:
+      - "5678:5678"
+    volumes:
+      - ./n8n:/home/node/.n8n
+```
+
+### 4. Monitor RAM, not just CPU
+
+Small VPS setups usually fail from memory pressure first. Watch idle RAM, build spikes, and swap usage, and graduate to a fuller [VPS monitoring tools](/blog/best-vps-monitoring-tools-2026) stack as soon as you have enough services that one silent failure can hide behind the others.
+
+![Memory and service status on a multi-project VPS](/images/posts/multiple-projects-single-vps/05-memory-usage.png)
+*A single cheap VPS works well until build spikes and background services start competing for memory.*
+
+## When One VPS Is the Right Choice
+
+Choose a single VPS if:
+
+- your projects are early-stage or low-traffic
+- you mostly care about cost control and simple operations
+- you can tolerate one maintenance window affecting several side projects
+- you want one place for backups, logs, and deploy scripts
+
+Split to another server if:
+
+- one project is client-critical or security-sensitive
+- one workload is noisy enough to hurt the others
+- the combined RAM and disk usage are always close to the limit
+- you need different deployment policies or teams for different apps
+
+## Decision Block: PM2 vs Docker on the Same Server
+
+Choose **PM2** when the service is a straightforward Node or Next.js app and you want low overhead.
+
+Choose **Docker Compose** when the service needs volumes, networks, sidecars, or cleaner isolation.
+
+The mistake is not mixing tools. The mistake is mixing them without rules.
+
+![Live service mix on one VPS with PM2 and Docker](/images/posts/multiple-projects-single-vps/03-pm2-docker-live.png)
+*A mixed runtime model is often the most practical answer on a small VPS.*
+
+Before you build the stack, swing by [blixamo.com](/) to anchor yourself in the homepage narrative, follow the [/tag/deployment](/tag/deployment) resources hub for the latest cluster links, and remember that this article lives in [/category/vps-cloud](/category/vps-cloud) under the [/guides/deploy-apps-on-vps-complete-guide](/guides/deploy-apps-on-vps-complete-guide) pillar. If you want adjacent reading, start with the [VPS setup guide](/blog/vps-setup-guide), then use [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner), the [Nginx reverse proxy guide](/blog/nginx-reverse-proxy-guide-2026), and [VPS Security Hardening Ubuntu 2026](/blog/vps-security-harden-ubuntu-2026) for the deploy and hardening steps, while [Docker Compose on VPS 2026](/blog/docker-compose-production-vps-2026) is the operational checklist that keeps the services shown above resilient and the [best VPN for developers](/blog/best-vpn-for-developers-2026) guide helps when you administer the box from public networks.
+
+## FAQ
+
+### How many apps can a 4GB Hetzner VPS handle?
+
+That depends on the stack, but several small apps are realistic if you manage memory carefully and keep the architecture disciplined.
+
+### Should I use Docker for everything?
+
+Not always. For lightweight Node apps, PM2 is often simpler and lighter. Docker is more useful for infrastructure services and apps that benefit from container isolation.
+
+### Do I need Coolify if I already use Nginx and PM2?
+
+No. Coolify is useful if you want a cleaner deploy UI and app management layer. If you already like manual control, Nginx plus PM2 is still a strong setup.
+
+### What is the biggest mistake on a single VPS?
+
+Poor port hygiene and poor memory planning. Most problems come from hidden conflicts and services competing for RAM.
+
+### What should I read next after setting this up?
+
+If you want an easier deploy layer, go to [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner). If you are still picking a payment method for the server itself, read [How to pay for Hetzner from India](/blog/pay-hetzner-from-india).
+
+## Final Takeaway
+
+Running multiple projects on one VPS is a sensible default for solo developers if you keep the architecture boring: one public reverse proxy, fixed internal ports, PM2 for simple apps, Docker for services that justify it, and enough monitoring to know when you have outgrown the box.

@@ -1,0 +1,243 @@
+---
+title: "Next.js MDX Blog with Syntax Highlighting, RSS, Sitemap, and SEO"
+description: "Upgrade a working Next.js MDX blog with syntax highlighting, RSS, sitemap, metadata, OG tags, and production SEO without rebuilding the stack."
+date: "2026-04-03"
+updatedAt: "2026-04-03"
+author: "Ankit Sorathiya"
+category: "web-dev"
+tags: ["nextjs", "mdx", "seo", "rss", "sitemap", "app-router", "next-mdx-remote"]
+keyword: "nextjs mdx blog seo"
+featured: false
+featuredImage: "/images/posts/nextjs-mdx-blog-syntax-highlighting-rss-sitemap-seo/featured.jpg"
+schema: "howto"
+relatedScope: "nextjs-mdx"
+---
+
+If your Next.js MDX blog already renders posts, the next upgrades are boring but decisive: readable code blocks, a real feed, a real sitemap, and metadata that does not fall apart in production. That is the line between "my MDX route works" and "this is a publishable blog."
+
+I learned that the hard way on Blixamo. The first version rendered MDX fine, but a working post page is not the same thing as a production content system. The moment you care about syntax highlighting, Google discovery, feed readers, link previews, and canonical consistency, the rough edges show up fast.
+
+This guide starts after the base setup is already working. If your blog still needs the core App Router plus file-backed MDX foundation, start with [Next.js MDX Blog in 2026](/blog/nextjs-mdx-blog-2026). If you are still choosing between `next-mdx-remote/rsc` and `@next/mdx`, read [next-mdx-remote/rsc vs @next/mdx in Next.js 15](/blog/next-mdx-remote-rsc-vs-next-mdx-nextjs-15) before you harden the stack. If the whole route breaks only after deploy, keep [Fix next-mdx-remote/rsc Edge Error in Next.js 15](/blog/nextjs-mdx-remote-rsc-edge-runtime-fix) open too. For the wider cluster, keep [blixamo.com](/), the [blog archive](/blog), the [community hub](/community), the [resources hub](/tag/deployment), the [Web Development category](/category/web-dev), and the [Developer Tools Directory](/guides/developer-tools-directory) nearby while you upgrade the stack.
+
+<Callout type="info" title="TL;DR">
+If your MDX blog already works, add `rehype-pretty-code` for server-side code blocks, ship `/feed.xml`, keep `app/sitemap.ts` tied to the same posts library, and make metadata generation explicit before you touch bigger features.
+</Callout>
+
+## This guide starts after your MDX blog already works
+
+This article is not a full rebuild of the parent guide. I am assuming you already have:
+
+- App Router
+- posts on disk under `content/posts`
+- a `lib/posts.ts` style loader
+- a working `/blog/[slug]` route
+- frontmatter parsing and static params already in place
+
+If you do not have those pieces yet, do not patch around them from this article. Go back to [Next.js MDX Blog in 2026](/blog/nextjs-mdx-blog-2026) first. That page is the implementation guide. This one is the production-upgrade pass after the core architecture is stable.
+
+The reason I split them is simple. Setup and upgrade are different intents. The base guide answers "how do I build the blog?" This page answers "what should I add next so the blog feels complete?"
+
+## Quick upgrade map
+
+| Upgrade | Main file or layer | Why it matters |
+| --- | --- | --- |
+| Syntax highlighting | MDX renderer config | Code blocks become readable |
+| RSS | `app/feed.xml/route.ts` | Readers and automation can subscribe |
+| Sitemap | `app/sitemap.ts` | Search engines find posts cleanly |
+| Metadata | route `generateMetadata` | Better titles, canonicals, previews |
+| OG images | post frontmatter + public images | Shared links stop looking broken |
+
+## Add syntax highlighting without client-side junk
+
+If your blog is aimed at developers, syntax highlighting is not optional. Plain fenced code blocks make the site feel unfinished, and client-side highlighting adds work you usually do not need.
+
+My default direction is still `rehype-pretty-code` with a server-rendered theme. It keeps the output stable, works well with App Router, and does not require bolting a highlighting script onto the client after the page loads.
+
+```tsx filename="app/blog/[slug]/page.tsx"
+import { MDXRemote } from "next-mdx-remote/rsc";
+import remarkGfm from "remark-gfm";
+import rehypeSlug from "rehype-slug";
+import rehypePrettyCode from "rehype-pretty-code";
+
+const prettyCodeOptions = {
+  theme: "github-dark",
+  keepBackground: false,
+};
+
+<MDXRemote
+  source={post.content}
+  options={{
+    mdxOptions: {
+      remarkPlugins: [remarkGfm],
+      rehypePlugins: [
+        rehypeSlug,
+        [rehypePrettyCode, prettyCodeOptions],
+      ],
+    },
+  }}
+/>
+```
+
+<Callout type="tip" title="Expected result">
+Your code blocks render with stable server-side highlighting instead of flashing unstyled code after load.
+</Callout>
+
+This is also where CSS mistakes show up fast. If highlighted code looks fine on desktop but collapses on mobile, the problem is usually not MDX. It is your prose and overflow styling. If your broader Next.js project still feels rough in production, pair this with [Next.js 15 Performance Optimization 2026](/blog/nextjs-performance-optimization-2026) so styling and rendering stay fast together.
+
+## Add RSS from the same posts library
+
+An RSS feed is one of the cleanest upgrades you can ship because it reuses the same data model you already built for the blog. You do not need a CMS. You do not need a new content source. You need one route that serializes the latest posts from the same loader your archive already trusts.
+
+```ts filename="app/feed.xml/route.ts"
+import { getAllPosts } from "@/lib/posts";
+
+export async function GET() {
+  const posts = getAllPosts().slice(0, 20);
+  const items = posts
+    .map(
+      (post) => `
+        <item>
+          <title>${post.title}</title>
+          <link>https://blixamo.com/blog/${post.slug}</link>
+          <description>${post.description}</description>
+        </item>`
+    )
+    .join("");
+
+  return new Response(
+    `<?xml version="1.0"?><rss><channel>${items}</channel></rss>`,
+    { headers: { "Content-Type": "application/rss+xml" } }
+  );
+}
+```
+
+<Callout type="tip" title="Expected result">
+`/feed.xml` returns valid XML and updates automatically when you publish a new post through the same MDX pipeline.
+</Callout>
+
+This matters for more than feed readers. RSS is also a clean automation surface if you later wire publishing flows into tools like [Google Search Console for Self-Hosted Next.js](/blog/google-search-console-self-hosted-nextjs) or a lightweight distribution workflow in the [community hub](/community).
+
+## Keep sitemap generation tied to the same content source
+
+The clean sitemap pattern is boring on purpose. Your archive, related posts, RSS, and sitemap should all read from the same posts library. The moment sitemap logic starts inventing its own content source, drift begins.
+
+Next.js already gives you `app/sitemap.ts`, so use it. Pull the posts once, map them to canonical URLs, and keep `updatedAt` or `date` consistent with your frontmatter model.
+
+```ts filename="app/sitemap.ts"
+import { getAllPosts } from "@/lib/posts";
+
+export default function sitemap() {
+  return getAllPosts().map((post) => ({
+    url: `https://blixamo.com/blog/${post.slug}`,
+    lastModified: post.updatedAt ?? post.date,
+  }));
+}
+```
+
+That snippet is intentionally minimal. Real projects usually merge static pages, categories, guides, and posts the way Blixamo already does. The point is not complexity. The point is one trusted content path. If you are deploying the site yourself, this upgrade sits naturally next to [How to Self-Host Next.js on a VPS](/blog/how-to-self-host-nextjs-on-vps) and [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner), because search visibility becomes a production concern the moment the site goes live.
+
+## Make metadata, OG images, and canonicals explicit
+
+This is the upgrade I would ship before most cosmetic work. If the metadata layer is weak, the blog looks unreliable in search, in Slack, on X, and inside internal link previews.
+
+For a file-backed MDX blog, each post should already expose enough frontmatter for:
+
+- title
+- description
+- date
+- updatedAt
+- author
+- category
+- keyword
+- featured image
+
+Then the route-level metadata function should turn that into the final canonical, OG, and Twitter shape instead of hoping defaults do the right thing.
+
+```tsx filename="app/blog/[slug]/page.tsx"
+import { getPostBySlug } from "@/lib/posts";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const post = getPostBySlug(slug);
+
+  return {
+    title: post.title,
+    description: post.description,
+    alternates: {
+      canonical: `https://blixamo.com/blog/${slug}`,
+    },
+    openGraph: {
+      title: post.title,
+      description: post.description,
+      images: [post.featuredImage],
+      type: "article",
+    },
+  };
+}
+```
+
+Do not overcomplicate this. The core rule is one canonical URL per post and one consistent featured image path that resolves on production. If your content stack is already live, this is also where [Fix next-mdx-remote/rsc Edge Error in Next.js 15](/blog/nextjs-mdx-remote-rsc-edge-runtime-fix) matters again, because a route that only fails in production cannot ship reliable metadata either.
+
+## Common mistakes after the base MDX blog works
+
+The first mistake is treating syntax highlighting like polish. On a developer blog, bad code rendering is a content problem, not a design problem.
+
+The second mistake is generating RSS and sitemap from different logic than the archive. That always comes back later as drift, missing URLs, or stale metadata. One posts library should feed the whole publishing surface.
+
+The third mistake is letting metadata stay "temporary." Placeholder descriptions, missing OG images, or default canonicals are exactly how a solid blog starts looking half-built in search results.
+
+The fourth mistake is skipping production verification. A route can look fine in development and still break once you build, deploy, or put it behind a reverse proxy. That is why I keep [Fix next-mdx-remote/rsc Edge Error in Next.js 15](/blog/nextjs-mdx-remote-rsc-edge-runtime-fix) and [Google Search Console for Self-Hosted Next.js](/blog/google-search-console-self-hosted-nextjs) in the same cluster. One protects the route. The other protects discovery.
+
+The fifth mistake is upgrading the wrong architecture. If you still have not decided whether your content should be route-driven or file-backed, solve that first with [next-mdx-remote/rsc vs @next/mdx in Next.js 15](/blog/next-mdx-remote-rsc-vs-next-mdx-nextjs-15). Syntax highlighting and feeds are easier once the content model is settled.
+
+## Which upgrades matter first?
+
+If you already have a working MDX blog, this is the order I would use:
+
+1. syntax highlighting
+2. route metadata and OG images
+3. sitemap
+4. RSS
+5. richer internal linking and post templates
+
+That order is not academic. It is based on what changes the reader experience fastest and what prevents the most embarrassing production gaps.
+
+If code blocks look bad, fix that first.
+If search previews look weak, fix metadata next.
+If the site is live and you want discovery, ship sitemap and feed right after that.
+
+## FAQ
+
+### Do I need `rehype-pretty-code` for a Next.js MDX blog?
+
+No, but you probably want something in that class. On a developer blog, raw fenced code blocks make the site feel unfinished. `rehype-pretty-code` is a practical default because it works server-side and fits App Router well.
+
+### Should RSS and sitemap use the same posts library?
+
+Yes. That is the safest setup. If RSS, sitemap, and archive pages read from different logic, they drift sooner than you think. One content source keeps publishing behavior predictable.
+
+### Do I need custom metadata if Next.js already has defaults?
+
+Yes. Defaults are fine for prototypes, not for a real blog. Route-level metadata is what gives each article its own canonical URL, description, OG image, and social preview behavior.
+
+### What is the fastest upgrade after my MDX blog starts working?
+
+Syntax highlighting is usually the fastest visible win. It improves the reading experience immediately and makes technical posts feel production-ready instead of experimental.
+
+### Should I add RSS before deployment work?
+
+Usually no. If the site is not stable in production yet, fix deployment and runtime issues first. After that, RSS is a quick upgrade because it reuses the same posts library.
+
+### What if my MDX blog works locally but breaks after deploy?
+
+That is usually not an RSS or sitemap bug. It is often a runtime or server-environment problem. Start with [Fix next-mdx-remote/rsc Edge Error in Next.js 15](/blog/nextjs-mdx-remote-rsc-edge-runtime-fix), then move into [How to Self-Host Next.js on a VPS](/blog/how-to-self-host-nextjs-on-vps) or [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner).
+
+## What Next?
+
+If the base blog setup is still shaky, go back to [Next.js MDX Blog in 2026](/blog/nextjs-mdx-blog-2026). If you are still deciding between MDX approaches, read [next-mdx-remote/rsc vs @next/mdx in Next.js 15](/blog/next-mdx-remote-rsc-vs-next-mdx-nextjs-15) before you add more upgrades. If the route is stable and you want the production debugging path, keep [Fix next-mdx-remote/rsc Edge Error in Next.js 15](/blog/nextjs-mdx-remote-rsc-edge-runtime-fix) next to [Google Search Console for Self-Hosted Next.js](/blog/google-search-console-self-hosted-nextjs).
+
+If the next question is infrastructure, move into [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner), [How to Self-Host Next.js on a VPS](/blog/how-to-self-host-nextjs-on-vps), and the [resources hub](/tag/deployment).

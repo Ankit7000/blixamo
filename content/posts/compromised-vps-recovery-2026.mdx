@@ -1,0 +1,282 @@
+---
+title: "Compromised VPS Recovery 2026 - Rebuild Safely"
+slug: "compromised-vps-recovery-2026"
+description: "Compromised VPS recovery guide for beginners: how I rebuilt on a clean Ubuntu server, rotated secrets, restored the site, and hardened it properly again."
+date: "2026-03-28"
+updatedAt: "2026-03-28"
+author: "Ankit Sorathiya"
+category: "vps-cloud"
+tags: [vps,security,incident-response,ssh,hetzner,cloudflare,backups]
+keyword: "compromised vps recovery"
+secondaryKeywords: ["recover website after server attack", "beginner vps security guide", "ubuntu server hardening after compromise", "secure ssh server setup"]
+featured: false
+featuredImage: /images/posts/compromised-vps-recovery-2026/featured.jpg
+schema: "article"
+difficulty: "beginner"
+timeToComplete: "25 minutes"
+excerpt: "I lost trust in a live VPS, rebuilt Blixamo on a clean server, rotated secrets, and came away with a much stricter deployment checklist."
+toc: true
+---
+
+On March 27, 2026, the old Blixamo VPS at `77.42.17.13` still answered on `22/tcp`, presented `OpenSSH_9.6p1 Ubuntu-3ubuntu13.15`, and accepted its known host key. The problem was worse than a simple outage: every locally discoverable SSH identity was rejected, and I no longer had a trusted way back into the box. That is where my compromised VPS recovery started.
+
+I could not prove malware from the outside, but I also could not prove the server was clean. For a production site, that distinction is smaller than beginners think. Once a server becomes operationally untrusted, you stop trying to "save the machine" and start trying to save the website, the content, and the secrets. If you want the preventive version of this topic, read [VPS Security Hardening Ubuntu 2026](/blog/vps-security-harden-ubuntu-2026) and [Ubuntu VPS Hardening Checklist](/blog/ubuntu-vps-hardening-checklist). Keep the [/tag/deployment](/tag/deployment) resources hub in view, treat this as part of [/category/vps-cloud](/category/vps-cloud), and use the [/guides/vps-cloud-for-developers-guide](/guides/vps-cloud-for-developers-guide) pillar while you work through the recovery version here.
+
+<Callout type="info" title="TL;DR">
+- If a VPS looks compromised, treat it as untrusted immediately.
+- Rebuild on a new server instead of cleaning in place.
+- Restore code from GitHub and secrets from trusted sources only.
+- Lock down SSH, firewall, Fail2ban, backups, and monitoring before cutover.
+</Callout>
+
+| Stage | What I did | Why it mattered |
+| --- | --- | --- |
+| Old VPS still reachable | Stopped trusting the host | Reachable is not the same as safe |
+| SSH auth failed | Assumed recovery, not routine ops | No trusted admin path remained |
+| New VPS plan | Rebuilt from GitHub only | Avoided old binaries and scripts |
+| Cutover prep | Rotated secrets and keys | Old credentials could be exposed |
+| Final checks | Verified `200`, canonical, sitemap | Recovery without SEO breakage |
+
+## What Actually Happened On The Old VPS
+
+The old server was not "down" in the normal sense. The SSH port was reachable, the daemon answered, and the host key still matched what my machine expected. What failed was trust. The verbose SSH log showed a healthy network path to the box, but every key from the local machine was rejected. That left me in the worst beginner scenario: a server that still existed, still answered, but was no longer safely controllable.
+
+Many developers wait for dramatic proof before reacting. Real incidents are often quieter: a lost credential path, an unknown key, a changed startup path, or a server state you can no longer explain. At that point, the label matters less than the response.
+
+In my case, the local recovery audit still confirmed the good news: the repository itself was enough to rebuild the site. The repo had `51` MDX posts, `386` public assets, a working PM2 config, and a build that generated `137` routes locally. That changed the recovery strategy completely. I did not need to rescue the old runtime. I needed to rebuild Blixamo on a clean VPS and carry over only the minimum trusted data.
+
+The first lesson was simple: if you lose confidence in the host, stop treating it as your source of truth. GitHub, reviewed content, and trusted secret sources should become the source of truth instead. That is the foundation for every step that comes next.
+
+## Why I Rebuilt Instead Of Trying To Clean The Server
+
+Beginners usually ask the wrong first question after a suspected compromise. They ask, "How do I remove the malware?" The better question is, "What can I still trust?" If the answer is "not much," rebuilding is safer than patching.
+
+Cleaning a compromised VPS sounds cheaper because you already have the machine, the app, and the config. In practice, it is full of traps. You do not know which services changed, whether cron jobs were added, whether startup files were modified, or whether a hidden process will return after reboot.
+
+That is why my recovery notes marked old systemd units, PM2 startup artifacts, cron locations, Docker data, SSH directories, temp paths, and copied scripts as untrusted by default. Rebuilding also gave me a cleaner security posture: fresh user, fresh key, only `22`, `80`, and `443` exposed, and a new app process definition. Rebuilding is not failure. It is often the professional move.
+
+## Step By Step: How I Recovered The Website
+
+My recovery order was stricter than a normal deploy because the old host was untrusted. First, I treated the old VPS as a source of risk, not as a restore source. That meant no blind reuse of PM2 dumps, cron jobs, shell profiles, old SSH keys, or Docker volumes. If I could not review it safely, I did not carry it over.
+
+Second, I prepared the new VPS first. The recovery plan was: fresh Hetzner server, trusted SSH key at creation time, updates immediately, SSH hardening, UFW, Fail2ban, only the packages required for the site, and only then the application deploy. This order matters. A lot of developers deploy the app first and "come back for security later." That is exactly how servers stay softer than they should.
+
+Third, I restored the site from trusted inputs only. The code came from GitHub. Secrets were recreated manually from trusted sources, not copied from old shell files. Content and images were the only data classes I would consider restoring after review. For Blixamo, that was realistic because the site is file-backed, not database-heavy. The recovery audit showed the app itself could be rebuilt cleanly without trusting the old runtime at all.
+
+Fourth, I verified the site the way recovery should be verified: not just "homepage loads," but `HTTP 200`, canonical URLs correct, `robots.txt` correct, `/sitemap.xml` present, sample article pages rendering, and PM2 plus Nginx showing only expected behavior. After a compromise scare, you are not done when the page looks fine in a browser. You are done when the operational surface also looks clean.
+
+## Biggest Lessons I Learned From This
+
+Backups are not enough if your recovery plan assumes the backup source is trustworthy. If the host is untrusted, a full snapshot can become the fastest way to re-import bad state. The right backup is selective: trusted content, reviewed assets, SQL text dumps if needed, and secrets rotated before reuse.
+
+Convenience is expensive. Password SSH, direct root access, broad firewall rules, exposed Docker ports, copied-forward `.env` files, and "I will fix it later" habits feel fast until you need to explain exactly what is exposed and why. Operational trust is also a real security boundary. If you cannot explain who can log in, what ports are open, which services auto-start, and where secrets live, you already have a security problem. A clean rebuild feels slow, but it gets you back to a state you can reason about.
+
+## What Easily Exposes A Website Or Server
+
+Most beginner VPS problems do not start with elite attackers. They start with common, boring mistakes that make automated abuse cheap. If a server gets probed within hours of provisioning, every extra weakness compounds the problem.
+
+| Mistake | Why dangerous | Safer fix |
+| --- | --- | --- |
+| Password SSH login | Brute force still works | Use SSH keys only |
+| Root login enabled | One account compromises everything | Disable direct root SSH |
+| Weak or reused passwords | Old leaks still get replayed | Use a password manager |
+| No firewall | Every service is visible | Default deny with UFW |
+| Open unused ports | More attack surface | Allow only required ports |
+| Public database port | Easy target for scans | Keep DB private to localhost |
+| Exposed Docker ports | Containers bypass intent | Bind private services to `127.0.0.1` |
+| No Fail2ban | Repeated probes continue | Ban abusive IPs automatically |
+| Outdated packages | Old CVEs remain live | Patch early and often |
+| Secrets in Git or `.env` leaks | Credential theft scales fast | Store secrets privately and rotate |
+| Public admin panels | Bots love known panels | Hide, restrict, or remove them |
+| No backups | Recovery becomes panic | Keep off-server backups |
+| No log review | Incidents stay invisible | Check auth, app, and web logs |
+| Running everything as root | Mistakes spread everywhere | Separate deploy user from root |
+
+The dangerous part is that none of these look dramatic on day one. A beginner can launch a perfectly working site with several of them and assume the server is "fine." Security failures usually begin as invisible convenience.
+
+## How Hackers Usually Access Beginner Servers
+
+The simplest path is still SSH brute force against password login. The next easy win is password reuse from old leaks. Open services are another major path: public databases, exposed dashboards, stray Docker ports, and weakly protected admin panels. Bots do not need to know your brand. They just need your IP and a known fingerprint.
+
+Secrets are another entry point. Exposed `.env` files, credentials in Git, plaintext tokens in shell history, and over-privileged API keys can hand an attacker the access they need. Web app bugs matter too. Insecure uploads, command injection, and weak auth can all become server-level problems if the app runs with too much privilege. The app can compromise the box, and the box can expose the app.
+
+## Beginner Server Security Checklist
+
+If you are deploying your first real project, this is the checklist I would follow before sending any production traffic:
+
+1. Use SSH keys only.
+2. Disable direct root SSH login.
+3. Disable password authentication.
+4. Allow only the users who actually need shell access.
+5. Enable UFW and default-deny inbound traffic.
+6. Keep only `22`, `80`, and `443` open unless you have a real reason.
+7. Install Fail2ban for SSH at minimum.
+8. Update the OS immediately after provisioning.
+9. Enable automatic security updates where appropriate.
+10. Keep databases private to localhost or an internal network only.
+11. Do not expose Docker services by habit.
+12. Put public traffic behind Nginx and HTTPS.
+13. Use Cloudflare or another reverse proxy for edge protection.
+14. Store secrets outside Git and rotate them after incidents.
+15. Run the app as a deploy user, not as root.
+16. Keep off-server backups of trusted content and data.
+17. Review logs for failed logins, odd ports, and unknown processes.
+18. Monitor the server so compromise signals do not stay silent.
+
+If you want a shorter preventive companion, [VPS Setup Guide](/blog/vps-setup-guide), [VPS Security Hardening Ubuntu 2026](/blog/vps-security-harden-ubuntu-2026), and [Best VPS Monitoring Tools in 2026](/blog/best-vps-monitoring-tools-2026) fit together well. This article is the recovery mindset that sits behind those routines.
+
+## Basic Server Hardening Commands I Would Run First
+
+These are the basic commands I would run on a fresh Ubuntu VPS before restoring real traffic. Keep your current SSH session open, open a second terminal, and test the new login before you restart SSH. Never close your working session until the new one succeeds.
+
+```bash
+# Create a non-root deploy user
+sudo adduser deploy
+sudo usermod -aG sudo deploy
+```
+<Callout type="tip" title="Expected output">
+You should see a prompt to set the user details, then the commands finish without errors.
+</Callout>
+
+```ini
+# /etc/ssh/sshd_config
+PermitRootLogin no
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PubkeyAuthentication yes
+AllowUsers deploy
+```
+<Callout type="warning" title="Critical warning">
+Test SSH in another session before restarting the SSH service. One bad edit can lock you out.
+</Callout>
+
+```bash
+# Validate and restart SSH
+sudo sshd -t
+sudo systemctl restart ssh
+```
+<Callout type="tip" title="Expected output">
+`sudo sshd -t` returns no output on success. If it prints an error, fix the config before restarting.
+</Callout>
+
+```bash
+# Basic firewall policy
+sudo apt-get install -y ufw
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw allow 22/tcp
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw enable
+sudo ufw status verbose
+```
+<Callout type="tip" title="Expected output">
+You want `Status: active` and only the ports you intentionally allowed.
+</Callout>
+
+```bash
+# Install Fail2ban
+sudo apt-get install -y fail2ban
+sudo systemctl enable fail2ban
+sudo systemctl start fail2ban
+sudo fail2ban-client status
+```
+<Callout type="tip" title="Expected output">
+Fail2ban should report at least one active jail after you configure `sshd`.
+</Callout>
+
+```bash
+# Enable unattended security updates
+sudo apt-get install -y unattended-upgrades
+sudo dpkg-reconfigure -plow unattended-upgrades
+sudo systemctl status unattended-upgrades
+```
+<Callout type="tip" title="Expected output">
+The service should show as installed and available; package prompts should complete cleanly.
+</Callout>
+
+Those are not advanced hardening tricks. They are the boring baseline. Boring is what you want from production security.
+
+## Secure Deployment Mindset After An Incident
+
+After this experience, my deployment checklist changed from "how fast can I get the app live?" to "what exactly becomes public if I press deploy?" That catches bad assumptions early.
+
+Before deploying, I now ask: what ports are public, which services are localhost-only, who can SSH in, where secrets live, and whether I can rebuild from GitHub plus trusted secrets if the server dies today. These questions are practical, not paranoid. A VPS should be replaceable. If your server is irreplaceable, it is too fragile.
+
+## If I Were Setting Up A Fresh VPS Today
+
+If I had to start again from zero, this is the exact order I would use:
+
+1. Create a new Ubuntu VPS.
+2. Attach only a trusted SSH key during provisioning.
+3. Create a non-root sudo deploy user.
+4. Update the OS immediately.
+5. Disable root SSH and password auth.
+6. Enable UFW with only required ports.
+7. Install and verify Fail2ban.
+8. Clone the app from GitHub fresh.
+9. Recreate `.env` from trusted secret sources.
+10. Build and run the app with a fresh PM2 config.
+11. Put Nginx and HTTPS in front of it.
+12. Verify `200`, canonical tags, and sitemap.
+13. Restore only reviewed content and assets.
+14. Rotate old keys and API credentials.
+15. Turn monitoring and backups on before normal traffic.
+
+That order is less glamorous than "ship fast," but it is what reduces the chance of repeating the same mistake. Recovery is the best time to become stricter.
+
+## What I Would Never Do Again
+
+I would never trust an untrusted server just because it still responds on SSH. I would never use the old host as the restore source of truth. I would never blindly copy forward cron jobs, PM2 dumps, shell profiles, Docker data, or `.ssh` directories after an incident.
+
+I would never leave password SSH enabled on a public VPS, expose a database port casually, skip firewall setup because the project is "small," or deploy without knowing how to rebuild the server from scratch. A production server is fine only when you can still explain its access paths, startup paths, exposed surface, and recovery path.
+
+## Troubleshooting After A Suspected Compromise
+
+If you think a server may be compromised, use a conservative playbook. Do not optimize for convenience. Optimize for trust.
+
+| Symptom | What it usually means | Safer response |
+| --- | --- | --- |
+| SSH reachable, auth fails | Lost admin path or changed access state | Treat host as untrusted |
+| Unknown open port | Unexpected service or container | Inventory, then rebuild if unsure |
+| Strange cron entry | Persistence attempt or old drift | Remove only after review |
+| Unknown PM2 process | Drift or malicious startup | Do not restore old PM2 state |
+| High outbound traffic | Spam, miner, beacon, or data leak | Isolate and rebuild |
+| `.env` may be exposed | Secret compromise risk | Rotate credentials now |
+| Site works but logs look odd | Partial compromise is still possible | Investigate, do not assume safety |
+
+The hardest call for beginners is the rebuild decision. My rule is simple: if you cannot explain the server's current state with confidence, rebuilding is safer than live-cleaning. [Self-Healing VPS Monitor 2026](/blog/self-healing-vps-monitor-nodejs) helps after the system is trusted again, but automation is not incident response.
+
+## FAQ
+
+### What should I do first if my VPS might be compromised?
+
+Treat the server as untrusted immediately. Do not keep deploying to it, do not keep using old credentials casually, and do not assume the issue is "small" because the site still loads. Your first priority is containment and trust evaluation, not convenience.
+
+### Is it better to clean the server or rebuild it?
+
+Rebuild it if you cannot explain exactly what changed and what remains trustworthy. Cleaning in place can work for narrow incidents, but beginners usually underestimate how much hidden state exists on a VPS. A fresh rebuild is slower for an hour and safer for months.
+
+### Can I restore a full server backup after a malware or security issue?
+
+You can, but it is often the wrong move. A full image may carry forward the same bad state, stale keys, or unknown startup artifacts. Restore trusted content, reviewed assets, and text dumps instead of replaying the whole machine blindly.
+
+### How do hackers usually get into small VPS servers?
+
+The common paths are password SSH, reused passwords, exposed ports, unpatched software, leaked secrets, and overly public Docker or admin services. Small servers are usually attacked by automation first, not by custom manual intrusion.
+
+### What ports should a beginner VPS usually expose?
+
+For a simple web app, usually only `22`, `80`, and `443`. Everything else should stay private unless you have a specific reason to expose it. Databases, queues, and internal dashboards usually should not be public.
+
+### Do I really need Fail2ban if I already use SSH keys?
+
+Yes. SSH keys remove password brute-force risk, but Fail2ban still reduces noisy repeated abuse and helps on other services if you configure those jails. It is not your only defense, but it is cheap protection.
+
+### How do I know when to rotate secrets after a server incident?
+
+Rotate them as soon as you suspect they may have been exposed. If the old host is untrusted, assume anything stored there could be at risk: deploy keys, API tokens, webhook secrets, and environment values. Rotation is usually faster than trying to prove non-exposure.
+
+## What Next?
+
+Once the box is trusted again, tighten the preventive layer with [VPS Security Hardening Ubuntu 2026](/blog/vps-security-harden-ubuntu-2026), keep the short version in [Ubuntu VPS Hardening Checklist](/blog/ubuntu-vps-hardening-checklist), and make the system observable with [Best VPS Monitoring Tools in 2026](/blog/best-vps-monitoring-tools-2026). Recovery is the painful teacher. The value is making sure you only learn the lesson once.

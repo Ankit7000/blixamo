@@ -3,10 +3,11 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 
 const NAV = [
-  { label: 'Tech', href: '/category/tech' },
-  { label: 'Tutorials', href: '/category/tutorials' },
-  { label: 'AI', href: '/category/ai' },
-  { label: 'Tools', href: '/category/tools' },
+  { label: 'Start Here', href: '/tag/deployment' },
+  { label: 'Categories', href: '/tag/deployment#resource-categories' },
+  { label: 'Guides', href: '/tag/deployment#authority-pages' },
+  { label: 'Community', href: '/community' },
+  { label: 'Blog', href: '/blog' },
   { label: 'About', href: '/about' },
 ]
 
@@ -40,50 +41,55 @@ export function Header() {
       transition: 'all 0.2s',
     }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 1rem', display: 'flex', alignItems: 'center', height: '60px', gap: '1.5rem' }}>
-        {/* Logo */}
         <Link href="/" style={{ fontWeight: 800, fontSize: '1.4rem', color: 'var(--accent)', letterSpacing: '-0.03em', flexShrink: 0 }}>
           blix<span style={{ color: 'var(--text-primary)' }}>amo</span>
         </Link>
 
-        {/* Desktop Nav */}
         <nav style={{ display: 'flex', gap: '0.25rem', flex: 1 }} className="hidden-mobile">
-          {NAV.map(n => (
-            <Link key={n.href} href={n.href} style={{
-              padding: '0.35rem 0.75rem',
-              borderRadius: '0.375rem',
-              fontSize: '0.9rem',
-              fontWeight: 500,
-              color: 'var(--text-secondary)',
-              transition: 'all 0.15s',
-            }}
-            onMouseEnter={e => { (e.target as HTMLElement).style.color = 'var(--accent)'; (e.target as HTMLElement).style.background = 'var(--surface)'; }}
-            onMouseLeave={e => { (e.target as HTMLElement).style.color = 'var(--text-secondary)'; (e.target as HTMLElement).style.background = 'transparent'; }}
-            >{n.label}</Link>
+          {NAV.map((n) => (
+            <Link
+              key={n.href}
+              href={n.href}
+              style={{
+                padding: '0.35rem 0.75rem',
+                borderRadius: '0.375rem',
+                fontSize: '0.9rem',
+                fontWeight: 500,
+                color: 'var(--text-secondary)',
+                transition: 'all 0.15s',
+              }}
+              onMouseEnter={(e) => {
+                ;(e.target as HTMLElement).style.color = 'var(--accent)'
+                ;(e.target as HTMLElement).style.background = 'var(--surface)'
+              }}
+              onMouseLeave={(e) => {
+                ;(e.target as HTMLElement).style.color = 'var(--text-secondary)'
+                ;(e.target as HTMLElement).style.background = 'transparent'
+              }}
+            >
+              {n.label}
+            </Link>
           ))}
         </nav>
 
         <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-          {/* Search */}
           <Link href="/search" aria-label="Search" style={{ padding: '0.4rem', borderRadius: '0.375rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center' }}>
-            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
           </Link>
-          {/* Dark mode */}
           <button onClick={toggleTheme} aria-label="Toggle theme" style={{ padding: '0.4rem', borderRadius: '0.375rem', background: 'var(--surface)', border: '1px solid var(--border)', cursor: 'pointer', fontSize: '1rem', lineHeight: 1 }}>
-            {theme === 'light' ? '🌙' : '☀️'}
+            {theme === 'light' ? 'Dark' : 'Light'}
           </button>
-          {/* Mobile menu */}
-          <button onClick={() => setMenuOpen(o => !o)} aria-label="Menu" className="show-mobile" style={{ padding: '0.4rem', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-primary)' }}>
+          <button onClick={() => setMenuOpen((o) => !o)} aria-label="Menu" className="show-mobile" style={{ padding: '0.4rem', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-primary)' }}>
             <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              {menuOpen ? <path d="M18 6 6 18M6 6l12 12"/> : <path d="M3 12h18M3 6h18M3 18h18"/>}
+              {menuOpen ? <path d="M18 6 6 18M6 6l12 12" /> : <path d="M3 12h18M3 6h18M3 18h18" />}
             </svg>
           </button>
         </div>
       </div>
 
-      {/* Mobile Nav */}
       {menuOpen && (
         <div style={{ background: 'var(--bg)', borderTop: '1px solid var(--border)', padding: '0.75rem 1rem' }}>
-          {NAV.map(n => (
+          {NAV.map((n) => (
             <Link key={n.href} href={n.href} onClick={() => setMenuOpen(false)} style={{ display: 'block', padding: '0.6rem 0.5rem', color: 'var(--text-secondary)', fontWeight: 500, borderBottom: '1px solid var(--border)' }}>
               {n.label}
             </Link>
@@ -98,3 +104,4 @@ export function Header() {
     </header>
   )
 }
+

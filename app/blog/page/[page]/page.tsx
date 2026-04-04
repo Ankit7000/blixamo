@@ -7,10 +7,19 @@ import type { Metadata } from 'next'
 const POSTS_PER_PAGE = 10
 type Props = { params: Promise<{ page: string }> }
 
+function parseArchivePage(page: string): number | null {
+  if (!/^\d+$/.test(page)) {
+    return null
+  }
+
+  const parsedPage = Number(page)
+  return Number.isSafeInteger(parsedPage) ? parsedPage : null
+}
+
 export async function generateStaticParams() {
   const posts = getAllPosts()
-  const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE)
-  return Array.from({ length: totalPages - 1 }, (_, i) => ({ page: String(i + 2) }))
+  const totalPages = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE))
+  return Array.from({ length: Math.max(totalPages - 1, 0) }, (_, i) => ({ page: String(i + 2) }))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -25,10 +34,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPage({ params }: Props) {
   const { page: pageStr } = await params
-  const page = parseInt(pageStr)
+  const page = parseArchivePage(pageStr)
   const posts = getAllPosts()
-  const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE)
-  if (page < 2 || page > totalPages) notFound()
+  const totalPages = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE))
+  if (page === null || page < 2 || page > totalPages) notFound()
   const start = (page - 1) * POSTS_PER_PAGE
   const pagePosts = posts.slice(start, start + POSTS_PER_PAGE)
 

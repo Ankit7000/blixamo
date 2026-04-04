@@ -1,0 +1,243 @@
+---
+title: "WhatsApp AI Assistant with n8n + Claude API 2026"
+slug: "whatsapp-ai-assistant-n8n-claude-api"
+description: "Build a WhatsApp AI assistant with WAHA, n8n, and Claude API on your own VPS. Clean architecture, working workflow, and practical guardrails."
+date: "2026-03-18"
+updatedAt: "2026-03-25"
+author: "Ankit Sorathiya"
+category: "ai"
+tags: [n8n, automation, nodejs]
+keyword: "whatsapp ai assistant n8n claude api"
+secondaryKeywords: ["n8n claude api integration", "whatsapp bot claude api self hosted", "n8n whatsapp automation self-hosted", "waha n8n hetzner"]
+featured: true
+featuredImage: /images/posts/whatsapp-ai-assistant-n8n-claude-api/featured.jpg
+schema: "howto"
+difficulty: "intermediate"
+timeToComplete: "45 minutes"
+excerpt: "Build a self-hosted WhatsApp AI assistant with WAHA, n8n, and Claude API so you keep the workflow simple and the infrastructure under your control."
+toc: true
+---
+
+The fastest way to make a WhatsApp AI assistant feel expensive is to bolt together a hosted automation tool, a paid bot platform, and an LLM API before you even know whether the workflow is useful. I wanted the opposite: one VPS, one automation layer, one model API, and a setup I could understand end to end.
+
+That is why this stack works well: WAHA handles WhatsApp connectivity, n8n orchestrates the workflow, and Claude API generates the reply. It is simple enough to build in under an hour and flexible enough to evolve into a more capable assistant later. For the broader workflow path, keep the [resources hub](/tag/deployment) nearby, treat this build as part of the [AI category](/category/ai), and use the [Automation Guide for Developers](/guides/automation-guide-for-developers) as the parent map while you connect it to the rest of your automation stack.
+
+<Callout type="info" title="TL;DR">
+Use WAHA for the WhatsApp connection, n8n for the message workflow, and Claude API for the reply. Keep the first version stateless, add a short system prompt, and add rate limits before you share the bot with more than a few users.
+</Callout>
+
+![WhatsApp showing AI assistant reply powered by Claude API via n8n](/images/posts/whatsapp-ai-assistant-n8n-claude-api/01-whatsapp-ai-reply.png)
+*A WhatsApp AI assistant does not need a huge stack. A clean webhook flow is enough for a strong first version.*
+
+<Callout type="warning" title="Important">
+WAHA uses an unofficial WhatsApp-style connection. It is fine for personal experiments and internal tools, but it is not what I would use for large customer-facing messaging. If you need official compliance and scale, use the Meta WhatsApp Business API instead.
+</Callout>
+
+## Why This Stack Works
+
+The architecture is clean because each part has one job.
+
+- WAHA receives and sends WhatsApp messages
+- n8n decides what to do with them
+- Claude API generates the response
+
+That separation makes the system easy to debug. If messages are not arriving, you inspect WAHA. If the workflow logic is wrong, you inspect n8n. If the reply quality is weak, you adjust the Claude prompt.
+
+This also fits nicely into a self-hosted workflow. If you already run n8n on a VPS, you are not adding much complexity. Start with [Self-host n8n on Hetzner VPS](/blog/self-hosting-n8n-hetzner-vps) if you do not already have that piece running.
+
+## What You Need Before Starting
+
+Before you build the assistant, make sure you have:
+
+- a VPS with Docker or a place to run WAHA
+- an n8n instance reachable from the public internet
+- an Anthropic API key for Claude
+- a WhatsApp account that can scan a QR code
+
+If you want to keep the infrastructure lightweight, this fits well on the same kind of setup described in [Docker Compose on VPS production setup](/blog/docker-compose-production-vps-2026).
+
+## Step 1 of 5 — Run WAHA
+
+WAHA is the bridge between WhatsApp and your workflow. The simplest way to start is running it in Docker.
+
+```bash
+docker run -d \
+  --name waha \
+  --restart unless-stopped \
+  -p 3010:3000 \
+  -v /var/waha-data:/app/.sessions \
+  devlikeapro/waha
+```
+
+The volume mount matters. Without it, your WhatsApp session disappears whenever the container is recreated and you end up scanning the QR code again.
+
+After the container is up, start a session in the WAHA dashboard or API and scan the QR code with your phone. Once the session is connected, you have the transport layer working.
+
+## Step 2 of 5 — Create the n8n Webhook Workflow
+
+The first version of the workflow can stay small:
+
+1. Webhook trigger
+2. Extract incoming text
+3. Call Claude API
+4. Send the response back through WAHA
+
+That is enough to prove the architecture.
+
+In n8n, create a Webhook node with a path like `whatsapp`. That gives you a public URL WAHA can call when a new message arrives.
+
+Then add a Set node to capture the sender and message body:
+
+```text
+from = {{ $json.body.payload.from }}
+body = {{ $json.body.payload.body }}
+```
+
+Keep the data shape simple. You can add message history, routing, and richer context later.
+
+## Step 3 of 5 — Call Claude API From n8n
+
+You do not need a special SDK for the first version. n8n's HTTP Request node is enough.
+
+Configure it as:
+
+- method: `POST`
+- url: `https://api.anthropic.com/v1/messages`
+- headers: `x-api-key`, `anthropic-version`, `content-type`
+
+Example body:
+
+```json
+{
+  "model": "claude-sonnet-4-5",
+  "max_tokens": 500,
+  "system": "You are a concise WhatsApp assistant for a developer. Keep replies short, practical, and plain text.",
+  "messages": [
+    {
+      "role": "user",
+      "content": "={{ $json.body }}"
+    }
+  ]
+}
+```
+
+The short system prompt matters more than people think. WhatsApp is not email. Long answers feel wrong in a chat window. Keep the reply compact unless the user explicitly asks for depth.
+
+If you want more ideas for working with the model layer itself, read [Claude AI guide](/blog/claude-ai-guide) and [Claude API + Node.js automation](/blog/claude-api-content-automation-nodejs).
+
+## Step 4 of 5 — Send the Reply Back Through WAHA
+
+Once n8n gets a response from Claude, call WAHA again to send the text back to the same chat.
+
+```json
+{
+  "chatId": "={{ $('Set').item.json.from }}",
+  "text": "={{ $json.content[0].text }}"
+}
+```
+
+At this point, the assistant works. You can message the number, n8n receives the webhook, Claude replies, and WAHA sends the response back.
+
+The first thing I would test is not the AI quality. It is whether the end-to-end flow is stable across multiple messages and a WAHA restart.
+
+## Step 5 of 5 — Add Basic Guardrails
+
+A WhatsApp bot gets risky when it is too eager. Add these guardrails before you call it finished:
+
+### Ignore messages sent by the bot itself
+
+Otherwise you can create reply loops.
+
+### Add a short rate limit
+
+Even a simple Redis or n8n-based per-number counter is enough to stop runaway usage or accidental loops.
+
+### Keep the assistant stateless first
+
+Memory sounds useful, but it adds complexity fast. Start with one message in, one message out. Add memory only after the base system is reliable.
+
+### Use a domain and reverse proxy
+
+Do not leave WAHA on a raw public port longer than necessary. Put it behind Nginx and TLS once the proof of concept works.
+
+## Troubleshooting Common Problems
+
+### WAHA is connected but n8n never receives messages
+
+This is usually a webhook URL problem. Make sure WAHA points to the public n8n webhook URL, not `localhost` or a private address it cannot reach.
+
+### Claude API returns 401 or 400
+
+Check the headers first. Missing `x-api-key` or `anthropic-version` is the common cause. After that, validate the JSON body and confirm the model name is correct.
+
+### The bot replies to its own messages
+
+Filter on the WAHA payload so only incoming user messages continue through the workflow.
+
+### Responses are too long or too formal
+
+Tighten the system prompt. "Keep replies to 2 to 4 sentences and use plain text" does more work than people expect.
+
+### WAHA disconnects after restart
+
+That usually means the session directory was not mounted to persistent storage. Re-run the container with the volume mount so the QR session survives restarts.
+
+## How I Would Extend This Assistant Next
+
+Once the base assistant is stable, these are the upgrades worth adding:
+
+### 1. Conversation memory
+
+Store recent messages in Redis or n8n data storage and pass the last few turns to Claude. This makes the assistant much more useful for ongoing chats.
+
+### 2. Command routing
+
+Use simple prefixes like `/summary`, `/todo`, or `/draft` and branch the workflow in n8n before the Claude call.
+
+### 3. Internal tool actions
+
+The real power of this setup is not just answering questions. It is using WhatsApp as the front end for other automations, like checking server health or triggering a content workflow.
+
+That is where [self-healing VPS monitor in Node.js](/blog/self-healing-vps-monitor-nodejs), [self-hosting n8n on Hetzner VPS](/blog/self-hosting-n8n-hetzner-vps), and a lighter [Telegram bot with Claude API in Python](/blog/build-telegram-bot-claude-api-python) start connecting into a more useful system when you want messaging automation beyond WhatsApp.
+
+## Summary
+
+The cleanest way to build a WhatsApp AI assistant in 2026 is to keep the architecture narrow:
+
+- WAHA for transport
+- n8n for workflow logic
+- Claude API for the response
+
+That gives you a self-hosted assistant that is easy to debug, cheap to run, and flexible enough to improve later.
+
+## FAQ
+
+### Can I build a WhatsApp AI assistant with n8n and Claude API?
+
+Yes. n8n can receive the webhook, format the request to Claude API, and send the result back through WAHA or another WhatsApp-compatible layer. It is one of the simplest ways to wire a self-hosted WhatsApp assistant together.
+
+### Is WAHA safe for production use?
+
+It depends on what you mean by production. For personal tools and internal experiments, it is practical. For large-scale customer messaging or strict compliance requirements, I would use the official Meta WhatsApp Business API instead.
+
+### Do I need coding to build this WhatsApp AI assistant?
+
+You can build the first version mostly with configuration in n8n plus a Docker run command for WAHA. You still need to understand webhook flow, JSON fields, and basic deployment hygiene, but the amount of custom code is low.
+
+### How much does a WhatsApp AI assistant with Claude cost?
+
+The infrastructure cost can be very low if you already run n8n on a VPS. Your main variable cost is Claude API usage. For a lightweight personal assistant, the API cost is often much lower than people expect.
+
+### Should I add memory to the assistant immediately?
+
+No. Start stateless. The first version should prove that incoming messages, Claude responses, and outgoing replies are stable. Add memory only after the base workflow is reliable and you know what context actually improves responses.
+
+### Can this assistant trigger other automations?
+
+Yes, and that is where n8n becomes especially valuable. Once the WhatsApp layer works, you can branch workflows to create summaries, trigger alerts, check services, or route commands to other automations instead of using Claude for everything.
+
+## What Next?
+
+If you still need the workflow layer, start with [self-hosting n8n on Hetzner VPS](/blog/self-hosting-n8n-hetzner-vps). If you want to get better Claude responses, continue with [Claude AI guide](/blog/claude-ai-guide). If you want your WhatsApp assistant to trigger useful actions instead of only chatting back, the next strong read is [Claude API + Node.js automation](/blog/claude-api-content-automation-nodejs).
+
+That is the better progression: reliable transport first, better prompts second, richer automation third.

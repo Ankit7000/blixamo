@@ -1,0 +1,274 @@
+---
+title: "Self-Healing VPS Monitor 2026 — 90 Days Zero Downtime"
+slug: "self-healing-vps-monitor-nodejs"
+description: "Build a self-healing VPS monitor in Node.js that watches PM2, Nginx, Redis, and other services, then applies safe recovery actions with alerts."
+date: "2026-03-19"
+updatedAt: "2026-03-25"
+author: "Ankit Sorathiya"
+category: "self-hosting"
+tags: [vps, hetzner, nodejs]
+keyword: "self healing vps monitor nodejs"
+secondaryKeywords: ["vps auto recovery nodejs", "pm2 auto restart monitor", "hetzner vps monitoring 2026", "self healing server automation", "vps autopilot hetzner"]
+featured: false
+featuredImage: /images/posts/self-healing-vps-monitor-nodejs/featured.jpg
+schema: "howto"
+difficulty: "advanced"
+timeToComplete: "45 minutes"
+series: "self-hosting"
+seriesPart: 4
+excerpt: "I built a Node.js self-healing supervisor for a VPS stack so common failures can be fixed automatically without causing retry storms."
+toc: true
+---
+
+I got tired of the same kind of VPS outage: one service dies, the fix is obvious, and I still only notice after the site has been down for longer than it should have been. That is fine once. It is not fine when the server is running multiple projects and a simple PM2 or Nginx failure becomes a silent outage.
+
+So I built a self-healing VPS monitor in Node.js. It checks a small set of high-value signals, keeps a record of which fixes actually work, stops itself from thrashing when a fix keeps failing, and sends an alert when it reaches the point where a human should take over. For the broader self-hosting path, keep the [resources hub](/tag/deployment) nearby, treat this guide as part of the [Self-Hosting category](/category/self-hosting), and use the [Self Hosting Complete Guide](/guides/self-hosting-complete-guide) as the parent map while you connect monitoring to the rest of your stack.
+
+<Callout type="info" title="TL;DR">
+This setup works best if you already run multiple services on one VPS. The key idea is not "restart everything automatically." It is "only run recovery actions that have a history of working, and stop before your monitor becomes the problem."
+</Callout>
+
+![Self-healing VPS monitor — Bayesian supervisor pipeline: health check to score to action to alert](/images/posts/self-healing-vps-monitor-nodejs/01-bayesian-pipeline.png)
+*A self-healing monitor is useful only if it can recover common failures without creating a restart loop.*
+
+<Callout type="info" title="Before you start">
+- Ubuntu VPS with Node.js installed
+- Services you can check and restart predictably
+- One alerting path such as email, Telegram, or n8n webhook
+- Comfort with cron, JSON state files, and shell commands
+- A real reason to automate recovery instead of manually restarting one toy app
+</Callout>
+
+## What a Self-Healing VPS Monitor Should Actually Do
+
+A lot of monitoring guides jump from "health check" straight to "run restart command." That is too naive for a production VPS.
+
+A useful self-healing monitor should do four things:
+
+1. detect common failures quickly
+2. choose a safe response
+3. stop retrying when a fix clearly is not working
+4. alert you with enough context to investigate
+
+That last point matters most. If the script silently restarts PM2 forever while the real issue is a broken build or full disk, you do not have a healing system. You have an outage multiplier.
+
+If your server stack includes containers and app processes already, this pairs well with [Docker Compose on VPS production setup](/blog/docker-compose-production-vps-2026) and [self-hosting n8n on Hetzner VPS](/blog/self-hosting-n8n-hetzner-vps).
+
+## Why I Used Node.js for the Monitor
+
+Node.js was the simplest choice because the rest of my tooling already lived there. It is easy to run shell commands, parse JSON, write state files, and reuse the same environment as the rest of the app stack.
+
+I did not need a heavyweight monitoring platform. I needed a reliable script that could:
+
+- run from cron
+- check PM2, Nginx, Redis, and a few app-level signals
+- record history
+- send a structured alert
+
+That makes Node.js a perfectly good fit.
+
+## The Core Design: Evidence, State, and Guardrails
+
+The system is built around one loop:
+
+1. collect evidence
+2. decide which failure is most likely
+3. try one safe fix
+4. record whether it worked
+5. stop if the situation looks unstable
+
+The important part is the guardrails. The script should never keep hammering the same fix because "restart" feels harmless. That is how you turn a minor outage into log noise and service flapping.
+
+## Step 1 of 5 — Keep State in One JSON File
+
+The monitor needs memory between runs. The easiest way to do that is a single JSON state file that records attempts, successes, failures, and recent timestamps per fix type.
+
+```json
+{
+  "fixes": {
+    "restartPm2": {
+      "attempts": 4,
+      "successes": 3,
+      "failures": 1,
+      "timestamps": [1710000000000, 1710003600000]
+    }
+  },
+  "budget": {
+    "usedToday": 1,
+    "resetAt": "2026-03-25T00:00:00.000Z"
+  }
+}
+```
+
+That state file gives you two things most simple monitoring scripts lack:
+
+- confidence from historical outcomes
+- a way to cap how many heal actions run in a day
+
+If you skip the state layer, every restart decision becomes stateless guesswork.
+
+## Step 2 of 5 — Collect Only High-Value Evidence
+
+Do not monitor everything at once. Start with the failures you actually see.
+
+For a typical small VPS stack, that usually means:
+
+- PM2 process not online
+- Nginx not active
+- Redis not responding
+- missing build artifact
+- app health endpoint returning a bad status
+
+That is enough to make the script useful without turning it into a fake observability platform.
+
+```js
+function collectEvidence() {
+  return {
+    pm2Online: run("pm2 jlist").includes('"status":"online"'),
+    nginxActive: run("systemctl is-active nginx").trim() === "active",
+    redisOk: run("docker exec redis redis-cli ping").trim() === "PONG",
+    appOk: run("curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000").trim() === "200",
+  };
+}
+```
+
+Keep the checks small and deterministic. The goal is not perfect diagnosis. It is enough signal to pick the safest next action.
+
+## Step 3 of 5 — Add Confidence Before Running Fixes
+
+This is the part that makes the monitor more useful than a plain restart script.
+
+Each fix type keeps a record of attempts and successes. A simple confidence score lets you prefer fixes that usually work and stop retrying ones that do not.
+
+```js
+function confidence(record) {
+  if (!record) return 0.5;
+  const attempts = record.attempts || 0;
+  const successes = record.successes || 0;
+  return (successes + 1) / (attempts + 2);
+}
+```
+
+This does not need to be academically perfect. It just needs to answer one practical question: does history suggest this action is worth trying again?
+
+If `restartPm2` has succeeded 8 out of the last 10 times, it is a strong candidate. If `cleanBuild` has failed 4 times in a row, the script should stop trying it and alert you instead.
+
+## Step 4 of 5 — Define Heal Actions With Hard Limits
+
+A self-healing monitor becomes dangerous when it is allowed to run fixes indefinitely. So every action should pass a few gates first:
+
+- confidence above a minimum threshold
+- not too many recent attempts
+- enough daily heal budget left
+- no repeat loop on the same failure
+
+Then the actual heal functions can stay simple.
+
+```js
+const HEALS = {
+  restartPm2: () => run("pm2 restart blixamo").ok,
+  restartNginx: () => {
+    const test = run("nginx -t");
+    if (!test.ok) return false;
+    return run("systemctl restart nginx").ok;
+  },
+  restartRedis: () => run("docker restart redis").ok,
+};
+```
+
+This is also where [VPS security hardening on Ubuntu](/blog/vps-security-harden-ubuntu-2026) matters. If your fix path depends on unsafe shell access or brittle service definitions, the recovery script inherits that fragility.
+
+## Step 5 of 5 — Run It From Cron and Alert on Escalation
+
+I prefer running this kind of script from cron rather than as a permanent daemon. Cron is boring, predictable, and easier to recover from if the script itself fails.
+
+```bash
+*/15 * * * * node /var/www/blixamo/tools/vps-monitor.js >> /var/log/vps-monitor.log 2>&1
+```
+
+Then wire one alerting path. Email is enough. Telegram is enough. An n8n webhook is enough. The important thing is that the alert says what failed, what the monitor tried, and why it stopped, so if the signal looks more like an intrusion than a transient fault you can switch immediately to the [compromised VPS recovery guide](/blog/compromised-vps-recovery-2026).
+
+That is what makes the system trustworthy. You want one useful alert, not 20 vague ones.
+
+## Safe Healing Rules I Would Not Skip
+
+These are the rules that keep the system from making a bad situation worse:
+
+### 1. Never let the monitor restart the same thing forever
+
+If PM2 has already been restarted 3 times in the last hour and the app still is not healthy, escalate. The restart is not solving the real problem.
+
+### 2. Always test configuration before restarting services
+
+For Nginx, run `nginx -t` before restart or reload. A bad config plus automatic restart logic is a great way to create downtime yourself.
+
+### 3. Cap the total number of heal actions per day
+
+If the server is unstable enough to need constant intervention, the right move is to stop and investigate, not automate harder.
+
+### 4. Keep recovery actions idempotent where possible
+
+The safest heal action is one you can run twice without making the state worse.
+
+## What This Monitor Is Good At
+
+This setup is strong for:
+
+- PM2 process crashes
+- Nginx service issues
+- Redis container restarts
+- temporary bad app health
+- simple recoverable operational failures
+
+It is not the right tool for:
+
+- disk-full events with no cleanup policy
+- application bugs that keep shipping in every deploy
+- database corruption
+- deep observability or long-term metrics
+
+That is fine. You do not need one script to solve every reliability problem. You need it to solve the frequent, fixable ones.
+
+## Summary
+
+A self-healing VPS monitor in Node.js works well when it stays narrow:
+
+- check a few high-value signals
+- keep history in a state file
+- only run fixes with a history of working
+- cap retries and daily heal budget
+- escalate cleanly when the script should stop
+
+That gives you a system that actually reduces downtime instead of creating restart noise.
+
+## FAQ
+
+### What is a self-healing VPS monitor?
+
+It is a script or service that detects common server failures and runs predefined recovery actions automatically, such as restarting PM2, Nginx, or Redis. The useful versions also track state and alert a human when automated recovery stops being safe.
+
+### Why use Node.js for a VPS monitor?
+
+Node.js is a good fit if your stack already uses it. It makes shell execution, JSON state management, HTTP checks, and webhook alerts easy without adding another runtime or much deployment complexity.
+
+### Should a VPS monitor restart services automatically?
+
+Yes, but only for failures with a clear, safe recovery action. Automatic restarts are useful for known transient problems. They are dangerous when the underlying issue is persistent and the monitor has no stop condition.
+
+### How often should a self-healing monitor run?
+
+Every 5 to 15 minutes is enough for many small VPS setups. More frequent checks can make sense for critical services, but shorter intervals also increase the risk of noisy retries if your guardrails are weak.
+
+### Is this better than PM2 restart policies alone?
+
+Yes, for multi-service stacks. PM2 can restart a crashed process, but it does not reason about Nginx, Redis, missing build output, or whether a fix keeps failing. A self-healing monitor gives you a broader operational view.
+
+### What should the monitor alert on?
+
+Alert when a service is unhealthy and the automated fix either failed, exceeded retry limits, or dropped below your confidence threshold. That keeps alerts actionable instead of constant.
+
+## What Next?
+
+If your VPS runs multiple services, the natural next read is [Docker Compose on VPS production setup](/blog/docker-compose-production-vps-2026). If you want the alerting layer, pair this with [self-hosting n8n on Hetzner VPS](/blog/self-hosting-n8n-hetzner-vps) or [n8n + FastAPI on Hetzner VPS](/blog/n8n-fastapi-hetzner-vps). If reliability issues keep coming from bad deploys, tighten the app side with [How to self-host Next.js on a VPS](/blog/how-to-self-host-nextjs-on-vps).
+
+That is the better sequence: stable deploys first, targeted self-healing second.

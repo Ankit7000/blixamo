@@ -4,19 +4,28 @@ import { useEffect, useState } from 'react'
 interface Heading { id: string; text: string; level: number }
 
 function extractHeadings(content: string): Heading[] {
-  const regex = /^#{2,3}\s+(.+)$/gm
+  const regex = /^##\s+(.+)$/gm
   const headings: Heading[] = []
+  const excludedPatterns = [
+    /^related cluster articles$/i,
+    /^what this comparison is actually deciding$/i,
+    /^where .+ benchmark$/i,
+    /^which should you use\??$/i,
+    /^quick chooser$/i,
+    /^troubleshooting the wrong choice$/i,
+    /^full comparison table$/i,
+  ]
   let match
   while ((match = regex.exec(content)) !== null) {
-    const level = match[0].indexOf(' ')
     const text = match[1].replace(/[*`]/g, '')
+    if (excludedPatterns.some((pattern) => pattern.test(text))) continue
     const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-    headings.push({ id, text, level })
+    headings.push({ id, text, level: 2 })
   }
-  return headings
+  return headings.slice(0, 9)
 }
 
-export function TableOfContents({ content }: { content: string }) {
+export function TableOfContents({ content, className = '' }: { content: string; className?: string }) {
   const [active, setActive] = useState('')
   const headings = extractHeadings(content)
 
@@ -33,11 +42,11 @@ export function TableOfContents({ content }: { content: string }) {
   if (headings.length < 3) return null
 
   return (
-    <nav className="toc" aria-label="Table of contents">
+    <nav className={`toc ${className}`.trim()} aria-label="Table of contents">
       <p className="toc-title">In this article</p>
       <ul>
         {headings.map(h => (
-          <li key={h.id} style={{ paddingLeft: `${(h.level - 2) * 12}px` }}>
+          <li key={h.id}>
             <a href={`#${h.id}`} className={active === h.id ? 'active' : ''}>{h.text}</a>
           </li>
         ))}

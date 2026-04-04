@@ -1,0 +1,243 @@
+---
+title: "Nginx Reverse Proxy Setup 2026 — Multiple Apps on One VPS"
+slug: "nginx-reverse-proxy-guide-2026"
+description: "Set up Nginx as a reverse proxy for multiple apps on one VPS with SSL, clean server blocks, and practical production checks."
+date: "2026-03-22"
+updatedAt: "2026-03-26"
+author: "Ankit Sorathiya"
+category: "how-to"
+tags: [nginx, reverse-proxy, vps, devops]
+keyword: "nginx reverse proxy setup 2026"
+secondaryKeywords: ["nginx multiple apps one vps 2026", "nginx ssl let's encrypt ubuntu 2026", "nginx cloudflare cdn setup", "nginx proxy pass nextjs 2026"]
+featured: false
+featuredImage: /images/posts/nginx-reverse-proxy-guide-2026/featured.jpg
+schema: "howto"
+difficulty: "intermediate"
+timeToComplete: "30 minutes"
+excerpt: "A practical Nginx reverse proxy setup for running multiple apps on one VPS with HTTPS and clean per-app routing."
+toc: true
+---
+
+One VPS is enough for multiple apps, but only if the traffic routing stays predictable. That is the whole job of Nginx in this setup: receive traffic on ports 80 and 443, decide which domain or subdomain it belongs to, and forward it to the right app without exposing all your internal ports to the public internet.
+
+If you want to run a Next.js app, n8n, analytics, and maybe one or two client projects on the same server, you do not need a complex service mesh. You need a clean reverse proxy setup that you can read, verify, and fix quickly at 2am if necessary. For the broader deployment path, keep the [resources hub](/tag/deployment) open, treat this guide as part of the [How-To category](/category/how-to), and use the [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide) as the parent map before you start routing more services through the box.
+
+<Callout type="info" title="TL;DR">
+Use one Nginx server block per domain or subdomain, proxy each block to the correct local port, add HTTPS with Certbot, and always run `nginx -t` before reload. Keep the config boring and per-app, not clever.
+</Callout>
+
+![Nginx routing diagram showing multiple domains to different app ports on one VPS](/images/posts/nginx-reverse-proxy-guide-2026/01-nginx-routing-diagram.png)
+*Nginx becomes the public entry point, while the apps stay on internal ports.*
+
+## What an Nginx Reverse Proxy Solves
+
+Without a reverse proxy, each app would need its own public port and its own direct exposure to the internet. That gets messy fast.
+
+With Nginx in front, you can do this instead:
+
+- `blixamo.com` → Next.js on port `3000`
+- `n8n.example.com` → n8n on port `5678`
+- `analytics.example.com` → analytics app on port `8000`
+
+That gives you:
+
+- one consistent HTTPS entry point
+- cleaner domain-based routing
+- easier certificate management
+- the option to add caching and headers centrally
+
+If you are hosting multiple projects already, this naturally connects with [How to self-host Next.js on a VPS](/blog/how-to-self-host-nextjs-on-vps) and [Coolify guide 2026](/blog/coolify-complete-guide-2026).
+
+## What You Need Before Starting
+
+Before touching Nginx, make sure:
+
+- the apps already run locally on their internal ports
+- your domain DNS points at the VPS
+- ports 80 and 443 are open
+- you know which port each app actually listens on
+
+That last point matters. Reverse proxy debugging is much easier when you verify the app itself first with a local curl or localhost request.
+
+## Step 1 of 4 — Install Nginx and Verify the Service
+
+Start by installing Nginx and making sure the service is healthy before you add custom app routing.
+
+```bash
+sudo apt update
+sudo apt install nginx -y
+sudo systemctl enable nginx
+sudo systemctl start nginx
+```
+
+Then verify:
+
+```bash
+sudo systemctl status nginx
+```
+
+If Nginx is not healthy at this stage, do not keep going. Fix the base install first.
+
+## Step 2 of 4 — Create One Server Block Per App
+
+Keep each app in its own site file. That makes the config easier to scan and safer to change later.
+
+A basic proxy block for a Next.js app on port `3000` looks like this:
+
+```nginx
+server {
+    listen 80;
+    server_name blixamo.com www.blixamo.com;
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+Then enable the site and test the config:
+
+```bash
+sudo ln -s /etc/nginx/sites-available/blixamo /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+The important part is discipline: one app, one file, one target port.
+
+## Step 3 of 4 — Add HTTPS With Certbot
+
+Once HTTP routing works, add HTTPS. Certbot is still the simplest path for a normal VPS setup.
+
+```bash
+sudo apt install certbot python3-certbot-nginx -y
+sudo certbot --nginx -d blixamo.com -d www.blixamo.com
+```
+
+That updates the Nginx config so your site serves HTTPS and redirects HTTP traffic correctly.
+
+If you use Cloudflare, the safest move is usually:
+
+1. point DNS directly first
+2. provision the certificate
+3. then re-enable proxying if you want Cloudflare in front
+
+That avoids a lot of avoidable confusion during the certificate challenge step.
+
+## Step 4 of 4 — Repeat the Pattern for Other Apps
+
+Once the first app works, the rest follow the same pattern.
+
+For example:
+
+- `n8n.example.com` → `127.0.0.1:5678`
+- `analytics.example.com` → `127.0.0.1:8000`
+- `api.example.com` → `127.0.0.1:3001`
+
+The key is not copying one giant config. It is repeating the same small, readable structure. That keeps the system maintainable when you come back later to add headers, timeouts, or websocket support to a specific app only.
+
+If the deployment side is still open, [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner) shows the app layer that sits behind this proxy pattern.
+
+## Production Checks I Would Not Skip
+
+Before calling the setup done, verify:
+
+### 1. The app responds on localhost
+
+If `curl http://127.0.0.1:3000` fails, Nginx is not the problem.
+
+### 2. `nginx -t` passes before every reload
+
+This is the one rule you do not bend. Test first, reload second.
+
+### 3. HTTPS works on the public domain
+
+Check that the certificate is valid and the redirect path behaves the way you expect.
+
+### 4. Logs make sense
+
+If something still fails, inspect:
+
+- `/var/log/nginx/access.log`
+- `/var/log/nginx/error.log`
+
+The access log tells you whether requests are arriving. The error log tells you whether proxying is failing.
+
+## Common Problems and What They Usually Mean
+
+### 502 Bad Gateway
+
+Usually the upstream app is down, listening on the wrong port, or unreachable from Nginx.
+
+### Certbot fails
+
+Usually DNS is wrong, the domain has not propagated yet, or the challenge request is being interfered with by a proxy layer.
+
+### Websocket-based app behaves strangely
+
+Apps like n8n may need websocket-related headers and longer timeouts. Add those only to the apps that need them instead of pasting them everywhere by default.
+
+### You changed the config and the site broke immediately
+
+That is almost always a missing semicolon, bad block nesting, or reloading without testing. This is exactly why `nginx -t` belongs in muscle memory.
+
+## When to Use Manual Nginx Instead of a Platform Proxy
+
+Manual Nginx is the better fit when:
+
+- you want exact control over headers
+- you want simple per-app config files
+- you are debugging a VPS stack directly
+- you do not want another control plane between you and the proxy layer
+
+If you prefer a platform UI and automated proxy management, Coolify or similar tools can reduce operational work. But understanding the manual Nginx layer still pays off because that is what you end up debugging when a proxy issue gets weird.
+
+## Summary
+
+An Nginx reverse proxy setup for multiple apps on one VPS is not complicated when you keep it disciplined:
+
+- one server block per app
+- local app ports only
+- Nginx as the public entry point
+- Certbot for HTTPS
+- `nginx -t` before every reload
+
+That is enough to run several apps cleanly on one server without turning your config into a mystery.
+
+## FAQ
+
+### Can I run multiple apps on one VPS with Nginx?
+
+Yes. That is one of the most common and useful reasons to use Nginx as a reverse proxy. Each domain or subdomain can route to a different local app port.
+
+### What is the difference between reverse proxy and redirect?
+
+A reverse proxy forwards the request internally to another service while the user stays on the same public URL. A redirect tells the browser to go somewhere else entirely. For app routing on one VPS, you usually want a reverse proxy, not a redirect.
+
+### Why am I getting 502 Bad Gateway from Nginx?
+
+Because Nginx cannot reach the upstream app correctly. The app may be down, bound to the wrong host or port, or misconfigured behind the proxy.
+
+### Do I need a separate IP address for every app?
+
+No. That is the point of the reverse proxy. Multiple apps can share one public IP while Nginx routes them by domain and subdomain.
+
+### Should I use Nginx or Coolify's built-in proxy layer?
+
+Use manual Nginx if you want explicit control and easier low-level debugging. Use a platform proxy if you value convenience and do not need fine-grained proxy customization on day 1.
+
+### What is the safest habit when editing Nginx config?
+
+Always run `nginx -t` before reloading. That is the habit that prevents the easiest self-inflicted outages.
+
+## Final Takeaway
+
+If you run more than one app on a VPS, Nginx reverse proxying is one of the highest-leverage pieces of basic infrastructure to learn. Once this layer is correct, every app behind it becomes easier to expose, secure, and debug.
+
+If your Next.js app is the first thing behind this proxy, go next to [How to self-host Next.js on a VPS](/blog/how-to-self-host-nextjs-on-vps). If you want the more UI-driven deployment path, continue with [Coolify guide 2026](/blog/coolify-complete-guide-2026). If performance is the next concern, the follow-up is [Next.js performance optimization 2026](/blog/nextjs-performance-optimization-2026).
+
+That sequence gets you from "apps are reachable" to "apps are deployable and fast."

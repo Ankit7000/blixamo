@@ -1,70 +1,120 @@
 'use client'
-import Link from 'next/link'
+
 import Image from 'next/image'
+import Link from 'next/link'
+import { PRIMARY_AUTHOR, type AuthorProfile } from '@/lib/author'
 
 interface AuthorBioProps {
   name: string
   compact?: boolean
+  hero?: boolean
 }
 
-// Extend this map as you add real authors
-const AUTHORS: Record<string, { bio: string; avatar: string; twitter?: string; github?: string; role: string }> = {
-  'Ankit Sorathiya': {
-    role: 'Full-Stack Developer & Indie Builder',
-    bio: 'I build Flutter apps, Next.js sites, and AI integrations. I run this blog to document what actually works — VPS setups, dev tools, and indie hacking on a budget from India.',
-    avatar: '⚡',
-    twitter: 'ankit8k',
-  },
-  // Fallback
-  Blixamo: {
-    role: 'Full-Stack Developer & Indie Builder',
-    bio: 'I build Flutter apps, Next.js sites, and AI integrations. I run this blog to document what actually works — VPS setups, dev tools, and indie hacking on a budget from India.',
-    avatar: '⚡',
-    twitter: 'ankit8k',
-  },
+
+function getAuthorProfile(name: string): AuthorProfile {
+  const normalizedName = name.trim().toLowerCase()
+
+  if (normalizedName === 'ankit sorathiya' || normalizedName === 'blixamo') {
+    return PRIMARY_AUTHOR
+  }
+
+  return {
+    ...PRIMARY_AUTHOR,
+    displayName: name,
+  }
 }
 
-export function AuthorBio({ name, compact = false }: AuthorBioProps) {
-  const author = AUTHORS[name] || AUTHORS['Blixamo']
+export function AuthorBio({ name, compact = false, hero = false }: AuthorBioProps) {
+  const author = getAuthorProfile(name)
 
   if (compact) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-        <div style={{ width: '32px', height: '32px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '2px solid var(--accent)' }}>
-          <Image src="/images/ankit-avatar.jpg" alt={name} width={32} height={32} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
+      <div className="author-bio author-bio-compact">
+        <div className="author-bio-avatar author-bio-avatar-compact">
+          <Image src={author.avatarSrc} alt={author.displayName} width={32} height={32} className="author-bio-image" />
         </div>
-        <div>
-          <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)' }}>{name}</div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{author.role}</div>
+        <div className="author-bio-copy author-bio-copy-compact">
+          <Link href={author.aboutHref} className="author-bio-name">
+            {author.displayName}
+          </Link>
+          <div className="author-bio-role">{author.role}</div>
         </div>
       </div>
     )
   }
 
+  if (hero) {
+    return (
+      <section className="author-bio author-bio-hero">
+        <div className="author-bio-avatar author-bio-avatar-hero">
+          <Image
+            src={author.photoSrc}
+            alt={author.displayName}
+            width={112}
+            height={112}
+            className="author-bio-image"
+            priority
+          />
+        </div>
+        <div className="author-bio-copy author-bio-copy-hero">
+          <p className="author-bio-eyebrow">Primary Author</p>
+          <h1 className="author-bio-hero-title">{author.displayName}</h1>
+          <p className="author-bio-role author-bio-role-hero">{author.role}</p>
+          <p className="author-bio-description author-bio-description-hero">{author.longBio}</p>
+          <div className="author-bio-links">
+            <Link href={author.aboutHref} className="author-bio-link author-bio-link-accent">
+              About Blixamo
+            </Link>
+            {author.email && (
+              <a href={`mailto:${author.email}`} className="author-bio-link">
+                {author.email}
+              </a>
+            )}
+            {author.twitter && (
+              <a
+                href={`https://twitter.com/${author.twitter}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="author-bio-link"
+              >
+                X @{author.twitter}
+              </a>
+            )}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   return (
-    <div style={{
-      display: 'flex', gap: '1.25rem', alignItems: 'flex-start',
-      padding: '1.5rem', background: 'var(--bg-subtle)',
-      border: '1px solid var(--border)', borderRadius: '0.75rem',
-      margin: '2.5rem 0',
-    }}>
-      <div style={{ width: '56px', height: '56px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '2px solid var(--accent)' }}>
-        <Image src="/images/ankit-avatar.jpg" alt={name} width={56} height={56} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
+    <div className="author-bio author-bio-full">
+      <div className="author-bio-avatar author-bio-avatar-full">
+        <Image src={author.photoSrc} alt={author.displayName} width={56} height={56} className="author-bio-image" />
       </div>
-      <div>
-        <div style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--text-primary)', marginBottom: '0.2rem' }}>{name}</div>
-        <div style={{ fontSize: '0.8rem', color: 'var(--accent)', marginBottom: '0.5rem', fontWeight: 500 }}>{author.role}</div>
-        <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.6, margin: 0 }}>{author.bio}</p>
-        {author.twitter && (
-          <a
-            href={`https://twitter.com/${author.twitter}`}
-            target="_blank" rel="noopener noreferrer"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', marginTop: '0.6rem', fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 500 }}
-          >
-            𝕏 @{author.twitter}
-          </a>
-        )}
+      <div className="author-bio-copy author-bio-copy-full">
+        <div className="author-bio-eyebrow">About the author</div>
+        <Link href={author.aboutHref} className="author-bio-name author-bio-name-full">
+          {author.displayName}
+        </Link>
+        <div className="author-bio-role author-bio-role-full">{author.role}</div>
+        <p className="author-bio-description">{author.shortBio}</p>
+        <div className="author-bio-links">
+          <Link href={author.aboutHref} className="author-bio-link author-bio-link-accent">
+            Read the full About page
+          </Link>
+          {author.twitter && (
+            <a
+              href={`https://twitter.com/${author.twitter}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="author-bio-link"
+            >
+              X @{author.twitter}
+            </a>
+          )}
+        </div>
       </div>
     </div>
   )
 }
+

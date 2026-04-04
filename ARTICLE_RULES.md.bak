@@ -1,0 +1,731 @@
+# BLIXAMO ARTICLE RULES v8 — FINAL
+# Updated: 2026-03-20
+# Status: PRODUCTION — no gaps, no exceptions
+
+═══════════════════════════════════════════════════════════════════
+ THE 2026 REALITY THAT CHANGES EVERYTHING
+═══════════════════════════════════════════════════════════════════
+
+  AI Overviews appear on 50-60% of all US searches (up from 6% in Jan 2025)
+  65-69% of Google searches end WITHOUT a click (zero-click era)
+  Organic CTR drops 61% when AI Overview is present
+
+  BUT: Pages CITED inside AI Overviews earn +35% organic clicks + 91% more paid clicks
+  AND: AI-driven visitors convert at 4.4x the rate of standard organic visitors
+  AND: 46.5% of AI Overview citations come from pages ranked OUTSIDE top 50
+
+  THE SHIFT: Ranking position matters less. Citation readiness matters more.
+  THE GOAL: Every blixamo article must pass the EXTRACTION TEST (Rule 29)
+
+  Citation source breakdown:
+  - 44% of citations from first 30% of text
+  - FAQ sections nearly DOUBLE ChatGPT citation probability
+  - Semantic completeness r=0.87 (strongest predictor of AI citation)
+
+═══════════════════════════════════════════════════════════════════
+ BAYESIAN ARTICLE FRAMEWORK
+═══════════════════════════════════════════════════════════════════
+
+  PRIOR    -> Google keyword. What format/length/angle do top 3 show?
+  EVIDENCE -> Ankit's real, first-hand, production experience?
+  POSTERIOR -> Format + depth + angle that maximizes P(rank) x P(citation)?
+  ACTION   -> Write to beat #1 on Google AND get extracted by AI Overview
+
+  P(rank) multipliers:
+  Indian-specific keyword         +20%
+  Ankit personally used the tool  +25%
+  Original data (real numbers)    +20%
+  Stat/citation every 150-200w    +30% AI citation
+  Generic roundup (no real use)   -30%
+  Under 800 words                 -40%
+  No internal links               -25%
+
+  3 mandatory pre-write checks:
+  1. Google keyword -> what format/schema dominates?
+  2. Check AI Overview -> what does it cite?
+  3. Ankit has real experience? -> if NO, pick different article
+
+═══════════════════════════════════════════════════════════════════
+ THE 34 RULES
+═══════════════════════════════════════════════════════════════════
+
+RULE 1 — FRONTMATTER (17 fields, zero placeholders)
+  title, slug, description (150-160 chars), date, updatedAt, author,
+  category, tags (6-10), keyword, secondaryKeywords (4), featured,
+  featuredImage, schema, difficulty, timeToComplete, excerpt, toc
+
+  Title formulas:
+    Tutorial:   "How to [Keyword] in 2026 (Step-by-Step)"
+    Comparison: "[A] vs [B] in 2026 — [Honest verdict]"
+    Listicle:   "[N] Best [Keyword] for Indian Developers in 2026"
+    Review:     "[Tool] Review 2026: [Verdict in 4 words]"
+
+  META DESCRIPTION RULES (description field):
+  — Exactly 150-160 characters. Not shorter. Not longer.
+  — Must include at least one: specific number, ₹ price, or measurable outcome
+  — Must create curiosity OR urgency — reader must feel they will miss something
+  — Match keyword intent: informational vs comparison vs tool recommendation
+  — Write as Ankit — Indian indie dev who tested this. Not corporate.
+  — BANNED openers: "Learn how to", "In this article", "This guide covers"
+  — Comparison articles: hint at a clear winner WITHOUT revealing it
+  — Tool/listicle articles: lead with ₹ price (Free / ₹465/month) as hook
+  — Tutorial articles: mention time saved or exact problem solved
+
+  META DESCRIPTION EXAMPLES:
+    BAD:  "Coolify and Caprover are two open-source platforms. Learn which is right."
+    GOOD: "Ran both on a ₹465/month Hetzner VPS for 30 days. One failed under load.
+           Here's what actually happened and which one I'd deploy again."
+
+    BAD:  "A list of the best PostgreSQL GUI tools available in 2026."
+    GOOD: "Tested 7 free PostgreSQL GUI tools on a live Hetzner VPS. 3 were too slow
+           for remote DBs. The 4 that actually work — including one that opens in 2s."
+
+  VERIFY char count before saving:
+    echo -n "your description here" | wc -c  → must output 150-160
+
+RULE 2 — KEYWORD PLACEMENT
+  Title: keyword first 5 words | Slug: exact keyword | First 100 words: once
+  First H2: keyword or variant | Meta: keyword first 10 words
+  Density: 1-2% | NEVER stuff, max 4-5 exact matches
+
+RULE 3 — TARGET LENGTH (NON-NEGOTIABLE)
+  Type              MIN      TARGET   MAX
+  Tutorial/How-to   1,500w   2,500w   3,000w
+  Comparison/vs     1,800w   3,500w   4,500w
+  Listicle          2,000w   3,500w   4,500w
+  Pillar page       3,500w   6,000w   8,000w
+  Tool review       1,500w   2,500w   3,000w
+  FAQ/explainer     1,200w   2,000w   2,500w
+
+  Each H2 section: 350-450 words. One SCU per H2. One stat per 150-200 words.
+
+  ENFORCEMENT — Claude MUST follow before finishing any article:
+  1. Count words after first draft
+  2. If BELOW minimum -> expand:
+     a. Add more steps to Troubleshooting H2
+     b. Expand FAQ answers to full 180 words each
+     c. Add "Why this matters" after each major step
+     d. Add Prerequisites + environment context section
+     e. Add real example/output after each command block
+  3. If ABOVE maximum -> trim:
+     a. Cut repeated points across sections
+     b. Shorten intro agitate/promise to 2 sentences each
+     c. Remove steps obvious to the target reader
+  4. NEVER pad with filler sentences to hit word count
+  5. NEVER truncate mid-topic to stay under maximum
+  6. Check word count BEFORE writing frontmatter
+
+RULE 4 — CONTENT STRUCTURE (exact sequence)
+  INTRO ZONE (first 30%):
+    1. HOOK (Rule 5)
+    2. AGITATE
+    3. PROMISE
+    4. PROOF
+    5. TL;DR BOX — <Callout type="info" title="TL;DR">
+    6. PREREQUISITES (Rule 32) — tutorials only
+    7. QUICK TABLE (comparisons only)
+
+  BODY ZONE (middle 40%):
+    8. CONTEXT H2
+    9. MAIN H2s with SCU blocks (Rule 26)
+    10. DECISION H2 (comparisons only)
+
+  CLOSE ZONE (final 30%):
+    11. TROUBLESHOOT H2
+    12. FULL TABLE (comparisons only)
+    13. FAQ H2 (Rule 7)
+    14. WHAT NEXT CTA (Rule 14)
+
+RULE 5 — HOOK FORMAT
+  BANNED: "In this article...", "Are you looking for...", "Have you ever wondered..."
+  REQUIRED: "I [did the actual thing] — [outcome that creates tension]."
+  Must pass: first-person + real number + curiosity/tension + under 30 words
+
+RULE 6 — H2/H3 STRUCTURE
+  H2: one per 300-400 words, 6-10 total, 350-450 words per section
+  Troubleshooting H2 mandatory. FAQ H2 mandatory.
+  H3: FAQ questions ALWAYS as H3 (not bold), 120-180 words each
+
+RULE 7 — FAQ (HIGHEST IMPACT)
+  6-8 questions minimum. H3 tags only (NOT **bold**).
+  Exact Google PAA match questions. 60-180 word SCU answers.
+  Start answer with direct answer in sentence 1.
+
+  SCHEMA BUG: extractFAQs() only parses ### H3.
+  **bold** questions = ZERO JSON-LD output, silently.
+  CORRECT:  ### Does Hetzner accept Indian debit cards?
+  BROKEN:   **Does Hetzner accept Indian debit cards?**
+  Run: grep -A2 "Frequently Asked" article.mdx | grep "^\*\*" -> must return EMPTY
+
+RULE 8 — INTERNAL LINKS
+  3-5 per article. 1 in first 500 words. Bidirectional.
+  BANNED anchors: "click here", "read more", "here"
+
+  LIVE INDEX:
+  pay-hetzner-from-india | multiple-projects-single-vps |
+  deploy-nextjs-coolify-hetzner | indian-debit-cards-dev-tools |
+  coolify-vs-caprover-2026 | whatsapp-ai-assistant-n8n-claude-api |
+  nextjs-mdx-blog-2026 | free-tools-indian-indie-developer
+
+RULE 9 — E-E-A-T (4+ signals)
+  [ ] Real numbers (RAM, cost Rs+EUR, time, versions)
+  [ ] Personal outcome statement
+  [ ] Failure story + exact reason
+  [ ] Version specificity ("Next.js 15.5.12", "Ubuntu 24.04")
+  [ ] Freshness signal in first 200 words
+  [ ] Cost breakdown EUR+INR
+  [ ] Production proof
+  [ ] Real timed comparison
+
+RULE 10 — IMAGES (COMPLETE SYSTEM v8)
+
+  WHY IMAGES MATTER — THE RESEARCH BEHIND THESE RULES
+  ══════════════════════════════════════════════════════════
+  These rules are not aesthetic preferences. They come from data:
+
+  67% task completion boost (TechSmith)
+  → Readers following tutorials complete them 67% more often with images.
+  → RULE: Every bash/code block in a tutorial gets a real screenshot after it.
+  → An article with 8 code blocks and 0 screenshots loses ~67% of readers mid-article.
+
+  13ms brain processing (MIT)
+  → Reader forms impression of page before reading a single word.
+  → Image 1 IS the pitch — it signals "real guide" or "AI slop".
+  → RULE: Image 1 always lands after TL;DR, before first H2. No exceptions.
+  → A real terminal screenshot in position 1 = lower bounce than any illustration.
+
+  Image type hierarchy (Josh Comeau, Smashing, CSS-Tricks)
+  → Custom dark illustrations > annotated screenshots > data charts > generic images
+  → RULE: Use this order when choosing what to make. Dark custom card > screenshot > chart.
+  → Exception: real screenshots beat all for tutorials (authenticity > aesthetics).
+
+  Ideogram 3.0 text accuracy: 95% vs Midjourney 40% (benchmark data)
+  → Any image containing ₹ prices, tool names, numbers = use Ideogram only.
+  → RULE: Midjourney for pure visual concepts. Ideogram for anything with text/numbers.
+  → Using Midjourney for cost charts wastes 3-4 regenerations on broken text.
+
+  Comparison/vs + listicles = most shareable format (content marketing data)
+  → These articles get tweeted because they validate reader's own choices.
+  → RULE: Every comparison and listicle must have 1 STANDALONE shareable image —
+    a verdict card or cost bar chart that makes sense without reading the article.
+  → This image serves double duty: in-article Image 1 + tweet attachment.
+
+  ══════════════════════════════════════════════════════════
+  STEP 0 — BEFORE WRITING: PLAN YOUR IMAGE BRIEF
+  ══════════════════════════════════════════════════════════
+
+  Before writing a single word, decide EXACTLY which images this
+  article needs. Use the IMAGE BRIEF TEMPLATE below. This prevents
+  writing an article and then discovering you have no real screenshots.
+
+  IMAGE BRIEF TEMPLATE (fill this out at pre-write stage):
+  ┌─────────────────────────────────────────────────────────┐
+  │ Article slug: ___________                               │
+  │ Article type: tutorial / comparison / listicle / other  │
+  │ Category accent color: ___________                      │
+  │                                                         │
+  │ Image 1 (first 500 words): ___________                  │
+  │ Image 2: ___________                                    │
+  │ Image 3: ___________                                    │
+  │ Image 4+: ___________                                   │
+  │                                                         │
+  │ OG stat: val=___ label=___                              │
+  │ Real screenshots needed (list): ___________             │
+  └─────────────────────────────────────────────────────────┘
+
+  ══════════════════════════════════════════════════════════
+  STEP 1 — FEATURED IMAGE (OG / Social Share)
+  ══════════════════════════════════════════════════════════
+
+  Size: 1200x630px PNG, under 150KB, dark background
+  Generate: node /var/www/blixamo/tools/generate-og-images.js --slug <slug>
+
+  OG STAT (top-right big number) — pick ONE per article type:
+  Comparison (A vs B)   → winner advantage   "3x cheaper", "1 failed"
+  Tutorial/how-to       → time to complete   "30m", "4h to build"
+  Listicle              → count or saving    "Free", "7 tested", "₹0"
+  Cost/pricing          → saving or price    "60% cheaper", "₹465/mo"
+  Tool review           → key metric         "306ms", "2s startup"
+  Automation/workflow   → outcome            "3h/week saved", "90d uptime"
+  BAD: "10m read time", "12m read time" — zero information value
+
+  ADD TO OVERRIDES before generating:
+  File: /var/www/blixamo/tools/generate-og-images.js → const OVERRIDES = {
+  Add:  'your-slug': { val: 'X', label: 'your label' },
+
+  ══════════════════════════════════════════════════════════
+  STEP 2 — IN-ARTICLE IMAGE BRIEF BY ARTICLE TYPE
+  ══════════════════════════════════════════════════════════
+
+  DECISION TREE — run this before every article:
+
+  Does this article have real terminal commands / real results?
+    YES → SCREENSHOT IT (highest E-E-A-T signal, cannot be faked)
+  Does this article compare costs or tools?
+    YES → MAKE A BAR CHART (Ideogram 3.0 — renders ₹ accurately)
+  Does this article explain a multi-step system?
+    YES → MAKE A FLOW DIAGRAM (Midjourney v7 or Canva)
+  Does this article review/introduce a tool?
+    YES → SHOW THE TOOL UI (real screenshot or AI mockup)
+  Does this article have a before/after transformation?
+    YES → MAKE A PROOF CARD (Ideogram 3.0)
+
+  ─────────────────────────────────────────────────────────
+  TUTORIAL / HOW-TO  (min 5 images)
+  ─────────────────────────────────────────────────────────
+  [ ] Image 1 — Architecture/flow diagram (first 500 words)
+      Shows the full system BEFORE reader starts following steps
+      Tool: Midjourney v7 or Canva
+      Prompt base: "Clean technical flow diagram, dark #0a0a0f bg,
+      teal accent lines, white node text, showing [YOUR FLOW],
+      flat minimal design, 1200x630 --ar 16:9 --v 7"
+
+  [ ] Image 2 — First terminal screenshot (step 1-2 region)
+      Real screenshot of your actual terminal output
+      Annotate with red arrow/box in Canva if needed
+      Must show: the command AND its successful output
+
+  [ ] Image 3 — Mid-point proof screenshot (step 3-4 region)
+      Something visible changed — dashboard, file created, service running
+      Real screenshot preferred over AI mockup
+
+  [ ] Image 4 — Final result screenshot
+      The working end state. Live site, running service, success response.
+      This is the most important image — reader is scanning for "does it work?"
+
+  [ ] Image 5 — Error screenshot (Troubleshooting section)
+      Show the actual error message + the fix side by side
+      Makes the troubleshooting section credible
+
+  ─────────────────────────────────────────────────────────
+  COMPARISON / VS  (min 6 images)
+  ─────────────────────────────────────────────────────────
+  ⭐ STANDALONE TWEET IMAGE REQUIRED for every comparison article.
+  Must make sense with zero context — no article title, no caption.
+  Use as both Image 1 (in-article) AND tweet attachment on publish.
+  Tool: Ideogram 3.0. Format: verdict card or cost bar chart.
+
+  [ ] Image 1 — Cost/spec bar chart (first 500 words, after TL;DR)
+      Horizontal bars, dark bg, teal vs red/amber colors
+      Tool: Ideogram 3.0 (use for any image with ₹ numbers)
+      Prompt: "Minimalist horizontal bar chart, dark #0d0d1a bg,
+      white labels, teal and red bars, title '[A] vs [B] Cost in INR',
+      flat design, no gradients, 1200x630px"
+
+  [ ] Image 2 — Tool A UI screenshot (Tool A section)
+  [ ] Image 3 — Tool B UI screenshot (Tool B section)
+      Real screenshots strongly preferred. AI mockup only if tool
+      is unavailable. Must show the RELEVANT feature, not just homepage.
+
+  [ ] Image 4 — Side-by-side comparison screenshot or table visual
+      Show the same action in both tools
+      Tool: Canva side-by-side template
+
+  [ ] Image 5 — Winner proof screenshot
+      Show the specific moment where winner clearly beats loser
+      e.g. load test results, deploy time, error log
+
+  [ ] Image 6 — Before/after or verdict card
+      Tool: Ideogram 3.0
+      Prompt: "Before/after card, dark #0d0d1a bg, left 'BEFORE [bad]'
+      in red, right 'AFTER [good]' in teal, center →, flat design, 1200x630"
+
+  ─────────────────────────────────────────────────────────
+  LISTICLE  (min 4 images)
+  ─────────────────────────────────────────────────────────
+  ⭐ STANDALONE TWEET IMAGE REQUIRED for every listicle.
+  A summary grid or ranked chart that works as a tweet with no article context.
+  Tool: Ideogram 3.0 or Canva. Use as Image 1 + tweet attachment.
+
+  [ ] Image 1 — Hero grid or summary chart (first 500 words)
+      Shows all items at once — reader gets full picture immediately
+      Tool: Canva grid template or Ideogram 3.0
+
+  [ ] Image 2-4 — UI screenshot for top 3 items
+      One screenshot per top-ranked item showing key feature
+      Real screenshots preferred
+
+  ─────────────────────────────────────────────────────────
+  COST / PAYMENT / INDIA-SPECIFIC  (min 3 images)
+  ─────────────────────────────────────────────────────────
+  [ ] Image 1 — Proof card showing exact cost (first 500 words)
+      Tool: Ideogram 3.0 (critical — ₹ numbers must render correctly)
+      Prompt: "Minimal proof card, dark #0d0d1a, large '₹X/month'
+      teal text center, subtitle 'Tested March 2026', flat design"
+
+  [ ] Image 2 — Success screenshot (payment confirmed / card approved)
+      Real screenshot of successful transaction or approval
+
+  [ ] Image 3 — Error screenshot (what fails and why)
+      Real screenshot of the error + caption explaining the fix
+
+  ─────────────────────────────────────────────────────────
+  AI / AUTOMATION  (min 4 images)
+  ─────────────────────────────────────────────────────────
+  [ ] Image 1 — Flow diagram (first 500 words)
+      Full pipeline: input → processing → output
+      Tool: Midjourney v7
+      Prompt: "Technical automation flow diagram, dark #0a0a0f,
+      purple #7c3aed accent, white node labels, arrows between steps,
+      showing [YOUR PIPELINE], minimal flat, 1200x630 --ar 16:9 --v 7"
+
+  [ ] Image 2 — Code/API response terminal screenshot
+      Real API call output in your actual terminal
+
+  [ ] Image 3 — Dashboard or workflow UI screenshot
+      n8n canvas, Telegram bot response, WhatsApp message — real
+
+  [ ] Image 4 — Cost/result proof card
+      Tool: Ideogram 3.0
+      Show the ₹ cost per call or monthly saving
+
+  ══════════════════════════════════════════════════════════
+  STEP 3 — IMAGE CREATION TOOLS (ranked by use case)
+  ══════════════════════════════════════════════════════════
+
+  Real terminal screenshots    → Flameshot (Linux) / Snipping Tool (Windows)
+                                 ALWAYS preferred — E-E-A-T cannot be faked
+  Bar charts / cost tables     → Ideogram 3.0 (free 10/day) — renders ₹ at 95%
+  Architecture / flow diagrams → Midjourney v7 — best composition quality
+  Before/after proof cards     → Ideogram 3.0 — text accuracy critical
+  UI mockups (tool UIs)        → Canva free tier OR auto-generator on VPS
+  Annotations (arrows, boxes)  → Canva — add red arrow over any screenshot
+
+  MASTER PROMPT BASE (paste into any tool, fill [BRACKETS]):
+  "[DESCRIPTION], dark background #0d0d1a, accent color [COLOR],
+  white primary text, gray secondary text #a1a1aa, flat design,
+  no gradients, no stock photos, professional developer blog aesthetic,
+  1200x630px --ar 16:9"
+
+  CATEGORY ACCENT COLORS:
+  AI articles   → purple #7c3aed
+  Tools         → amber  #d97706
+  Tutorials     → cyan   #0891b2
+  Tech/VPS      → green  #059669
+  Indie-dev     → red    #e11d48
+
+  ══════════════════════════════════════════════════════════
+  STEP 4 — FILE RULES
+  ══════════════════════════════════════════════════════════
+
+  Path:     /public/images/posts/[slug]/01-name.png
+  Naming:   01-first-image.png, 02-second-image.png (numbered)
+  Max size: 200KB (compress: pngquant --quality=65-85)
+  Never fixed px width in MDX — let CSS handle responsive
+
+  MDX syntax:
+  ![Descriptive alt text with keyword](/images/posts/[slug]/01-name.png)
+  *Caption: what this shows and why it matters*
+
+  ALT TEXT:
+  GOOD: "n8n workflow showing Claude API → MDX file → Hetzner deploy"
+  BAD:  "screenshot", "", "image1", "figure 1"
+
+  PLACEMENT:
+  — Image 1: after TL;DR box, BEFORE first H2 — always, no exceptions
+    (13ms rule: reader scans before reading — Image 1 is the pitch)
+  — Image 1 for tutorials: real terminal/result screenshot preferred over illustration
+  — Image 1 for comparisons/listicles: the standalone tweet-ready card
+  — 1 image per major H2 section minimum
+  — Never 2 consecutive H2s without an image
+  — Always AFTER the paragraph it illustrates
+  — Never between a heading and its first paragraph
+
+  ⚠️  CODE-ONLY content does NOT count as images.
+  ASCII diagrams, text trees, code blocks = zero image credit.
+  Every article needs at least 1 real screenshot (terminal/browser/dashboard).
+
+RULE 11 — TL;DR BOXRULE 11 — TL;DR BOX
+  Use <Callout type="info" title="TL;DR">
+  - tick [Best option] — [outcome in 8 words]
+  - warn [Middle option] — [caveat in 8 words]
+  - cross [Worst option] — [why it fails in 8 words]
+  - bulb [Key insight]
+
+RULE 12 — COMPARISON TABLES (two required for vs posts)
+  QUICK TABLE after TL;DR: 3 cols max, 4-6 rows
+  FULL TABLE before FAQ: all attributes, 6-10+ rows
+  Markdown syntax only. Never HTML. Max 3 columns (Rule 31).
+
+RULE 13 — DECISION FRAMEWORK
+  ## Which One Should You Use?
+  **Choose [A] if:** [3 bullets]
+  **Choose [B] if:** [3 bullets]
+
+RULE 14 — WHAT NEXT CTA
+  ## What Next?
+  [1-2 sentences] + [internal link] + subscribe line + Fiverr CTA
+
+RULE 15 — ANTI-FILLER BANNED WORDS
+  certainly, delve, leverage, comprehensive, it's worth noting,
+  in today's fast-paced world, seamless, game-changer, cutting-edge,
+  utilize, furthermore, moreover, in conclusion, to summarize,
+  developers often, this will help you, everything you need to know
+
+RULE 16 — READABILITY
+  Max 3 sentences/paragraph. Language-tagged code blocks.
+  Bold: first use of key term OR critical warning ONLY.
+  Always digits (3 not three).
+
+RULE 17 — SEARCH INTENT (run BEFORE writing)
+  1. Google exact keyword
+  2. Top 3: format + length + gaps
+  3. PAA -> FAQ H3s
+  4. Related Searches -> secondary keywords
+  5. Format must match SERP
+
+RULE 18 — AFFILIATE
+  Hetzner: 20 EUR credit (every Hetzner article) — 2-3 natural spots
+  AdSense: ca-pub-9266447528918260
+  Fiverr: fiverr.com/s/m5Lzq0x (What Next CTA)
+  Disclosure: "Some links are affiliate links."
+
+RULE 19 — SEMANTIC ENRICHMENT
+  Hetzner: VPS, Nginx, PM2, CPX22, Helsinki, Falkenstein, Linux
+  India payment: RBI, 3DS, forex, UPI, HDFC, SBI, virtual card
+  n8n: workflow automation, webhook, node, trigger, Docker
+
+RULE 20 — BLIXAMO VOICE
+  Confident, direct. India-first. Opinionated.
+  "Niyo wins. Full stop." not "Niyo is one option you might consider."
+  [ ] Sounds like Ankit? [ ] 2+ real numbers? [ ] Zero AI farm sentences?
+
+RULE 21 — PRICING FORMAT
+  "5.19 EUR/month (Rs 465)" — EUR first, INR in brackets
+  Rate: ~Rs 90/EUR (verify before publishing)
+
+RULE 22 — CODE BLOCKS
+  Language tag + filename="" for real files + comment above + real tested commands
+  Max 30 lines per block. Max 60 chars per line (Rule 31).
+  After EVERY command block -> add expected output in <Callout type="tip">
+
+RULE 23 — TOPICAL CLUSTERS
+  hetzner/india hub:    multiple-projects-single-vps
+  nextjs/tutorials hub: nextjs-mdx-blog-2026
+  deployment hub:       deploy-nextjs-coolify-hetzner
+  tools/automation hub: coolify-vs-caprover-2026
+  indie-dev/india hub:  indian-debit-cards-dev-tools
+  ai/automation hub:    whatsapp-ai-assistant-n8n-claude-api
+
+RULE 24 — SCHEMA
+  howto -> HowTo panel | comparison -> table snippets | review -> stars
+  faq -> PAA accordion | article -> author byline
+
+RULE 25 — USER SATISFACTION
+  Answer in first 200 words. TL;DR + tables + code = skimmable.
+  Troubleshooting prevents bounces. FAQ keeps them on page.
+
+RULE 26 — SELF-CONTAINED UNITS (SCU)
+  60-180 words. Answers one question completely, standalone.
+  Opens every H2 before expanding.
+  Test: copy first paragraph -> paste alone -> fully answers H2?
+
+RULE 27 — DATA HOOKS
+  1+ stat per 150-200 words. Real numbers only. Never invented.
+
+RULE 28 — CADENCE
+  1 article every 3 days. Never dump. After 10 -> 2x/week.
+
+RULE 29 — EXTRACTION TEST (pass all 3)
+  1. First 200w -> ChatGPT "answer: [keyword]" -> must answer
+  2. FAQ answer standalone -> must make sense alone
+  3. H2 first paragraph -> must completely answer H2 question
+
+RULE 30 — PRE-PUBLISH CHECKLIST (zero skips)
+  FRONTMATTER:
+  [ ] 17 fields, no placeholders
+  [ ] Title: keyword first 5 words
+  [ ] Description: 150-160 chars
+  [ ] Schema: correct type
+
+  CONTENT:
+  [ ] Hook: first-person, real result, 30 words max
+  [ ] First 200w: passes extraction test
+  [ ] TL;DR Callout type="info" present
+  [ ] Prerequisites block present (tutorials only)
+  [ ] SCU opens every H2
+  [ ] Every H2 ends with transition sentence
+  [ ] Every major step has "why this matters" explanation
+  [ ] Every command has expected output Callout after it
+  [ ] 1+ data hook per 150-200 words
+  [ ] 2+ Callout boxes total
+  [ ] Troubleshooting H2 present
+  [ ] FAQ: 6-8 H3 questions (grep **bold** -> EMPTY)
+  [ ] What Next CTA present
+  [ ] Freshness signal in first 200w
+
+  IMAGES:
+  [ ] Image brief was completed at pre-write stage (Rule 33)
+  [ ] In-article image count meets minimum for article type (Rule 10)
+  [ ] Image 1 lands within first 500 words
+  [ ] Every H2 section has at least 1 image
+  [ ] No 2 consecutive H2s without an image
+  [ ] At least 1 REAL screenshot present (terminal/browser/dashboard)
+  [ ] Every image: descriptive alt text with keyword
+  [ ] Every image: italic caption directly below it
+  [ ] Images numbered: 01-name.png, 02-name.png in /public/images/posts/[slug]/
+  [ ] No image over 200KB (pngquant --quality=65-85 if needed)
+  [ ] Featured image PNG 1200x630 <150KB
+  [ ] OG stat added to generate-og-images.js OVERRIDES (not "Xm read time")
+  [ ] node generate-og-images.js --slug <slug> run after adding override
+
+  SEO:
+  [ ] Keyword density 1-2%
+  [ ] 3-5 internal links, 1 in first 500w
+  [ ] 4+ E-E-A-T signals
+  [ ] 6-10 H2s
+  [ ] LSI terms throughout
+
+  TECHNICAL:
+  [ ] Word count in range MIN->MAX for article type (Rule 3)
+  [ ] No code line over 60 chars (Rule 31)
+  [ ] No table over 3 columns (Rule 31)
+  [ ] Anti-filler pass done
+  [ ] Code blocks language-tagged
+  [ ] Prices EUR+INR
+  [ ] wc -w article.mdx run -> report count
+  [ ] At least 1 real screenshot present (terminal, browser, or dashboard)
+  [ ] Step progress H2s present (mandatory if 4+ steps or 1,500w+)
+
+  BAYESIAN SCORE (all 7+, target 8+):
+  [ ] Search intent match [ /10]
+  [ ] Hook strength [ /10]
+  [ ] AI citation potential [ /10]
+  [ ] E-E-A-T density [ /10]
+  [ ] User satisfaction [ /10]
+
+RULE 31 — MOBILE CONTENT RULES (NEW v7)
+  Code blocks:
+  - Max 60 chars per line — break with \ continuation
+  - One flag per line for long commands
+  - GOOD: docker run \ --name myapp \ -p 3000:3000 \ myimage
+  - BAD: docker run --name myapp -p 3000:3000 -e NODE_ENV=prod myimage
+
+  Tables: Max 3 columns. Max 30 chars per cell.
+  Paragraphs: Max 3 sentences.
+  Lists: Max 8 items per list. Each bullet max 15 words.
+
+RULE 32 — READER ENGAGEMENT (NEW v7)
+  Prerequisites block (mandatory for tutorials):
+  - <Callout type="info" title="Before you start">
+  - Include: [tool] [version], time estimate, "Tested on:" line
+
+  Transition sentences (mandatory):
+  - Every H2 MUST end with 1 sentence leading to the next
+  - GOOD: "Server is ready — now let's install Coolify."
+
+  "Why this matters" (mandatory after every major step):
+  - GOOD: "We add swap because Next.js builds spike to 1.5GB RAM and OOM-kill without it."
+
+  Expected output (mandatory after every command):
+  - <Callout type="tip" title="Expected output"> after every command block
+  - This prevents 80% of "it's not working" confusion
+
+  Step progress for tutorials (MANDATORY if article has 4+ numbered steps OR is over 1,500 words):
+  - H2 format: "## Step 3 of 6 — Configure Nginx"
+  - Count total steps first, then number every H2 consistently
+  - Never skip numbers or use vague headings like "Next Steps" mid-tutorial
+  - Readers must always know where they are and how far they have left
+
+RULE 33 — PRE-WRITE CHECKLIST (v8 — run BEFORE first word)
+  [ ] Google exact keyword -> note top 3 format + length + schema
+  [ ] Check AI Overview -> note what it cites
+  [ ] Scrape PAA questions -> these become FAQ H3s verbatim
+  [ ] Check Related Searches -> add to secondaryKeywords
+  [ ] Confirm Ankit has real personal experience -> if NO, stop
+  [ ] Check Rule 8 live index -> pick 3-5 internal link targets
+  [ ] Confirm article type -> apply correct word count from Rule 3
+  [ ] Set correct schema type in frontmatter (Rule 24)
+  [ ] Identify Hetzner referral placement (2-3 natural spots)
+
+  IMAGE BRIEF (fill out before writing — Rule 10 Step 0):
+  [ ] Determine article type → look up image count minimum in Rule 10
+  [ ] Run Rule 10 DECISION TREE → identify which image TYPES needed
+  [ ] List every real screenshot needed → plan when to take them
+  [ ] Decide OG stat (val + label) → add to generate-og-images.js OVERRIDES
+  [ ] Pick category accent color → #7c3aed / #d97706 / #0891b2 / #059669 / #e11d48
+  [ ] Write Ideogram/Midjourney prompts for non-screenshot images
+  [ ] Confirm Image 1 will land within first 500 words
+  RULE: Do not start writing until image brief is complete.
+        An article planned without images will always fail Rule 10.
+
+RULE 34 — MDX COMPONENTS REFERENCE (NEW v7)
+  CALLOUT COMPONENT:
+  <Callout type="tip" title="Title">Max 3 sentences inside.</Callout>
+  <Callout type="info" ...>   -> blue  -> TL;DR, prerequisites, context
+  <Callout type="warning" ...> -> amber -> gotchas, things that break
+  <Callout type="danger" ...>  -> red   -> data loss, security, irreversible
+  Min 2 Callouts per article. TL;DR MUST use type="info".
+
+  CODE BLOCKS:
+  ```bash filename="example.sh"
+  # Comment explaining what this does
+  your-command --here
+  ```
+  Always: language tag + filename for real files + comment above
+  Max 30 lines. Max 60 chars/line. Expected output Callout after every block.
+
+  IMAGES MDX SYNTAX:
+  ![Descriptive alt text with keyword](/images/[slug]/filename.png)
+  *Caption: what this shows and why it matters*
+  Files: /public/images/[slug]/ numbered: 01-name.png, 02-name.png
+
+  ARTICLE CONTENT SEQUENCE:
+  1. HOOK (30 words max, first-person, real number)
+  2. AGITATE (2-3 sentences)
+  3. PROMISE (what they get)
+  4. PROOF (your real result)
+  5. TL;DR <Callout type="info">
+  6. PREREQUISITES <Callout type="info" title="Before you start">
+  7. BODY H2s (SCU + transitions + why + expected output + images)
+  8. TROUBLESHOOT H2
+  9. FAQ H2 (6-8 x ### H3, 60-180w each)
+  10. WHAT NEXT H2
+
+═══════════════════════════════════════════════════════════════════
+ WORD COUNT ENFORCEMENT
+═══════════════════════════════════════════════════════════════════
+
+  Run: wc -w article.mdx (subtract ~50 for frontmatter)
+  Hit TARGET from Rule 3, not just minimum.
+  If below target -> expand: Troubleshooting -> FAQ -> why -> expected output
+  NEVER pad with filler. Report final word count in article summary.
+
+═══════════════════════════════════════════════════════════════════
+ POST-PUBLISH RITUAL
+═══════════════════════════════════════════════════════════════════
+
+  1. node /var/www/gsc-tool/gsc.js index <full-url>
+  2. node /var/www/gsc-tool/gsc.js submit
+  3. Tweet: hook + insight + URL + #IndieHacker #Hetzner #India
+  4. Update Rule 8 live article index
+  5. Update Rule 23 cluster map
+  6. Update cluster hub -> add backlink -> redeploy
+  7. Google Rich Results Test -> verify schema
+  8. 30 days: extraction test + GSC impressions check
+
+═══════════════════════════════════════════════════════════════════
+ BLIXAMO LIVE ARTICLE INDEX
+═══════════════════════════════════════════════════════════════════
+
+  pay-hetzner-from-india              tutorials   LIVE
+  multiple-projects-single-vps        tech        LIVE
+  deploy-nextjs-coolify-hetzner       tutorials   LIVE
+  indian-debit-cards-dev-tools        indie-dev   LIVE
+  coolify-vs-caprover-2026            tools       LIVE
+  whatsapp-ai-assistant-n8n-claude-api  ai        LIVE
+  nextjs-mdx-blog-2026               tutorials    LIVE
+  free-tools-indian-indie-developer  indie-dev    LIVE
+  self-hosting-n8n-hetzner-vps        tutorials   LIVE
+  vps-security-harden-ubuntu-2026     tech        LIVE
+  multiple-projects-single-vps        tech        LIVE
+  self-healing-vps-monitor-nodejs     tech        LIVE
+  n8n-vs-make-vs-zapier-indie-dev     tools       LIVE
+  hetzner-vs-digitalocean-vs-vultr    tools       LIVE
+  build-telegram-bot-claude-api-python  ai        LIVE
+  claude-api-content-automation-nodejs  ai        LIVE
+  claude-api-vs-openai-cost-india     ai          LIVE
+  wise-vs-payoneer-india-freelancer   indie-dev   LIVE
+  razorpay-integration-nextjs-india   indie-dev   LIVE  [NEW]
+  oracle-cloud-free-vs-hetzner-2026   tools       LIVE  [NEW]
+  google-search-console-self-hosted   tech        LIVE  [NEW]

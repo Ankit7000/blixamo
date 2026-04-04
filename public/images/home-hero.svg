@@ -1,0 +1,93 @@
+<svg width="1440" height="1080" viewBox="0 0 1440 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="113" y1="88" x2="1318" y2="997" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8FBFF"/>
+      <stop offset="0.48" stop-color="#EEF3FF"/>
+      <stop offset="1" stop-color="#E8F7F3"/>
+    </linearGradient>
+    <linearGradient id="card" x1="312" y1="212" x2="1184" y2="892" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.96"/>
+      <stop offset="1" stop-color="#F4F7FB" stop-opacity="0.92"/>
+    </linearGradient>
+    <linearGradient id="terminal" x1="301" y1="297" x2="779" y2="730" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F172A"/>
+      <stop offset="1" stop-color="#1E293B"/>
+    </linearGradient>
+    <linearGradient id="server" x1="894" y1="304" x2="1151" y2="773" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1D4ED8"/>
+      <stop offset="1" stop-color="#0EA5E9"/>
+    </linearGradient>
+    <linearGradient id="workflow" x1="810" y1="709" x2="1158" y2="923" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F97316"/>
+      <stop offset="1" stop-color="#FB7185"/>
+    </linearGradient>
+    <filter id="shadow" x="168" y="128" width="1104" height="822" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="22"/>
+      <feGaussianBlur stdDeviation="34"/>
+      <feComposite in2="hardAlpha" operator="out"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.0588235 0 0 0 0 0.0941176 0 0 0 0 0.156863 0 0 0 0.14 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1_1"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1_1" result="shape"/>
+    </filter>
+  </defs>
+
+  <rect width="1440" height="1080" rx="48" fill="url(#bg)"/>
+  <circle cx="190" cy="170" r="166" fill="#E0F2FE" fill-opacity="0.9"/>
+  <circle cx="1260" cy="210" r="188" fill="#FFE7D5" fill-opacity="0.82"/>
+  <circle cx="1188" cy="930" r="216" fill="#D1FAE5" fill-opacity="0.72"/>
+
+  <g filter="url(#shadow)">
+    <rect x="236" y="196" width="968" height="686" rx="34" fill="url(#card)"/>
+    <rect x="236" y="196" width="968" height="686" rx="34" stroke="#E2E8F0" stroke-width="2"/>
+  </g>
+
+  <rect x="286" y="250" width="514" height="336" rx="28" fill="url(#terminal)"/>
+  <rect x="286" y="250" width="514" height="336" rx="28" stroke="#334155" stroke-width="2"/>
+  <circle cx="336" cy="300" r="10" fill="#FB7185"/>
+  <circle cx="372" cy="300" r="10" fill="#FBBF24"/>
+  <circle cx="408" cy="300" r="10" fill="#34D399"/>
+  <text x="454" y="307" fill="#CBD5E1" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700">deploy-workflow.ts</text>
+
+  <text x="332" y="374" fill="#34D399" font-family="JetBrains Mono, Consolas, monospace" font-size="26">$ ssh root@vps</text>
+  <text x="332" y="420" fill="#60A5FA" font-family="JetBrains Mono, Consolas, monospace" font-size="24">$ git pull origin master</text>
+  <text x="332" y="466" fill="#F8FAFC" font-family="JetBrains Mono, Consolas, monospace" font-size="24">$ npm run build</text>
+  <text x="332" y="512" fill="#A78BFA" font-family="JetBrains Mono, Consolas, monospace" font-size="24">$ pm2 reload blixamo</text>
+  <text x="332" y="558" fill="#94A3B8" font-family="JetBrains Mono, Consolas, monospace" font-size="22">status: healthy, 200 OK</text>
+
+  <rect x="848" y="270" width="278" height="370" rx="30" fill="#F8FAFC" stroke="#DBEAFE" stroke-width="2"/>
+  <rect x="886" y="324" width="204" height="84" rx="24" fill="url(#server)"/>
+  <rect x="886" y="432" width="204" height="84" rx="24" fill="url(#server)" opacity="0.88"/>
+  <rect x="886" y="540" width="204" height="84" rx="24" fill="url(#server)" opacity="0.76"/>
+  <circle cx="923" cy="366" r="8" fill="#E0F2FE"/>
+  <circle cx="923" cy="474" r="8" fill="#E0F2FE"/>
+  <circle cx="923" cy="582" r="8" fill="#E0F2FE"/>
+  <rect x="951" y="352" width="102" height="10" rx="5" fill="#EFF6FF"/>
+  <rect x="951" y="460" width="88" height="10" rx="5" fill="#EFF6FF"/>
+  <rect x="951" y="568" width="110" height="10" rx="5" fill="#EFF6FF"/>
+  <text x="883" y="298" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800">Servers and VPS</text>
+
+  <rect x="324" y="646" width="420" height="170" rx="26" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2"/>
+  <text x="362" y="700" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800">Modern web stack</text>
+  <rect x="362" y="728" width="114" height="32" rx="16" fill="#EEF2FF"/>
+  <rect x="490" y="728" width="110" height="32" rx="16" fill="#E0F2FE"/>
+  <rect x="614" y="728" width="90" height="32" rx="16" fill="#ECFDF5"/>
+  <text x="389" y="750" fill="#4338CA" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="700">Next.js</text>
+  <text x="520" y="750" fill="#0369A1" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="700">MDX</text>
+  <text x="640" y="750" fill="#047857" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="700">PM2</text>
+  <rect x="362" y="774" width="304" height="12" rx="6" fill="#CBD5E1"/>
+
+  <rect x="810" y="690" width="336" height="170" rx="28" fill="#FFFFFF" stroke="#FCD7AA" stroke-width="2"/>
+  <text x="850" y="742" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800">Automation and AI</text>
+  <path d="M888 794C888 779.641 899.641 768 914 768H942C956.359 768 968 779.641 968 794V822C968 836.359 956.359 848 942 848H914C899.641 848 888 836.359 888 822V794Z" fill="#FFF7ED" stroke="#FDBA74" stroke-width="2"/>
+  <path d="M1008 794C1008 779.641 1019.64 768 1034 768H1062C1076.36 768 1088 779.641 1088 794V822C1088 836.359 1076.36 848 1062 848H1034C1019.64 848 1008 836.359 1008 822V794Z" fill="#FDF2F8" stroke="#FDA4AF" stroke-width="2"/>
+  <path d="M968 808H1008" stroke="url(#workflow)" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="988" cy="808" r="10" fill="#F97316"/>
+  <text x="895" y="809" fill="#C2410C" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="800">n8n</text>
+  <text x="1020" y="809" fill="#BE185D" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="800">AI API</text>
+
+  <text x="324" y="166" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800" letter-spacing="4">BLIXAMO</text>
+  <text x="324" y="938" fill="#334155" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="800">Ship faster with practical developer infrastructure.</text>
+  <text x="324" y="978" fill="#64748B" font-family="Inter, Arial, sans-serif" font-size="24">Self-hosting, deployment, automation, AI workflows, and tool decisions for real projects.</text>
+</svg>
