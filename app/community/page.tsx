@@ -33,8 +33,8 @@ const BUILDING_SHOWCASE: CommunityCard[] = [
   },
   {
     title: 'AI-assisted workflows',
-    description: 'Claude, API workflows, bots, and automation systems for developers who want faster output.',
-    href: '/category/ai',
+    description: 'Use the AI mini hub for a tighter read path into Claude, model choices, useful tools, and workflow-oriented AI posts.',
+    href: '/ai-for-developers',
     eyebrow: 'What People Are Building',
   },
   {

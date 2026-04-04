@@ -85,6 +85,14 @@ export default function HomePage() {
       accentColor: '#d97706',
     },
     {
+      title: 'AI for Developers',
+      description: 'Open the mini hub when you want the tight AI lane: useful reads, comparisons, and workflow paths without the full archive.',
+      href: '/ai-for-developers',
+      eyebrow: 'Mini hub',
+      routeLabel: '/ai-for-developers',
+      accentColor: '#7c3aed',
+    },
+    {
       title: 'Web Development',
       description: 'Browse Next.js, MDX, performance, CSS, and production web development guides without extra noise.',
       href: '/category/web-dev',

@@ -258,7 +258,13 @@ export default async function CategoryPage({ params }: Props) {
   )
   const latestPosts = posts.filter((post) => !strongestPostSlugs.has(post.slug) && !reservedSlugs.has(post.slug))
   const supportingHub =
-    canonicalSlug === 'web-dev'
+    canonicalSlug === 'ai'
+      ? {
+          label: 'AI Mini Hub',
+          href: '/ai-for-developers',
+          description: 'Use the AI mini hub when you want a tighter starting set of top reads, fresh posts, comparisons, and practical AI paths.',
+        }
+      : canonicalSlug === 'web-dev'
       ? {
           label: 'Community',
           href: '/community',
