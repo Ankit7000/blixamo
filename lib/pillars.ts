@@ -751,6 +751,7 @@ const PILLAR_DEFINITIONS: readonly PillarDefinition[] = [
     learningPathSlugs: ['n8n-complete-guide-2026', 'n8n-vs-make-vs-zapier-indie-dev', 'claude-api-content-automation-nodejs', 'whatsapp-ai-assistant-n8n-claude-api'],
     relatedResourceLinks: [
       { label: 'Resources Hub', href: PILLAR_RESOURCE_HUB_PATH, description: 'Return to the main hub to move from automation into tools, deployment, or free resources.' },
+      { label: 'n8n Automation Hub', href: '/n8n-automation-hub', description: 'Open the mini hub when the decision is mainly about n8n setup, self-hosting, workflow comparisons, and practical next reads.' },
       { label: 'Self Hosting Pillar', href: `${PILLAR_BASE_PATH}/self-hosting-complete-guide`, description: 'Open the self-hosting pillar if you want to run the automation stack on infrastructure you control.' },
       { label: 'Comparisons Hub', href: `${PILLAR_BASE_PATH}/comparisons-hub`, description: 'Use the comparisons hub if the main question is which automation platform or model path to choose.' },
     ],

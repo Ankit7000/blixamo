@@ -288,6 +288,12 @@ export default async function CategoryPage({ params }: Props) {
           href: '/nextjs-mdx-hub',
           description: 'Use the Next.js MDX Hub when the real question is file-backed MDX setup, content architecture, runtime fixes, and production publishing upgrades.',
         }
+      : canonicalSlug === 'automation'
+      ? {
+          label: 'n8n Automation Hub',
+          href: '/n8n-automation-hub',
+          description: 'Use the n8n Automation Hub when the real question is workflow-engine fit, self-hosting, webhook and bot architecture, and what to read after the first useful automation.',
+        }
       : {
           label: 'Deployment Hub',
           href: RESOURCE_HUB_PATH,

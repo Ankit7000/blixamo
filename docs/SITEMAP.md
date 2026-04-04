@@ -18,6 +18,7 @@
 | `/nextjs-mdx-hub` | 0.5 | weekly | Yes |
 | `/coolify-hub` | 0.5 | weekly | Yes |
 | `/hetzner-billing-hub` | 0.5 | weekly | Yes |
+| `/n8n-automation-hub` | 0.5 | weekly | Yes |
 | `/blog` | 0.8 | monthly | Yes |
 | `/tag/deployment` | 0.9 | weekly | Yes |
 | `/contact` | 0.3 | monthly | No |
@@ -150,10 +151,11 @@ Includes:
 8. `/nextjs-mdx-hub`
 9. `/coolify-hub`
 10. `/hetzner-billing-hub`
-11. `/tag/deployment`
-12. `/category/[slug]` for every canonical category with at least one indexable post
-13. `/guides/[slug]` for all pillar pages
-14. `/blog/[slug]` for all canonical indexable posts
+11. `/n8n-automation-hub`
+12. `/tag/deployment`
+13. `/category/[slug]` for every canonical category with at least one indexable post
+14. `/guides/[slug]` for all pillar pages
+15. `/blog/[slug]` for all canonical indexable posts
 
 Does not include:
 - `/search`
@@ -177,6 +179,7 @@ Does not include:
 - `/nextjs-mdx-hub` uses the build date
 - `/coolify-hub` uses the build date
 - `/hetzner-billing-hub` uses the build date
+- `/n8n-automation-hub` uses the build date
 - `/tag/deployment` uses the build date
 - category pages use the freshest post inside that category
 - guide pages use the freshest linked post shown on that pillar page
