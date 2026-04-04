@@ -270,6 +270,12 @@ export default async function CategoryPage({ params }: Props) {
           href: '/dev-tools-watch',
           description: 'Use the dev-tools mini hub when you want the tighter current-watch layer for software picks, alternatives, and worth-testing reads.',
         }
+      : canonicalSlug === 'vps-cloud'
+      ? {
+          label: 'Infrastructure Watch',
+          href: '/infrastructure-watch',
+          description: 'Use the infrastructure mini hub when you want a tighter current-watch layer for providers, platforms, pricing shifts, and self-hosting infrastructure decisions.',
+        }
       : canonicalSlug === 'web-dev'
       ? {
           label: 'Community',

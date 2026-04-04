@@ -172,6 +172,11 @@ export default async function TagPage({ params }: Props) {
       description: 'Use the VPS section for setup, hardening, recovery, pricing tradeoffs, and operational upkeep.',
       href: '#vps-cloud',
     },
+    {
+      title: 'Infrastructure watch',
+      description: 'Open the mini hub for provider shifts, platform comparisons, and fresh infrastructure reads without scanning the whole hub.',
+      href: '/infrastructure-watch',
+    },
   ]
 
   return (

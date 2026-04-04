@@ -23,6 +23,10 @@
   Community hub page.
 - `app/ai-for-developers/page.tsx`
   AI for Developers mini hub page.
+- `app/dev-tools-watch/page.tsx`
+  Dev Tools Watch mini hub page.
+- `app/infrastructure-watch/page.tsx`
+  Infrastructure Watch mini hub page.
 - `app/contact/page.tsx`
   Contact page.
 - `app/privacy-policy/page.tsx`
@@ -107,6 +111,8 @@ Note:
 | `/about` | `app/about/page.tsx` | SSG |
 | `/community` | `app/community/page.tsx` | SSG |
 | `/ai-for-developers` | `app/ai-for-developers/page.tsx` | SSG |
+| `/dev-tools-watch` | `app/dev-tools-watch/page.tsx` | SSG |
+| `/infrastructure-watch` | `app/infrastructure-watch/page.tsx` | SSG |
 | `/contact` | `app/contact/page.tsx` | SSG |
 | `/privacy-policy` | `app/privacy-policy/page.tsx` | SSG |
 | `/terms` | `app/terms/page.tsx` | SSG |
@@ -134,6 +140,8 @@ Primary crawl path:
 - Category pages: `/category/[slug]`
 - Pillar guide pages: `/guides/[slug]`
 - AI mini hub: `/ai-for-developers`
+- Dev Tools mini hub: `/dev-tools-watch`
+- Infrastructure mini hub: `/infrastructure-watch`
 - Article pages: `/blog/[slug]`
 - Community hub: `/community`
 

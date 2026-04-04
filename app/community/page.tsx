@@ -49,6 +49,12 @@ const BUILDING_SHOWCASE: CommunityCard[] = [
     href: '/dev-tools-watch',
     eyebrow: 'What People Are Building',
   },
+  {
+    title: 'Infrastructure shifts worth tracking',
+    description: 'Use the infrastructure mini hub when you want current provider changes, platform tradeoffs, and self-hosting infra decisions in one tight lane.',
+    href: '/infrastructure-watch',
+    eyebrow: 'What People Are Building',
+  },
 ]
 
 function uniquePosts(posts: Post[]): Post[] {
