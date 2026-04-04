@@ -22,7 +22,7 @@ This is the kind of bug that makes smart people debug the wrong thing for hours.
 
 That pattern is why this issue spreads. It looks like a markdown problem. It is usually a runtime problem.
 
-If your app uses `next-mdx-remote/rsc` with file-backed content, the fastest fix is boring: keep that route on Node.js runtime, check for inherited Edge config above it, and verify the route with a real production build. For the broader cluster around this topic, start with the [Deployment resources hub](/tag/deployment), the [Web Development category](/category/web-dev), the [deploy apps on VPS guide](/guides/deploy-apps-on-vps-complete-guide), and the [Next.js MDX blog guide](/blog/nextjs-mdx-blog-2026).
+If your app uses `next-mdx-remote/rsc` with file-backed content, the fastest fix is boring: keep that route on Node.js runtime, check for inherited Edge config above it, and verify the route with a real production build. For the broader cluster around this topic, start with the [Deployment resources hub](/tag/deployment), the [Web Development category](/category/web-dev), the [deploy apps on VPS guide](/guides/deploy-apps-on-vps-complete-guide), the [Next.js MDX blog guide](/blog/nextjs-mdx-blog-2026), and the [Next.js MDX Hub](/nextjs-mdx-hub) if you want the tighter route through setup, upgrade, and architecture reads.
 
 <Callout type="info" title="TL;DR">
 If your `next-mdx-remote/rsc` page fails under Edge Runtime, set `export const runtime = "nodejs"` on the route that renders the MDX content, then check parent layouts for inherited Edge config. After that, run a real production build and verify the live URL instead of trusting dev mode.

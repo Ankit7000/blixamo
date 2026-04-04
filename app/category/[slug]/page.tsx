@@ -278,9 +278,9 @@ export default async function CategoryPage({ params }: Props) {
         }
       : canonicalSlug === 'web-dev'
       ? {
-          label: 'Community',
-          href: '/community',
-          description: 'Use the community page when you want broader fresh reads beyond this frontend lane.',
+          label: 'Next.js MDX Hub',
+          href: '/nextjs-mdx-hub',
+          description: 'Use the Next.js MDX Hub when the real question is file-backed MDX setup, content architecture, runtime fixes, and production publishing upgrades.',
         }
       : {
           label: 'Deployment Hub',
