@@ -1,9 +1,8 @@
 import Link from 'next/link'
 import { getPostsByCategory, getAllCategories, getAllPosts } from '@/lib/posts'
 import { PostCard } from '@/components/blog/PostCard'
-import { TemplateLinkBar } from '@/components/layout/TemplateLinkBar'
 import { getCategoryMeta } from '@/lib/categories'
-import { getCategoryClusterContent, getRelatedCategoryLinks, getResourceHubContent, RESOURCE_HUB_PATH } from '@/lib/resources'
+import { getCategoryClusterContent, getRelatedCategoryLinks, RESOURCE_HUB_PATH } from '@/lib/resources'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 
@@ -19,11 +18,77 @@ type CategoryArchiveContent = {
   editorialNote?: string
 }
 
-type CategoryHubCard = {
+function formatDate(date: string) {
+  return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
+function CategoryLaneFeatureCard({
+  eyebrow,
+  title,
+  description,
+  href,
+  footer,
+}: {
+  eyebrow: string
   title: string
   description: string
   href: string
-  eyebrow: string
+  footer: string
+}) {
+  return (
+    <Link
+      href={href}
+      className="home-curated-card"
+      style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}
+    >
+      <div className="home-curated-top">
+        <span className="home-curated-eyebrow">{eyebrow}</span>
+        <span className="home-curated-arrow">Open</span>
+      </div>
+      <h3 className="home-curated-title">{title}</h3>
+      <p className="home-curated-copy" style={{ flex: 1 }}>
+        {description}
+      </p>
+      <div className="home-curated-footer">
+        <span>{footer}</span>
+        <span>Read now</span>
+      </div>
+    </Link>
+  )
+}
+
+function LatestTopicItem({ post }: { post: ReturnType<typeof getPostsByCategory>[number] }) {
+  return (
+    <article
+      style={{
+        padding: '1rem 1.1rem',
+        borderRadius: '0.95rem',
+        border: '1px solid var(--border)',
+        background: 'var(--surface)',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '0.6rem',
+          alignItems: 'center',
+          marginBottom: '0.55rem',
+          fontSize: '0.78rem',
+          color: 'var(--text-muted)',
+        }}
+      >
+        <span>{formatDate(post.date)}</span>
+        <span>{post.readingTime}</span>
+      </div>
+      <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.05rem', lineHeight: 1.35 }}>
+        <Link href={`/blog/${post.slug}`} style={{ color: 'var(--text-primary)' }}>
+          {post.title}
+        </Link>
+      </h3>
+      <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.7 }}>{post.description}</p>
+    </article>
+  )
 }
 
 const CATEGORY_ARCHIVE_CONTENT: Record<string, CategoryArchiveContent> = {
@@ -39,7 +104,7 @@ const CATEGORY_ARCHIVE_CONTENT: Record<string, CategoryArchiveContent> = {
     ],
   },
   ai: {
-    intro: 'This category focuses on AI tools and API workflows that help developers write, automate, and ship faster without hand-wavy claims.',
+    intro: 'For developers choosing models, tools, and API workflows, this lane surfaces the clearest AI guides, comparisons, and practical implementation reads.',
     audience: 'Developers comparing models, planning AI features, or trying to turn Claude and OpenAI into practical tools for day-to-day work.',
     articleTypes: 'Model comparisons, API cost breakdowns, AI tool roundups, and production use-case guides.',
     importantSlugs: [
@@ -71,7 +136,7 @@ const CATEGORY_ARCHIVE_CONTENT: Record<string, CategoryArchiveContent> = {
     ],
   },
   'self-hosting': {
-    intro: 'This category covers running your own apps and services on inexpensive VPS infrastructure without overcomplicating the stack.',
+    intro: 'For developers self-hosting apps, services, or analytics on a VPS, this lane surfaces the strongest setup guides, platform choices, and operating reads worth opening first.',
     audience: 'Developers who want more control, lower monthly costs, and practical guidance for hosting production workloads themselves.',
     articleTypes: 'Self-hosting guides, VPS setup walkthroughs, monitoring tutorials, and platform deployment explainers.',
     importantSlugs: [
@@ -82,7 +147,7 @@ const CATEGORY_ARCHIVE_CONTENT: Record<string, CategoryArchiveContent> = {
     ],
   },
   'vps-cloud': {
-    intro: 'This category helps developers pick better cloud and VPS infrastructure by comparing cost, performance, and operational tradeoffs.',
+    intro: 'For developers choosing a host or hardening a server, this lane surfaces the strongest VPS and cloud comparisons, setup guides, and security reads.',
     audience: 'Developers choosing hosting providers, benchmarking infrastructure options, or tightening production server security.',
     articleTypes: 'Provider comparisons, cost breakdowns, infrastructure reviews, and VPS hardening or cloud strategy guides.',
     importantSlugs: [
@@ -95,7 +160,7 @@ const CATEGORY_ARCHIVE_CONTENT: Record<string, CategoryArchiveContent> = {
     ],
   },
   'web-dev': {
-    intro: 'This category focuses on modern web development patterns that improve performance, authoring workflow, and maintainability in real projects.',
+    intro: 'For developers building with Next.js, MDX, and Tailwind, this lane surfaces the strongest implementation guides, performance reads, and frontend tradeoff pieces.',
     audience: 'Developers building with Next.js, MDX, and Tailwind who want practical patterns they can reuse in production sites.',
     articleTypes: 'Framework tutorials, performance guides, styling comparisons, and implementation patterns for modern frontend stacks.',
     importantSlugs: [
@@ -107,7 +172,7 @@ const CATEGORY_ARCHIVE_CONTENT: Record<string, CategoryArchiveContent> = {
     ],
   },
   automation: {
-    intro: 'This category is built around automation systems that reduce repetitive work and replace expensive SaaS with workflows you control.',
+    intro: 'For developers automating repeat work with n8n, bots, and AI workflows, this lane surfaces the clearest tutorials, comparisons, and build-first automation reads.',
     audience: 'Developers and operators building workflow automation with n8n, Node.js, Claude API, and messaging integrations.',
     articleTypes: 'Automation tutorials, platform comparisons, workflow design guides, and AI-assisted process automations.',
     importantSlugs: [
@@ -173,7 +238,6 @@ export default async function CategoryPage({ params }: Props) {
   const meta = getCategoryMeta(canonicalSlug)
   const archiveContent = CATEGORY_ARCHIVE_CONTENT[canonicalSlug]
   const relatedCategories = getRelatedCategoryLinks(canonicalSlug)
-  const hub = getResourceHubContent(allPosts)
   const clusterContent = getCategoryClusterContent(canonicalSlug, allPosts)
   const importantPosts = (
     archiveContent?.importantSlugs
@@ -184,528 +248,148 @@ export default async function CategoryPage({ params }: Props) {
   const fallbackImportantPosts = posts
     .filter(post => post.featured)
     .concat(posts.filter(post => !post.featured))
-    .slice(0, 3)
-  const archiveLinks = importantPosts.length > 0 ? importantPosts : fallbackImportantPosts
-  const popularGuides = hub.popularGuides
-    .filter(post => post.category === canonicalSlug && !archiveLinks.some(linkedPost => linkedPost.slug === post.slug))
-    .slice(0, 3)
-  const fallbackPopularGuides = posts
-    .filter(post => !archiveLinks.some(linkedPost => linkedPost.slug === post.slug))
-    .slice(0, 3)
-  const categoryPopularGuides = popularGuides.length > 0 ? popularGuides : fallbackPopularGuides
-  const relatedResources = [...clusterContent.comparisons, ...clusterContent.tools]
-    .filter(
-      (post, index, collection) =>
-        !archiveLinks.some(linkedPost => linkedPost.slug === post.slug) &&
-        !categoryPopularGuides.some(linkedPost => linkedPost.slug === post.slug) &&
-        collection.findIndex((entry) => entry.slug === post.slug) === index
-    )
-    .slice(0, 4)
-  const communityLinks = [
-    {
-      title: 'Community Hub',
-      description: 'Use the community page to keep exploring practical reads, popular guides, and current site paths around this category.',
-      href: '/community',
-    },
-    {
-      title: 'Blog Archive',
-      description: 'Move from this category into the full article archive when you want the latest posts and broader cross-cluster reading.',
-      href: '/blog',
-    },
-    {
-      title: 'Resources Hub',
-      description: 'Return to the main resources hub for start-here paths, pillar guides, comparisons, and category-wide navigation.',
-      href: RESOURCE_HUB_PATH,
-    },
-    {
-      title: clusterContent.hubSection.title,
-      description: `Use the ${clusterContent.hubSection.title.toLowerCase()} lane to move from this category into a closely related site hub.`,
-      href: clusterContent.hubSection.href,
-    },
-  ].filter((link, index, collection) => collection.findIndex((entry) => entry.href === link.href) === index)
-  const freeToolsTopicCards =
-    canonicalSlug === 'free-tools'
-      ? [
-          'best-free-api-testing-tools-2026',
-          'best-free-documentation-tools-2026',
-          'best-free-git-tools-2026',
-          'best-free-diagram-tools-2026',
-        ]
-          .map((topicSlug) => allPosts.find((post) => post.slug === topicSlug))
-          .filter((post): post is NonNullable<typeof post> => Boolean(post))
-      : []
-  const freeToolsWorkflowCards: CategoryHubCard[] =
-    canonicalSlug === 'free-tools'
-      ? [
-          {
-            title: 'Start with the category hub',
-            description: 'Use this archive when you want the native free-tools cluster before branching into adjacent developer-tools or indie-hacking decisions.',
-            href: '/category/free-tools',
-            eyebrow: 'Best Starting Points',
-          },
-          {
-            title: 'Use the free-tools pillar',
-            description: 'Open the pillar guide when you want a curated parent path for budget-first software picks and open-source replacements.',
-            href: '/guides/free-tools-for-developers',
-            eyebrow: 'Best Starting Points',
-          },
-          {
-            title: 'Explore the community hub',
-            description: 'Move into the community discovery layer if you want more tools, categories, latest reads, and broader site navigation.',
-            href: '/community',
-            eyebrow: 'Browse by Workflow',
-          },
-          {
-            title: 'Open the resources hub',
-            description: 'Return to the start-here hub for learning paths, comparisons, the blog archive, and neighboring topic lanes.',
-            href: RESOURCE_HUB_PATH,
-            eyebrow: 'Browse by Workflow',
-          },
-          {
-            title: 'Browse developer tools',
-            description: 'Go to developer tools when the software quality decision matters more than the price filter alone.',
-            href: '/category/developer-tools',
-            eyebrow: 'Related Categories',
-          },
-          {
-            title: 'Browse indie hacking',
-            description: 'Use the indie-hacking cluster when low-cost tooling needs to connect back to MVP, monetization, and shipping decisions.',
-            href: '/category/indie-hacking',
-            eyebrow: 'Related Categories',
-          },
-        ]
-      : []
+    .slice(0, 6)
+  const strongestPosts = (importantPosts.length > 0 ? importantPosts : fallbackImportantPosts).slice(0, 6)
+  const strongestPostSlugs = new Set(strongestPosts.map((post) => post.slug))
+  const primaryPillar = clusterContent.pillarPages.find((page) => !strongestPostSlugs.has(page.slug)) || clusterContent.pillarPages[0]
+  const primaryComparison = clusterContent.comparisons.find((post) => !strongestPostSlugs.has(post.slug)) || clusterContent.comparisons[0]
+  const reservedSlugs = new Set(
+    [primaryPillar?.slug, primaryComparison?.slug].filter((slug): slug is string => Boolean(slug))
+  )
+  const latestPosts = posts.filter((post) => !strongestPostSlugs.has(post.slug) && !reservedSlugs.has(post.slug))
+  const supportingHub =
+    canonicalSlug === 'web-dev'
+      ? {
+          label: 'Community',
+          href: '/community',
+          description: 'Use the community page when you want broader fresh reads beyond this frontend lane.',
+        }
+      : {
+          label: 'Deployment Hub',
+          href: RESOURCE_HUB_PATH,
+          description: 'Use the deployment hub when the next question moves from this topic into operations, hosting, or broader comparisons.',
+        }
 
   return (
     <div style={{ maxWidth: '1100px', margin: '2.5rem auto', padding: '0 1rem' }}>
-      <TemplateLinkBar
-        relatedHref={clusterContent.pillarPages[0]?.href || clusterContent.hubSection.href}
-        relatedLabel={clusterContent.pillarPages[0]?.title || clusterContent.hubSection.title}
-      />
-
-      <div style={{ marginBottom: '2rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--border)' }}>
-        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>Category</div>
-        <h1 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-primary)' }}>{meta.label}</h1>
-        <p style={{ color: 'var(--text-secondary)', marginTop: '0.4rem' }}>
-          {posts.length} article{posts.length !== 1 ? 's' : ''}
-        </p>
-      </div>
-      <section style={{
-        marginBottom: '2rem',
-        padding: '1.5rem',
-        border: '1px solid var(--border)',
-        borderRadius: '1rem',
-        background: 'var(--surface)',
-      }}>
-        <p style={{
-          margin: 0,
-          color: 'var(--text-secondary)',
-          fontSize: '1rem',
-          lineHeight: 1.8,
-        }}>
+      <section style={{ marginBottom: '2rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--border)' }}>
+        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
+          Category
+        </div>
+        <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: 800, color: 'var(--text-primary)' }}>{meta.label}</h1>
+        <p style={{ margin: '0.7rem 0 0', color: 'var(--text-secondary)', lineHeight: 1.75, maxWidth: '760px' }}>
           {archiveContent?.intro || meta.longDesc}
         </p>
-
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-          gap: '1rem',
-          marginTop: '1.25rem',
-        }}>
-          <div style={{
-            padding: '1rem',
-            borderRadius: '0.875rem',
-            background: 'var(--bg)',
-            border: '1px solid var(--border)',
-          }}>
-            <h2 style={{ margin: '0 0 0.5rem', fontSize: '1rem', color: 'var(--text-primary)' }}>Who This Category Is For</h2>
-            <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-              {archiveContent?.audience || meta.description}
-            </p>
-          </div>
-
-          <div style={{
-            padding: '1rem',
-            borderRadius: '0.875rem',
-            background: 'var(--bg)',
-            border: '1px solid var(--border)',
-          }}>
-            <h2 style={{ margin: '0 0 0.5rem', fontSize: '1rem', color: 'var(--text-primary)' }}>What You'll Find Here</h2>
-            <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-              {archiveContent?.articleTypes || meta.longDesc}
-            </p>
-          </div>
-
-          <div style={{
-            padding: '1rem',
-            borderRadius: '0.875rem',
-            background: 'var(--bg)',
-            border: '1px solid var(--border)',
-          }}>
-            <h2 style={{ margin: '0 0 0.5rem', fontSize: '1rem', color: 'var(--text-primary)' }}>Resources Hub</h2>
-            <p style={{ margin: '0 0 0.85rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-              Use the central resources page to jump into learning paths, comparisons, free tools, and the {clusterContent.hubSection.title.toLowerCase()} lane.
-            </p>
-            <Link href={clusterContent.hubSection.href} style={{ color: 'var(--accent)', fontWeight: 700 }}>
-              Open {clusterContent.hubSection.title}
-            </Link>
-          </div>
-
-          <div style={{
-            padding: '1rem',
-            borderRadius: '0.875rem',
-            background: 'var(--bg)',
-            border: '1px solid var(--border)',
-          }}>
-            <h2 style={{ margin: '0 0 0.5rem', fontSize: '1rem', color: 'var(--text-primary)' }}>Navigate the Site</h2>
-            <p style={{ margin: '0 0 0.85rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-              Use the homepage, resources hub, and community page as the main return paths around this category.
-            </p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-              <Link href="/" style={{ color: 'var(--accent)', fontWeight: 700 }}>
-                Homepage
-              </Link>
-              <Link href={RESOURCE_HUB_PATH} style={{ color: 'var(--accent)', fontWeight: 700 }}>
-                Resources Hub
-              </Link>
-              <Link href="/community" style={{ color: 'var(--accent)', fontWeight: 700 }}>
-                Community Hub
-              </Link>
-              <Link href="/blog" style={{ color: 'var(--accent)', fontWeight: 700 }}>
-                Blog Archive
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        <div style={{ marginTop: '1.25rem' }}>
-          <h2 style={{ margin: '0 0 0.45rem', fontSize: '1rem', color: 'var(--text-primary)' }}>Start Here</h2>
-          <p style={{ margin: '0 0 0.75rem', color: 'var(--text-secondary)', lineHeight: 1.75 }}>
-            These are the clearest first reads if you want to understand this category before moving into the full archive, related guides, and sitewide hubs.
-          </p>
-          <ul style={{
-            margin: 0,
-            paddingLeft: '1.1rem',
-            color: 'var(--text-secondary)',
-            lineHeight: 1.8,
-          }}>
-            {archiveLinks.map(post => (
-              <li key={post.slug}>
-                <Link href={`/blog/${post.slug}`} style={{ color: 'var(--accent)', fontWeight: 600 }}>
-                  {post.title}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {archiveContent?.editorialNote && (
-          <div style={{ marginTop: '1.25rem' }}>
-            <h2 style={{ margin: '0 0 0.45rem', fontSize: '1rem', color: 'var(--text-primary)' }}>Why This Category Matters</h2>
-            <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.8 }}>
-              {archiveContent.editorialNote}
-            </p>
-            <p style={{ margin: '0.85rem 0 0', color: 'var(--text-secondary)', lineHeight: 1.8 }}>
-              Right now this hub includes {posts.length} directly assigned article{posts.length !== 1 ? 's' : ''}, plus connected
-              pillar guides, related tool pages, the community hub, and the main resources lane. That keeps the page useful even when
-              the core category stays selective instead of turning into a low-quality archive.
-            </p>
-          </div>
-        )}
-
-        {relatedCategories.length > 0 && (
-          <div style={{ marginTop: '1.25rem' }}>
-            <h2 style={{ margin: '0 0 0.75rem', fontSize: '1rem', color: 'var(--text-primary)' }}>Related Categories</h2>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-              {relatedCategories.map((category) => (
-                <Link
-                  key={category.slug}
-                  href={category.href}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.45rem',
-                    padding: '0.6rem 0.9rem',
-                    borderRadius: '999px',
-                    border: '1px solid var(--border)',
-                    background: 'var(--bg)',
-                    color: category.color,
-                    fontWeight: 700,
-                  }}
-                >
-                  <span>{category.icon}</span>
-                  <span>{category.label}</span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
+        <p style={{ margin: '0.7rem 0 0', color: 'var(--text-muted)', fontSize: '0.88rem' }}>
+          {posts.length} article{posts.length !== 1 ? 's' : ''} in this lane. Latest post: {formatDate(posts[0].date)}.
+        </p>
       </section>
 
-      {canonicalSlug === 'free-tools' && freeToolsTopicCards.length > 0 && (
-        <section style={{ marginBottom: '2rem' }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-end',
-            gap: '1rem',
-            marginBottom: '1rem',
-          }}>
-            <div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.45rem', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
-                Popular Free Tool Topics
-              </div>
-              <h2 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--text-primary)' }}>
-                Start with the most useful workflow-specific pages
-              </h2>
-              <p style={{ margin: '0.55rem 0 0', color: 'var(--text-secondary)', lineHeight: 1.75 }}>
-                These topic pages keep the category focused on software decisions where free and open-source tooling is the primary filter, not an afterthought.
-              </p>
-            </div>
-            <Link href="/guides/free-tools-for-developers" className="home-section-link">
-              Open free-tools pillar
-            </Link>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
-            {freeToolsTopicCards.map(post => <PostCard key={post.slug} post={post} />)}
-          </div>
-        </section>
-      )}
-
-      {canonicalSlug === 'free-tools' && freeToolsWorkflowCards.length > 0 && (
-        <section style={{ marginBottom: '2rem' }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-end',
-            gap: '1rem',
-            marginBottom: '1rem',
-          }}>
-            <div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.45rem', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
-                Browse By Workflow
-              </div>
-              <h2 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--text-primary)' }}>
-                Use these paths to keep exploring without weakening taxonomy
-              </h2>
-              <p style={{ margin: '0.55rem 0 0', color: 'var(--text-secondary)', lineHeight: 1.75 }}>
-                The links below connect this category to the homepage, the resources hub, the community hub, the blog archive, the free-tools pillar, and the neighboring categories that naturally support budget-first software decisions.
-              </p>
-            </div>
-            <Link href="/community" className="home-section-link">
-              Explore community hub
-            </Link>
-          </div>
-
-          <div className="home-quick-grid">
-            {freeToolsWorkflowCards.map((card) => (
-              <Link key={card.href} href={card.href} className="home-curated-card">
-                <div className="home-curated-top">
-                  <span className="home-curated-eyebrow">{card.eyebrow}</span>
-                  <span className="home-curated-arrow">Open</span>
-                </div>
-                <h3 className="home-curated-title">{card.title}</h3>
-                <p className="home-curated-copy">{card.description}</p>
-                <div className="home-curated-footer">
-                  <span>Follow this path</span>
-                  <span>Read more</span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {clusterContent.pillarPages.length > 0 && (
-        <section style={{ marginBottom: '2rem' }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-end',
-            gap: '1rem',
-            marginBottom: '1rem',
-          }}>
-            <div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.45rem', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
-                Related Guides
-              </div>
-              <h2 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--text-primary)' }}>
-                Pillar guides that anchor {meta.label.toLowerCase()}
-              </h2>
-              <p style={{ margin: '0.55rem 0 0', color: 'var(--text-secondary)', lineHeight: 1.75 }}>
-                Use these pillar guides when you want the main entry points for this category before branching into the full archive.
-              </p>
-            </div>
-            <Link href={`${RESOURCE_HUB_PATH}#authority-pages`} className="home-section-link">
-              Open pillar hub
-            </Link>
-          </div>
-
-          <div className="home-quick-grid">
-            {clusterContent.pillarPages.map((page) => (
-              <Link key={page.slug} href={page.href} className="home-curated-card">
-                <div className="home-curated-top">
-                  <span className="home-curated-eyebrow">Pillar Guide</span>
-                  <span className="home-curated-arrow">{page.primaryCategory.label}</span>
-                </div>
-                <h3 className="home-curated-title">{page.title}</h3>
-                <p className="home-curated-copy">{page.description}</p>
-                <div className="home-curated-footer">
-                  <span>{page.articleCount} connected articles</span>
-                  <span>Open pillar guide</span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {categoryPopularGuides.length > 0 && (
-        <section style={{ marginBottom: '2rem' }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-end',
-            gap: '1rem',
-            marginBottom: '1rem',
-          }}>
-            <div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.45rem', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
-                Popular Guides
-              </div>
-              <h2 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--text-primary)' }}>
-                Strong reads to start with in {meta.label}
-              </h2>
-              <p style={{ margin: '0.55rem 0 0', color: 'var(--text-secondary)', lineHeight: 1.75 }}>
-                Use these guide cards if you want the best entry points before scanning the full category archive.
-              </p>
-            </div>
-            <Link href={clusterContent.hubSection.href} className="home-section-link">
-              Open {clusterContent.hubSection.title}
-            </Link>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
-            {categoryPopularGuides.map(post => <PostCard key={post.slug} post={post} />)}
-          </div>
-        </section>
-      )}
-
       <section style={{ marginBottom: '2rem' }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-end',
-          gap: '1rem',
-          marginBottom: '1rem',
-        }}>
-          <div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.45rem', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
-              Explore Community
-            </div>
-            <h2 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--text-primary)' }}>
-              Use the main site hubs around this category
-            </h2>
-            <p style={{ margin: '0.55rem 0 0', color: 'var(--text-secondary)', lineHeight: 1.75 }}>
-              These links connect this category back to the homepage, resources hub, community page, and full blog archive so the site stays crawlable in both directions.
-            </p>
+        <div style={{ marginBottom: '1rem' }}>
+          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.45rem', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
+            Top Reads
           </div>
-          <Link href="/community" className="home-section-link">
-            Open community hub
-          </Link>
+          <h2 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--text-primary)' }}>
+            Start with the strongest {meta.label.toLowerCase()} articles
+          </h2>
         </div>
-
-        <div className="home-discovery-grid">
-          {communityLinks.map((link) => (
-            <Link key={link.href} href={link.href} className="home-discovery-card">
-              <div className="home-discovery-body">
-                <h3>{link.title}</h3>
-                <p>{link.description}</p>
-              </div>
-            </Link>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+          {strongestPosts.map((post) => (
+            <PostCard key={post.slug} post={post} />
           ))}
         </div>
       </section>
 
-      {relatedResources.length > 0 && (
+      {(primaryPillar || primaryComparison) && (
         <section style={{ marginBottom: '2rem' }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-end',
-            gap: '1rem',
-            marginBottom: '1rem',
-          }}>
-            <div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.45rem', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
-                Related Tools / Comparisons
-              </div>
-              <h2 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--text-primary)' }}>
-                Use these pages to branch into adjacent decisions
-              </h2>
-              <p style={{ margin: '0.55rem 0 0', color: 'var(--text-secondary)', lineHeight: 1.75 }}>
-                These linked resources connect {meta.label.toLowerCase()} to related comparisons, free tools, and higher-intent decision pages.
-              </p>
+          <div style={{ marginBottom: '1rem' }}>
+            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.45rem', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
+              Best Next Clicks
             </div>
-            <Link href={RESOURCE_HUB_PATH} className="home-section-link">
-              Open Blixamo Resources
-            </Link>
+            <h2 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--text-primary)' }}>
+              Open one guide and one comparison when you need more context
+            </h2>
           </div>
+          <div className="home-quick-grid">
+            {primaryPillar && (
+              <CategoryLaneFeatureCard
+                eyebrow="Pillar Guide"
+                title={primaryPillar.title}
+                description={primaryPillar.description}
+                href={primaryPillar.href}
+                footer={`${primaryPillar.articleCount} connected articles`}
+              />
+            )}
+            {primaryComparison && (
+              <CategoryLaneFeatureCard
+                eyebrow="Comparison"
+                title={primaryComparison.title}
+                description={primaryComparison.description}
+                href={`/blog/${primaryComparison.slug}`}
+                footer={`${formatDate(primaryComparison.date)} · ${primaryComparison.readingTime}`}
+              />
+            )}
+          </div>
+        </section>
+      )}
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
-            {relatedResources.map(post => <PostCard key={post.slug} post={post} />)}
+      {latestPosts.length > 0 && (
+        <section style={{ marginBottom: '2rem' }}>
+          <div style={{ marginBottom: '1rem' }}>
+            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.45rem', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
+              Latest In This Topic
+            </div>
+            <h2 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--text-primary)' }}>
+              Newer reads in {meta.label.toLowerCase()}
+            </h2>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
+            {latestPosts.map((post) => (
+              <LatestTopicItem key={post.slug} post={post} />
+            ))}
           </div>
         </section>
       )}
 
       <section style={{ marginBottom: '2rem' }}>
-        <div style={{
-          padding: '1.5rem',
-          borderRadius: '1rem',
-          border: '1px solid var(--border)',
-          background: 'var(--surface)',
-        }}>
+        <div
+          style={{
+            padding: '1.1rem 1.2rem',
+            borderRadius: '0.95rem',
+            border: '1px solid var(--border)',
+            background: 'var(--surface)',
+          }}
+        >
           <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.45rem', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
-            Back To Resources Hub
+            Related Lanes
           </div>
-          <h2 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--text-primary)' }}>
-            Return to the main hub after this category
-          </h2>
-          <p style={{ margin: '0.75rem 0 0', color: 'var(--text-secondary)', lineHeight: 1.75 }}>
-            Use the central hub when you want to move from this category into other categories, pillar guides, comparisons, and the broader article archive.
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '1rem' }}>
-            <Link href={RESOURCE_HUB_PATH} className="home-hero-button home-hero-button-primary">
-              Open resources hub
+          <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.75 }}>{supportingHub.description}</p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '0.9rem' }}>
+            <Link href={supportingHub.href} className="home-hero-button home-hero-button-secondary">
+              {supportingHub.label}
             </Link>
-            <Link href="/" className="home-hero-button home-hero-button-secondary">
-              Homepage
-            </Link>
-            <Link href="/blog" className="home-hero-button home-hero-button-secondary">
-              Blog archive
-            </Link>
-            <Link href="/community" className="home-hero-button home-hero-button-secondary">
-              Community hub
-            </Link>
+            {relatedCategories.slice(0, 3).map((category) => (
+              <Link
+                key={category.slug}
+                href={category.href}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.45rem',
+                  padding: '0.6rem 0.9rem',
+                  borderRadius: '999px',
+                  border: '1px solid var(--border)',
+                  background: 'var(--bg)',
+                  color: category.color,
+                  fontWeight: 700,
+                }}
+              >
+                <span>{category.icon}</span>
+                <span>{category.label}</span>
+              </Link>
+            ))}
           </div>
-        </div>
-      </section>
-
-      <section>
-        <div style={{ marginBottom: '1rem' }}>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.45rem', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
-            All Articles
-          </div>
-          <h2 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--text-primary)' }}>
-            Browse the full {meta.label} archive
-          </h2>
-          <p style={{ margin: '0.55rem 0 0', color: 'var(--text-secondary)', lineHeight: 1.75 }}>
-            Every article in this category stays linked here so readers can move from the overview into the complete list without losing context.
-          </p>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
-          {posts.map(post => <PostCard key={post.slug} post={post} />)}
         </div>
       </section>
     </div>
