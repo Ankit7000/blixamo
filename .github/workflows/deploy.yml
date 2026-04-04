@@ -1,0 +1,22 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches: [main, master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Hetzner VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 204.168.203.255
+          username: bot
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /var/www/blixamo
+            git pull origin master
+            npm ci
+            npm run build
+            pm2 reload blixamo
