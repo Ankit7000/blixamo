@@ -21,6 +21,8 @@
   About page.
 - `app/community/page.tsx`
   Community hub page.
+- `app/ai-for-developers/page.tsx`
+  AI for Developers mini hub page.
 - `app/contact/page.tsx`
   Contact page.
 - `app/privacy-policy/page.tsx`
@@ -104,6 +106,7 @@ Note:
 | `/` | `app/page.tsx` | SSG |
 | `/about` | `app/about/page.tsx` | SSG |
 | `/community` | `app/community/page.tsx` | SSG |
+| `/ai-for-developers` | `app/ai-for-developers/page.tsx` | SSG |
 | `/contact` | `app/contact/page.tsx` | SSG |
 | `/privacy-policy` | `app/privacy-policy/page.tsx` | SSG |
 | `/terms` | `app/terms/page.tsx` | SSG |
@@ -130,12 +133,13 @@ Primary crawl path:
 - Resources Hub: `/tag/deployment`
 - Category pages: `/category/[slug]`
 - Pillar guide pages: `/guides/[slug]`
+- AI mini hub: `/ai-for-developers`
 - Article pages: `/blog/[slug]`
 - Community hub: `/community`
 
 Indexing intent:
 - Keep indexed: homepage, resources hub, categories, pillar guides, articles, about page, and community hub
-- Keep accessible but low priority: other tag pages, author pages, search, legal pages, and pagination
+- Keep accessible but low priority: AI mini hub, other tag pages, author pages, search, legal pages, and pagination
 - Use `noindex, follow` on low-value archive/utility routes rather than removing routes
 
 ---
@@ -172,3 +176,4 @@ Indexing intent:
 Important note:
 - `getAllCategories()` only returns categories used by current posts.
 - If no post uses a category, that category route is not pre-rendered.
+

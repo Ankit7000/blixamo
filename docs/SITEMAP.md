@@ -12,6 +12,7 @@
 | `/` | 1.0 | daily | Yes |
 | `/about` | 0.5 | monthly | Yes |
 | `/community` | 0.6 | weekly | Yes |
+| `/ai-for-developers` | 0.5 | weekly | No |
 | `/blog` | 0.8 | monthly | Yes |
 | `/tag/deployment` | 0.9 | weekly | Yes |
 | `/contact` | 0.3 | monthly | No |
@@ -144,6 +145,7 @@ Includes:
 8. `/blog/[slug]` for all canonical indexable posts
 
 Does not include:
+- `/ai-for-developers` (live mini hub route, currently not added to sitemap generation)
 - `/search`
 - `/api/*`
 - `/author/*`
