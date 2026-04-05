@@ -17,6 +17,12 @@ type CategoryArchiveContent = {
   metadataTitle?: string
   metadataDescription?: string
   editorialNote?: string
+  evaluationNote?: string
+  editorialPicks?: {
+    label: string
+    slug: string
+    reason: string
+  }[]
 }
 
 function formatDate(date: string) {
@@ -195,9 +201,11 @@ const CATEGORY_ARCHIVE_CONTENT: Record<string, CategoryArchiveContent> = {
     ],
   },
   'free-tools': {
-    intro: 'This category collects budget-first and open-source software picks for developers who want to reduce recurring tool spend without turning their workflow into a compromise.',
+    intro: 'This category is for developers who want fewer recurring tool bills without wrecking speed, team fit, or day-to-day workflow quality.',
     audience: 'Developers, indie hackers, and builders looking for free or open-source software that still earns a place in day-to-day API, docs, Git, diagram, and shipping workflows.',
     articleTypes: 'Free tool roundups, open-source replacements, focused workflow shortlists, and savings-first software guides that stay useful after the first click.',
+    startHere:
+      'Start with the workflow you are trying to improve, not with the word free. The useful pages here are the ones that tell you when the free tier is enough, where the limits show up, and which tools still feel fast once you use them every week.',
     importantSlugs: [
       'open-source-tools-2026',
       'best-free-api-testing-tools-2026',
@@ -207,7 +215,32 @@ const CATEGORY_ARCHIVE_CONTENT: Record<string, CategoryArchiveContent> = {
     ],
     metadataTitle: 'Free Tools for Developers',
     metadataDescription: 'Free tools for developers, open-source software, and budget-first workflow guides that help cut recurring tool spend without weakening quality.',
-    editorialNote: 'This category is intentionally curated instead of padded. The goal is not to list every app with the word free in the headline. The goal is to collect the pages where free, open source, or cost-saving software is the primary search intent, then connect those reads back to the broader Blixamo hub structure.',
+    editorialNote:
+      'This lane is intentionally curated, not padded. A tool only belongs here if the free version is strong enough for real work, the tradeoffs are clear, and the recommendation holds up after the first week instead of only looking good on a pricing page.',
+    evaluationNote:
+      'I judge free tools by workflow fit first. The real questions are whether the tool stays fast, where the limits start to hurt, how much lock-in it creates, and whether free is actually enough for a serious developer workflow instead of just a trial in disguise.',
+    editorialPicks: [
+      {
+        label: 'Best starting point for API work',
+        slug: 'best-free-api-testing-tools-2026',
+        reason: 'Use this when the real need is faster request testing and collaboration without paying for a heavy client too early.',
+      },
+      {
+        label: 'Best for docs',
+        slug: 'best-free-documentation-tools-2026',
+        reason: 'Read this if your bottleneck is shipping docs people will actually maintain after the first sprint.',
+      },
+      {
+        label: 'Best for Git',
+        slug: 'best-free-git-tools-2026',
+        reason: 'Open this when the goal is cleaner Git work without turning the workflow into a slower GUI habit.',
+      },
+      {
+        label: 'Best for diagrams',
+        slug: 'best-free-diagram-tools-2026',
+        reason: 'Start here if you need diagrams that are quick enough for engineering work, not just pretty exports.',
+      },
+    ],
   },
 }
 
@@ -252,6 +285,13 @@ export default async function CategoryPage({ params }: Props) {
   const archiveContent = CATEGORY_ARCHIVE_CONTENT[canonicalSlug]
   const relatedCategories = getRelatedCategoryLinks(canonicalSlug)
   const clusterContent = getCategoryClusterContent(canonicalSlug, allPosts)
+  const editorialPicks =
+    archiveContent?.editorialPicks
+      ?.map((pick) => {
+        const post = allPosts.find((candidate) => candidate.slug === pick.slug)
+        return post ? { ...pick, post } : null
+      })
+      .filter((pick): pick is NonNullable<typeof pick> => Boolean(pick)) || []
   const importantPosts = (
     archiveContent?.importantSlugs
       .map(importantSlug => posts.find(post => post.slug === importantSlug))
@@ -306,6 +346,12 @@ export default async function CategoryPage({ params }: Props) {
           label: 'Automation Guide',
           href: '/guides/automation-guide-for-developers',
           description: 'Use the automation guide when the real question is workflow fit, hosting tradeoffs, and which automation reads to open next on indexed pages.',
+        }
+      : canonicalSlug === 'free-tools'
+      ? {
+          label: 'Free Tools Guide',
+          href: '/guides/free-tools-for-developers',
+          description: 'Use the free tools guide when you want the indexed cluster path through open-source replacements, workflow-specific picks, and the strongest savings-first reads.',
         }
       : {
           label: 'Deployment Hub',
@@ -367,6 +413,59 @@ export default async function CategoryPage({ params }: Props) {
                 {archiveContent.editorialNote}
               </p>
             )}
+            {archiveContent.evaluationNote && (
+              <div
+                style={{
+                  marginTop: '1rem',
+                  paddingTop: '1rem',
+                  borderTop: '1px solid var(--border)',
+                }}
+              >
+                <h3 style={{ margin: '0 0 0.45rem', fontSize: '1rem', color: 'var(--text-primary)' }}>
+                  How I judge free tools
+                </h3>
+                <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.75 }}>
+                  {archiveContent.evaluationNote}
+                </p>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {editorialPicks.length > 0 && (
+        <section style={{ marginBottom: '2rem' }}>
+          <div style={{ marginBottom: '1rem' }}>
+            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.45rem', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
+              Editorial Picks
+            </div>
+            <h2 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--text-primary)' }}>
+              Quick recommendations by workflow
+            </h2>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+            {editorialPicks.map((pick) => (
+              <Link
+                key={pick.slug}
+                href={`/blog/${pick.slug}`}
+                style={{
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  padding: '1rem 1.05rem',
+                  borderRadius: '0.95rem',
+                  border: '1px solid var(--border)',
+                  background: 'var(--surface)',
+                  display: 'grid',
+                  gap: '0.45rem',
+                }}
+              >
+                <span className="home-curated-eyebrow">{pick.label}</span>
+                <span style={{ fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.45 }}>
+                  {pick.post.title}
+                </span>
+                <span style={{ color: 'var(--text-secondary)', lineHeight: 1.65 }}>{pick.reason}</span>
+              </Link>
+            ))}
           </div>
         </section>
       )}

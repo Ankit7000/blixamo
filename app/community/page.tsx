@@ -24,6 +24,11 @@ type TopicLane = {
   posts: Post[]
 }
 
+type CuratedRead = {
+  slug: string
+  reason: string
+}
+
 const BUILDING_SHOWCASE: CommunityCard[] = [
   {
     title: 'Self-hosted app stacks',
@@ -152,29 +157,25 @@ function TopicLaneCard({ lane }: { lane: TopicLane }) {
 export default function CommunityPage() {
   const allPosts = getIndexablePosts()
   const hub = getResourceHubContent(allPosts)
-  const editorialPaths = [
+  const worthYourTimeNow: Array<CuratedRead & { post: Post }> = [
     {
-      title: 'Check this page first when you want what feels current',
-      description:
-        'Community is the return page for new posts, recently updated guides, and decision pages that changed enough to matter. It is the best entry when you do not want to open the full archive first.',
-      href: '#latest-community-reads',
-      eyebrow: 'What This Page Does',
+      slug: 'coolify-vs-caprover-2026',
+      reason: 'Read this before a small-VPS platform decision. It is the fastest way into the right self-hosting tradeoff.',
     },
     {
-      title: 'Use guide updates when you are actively shipping',
-      description:
-        'If you are in the middle of a deploy, migration, or self-hosting project, jump to guide updates before you browse broad topic collections. They are usually the fastest path back into the right cluster.',
-      href: '#recent-guide-updates',
-      eyebrow: 'How To Read It',
+      slug: 'vps-security-harden-ubuntu-2026',
+      reason: 'Still one of the strongest operator reads on the site because it ties hardening to concrete production outcomes.',
     },
     {
-      title: 'Use comparisons before making a tooling or hosting call',
-      description:
-        'Comparisons age faster than evergreen copy, so this page keeps the latest ones close. That makes Community useful as an operator page, not just a latest-post feed.',
-      href: '#latest-comparisons',
-      eyebrow: 'Editorial POV',
+      slug: 'open-source-tools-2026',
+      reason: 'Worth opening when you want to cut tool spend without adopting slow or half-baked replacements.',
     },
   ]
+    .map((item) => {
+      const post = allPosts.find((candidate) => candidate.slug === item.slug)
+      return post ? { ...item, post } : null
+    })
+    .filter((item): item is CuratedRead & { post: Post } => Boolean(item))
 
   const recentGuideUpdates = pickFreshPosts(
     [
@@ -249,25 +250,6 @@ export default function CommunityPage() {
     },
   ]
 
-  const popularGuideSlugs = [
-    'deploy-apps-on-vps-complete-guide',
-    'self-hosting-complete-guide',
-    'developer-tools-directory',
-    'automation-guide-for-developers',
-    'free-tools-for-developers',
-    'comparisons-hub',
-  ]
-
-  const popularGuideCards = popularGuideSlugs
-    .map((slug) => hub.pillarPages.find((page) => page.slug === slug))
-    .filter((page): page is NonNullable<typeof page> => Boolean(page))
-    .map((page) => ({
-      title: page.title,
-      description: page.description,
-      href: page.href,
-      eyebrow: 'Guide',
-    }))
-
   return (
     <div style={{ maxWidth: '1160px', margin: '0 auto', padding: '2.5rem 1rem 3rem' }}>
       <section className="home-resource-promo">
@@ -315,23 +297,71 @@ export default function CommunityPage() {
       </section>
 
       <section className="home-section-shell">
-        <div className="home-section-head home-section-head-inline">
-          <div>
-            <div className="home-section-kicker">Use Community Well</div>
-            <h2 className="home-section-title">This page should help you decide where to go next in under a minute</h2>
-            <p className="home-section-description">
-              Instead of acting like another route list, Community narrows the site into the pages most likely to be
-              useful right now.
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 1fr)',
+            gap: '1.25rem',
+            alignItems: 'start',
+          }}
+        >
+          <div
+            style={{
+              padding: '1.2rem 1.25rem',
+              borderRadius: '1rem',
+              border: '1px solid var(--border)',
+              background: 'var(--surface)',
+            }}
+          >
+            <div className="home-section-kicker">Editorial Note</div>
+            <h2 className="home-section-title" style={{ marginTop: '0.4rem' }}>
+              What is actually worth paying attention to on Blixamo right now
+            </h2>
+            <p className="home-section-description" style={{ marginBottom: '0.75rem' }}>
+              The strongest layer on the site right now is not the full archive. It is the smaller set of decision
+              pages, hardening guides, and budget-aware tool picks that changed recently enough to affect what you
+              build next.
+            </p>
+            <p className="home-section-description" style={{ marginBottom: 0 }}>
+              If you are actively shipping, spend your time on pages that help you choose a stack, reduce recurring
+              software spend, or avoid a bad infrastructure call. Everything else can wait until after the next real
+              decision.
             </p>
           </div>
-          <Link href="/blog" className="home-section-link">
-            Open full archive
-          </Link>
-        </div>
-        <div className="home-quick-grid">
-          {editorialPaths.map((path) => (
-            <CommunityCard key={path.title} card={path} />
-          ))}
+
+          <div
+            style={{
+              padding: '1.2rem 1.25rem',
+              borderRadius: '1rem',
+              border: '1px solid var(--border)',
+              background: 'var(--surface)',
+            }}
+          >
+            <div className="home-section-kicker">Worth Your Time Now</div>
+            <h2 className="home-section-title" style={{ marginTop: '0.4rem', fontSize: '1.4rem' }}>
+              Three reads I would open first
+            </h2>
+            <div style={{ display: 'grid', gap: '0.9rem', marginTop: '1rem' }}>
+              {worthYourTimeNow.map(({ post, reason }) => (
+                <Link
+                  key={post.slug}
+                  href={`/blog/${post.slug}`}
+                  style={{
+                    textDecoration: 'none',
+                    color: 'inherit',
+                    paddingBottom: '0.9rem',
+                    borderBottom: '1px solid var(--border)',
+                    display: 'grid',
+                    gap: '0.25rem',
+                  }}
+                >
+                  <span className="home-curated-eyebrow">{formatFreshnessDate(post)}</span>
+                  <span style={{ fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.45 }}>{post.title}</span>
+                  <span style={{ color: 'var(--text-secondary)', lineHeight: 1.65 }}>{reason}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
@@ -442,23 +472,6 @@ export default function CommunityPage() {
         </div>
         <div className="home-quick-grid">
           {BUILDING_SHOWCASE.map((card) => (
-            <CommunityCard key={card.title} card={card} />
-          ))}
-        </div>
-      </section>
-
-      <section id="popular-guides" className="home-section-shell">
-        <div className="home-section-head home-section-head-inline">
-          <div>
-            <div className="home-section-kicker">Popular Guides</div>
-            <h2 className="home-section-title">Guides worth keeping close</h2>
-          </div>
-          <Link href={`${RESOURCE_HUB_PATH}#authority-pages`} className="home-section-link">
-            Browse all guides
-          </Link>
-        </div>
-        <div className="home-quick-grid">
-          {popularGuideCards.map((card) => (
             <CommunityCard key={card.title} card={card} />
           ))}
         </div>
