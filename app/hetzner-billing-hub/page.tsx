@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   description:
     'A focused Blixamo mini hub for Hetzner billing and payment decisions: methods that may appear, India-specific friction, recurring billing follow-ups, and useful next reads.',
   alternates: { canonical: 'https://blixamo.com/hetzner-billing-hub' },
+  robots: { index: false, follow: true },
 }
 
 type MiniHubCard = {

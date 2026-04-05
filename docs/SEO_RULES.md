@@ -53,8 +53,16 @@ Route-level noindex rules:
 - `/terms` -> `noindex, follow`
 - `/disclaimer` -> `noindex, follow`
 - `/blog/page/*` -> `noindex, follow`
-- `/tag/deployment` as the only standalone hub page currently implemented -> stays `index, follow`
+- `/ai-for-developers` -> `noindex, follow`
+- `/dev-tools-watch` -> `noindex, follow`
+- `/infrastructure-watch` -> `noindex, follow`
+- `/nextjs-mdx-hub` -> `noindex, follow`
+- `/coolify-hub` -> `noindex, follow`
+- `/hetzner-billing-hub` -> `noindex, follow`
+- `/n8n-automation-hub` -> `noindex, follow`
+- `/tag/deployment` stays `index, follow`
 - all other `/tag/*` pages -> `noindex, follow`
+- posts with frontmatter `noindex: true` render `robots: { index: false, follow: true }`
 
 Robots file:
 - `app/robots.ts` is the only source for `/robots.txt`
@@ -120,7 +128,7 @@ Included:
 - `/about`
 - `/community`
 - `/blog`
-- `/tag/deployment` as the only standalone hub page currently implemented
+- `/tag/deployment`
 - `/category/[slug]`
 - `/guides/[slug]`
 - `/blog/[slug]` for canonical indexable posts only
@@ -133,6 +141,13 @@ Excluded:
 - `/terms`
 - `/disclaimer`
 - `/blog/page/*`
+- `/ai-for-developers`
+- `/dev-tools-watch`
+- `/infrastructure-watch`
+- `/nextjs-mdx-hub`
+- `/coolify-hub`
+- `/hetzner-billing-hub`
+- `/n8n-automation-hub`
 - all `/tag/*` except `/tag/deployment`
 - posts marked `noindex: true`
 - posts whose canonical points away from `https://blixamo.com/blog/[slug]`
@@ -169,15 +184,19 @@ Minimum article structure for linking:
 - link to the primary category page
 - link to the primary pillar guide for that article's topic cluster
 - link to at least 2 related articles
+- link to the blog archive when useful
+- link to same-category posts where they help topic depth
+- link to same-pillar posts so the cluster stays tight
+- link to popular guides that move the reader deeper into the hub structure
 - link to homepage when useful
 - link to comparison/tools pages when relevant
 
 Pillar cluster rule:
 - each pillar guide acts as the topic-cluster hub for its mapped articles
 - each cluster article links back to its primary pillar guide
-- each pillar page includes an `Articles in this topic` section that lists the full cluster article set
+- each pillar page includes an Articles in this topic section that lists the full cluster article set
+- each pillar page should keep Related guides and Recommended tools visible as cluster-support sections
 - related article modules should prefer posts from the same pillar cluster before falling back to broader category matches
-
 Tag chips on article pages should not be a crawl-priority navigation surface.
 
 ---
@@ -209,6 +228,7 @@ For a new article:
 
 Use only the VPS GSC workflow:
 - `node /var/www/gsc-tool/gsc.js ...`
+
 
 
 

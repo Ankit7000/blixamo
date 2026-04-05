@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   description:
     'A focused Blixamo mini hub for Coolify setup, app deployment, platform comparisons, and practical self-hosting workflows on one VPS.',
   alternates: { canonical: 'https://blixamo.com/coolify-hub' },
+  robots: { index: false, follow: true },
 }
 
 type MiniHubCard = {

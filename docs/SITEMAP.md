@@ -12,13 +12,13 @@
 | `/` | 1.0 | daily | Yes |
 | `/about` | 0.5 | monthly | Yes |
 | `/community` | 0.6 | weekly | Yes |
-| `/ai-for-developers` | 0.5 | weekly | Yes |
-| `/dev-tools-watch` | 0.5 | weekly | Yes |
-| `/infrastructure-watch` | 0.5 | weekly | Yes |
-| `/nextjs-mdx-hub` | 0.5 | weekly | Yes |
-| `/coolify-hub` | 0.5 | weekly | Yes |
-| `/hetzner-billing-hub` | 0.5 | weekly | Yes |
-| `/n8n-automation-hub` | 0.5 | weekly | Yes |
+| `/ai-for-developers` | 0.5 | weekly | No |
+| `/dev-tools-watch` | 0.5 | weekly | No |
+| `/infrastructure-watch` | 0.5 | weekly | No |
+| `/nextjs-mdx-hub` | 0.5 | weekly | No |
+| `/coolify-hub` | 0.5 | weekly | No |
+| `/hetzner-billing-hub` | 0.5 | weekly | No |
+| `/n8n-automation-hub` | 0.5 | weekly | No |
 | `/blog` | 0.8 | monthly | Yes |
 | `/tag/deployment` | 0.9 | weekly | Yes |
 | `/contact` | 0.3 | monthly | No |
@@ -40,6 +40,12 @@ Change freq: monthly
 lastModified: `post.updatedAt` if set, else `post.date`
 
 Current blog URLs are generated from every published file in `content/posts/*.mdx`.
+
+Temporary `noindex: true` post exclusions:
+- `/blog/n8n-fastapi-hetzner-vps`
+- `/blog/ubuntu-vps-hardening-checklist`
+- `/blog/best-vps-monitoring-tools-2026`
+- `/blog/hetzner-alternatives-cheap-vps-2026`
 
 Validation command:
 - `npm run sitemap:check -- --list`
@@ -145,17 +151,10 @@ Includes:
 2. `/about`
 3. `/community`
 4. `/blog`
-5. `/ai-for-developers`
-6. `/dev-tools-watch`
-7. `/infrastructure-watch`
-8. `/nextjs-mdx-hub`
-9. `/coolify-hub`
-10. `/hetzner-billing-hub`
-11. `/n8n-automation-hub`
-12. `/tag/deployment`
-13. `/category/[slug]` for every canonical category with at least one indexable post
-14. `/guides/[slug]` for all pillar pages
-15. `/blog/[slug]` for all canonical indexable posts
+5. `/tag/deployment`
+6. `/category/[slug]` for every canonical category with at least one indexable post
+7. `/guides/[slug]` for all pillar pages
+8. `/blog/[slug]` for all canonical indexable posts
 
 Does not include:
 - `/search`
@@ -165,6 +164,13 @@ Does not include:
 - `/privacy-policy`
 - `/terms`
 - `/disclaimer`
+- `/ai-for-developers`
+- `/dev-tools-watch`
+- `/infrastructure-watch`
+- `/nextjs-mdx-hub`
+- `/coolify-hub`
+- `/hetzner-billing-hub`
+- `/n8n-automation-hub`
 - all tag pages except `/tag/deployment`
 - pagination pages
 - utility files such as `/ads.txt`
@@ -176,10 +182,6 @@ Does not include:
 - `/about` uses the build date
 - `/community` uses the build date
 - `/blog` uses the build date
-- `/nextjs-mdx-hub` uses the build date
-- `/coolify-hub` uses the build date
-- `/hetzner-billing-hub` uses the build date
-- `/n8n-automation-hub` uses the build date
 - `/tag/deployment` uses the build date
 - category pages use the freshest post inside that category
 - guide pages use the freshest linked post shown on that pillar page

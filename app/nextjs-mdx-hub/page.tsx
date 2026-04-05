@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   description:
     'A focused Blixamo mini hub for Next.js MDX setup, production publishing, runtime fixes, and content-architecture decisions.',
   alternates: { canonical: 'https://blixamo.com/nextjs-mdx-hub' },
+  robots: { index: false, follow: true },
 }
 
 type MiniHubCard = {

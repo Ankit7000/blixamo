@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   description:
     'A focused Blixamo mini hub for VPS changes, hosting comparisons, deployment platform shifts, and infrastructure decisions developers should track.',
   alternates: { canonical: 'https://blixamo.com/infrastructure-watch' },
+  robots: { index: false, follow: true },
 }
 
 type MiniHubCard = {

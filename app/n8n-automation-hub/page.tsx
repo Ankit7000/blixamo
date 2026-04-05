@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   description:
     'A focused Blixamo mini hub for practical n8n setup, self-hosting, workflow decisions, platform comparisons, and useful automation reads for developers.',
   alternates: { canonical: 'https://blixamo.com/n8n-automation-hub' },
+  robots: { index: false, follow: true },
 }
 
 type MiniHubCard = {

@@ -13,6 +13,7 @@ type CategoryArchiveContent = {
   audience: string
   articleTypes: string
   importantSlugs: string[]
+  startHere?: string
   metadataTitle?: string
   metadataDescription?: string
   editorialNote?: string
@@ -107,6 +108,10 @@ const CATEGORY_ARCHIVE_CONTENT: Record<string, CategoryArchiveContent> = {
     intro: 'For developers choosing models, tools, and API workflows, this lane surfaces the clearest AI guides, comparisons, and practical implementation reads.',
     audience: 'Developers comparing models, planning AI features, or trying to turn Claude and OpenAI into practical tools for day-to-day work.',
     articleTypes: 'Model comparisons, API cost breakdowns, AI tool roundups, and production use-case guides.',
+    startHere:
+      'Start with a model or workflow question, not a generic AI curiosity. The best path is usually one practical guide plus one comparison before you commit to a tool or API lane.',
+    editorialNote:
+      'Blixamo treats AI as an operator topic, not a hype category. The useful pages here are the ones that help developers decide what to build, which model fits the work, and how to turn prompts into repeatable workflows.',
     importantSlugs: [
       'best-ai-tools-2026',
       'claude-ai-guide',
@@ -117,6 +122,10 @@ const CATEGORY_ARCHIVE_CONTENT: Record<string, CategoryArchiveContent> = {
     intro: 'This category helps developers choose the right tools by focusing on actual tradeoffs, real testing, and honest recommendations.',
     audience: 'Developers evaluating software for coding, database work, deployment, and daily workflow improvements.',
     articleTypes: 'Tool comparisons, buyer-style guides, hands-on reviews, and cost or workflow breakdowns.',
+    startHere:
+      'Use this lane when the real question is tool fit. Start with the page closest to your workflow bottleneck, then use the supporting comparisons to pressure-test the recommendation before you switch.',
+    editorialNote:
+      'The goal here is not to list every app in a category. It is to surface tools that materially improve a developer workflow, explain the tradeoffs, and rule out weak picks quickly.',
     importantSlugs: [
       'best-free-developer-tools-2026',
       'best-postgresql-gui-free',
@@ -175,6 +184,10 @@ const CATEGORY_ARCHIVE_CONTENT: Record<string, CategoryArchiveContent> = {
     intro: 'For developers automating repeat work with n8n, bots, and AI workflows, this lane surfaces the clearest tutorials, comparisons, and build-first automation reads.',
     audience: 'Developers and operators building workflow automation with n8n, Node.js, Claude API, and messaging integrations.',
     articleTypes: 'Automation tutorials, platform comparisons, workflow design guides, and AI-assisted process automations.',
+    startHere:
+      'Read this category with a workflow in mind. The strongest path is to choose the automation layer first, then use the tutorial and comparison pages here to decide whether the stack is worth operating yourself.',
+    editorialNote:
+      'Automation only gets more value when it survives real constraints like hosting, observability, and maintenance. The pages in this lane prioritize workflows developers can actually run, not just clever demos.',
     importantSlugs: [
       'n8n-complete-guide-2026',
       'n8n-vs-make-vs-zapier-indie-dev',
@@ -314,6 +327,49 @@ export default async function CategoryPage({ params }: Props) {
           {posts.length} article{posts.length !== 1 ? 's' : ''} in this lane. Latest post: {formatDate(posts[0].date)}.
         </p>
       </section>
+
+      {(archiveContent?.startHere || archiveContent?.editorialNote) && (
+        <section style={{ marginBottom: '2rem' }}>
+          <div
+            style={{
+              padding: '1.15rem 1.2rem',
+              borderRadius: '0.95rem',
+              border: '1px solid var(--border)',
+              background: 'var(--surface)',
+            }}
+          >
+            <div style={{ marginBottom: '0.95rem' }}>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.45rem', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
+                How To Use This Lane
+              </div>
+              <h2 style={{ margin: 0, fontSize: '1.35rem', color: 'var(--text-primary)' }}>
+                Read {meta.label.toLowerCase()} like an editorial path, not just a card grid
+              </h2>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+              <div>
+                <h3 style={{ margin: '0 0 0.45rem', fontSize: '1rem', color: 'var(--text-primary)' }}>Who this is for</h3>
+                <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.7 }}>{archiveContent.audience}</p>
+              </div>
+              <div>
+                <h3 style={{ margin: '0 0 0.45rem', fontSize: '1rem', color: 'var(--text-primary)' }}>What belongs here</h3>
+                <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.7 }}>{archiveContent.articleTypes}</p>
+              </div>
+              {archiveContent.startHere && (
+                <div>
+                  <h3 style={{ margin: '0 0 0.45rem', fontSize: '1rem', color: 'var(--text-primary)' }}>Start here</h3>
+                  <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.7 }}>{archiveContent.startHere}</p>
+                </div>
+              )}
+            </div>
+            {archiveContent.editorialNote && (
+              <p style={{ margin: '1rem 0 0', color: 'var(--text-secondary)', lineHeight: 1.75 }}>
+                {archiveContent.editorialNote}
+              </p>
+            )}
+          </div>
+        </section>
+      )}
 
       <section style={{ marginBottom: '2rem' }}>
         <div style={{ marginBottom: '1rem' }}>

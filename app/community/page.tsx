@@ -152,6 +152,29 @@ function TopicLaneCard({ lane }: { lane: TopicLane }) {
 export default function CommunityPage() {
   const allPosts = getAllPosts()
   const hub = getResourceHubContent(allPosts)
+  const editorialPaths = [
+    {
+      title: 'Check this page first when you want what feels current',
+      description:
+        'Community is the return page for new posts, recently updated guides, and decision pages that changed enough to matter. It is the best entry when you do not want to open the full archive first.',
+      href: '#latest-community-reads',
+      eyebrow: 'What This Page Does',
+    },
+    {
+      title: 'Use guide updates when you are actively shipping',
+      description:
+        'If you are in the middle of a deploy, migration, or self-hosting project, jump to guide updates before you browse broad topic collections. They are usually the fastest path back into the right cluster.',
+      href: '#recent-guide-updates',
+      eyebrow: 'How To Read It',
+    },
+    {
+      title: 'Use comparisons before making a tooling or hosting call',
+      description:
+        'Comparisons age faster than evergreen copy, so this page keeps the latest ones close. That makes Community useful as an operator page, not just a latest-post feed.',
+      href: '#latest-comparisons',
+      eyebrow: 'Editorial POV',
+    },
+  ]
 
   const recentGuideUpdates = pickFreshPosts(
     [
@@ -250,10 +273,10 @@ export default function CommunityPage() {
       <section className="home-resource-promo">
         <div className="home-resource-promo-copy">
           <div className="home-section-kicker">Community</div>
-          <h1 className="home-section-title">Latest useful reads, updated guides, and practical comparisons for developers.</h1>
+          <h1 className="home-section-title">The current layer of Blixamo for developers who want practical reads, updated guides, and decisions worth revisiting.</h1>
           <p className="home-section-description">
-            Come back here for what is new on Blixamo: fresh articles, current guide updates, strong comparison pages,
-            and the next topic lane worth following.
+            Use Community as the site&apos;s editorial front desk. It is where fresh posts, updated tutorials,
+            comparison pages, and recommended next paths come together before you move into deeper guides or the full archive.
           </p>
           <div className="home-hero-actions">
             <Link href="#latest-community-reads" className="home-hero-button home-hero-button-primary">
@@ -291,13 +314,34 @@ export default function CommunityPage() {
         </div>
       </section>
 
+      <section className="home-section-shell">
+        <div className="home-section-head home-section-head-inline">
+          <div>
+            <div className="home-section-kicker">Use Community Well</div>
+            <h2 className="home-section-title">This page should help you decide where to go next in under a minute</h2>
+            <p className="home-section-description">
+              Instead of acting like another route list, Community narrows the site into the pages most likely to be
+              useful right now.
+            </p>
+          </div>
+          <Link href="/blog" className="home-section-link">
+            Open full archive
+          </Link>
+        </div>
+        <div className="home-quick-grid">
+          {editorialPaths.map((path) => (
+            <CommunityCard key={path.title} card={path} />
+          ))}
+        </div>
+      </section>
+
       <section id="latest-community-reads" className="home-section-shell">
         <div className="home-section-head home-section-head-inline">
           <div>
             <div className="home-section-kicker">Latest Articles</div>
             <h2 className="home-section-title">Fresh reads worth checking now</h2>
             <p className="home-section-description">
-              The newest useful posts land first here so the page feels current instead of acting like another route map.
+              The newest useful posts land first here so the page feels current and editorial, not like a generic blog listing.
             </p>
           </div>
           <Link href="/blog" className="home-section-link">
@@ -317,7 +361,7 @@ export default function CommunityPage() {
             <div className="home-section-kicker">Recently Updated Guides</div>
             <h2 className="home-section-title">Current tutorials and guide-driven reads</h2>
             <p className="home-section-description">
-              These are the guides and how-to style reads that still feel timely for developers shipping now.
+              These are the guides and how-to reads most worth reopening when you are actively shipping and need the latest working path.
             </p>
           </div>
           <Link href="/category/how-to" className="home-section-link">
@@ -337,7 +381,7 @@ export default function CommunityPage() {
             <div className="home-section-kicker">Featured Practical Reads</div>
             <h2 className="home-section-title">Strong articles worth reopening right now</h2>
             <p className="home-section-description">
-              A small editorial layer for practical reads with lasting utility, not just the newest publish date.
+              A small editorial layer for practical reads with lasting utility, not just the newest publish date or the loudest topic.
             </p>
           </div>
           <Link href="/blog" className="home-section-link">
@@ -377,7 +421,7 @@ export default function CommunityPage() {
             <div className="home-section-kicker">Latest by Topic</div>
             <h2 className="home-section-title">Quick scans for the main developer lanes</h2>
             <p className="home-section-description">
-              A lighter way to scan what is fresh in each lane without turning this page into another hub.
+              A fast way to scan what changed in each lane without forcing you through another archive before you decide what matters.
             </p>
           </div>
         </div>
@@ -393,7 +437,7 @@ export default function CommunityPage() {
           <div className="home-section-kicker">What People Are Building</div>
           <h2 className="home-section-title">Projects and stacks developers keep circling back to</h2>
           <p className="home-section-description">
-            Useful ideas for where to go next, without pulling the page back into broad site navigation.
+            Useful ideas for where to go next when you want examples of the kinds of problems this site keeps solving.
           </p>
         </div>
         <div className="home-quick-grid">
@@ -426,7 +470,7 @@ export default function CommunityPage() {
             <div className="home-section-kicker">Explore Categories</div>
             <h2 className="home-section-title">Topic lanes stay within reach</h2>
             <p className="home-section-description">
-              Categories still help with depth, but they now sit behind the fresher reads instead of leading the page.
+              Categories still help with depth, but they sit behind the fresher editorial layer instead of leading the page like pure archive navigation.
             </p>
           </div>
           <Link href={`${RESOURCE_HUB_PATH}#resource-categories`} className="home-section-link">
@@ -453,8 +497,8 @@ export default function CommunityPage() {
           <div className="home-section-kicker">Keep Reading</div>
           <h2 className="home-section-title" style={{ marginTop: '0.75rem' }}>Freshness first, deeper paths when you need them</h2>
           <p className="home-section-description" style={{ marginTop: '0.75rem' }}>
-            Community stays the return page for current reads. When you want more structure, jump into the archive, comparisons,
-            resources hub, or the main site overview.
+            Community stays the return page for current reads and recommended next clicks. When you want more structure,
+            jump into the archive, comparisons, resources hub, or the main site overview.
           </p>
           <div className="home-hero-actions" style={{ marginTop: '1rem' }}>
             <Link href="/blog" className="home-hero-button home-hero-button-primary">

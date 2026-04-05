@@ -55,7 +55,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: post.description,
     },
     alternates: { canonical: post.canonical || `https://blixamo.com/blog/${slug}` },
-    robots: post.noindex ? 'noindex' : 'index,follow',
+    robots: post.noindex ? { index: false, follow: true } : { index: true, follow: true },
   }
 }
 

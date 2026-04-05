@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   description:
     'A focused Blixamo mini hub for new developer tools, useful updates, alternatives, and practical reads worth testing now.',
   alternates: { canonical: 'https://blixamo.com/dev-tools-watch' },
+  robots: { index: false, follow: true },
 }
 
 type MiniHubCard = {
