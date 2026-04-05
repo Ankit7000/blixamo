@@ -1,0 +1,171 @@
+---
+title: "How I Run a Lean Solo SaaS Ops Stack in 2026"
+description: "A practical solo SaaS ops stack for 2026: what to monitor first, what to automate first, what to keep manual, and what not to set up too early."
+date: "2026-04-05"
+updatedAt: "2026-04-05"
+author: "Blixamo"
+category: "indie-hacking"
+tags: [indie hacking, saas ops, solo founder, automation, analytics]
+keyword: "lean solo saas ops stack"
+featured: false
+featuredImage: "/images/default-og.jpg"
+schema: "article"
+difficulty: "intermediate"
+timeToComplete: "16 minutes"
+excerpt: "A lean solo SaaS ops stack is not about having every dashboard. It is about watching the few things that break revenue, support, deploys, and user trust first."
+toc: true
+---
+
+Most solo SaaS products do not fail because the founder forgot to install another dashboard. They fail because the basic operating loop stays messy. Nobody notices the deploy broke until a user emails. Support lives in three places. Analytics are noisy but not useful. The stack looks modern, but the product still feels fragile.
+
+This is the ops stack I would run for a solo SaaS in 2026 when the goal is simple: keep the product dependable without building a fake mini-SRE team around it. This is not a billing article and it is not another cheap-stack roundup. If you are still deciding how to get the first version online, start with [Build a SaaS MVP for $5/Month](/blog/build-saas-mvp-zero-budget-2026). For the wider path, keep the [indie-hacking category](/category/indie-hacking), the [Free Tools for Developers guide](/guides/free-tools-for-developers), and the [resources hub](/tag/deployment) nearby while you connect this with [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner).
+
+<Callout type="info" title="TL;DR">
+Good-enough solo SaaS ops means one clean deploy path, one uptime signal, one lightweight analytics setup, one support inbox, and only a small amount of automation. Monitor the user-facing path first, automate repetitive admin work second, and keep the messy edge cases manual until the product earns more complexity.
+</Callout>
+
+## What good-enough ops looks like for a solo builder
+
+I do not want an enterprise ops stack for a solo product. I want:
+
+- a deploy path I trust
+- one place to notice breakage
+- enough analytics to see activation and churn signals
+- a support path that does not lose context
+- a short list of manual tasks I can still handle myself
+
+That is enough for most early SaaS products.
+
+The mistake is setting up observability, incident rituals, status pages, multi-tool support, and reporting layers before the product has steady usage. Early ops should reduce anxiety, not add another part-time job.
+
+## What I monitor first
+
+I monitor the user journey, not the prettiest metrics.
+
+My first checks are:
+
+- is the app up
+- are sign-ins still working
+- are deploys completing cleanly
+- are key forms or webhooks still reaching the backend
+- are new errors showing up after releases
+
+That means the first monitoring setup is usually boring:
+
+- uptime checks for the main app URL
+- one health endpoint or simple success path
+- deploy notifications
+- error alerts that tell me what changed, not just that something failed
+
+If the stack is running on one VPS, start with the baseline from [VPS Setup Guide](/blog/vps-setup-guide) and keep the deployment path clean with [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner). The goal is not deep telemetry. The goal is finding out about real breakage before a customer does.
+
+## What I automate first
+
+I automate the work that is repeated, low-risk, and easy to verify.
+
+The first candidates are usually:
+
+- backup reminders or backup status checks
+- deploy notifications to one channel
+- simple lead or contact routing
+- failed webhook or failed job alerts
+- routine admin tasks that already happen the same way each time
+
+This is where a small automation layer helps. I do not start with a giant workflow estate. I start with one or two flows that remove obvious repetition. If you need that layer, [n8n Complete Guide 2026](/blog/n8n-complete-guide-2026) and [How I Monitor n8n Workflows Before They Become Silent Failures in 2026](/blog/monitor-n8n-workflows-2026) are the better follow-up reads.
+
+My rule is simple: if the task happens weekly, is annoying, and has a clear success condition, it is a good automation candidate. If it touches product judgment, customer trust, or unusual edge cases, I keep it manual longer.
+
+## What I keep manual
+
+Some work should stay manual until there is enough volume to justify a system.
+
+I usually keep these manual early on:
+
+- nuanced customer support replies
+- account exceptions and refunds
+- production incident triage
+- roadmap prioritization
+- pricing exceptions or custom deals
+- anything that still needs founder judgment
+
+That is not inefficiency. That is control. Early-stage ops gets worse when founders automate away the parts of the business they have not understood properly yet.
+
+This is also why I do not confuse ops maturity with tool count. A clean manual process beats a half-automated mess every time.
+
+## The stack I would actually run
+
+Here is the lean stack I would use for most solo SaaS products:
+
+| Area | What I would use first | Why |
+|---|---|---|
+| Hosting and deploys | One VPS plus a simple deploy layer | Fewer moving parts and one bill to understand |
+| Analytics | One lightweight product analytics setup | Enough to see usage without drowning in dashboards |
+| Support | One inbox or one support form flow | Easier ownership and faster response |
+| Alerts | One uptime path plus deploy and error notifications | Fast signal without alert fatigue |
+| Automation | One small workflow tool only when repetition is real | Cuts admin work without creating hidden ops debt |
+
+For analytics, I want something I will actually open. [Self-Host Plausible Analytics in 2026](/blog/self-host-plausible-analytics-2026) is a good fit when I want clear traffic and conversion visibility without turning analytics into a product of its own.
+
+## What I would not set up too early
+
+These are the things I deliberately avoid in the first version of ops:
+
+- multiple analytics tools measuring the same thing
+- a complex APM setup before the app has stable traffic
+- a status page for a product nobody depends on yet
+- live chat if email or a simple form is still enough
+- multi-step alerting chains
+- a huge automation layer with unclear ownership
+
+This is where founders burn time. They install the infrastructure of a future company before they have the operating rhythm of a current one.
+
+If the product is still looking for steady demand, keep the stack boring. It is easier to grow a boring stack than to unwind a clever one.
+
+## My recommendation for the first month
+
+If I were setting up solo SaaS ops from scratch this month, I would do it in this order:
+
+1. get the product onto one deploy path I trust
+2. add one uptime check and one deploy notification
+3. add one analytics layer I will actually review weekly
+4. keep support in one place
+5. automate only the repeated admin work that already hurts
+
+That is enough for most small developer products.
+
+This pairs naturally with [How I Would Price a Small SaaS Product in 2026](/blog/how-to-price-small-saas-2026) because pricing and support load shape each other early, and with [How I Would Launch a Small Developer Product Without a Big Audience in 2026](/blog/launch-small-developer-product-2026) because weak launch feedback is much easier to interpret when the operating stack is simple.
+
+## When the lean stack stops being enough
+
+You should expand the ops layer when:
+
+- incidents are taking too long to diagnose
+- support volume is getting lost in manual handling
+- deploy risk is rising with every release
+- one founder can no longer see the state of the product in one quick check
+
+That is the time to add stronger observability, richer support tooling, or clearer automation ownership. Not before.
+
+The question is not "what would a mature SaaS company use?" The question is "what keeps this product dependable for the next stage without eating founder time?"
+
+## FAQ
+
+### What should a solo SaaS founder monitor first?
+
+Monitor the main user path first: uptime, sign-in, deploy health, and any core form or webhook flow that affects real usage. That catches more important problems than a bigger dashboard full of low-signal charts.
+
+### What should I automate first in a solo SaaS?
+
+Automate repeated, low-risk admin tasks first, especially notifications, status checks, and small internal routing steps. Leave judgment-heavy work manual until the process is stable.
+
+### Do I need a full observability stack for a small SaaS?
+
+Usually no. Most solo products need clear uptime, deploy, and error signals long before they need deep instrumentation or a large monitoring stack.
+
+### What is the biggest early ops mistake?
+
+Adding too many tools too early. The real goal is operational clarity, not operational theater.
+
+## What next?
+
+If the product stack itself still needs work, go back to [Build a SaaS MVP for $5/Month](/blog/build-saas-mvp-zero-budget-2026). If the next job is setting better pricing boundaries, read [How I Would Price a Small SaaS Product in 2026](/blog/how-to-price-small-saas-2026). If launch is closer than scaling, open [How I Would Launch a Small Developer Product Without a Big Audience in 2026](/blog/launch-small-developer-product-2026). After that, keep the [Free Tools for Developers guide](/guides/free-tools-for-developers), the [indie-hacking category](/category/indie-hacking), and the [Resources Hub](/tag/deployment) nearby so the rest of the cluster stays connected.
