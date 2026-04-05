@@ -106,6 +106,9 @@ Your posts library should read files, parse frontmatter, compute reading time, a
 
 If this exact setup works in dev but breaks after deploy, the [next-mdx-remote/rsc Edge Runtime error](/blog/nextjs-mdx-remote-rsc-edge-runtime-fix) guide covers the Node.js runtime mismatch that usually causes it.
 
+![MDX frontmatter and content structure used in the production blog workflow](/images/posts/nextjs-mdx-blog-2026/04-mdx-frontmatter.png)
+*File-backed MDX only stays clean when frontmatter is consistent and the posts library is the single source of truth.*
+
 ```ts
 import fs from "fs";
 import path from "path";
@@ -198,6 +201,9 @@ Most tutorials stop after "it renders." That is not enough for a real developer 
 
 Use `rehype-pretty-code` so code blocks are readable without client-side highlighting. Make sure your prose styles handle tables, captions, inline code, and mobile overflow properly.
 
+![Production build output for the Next.js MDX blog before going live](/images/posts/nextjs-mdx-blog-2026/02-build-output.png)
+*A real build is where runtime, plugin, and metadata problems show up before users do.*
+
 ## Step 6: Deploy It Without Breaking Revalidation
 
 A Next.js MDX blog can run almost anywhere, but self-hosting adds one common failure point: proxy caching can fight HTML revalidation if your CDN or reverse proxy is too aggressive.
@@ -211,6 +217,28 @@ My preferred path for this kind of blog is:
 5. avoid stale HTML policies that hide content updates
 
 If you want the production setup, read [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner) and [Google Search Console for self-hosted Next.js](/blog/google-search-console-self-hosted-nextjs).
+
+![Live production build on the deployed MDX site after the server-side setup succeeds](/images/posts/nextjs-mdx-blog-2026/03-build-live.png)
+*The route is not really done until the content renders on the live server, not just in local development.*
+
+## What Broke in Production for Me
+
+These were the real breakpoints that separated a working demo from a stable blog.
+
+### A file-backed MDX route inherited Edge runtime
+
+The route looked fine locally and then broke only after a real production build. The underlying problem was simple: the content pipeline still depended on Node.js APIs while the route inherited Edge runtime higher up the tree.
+
+### HTML caching hid fresh content
+
+Static assets should be cached hard. HTML should not. Once the proxy or CDN keeps old HTML around too aggressively, revalidation stops feeling real even though the app build is correct.
+
+### Frontmatter drift made the site feel inconsistent
+
+The render path can be fine while the publication still looks sloppy because featured images, descriptions, or tags are inconsistent. That is why the posts library matters as much as the MDX renderer.
+
+![ISR and revalidation behavior shown on the production MDX stack](/images/posts/nextjs-mdx-blog-2026/05-isr-revalidation.png)
+*Production behavior is the real test. If revalidation and cache rules are wrong, the site can look healthy while publishing stale HTML.*
 
 ## Common Mistakes When Building a Next.js MDX Blog
 

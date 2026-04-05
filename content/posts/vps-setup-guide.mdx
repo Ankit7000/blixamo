@@ -40,6 +40,22 @@ The goal is not to make the server perfect in one pass. The goal is to make it s
 | install Nginx | handles web traffic and reverse proxying |
 | add SSL | makes the site production-safe |
 
+## The first production-ready baseline I want
+
+My baseline is not "the server exists." It is this:
+
+- non-root deploy user works over SSH keys
+- root login and password auth are off
+- UFW exposes only SSH, HTTP, and HTTPS
+- Node.js and PM2 are ready if the workload needs them
+- Nginx is serving either the default page or the app cleanly
+- the box is simple enough that I can explain it from memory
+
+That last point matters. If the first day setup already feels confusing, the first incident will feel worse.
+
+![Live VPS status from a small production server after the base services are online](/images/posts/multiple-projects-single-vps/02-live-vps-status.png)
+*Related production proof from the same style of stack: once the baseline is healthy, I want the server state to look boring, readable, and easy to inspect.*
+
 ## Step 1: first login, updates, and a non-root user
 
 SSH into the server as root the first time:
@@ -54,6 +70,10 @@ Then update the system:
 apt update
 apt upgrade -y
 ```
+
+<Callout type="tip" title="Expected result">
+`apt update` should finish without repository errors, and `apt upgrade -y` should complete cleanly before you add more services.
+</Callout>
 
 Now create a deploy user and give it sudo access:
 
@@ -100,7 +120,13 @@ ufw enable
 ufw status
 ```
 
+<Callout type="tip" title="Expected result">
+`ufw status` should show `Status: active` with rules for `OpenSSH`, `80`, and `443`.
+</Callout>
+
 At this stage you usually only need SSH, HTTP, and HTTPS exposed publicly. Do not open random app ports unless you know exactly why they need to be public.
+
+If `ufw enable` warns about interrupting existing SSH connections, read the prompt carefully and make sure `OpenSSH` is already allowed before you confirm.
 
 ## Step 4: install Node.js if you are hosting Node apps
 
@@ -113,6 +139,10 @@ node --version
 npm --version
 ```
 
+<Callout type="tip" title="Expected result">
+You want a current Node.js 20 LTS release and a working `npm --version` output before you move on.
+</Callout>
+
 If the server is not for Node workloads, you can skip this step. But for most Blixamo-style deployments, Node.js is part of the stack.
 
 ## Step 5: install PM2 for process management
@@ -123,6 +153,10 @@ PM2 is the simplest reliable way to keep Node apps running after crashes or rebo
 npm install -g pm2
 pm2 startup
 ```
+
+<Callout type="tip" title="Expected result">
+PM2 should print a startup command for your init system. Save it and run it later after the app is live.
+</Callout>
 
 Follow the command PM2 prints, then later run `pm2 save` after your app is live.
 
@@ -139,7 +173,14 @@ systemctl start nginx
 nginx -v
 ```
 
+<Callout type="tip" title="Expected result">
+`systemctl start nginx` should complete silently and `nginx -v` should print the installed version immediately.
+</Callout>
+
 Once Nginx is up, visiting the server IP in a browser should show the default welcome page. That tells you the web server layer is alive before you put an app behind it.
+
+![Nginx and upstream layout on a real multi-service VPS](/images/posts/multiple-projects-single-vps/01-nginx-port-architecture.png)
+*This is why I want the reverse-proxy layer to stay simple first: clear upstreams, obvious boundaries, and no guessing which port owns which service.*
 
 ## Step 7: deploy an app and confirm localhost first
 
@@ -166,7 +207,24 @@ curl -I http://localhost:3000
 pm2 status
 ```
 
+Expected checks:
+
+```text
+HTTP/1.1 200 OK
+X-Powered-By: Next.js
+
+┌────┬───────┬─────────┬────────┐
+│ id │ name  │ mode    │ status │
+├────┼───────┼─────────┼────────┤
+│ 0  │ myapp │ fork    │ online │
+└────┴───────┴─────────┴────────┘
+```
+
 That single check saves a lot of wasted debugging time.
+
+<Callout type="info" title="Stop here and confirm this worked">
+If `curl -I http://localhost:3000` does not return a real response, do not open Nginx files yet. Fix the app process first, then add the proxy.
+</Callout>
 
 ## Step 8: connect Nginx to the app
 
@@ -196,7 +254,22 @@ nginx -t
 systemctl reload nginx
 ```
 
+<Callout type="tip" title="Expected result">
+`nginx -t` should end with `syntax is ok` and `test is successful`. If it fails, fix Nginx before you request SSL.
+</Callout>
+
 If you need multiple apps on one box later, [Nginx Reverse Proxy Setup in 2026](/blog/nginx-reverse-proxy-guide-2026) is the guide to read next.
+
+## Failure recovery notes I use on a fresh VPS
+
+These are the first recovery moves I use when the setup looks wrong:
+
+- SSH problem after config change: keep the original root session open until the deploy user logs in successfully from a second terminal
+- UFW problem: confirm `OpenSSH` was allowed before enablement, then re-check from another terminal instead of guessing
+- app not starting under PM2: run the start command directly once, then move back to PM2 after you know the app itself works
+- Nginx problem: run `nginx -t` before every reload and never debug SSL until plain HTTP is already correct
+
+Fresh-server incidents are usually sequencing errors, not mysterious infrastructure magic.
 
 ## Step 9: add SSL with Certbot
 
@@ -208,6 +281,32 @@ certbot --nginx -d yourdomain.com -d www.yourdomain.com
 ```
 
 Once it succeeds, test the final site over HTTPS. Do not treat the setup as finished until the certificate works and the redirect is clean.
+
+## Final verification checklist
+
+Before you call the server ready, I would run this exact checklist:
+
+```bash
+whoami
+sudo ufw status
+node --version
+pm2 status
+curl -I http://localhost:3000
+nginx -t
+systemctl status nginx --no-pager
+curl -I https://yourdomain.com
+```
+
+What you want to see:
+
+- `whoami` returns your non-root deploy user
+- UFW is active with only the expected ports open
+- Node.js is the version you planned for
+- PM2 shows the app `online`
+- `localhost:3000` responds before you blame Nginx
+- Nginx config validates cleanly
+- the Nginx service is active
+- the final HTTPS domain returns a valid response
 
 ## Common mistakes during VPS setup
 

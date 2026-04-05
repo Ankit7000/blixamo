@@ -19,6 +19,9 @@ I have deployed a lot of Next.js projects on Hetzner, including this site. Cooli
 
 My default verdict is simple: choose this stack when you want VPS-level cost control and enough deployment convenience to avoid babysitting every release. Skip it if you want the absolute easiest hosted path or if you need very custom server behavior from day one.
 
+![Deployment architecture for Next.js on Hetzner with Coolify, DNS, and SSL in front](/images/posts/deploy-nextjs-coolify-hetzner/01-deploy-architecture.png)
+*This is the actual shape of the workflow: VPS first, deployment layer second, domain and SSL last.*
+
 ## TL;DR
 
 - Hetzner gives you cheap VPS capacity for several small apps.
@@ -46,6 +49,9 @@ For most small Next.js projects, start with a CPX-class server that gives you en
 
 My default rule is simple: if you plan to run several projects on the same server, size for the build spikes, not just the idle process list.
 
+![Hetzner server created and ready for the first Coolify install](/images/posts/deploy-nextjs-coolify-hetzner/01-hetzner-server-created.png)
+*Provisioning the box is the easy part. The quality of the first deploy depends more on the steps after this screen.*
+
 ## Step 2: Add Swap First
 
 This is the step too many tutorials skip. Next.js builds can spike memory hard on smaller machines.
@@ -63,6 +69,10 @@ Verify it:
 ```bash
 free -h
 ```
+
+<Callout type="tip" title="Expected result">
+`free -h` should show about `2.0Gi` of swap. If swap still shows `0B`, fix that now before the first build.
+</Callout>
 
 ## Step 3: Install Coolify
 
@@ -97,17 +107,55 @@ Click deploy and watch the logs. The first deploy is where you catch missing pac
 
 A common failure after deploy is a [file-backed MDX route inheriting Edge runtime](/blog/nextjs-mdx-remote-rsc-edge-runtime-fix) instead of Node.js, which usually only shows up once you run a real production build.
 
+![Coolify deploy commands and logs during the first real application build](/images/posts/deploy-nextjs-coolify-hetzner/04-deploy-commands.png)
+*The first deploy tells you whether the problem is memory, environment variables, build configuration, or runtime assumptions.*
+
 ## Step 8: Point DNS and Wait for SSL
 
 Point your A record at the Hetzner server IP. If you use Cloudflare, keep it on DNS-only until SSL is issued cleanly.
+
+![Live Nginx and SSL state after DNS points cleanly to the Hetzner VPS](/images/posts/deploy-nextjs-coolify-hetzner/02-live-nginx-ssl.png)
+*If SSL stays pending, DNS or Cloudflare proxying is usually the blocker, not Coolify itself.*
 
 ## Step 9: Enable Auto Deploys
 
 After the first successful deploy, wire up the webhook or provider integration so pushes to the main branch trigger deploys automatically.
 
+![Live Coolify application after the first successful Next.js deployment](/images/posts/deploy-nextjs-coolify-hetzner/05-live-coolify-app.png)
+*A deploy is only done when the app is reachable, the env vars are right, and SSL is already clean.*
+
 ## Step 10: Keep the Server Practical
 
 The point of this setup is not just one app. The point is that one Hetzner box can often handle several small projects cleanly. If that is your plan, also read [Run multiple projects on one VPS](/blog/multiple-projects-single-vps).
+
+## What Broke on My First Deploy
+
+The first deploy on this stack usually breaks for practical reasons, not mysterious platform reasons.
+
+### Swap was missing
+
+On a small VPS, the build looked fine until memory spiked. Then the process died. Adding a `2G` swap file before the first build fixed that immediately.
+
+### `NEXT_PUBLIC_*` values were wrong at build time
+
+Coolify will happily start a deploy with empty or outdated public env vars. The app can build, come online, and still look broken because those values were baked in incorrectly.
+
+### SSL looked stuck because Cloudflare was proxied too early
+
+If Cloudflare is orange-clouded before the certificate is issued cleanly, you waste time debugging the wrong layer. Keep it on DNS-only until the certificate is live.
+
+### The deploy was marked healthy before I checked the app myself
+
+The dashboard saying "deployed" is not enough. I still check the site directly:
+
+```bash
+curl -I http://localhost:3000
+curl -I https://yourdomain.com
+```
+
+<Callout type="tip" title="Expected result">
+`localhost:3000` should return `HTTP/1.1 200 OK` or a valid redirect, and the public domain should return a clean `200` or HTTPS redirect with a valid certificate.
+</Callout>
 
 ## Common Problems
 

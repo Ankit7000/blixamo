@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { PostCard } from '@/components/blog/PostCard'
-import { getAllPosts, getPostFreshnessDate, type Post } from '@/lib/posts'
+import { getIndexablePosts, getPostFreshnessDate, type Post } from '@/lib/posts'
 import { RESOURCE_HUB_PATH, getResourceHubContent } from '@/lib/resources'
 
 export const metadata: Metadata = {
@@ -33,8 +33,8 @@ const BUILDING_SHOWCASE: CommunityCard[] = [
   },
   {
     title: 'AI-assisted workflows',
-    description: 'Use the AI mini hub for a tighter read path into Claude, model choices, useful tools, and workflow-oriented AI posts.',
-    href: '/ai-for-developers',
+    description: 'Start with the AI category when you want practical model choices, workflow-oriented guides, and implementation reads without opening a thin sub-hub.',
+    href: '/category/ai',
     eyebrow: 'What People Are Building',
   },
   {
@@ -45,14 +45,14 @@ const BUILDING_SHOWCASE: CommunityCard[] = [
   },
   {
     title: 'Developer tools worth testing',
-    description: 'Use the dev-tools mini hub when you want current software picks, alternatives, and tool updates without opening the full archive.',
-    href: '/dev-tools-watch',
+    description: 'Use the developer tools guide when you want curated software picks, focused comparisons, and the strongest workflow-improvement reads in one place.',
+    href: '/guides/developer-tools-directory',
     eyebrow: 'What People Are Building',
   },
   {
     title: 'Infrastructure shifts worth tracking',
-    description: 'Use the infrastructure mini hub when you want current provider changes, platform tradeoffs, and self-hosting infra decisions in one tight lane.',
-    href: '/infrastructure-watch',
+    description: 'Use the VPS and cloud lane when you want provider tradeoffs, security reads, and self-hosting infrastructure decisions on indexed pages.',
+    href: '/category/vps-cloud',
     eyebrow: 'What People Are Building',
   },
 ]
@@ -150,7 +150,7 @@ function TopicLaneCard({ lane }: { lane: TopicLane }) {
 }
 
 export default function CommunityPage() {
-  const allPosts = getAllPosts()
+  const allPosts = getIndexablePosts()
   const hub = getResourceHubContent(allPosts)
   const editorialPaths = [
     {

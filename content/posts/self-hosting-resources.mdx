@@ -49,6 +49,110 @@ This is the kind of stack that makes sense when you want real control without tu
 
 The reason this stack works is not that every part is perfect. It is that each piece solves a real operational problem without introducing enterprise-level overhead.
 
+## What this stack costs me each month
+
+The useful question is not "what is the theoretical cheapest setup?" It is "what does a practical small self-hosted stack cost when it is already doing real work?"
+
+| Layer | Monthly cost | Why I keep it |
+| --- | --- | --- |
+| Hetzner CPX22 | €5.19 | enough RAM and CPU for the base stack |
+| Coolify | €0 extra | runs on the same VPS |
+| n8n | €0 extra | replaces a separate automation bill |
+| Cloudflare | €0 on free plan | DNS, SSL, and edge protection |
+| Plausible self-hosted | €0 extra | analytics on the same box |
+| **Practical starting total** | **about €5.19/month** | **before optional email or managed database extras** |
+
+Those numbers stay honest because they assume one small VPS doing multiple jobs, which is exactly why self-hosting is attractive in the first place.
+
+## What I would self-host first, second, and never first
+
+If you are building the stack alone, order matters more than tool count.
+
+### Self-host first
+
+- the app itself
+- the reverse proxy
+- one low-cost VPS
+
+That gives you the biggest cost and control win immediately.
+
+### Self-host second
+
+- deployment layer like Coolify
+- automation like n8n
+- analytics like Plausible
+
+These are the layers that save money or improve workflow once the base app already works.
+
+### Never self-host first
+
+- email
+- databases you do not know how to back up yet
+- every internal tool just because it has a Docker image
+
+If the stack is young, avoid turning "I want lower cost" into "I now run six extra services badly."
+
+## A stack layout I would actually start with
+
+This is the shape I prefer on a small VPS because it stays inspectable when something breaks:
+
+```text
+/var/www/
+  apps/
+    main-app/
+    admin-app/
+  services/
+    n8n/
+    plausible/
+  nginx/
+    sites-available/
+    sites-enabled/
+  backups/
+    postgres/
+    app-data/
+```
+
+The point is not the exact folder names. The point is keeping apps, services, and backups separate enough that the box still makes sense 3 months later.
+
+## Who should self-host first and who should not
+
+I would push a solo builder or two-person team toward self-hosting when the product already has some real usage, the stack is still understandable, and one VPS can replace multiple recurring SaaS bills. That is the sweet spot.
+
+I would not push a brand new founder into self-hosting if the real blocker is shipping the product at all. If you are still fighting the framework, the feature set, or the first paying user, convenience often beats control for a while.
+
+The practical dividing line is simple:
+
+- self-host early if you already know Linux basics and you care about cost control
+- self-host later if uptime responsibility would slow you down more than SaaS bills hurt
+- do not self-host out of ideology if you are not ready to debug the stack on a bad day
+
+## What I would deploy on day 1, week 1, and later
+
+This is the order I trust most for a small developer-run product.
+
+### Day 1
+
+- one VPS
+- one app
+- one reverse proxy
+- one backup habit
+
+That gets the product online without turning the first week into infrastructure theater.
+
+### Week 1
+
+- add a cleaner deployment layer like Coolify if deploy friction is already visible
+- add basic monitoring or uptime checks
+- add one automation service only if it removes repeat work immediately
+
+### Later
+
+- analytics you will actually check
+- background workers, queues, or Redis when the product earns the complexity
+- extra services only after the first server layout already feels boring
+
+If I cannot explain why a service belongs in one of those three phases, I usually wait.
+
 ## VPS and hosting resources
 
 Your hosting choice shapes everything else. If the VPS is overpriced or hard to reason about, the stack never feels efficient.
@@ -100,6 +204,20 @@ If your stack includes AI-assisted workflows, [Claude API + Node.js Automation i
 Indie developers often self-host the app and then leave analytics and monitoring in a weak state. That is where small operational problems become expensive later.
 
 The two most useful resources here are [Self-Host Plausible Analytics in 2026](/blog/self-host-plausible-analytics-2026) for privacy-first analytics and [Self-Healing VPS Monitor 2026](/blog/self-healing-vps-monitor-nodejs) if you want the stack to tell you when it is failing instead of discovering it from user complaints.
+
+## A realistic starter stack for one solo product
+
+If I were helping a solo builder set this up today, I would usually keep it this small:
+
+| Layer | Pick | Why this is enough at first |
+| --- | --- | --- |
+| VPS | Hetzner CPX22 | enough headroom for one main app plus a couple of supporting services |
+| App deploy | PM2 + Nginx or Coolify | simple enough to inspect without ceremony |
+| Automation | n8n only after one repetitive workflow appears | saves time without forcing a workflow engine too early |
+| Analytics | self-hosted Plausible later | useful once traffic is worth measuring |
+| DNS / SSL | Cloudflare free plan | cheap protection and easy DNS control |
+
+That stack is not minimal in a theoretical sense. It is minimal in the sense that I would trust myself to keep it alive without resenting it.
 
 ## Useful external resources
 

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { getPostsByCategory, getAllCategories, getAllPosts } from '@/lib/posts'
+import { getAllCategories, getIndexablePosts, getIndexablePostsByCategory, type Post } from '@/lib/posts'
 import { PostCard } from '@/components/blog/PostCard'
 import { getCategoryMeta } from '@/lib/categories'
 import { getCategoryClusterContent, getRelatedCategoryLinks, RESOURCE_HUB_PATH } from '@/lib/resources'
@@ -58,7 +58,7 @@ function CategoryLaneFeatureCard({
   )
 }
 
-function LatestTopicItem({ post }: { post: ReturnType<typeof getPostsByCategory>[number] }) {
+function LatestTopicItem({ post }: { post: Post }) {
   return (
     <article
       style={{
@@ -243,11 +243,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CategoryPage({ params }: Props) {
   const { slug } = await params
   const canonicalSlug = normalizeCategorySlug(slug)
-  const posts = getPostsByCategory(canonicalSlug)
+  const posts = getIndexablePostsByCategory(canonicalSlug)
 
   if (posts.length === 0) notFound()
 
-  const allPosts = getAllPosts()
+  const allPosts = getIndexablePosts()
   const meta = getCategoryMeta(canonicalSlug)
   const archiveContent = CATEGORY_ARCHIVE_CONTENT[canonicalSlug]
   const relatedCategories = getRelatedCategoryLinks(canonicalSlug)
@@ -273,15 +273,15 @@ export default async function CategoryPage({ params }: Props) {
   const supportingHub =
     canonicalSlug === 'ai'
       ? {
-          label: 'AI Mini Hub',
-          href: '/ai-for-developers',
-          description: 'Use the AI mini hub when you want a tighter starting set of top reads, fresh posts, comparisons, and practical AI paths.',
+          label: 'Comparisons Guide',
+          href: '/guides/comparisons-hub',
+          description: 'Use the comparisons guide when the next step is choosing between AI tools, APIs, or workflow approaches without opening a noindexed mini hub.',
         }
       : canonicalSlug === 'developer-tools'
       ? {
-          label: 'Dev Tools Watch',
-          href: '/dev-tools-watch',
-          description: 'Use the dev-tools mini hub when you want the tighter current-watch layer for software picks, alternatives, and worth-testing reads.',
+          label: 'Developer Tools Guide',
+          href: '/guides/developer-tools-directory',
+          description: 'Use the developer tools guide when you want a broader, indexed path through software picks, database tooling, and workflow upgrades.',
         }
       : canonicalSlug === 'vps-cloud'
       ? {
@@ -303,9 +303,9 @@ export default async function CategoryPage({ params }: Props) {
         }
       : canonicalSlug === 'automation'
       ? {
-          label: 'n8n Automation Hub',
-          href: '/n8n-automation-hub',
-          description: 'Use the n8n Automation Hub when the real question is workflow-engine fit, self-hosting, webhook and bot architecture, and what to read after the first useful automation.',
+          label: 'Automation Guide',
+          href: '/guides/automation-guide-for-developers',
+          description: 'Use the automation guide when the real question is workflow fit, hosting tradeoffs, and which automation reads to open next on indexed pages.',
         }
       : {
           label: 'Deployment Hub',
@@ -324,7 +324,7 @@ export default async function CategoryPage({ params }: Props) {
           {archiveContent?.intro || meta.longDesc}
         </p>
         <p style={{ margin: '0.7rem 0 0', color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-          {posts.length} article{posts.length !== 1 ? 's' : ''} in this lane. Latest post: {formatDate(posts[0].date)}.
+          {posts.length} article{posts.length !== 1 ? 's' : ''} in this lane. Latest post: {formatDate(posts[0].updatedAt || posts[0].date)}.
         </p>
       </section>
 

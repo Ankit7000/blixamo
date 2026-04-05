@@ -17,7 +17,9 @@ If you want Claude to feel useful instead of generic, stop treating it like a se
 
 My view is that Claude is most valuable for developers when the task needs long-context review, drafting, or structured reasoning, not when you want one-shot magic answers. That is the lens behind the workflows in this guide.
 
-For most developers, the best Claude workflows are long-context review, writing cleanup, code review drafts, and structured reasoning. If you are still comparing models first, start with [Claude vs ChatGPT for Developers](/blog/claude-vs-chatgpt-developers). If you want automation ideas after this guide, read [Claude API + Node.js Automation in 2026](/blog/claude-api-content-automation-nodejs), and if you want a real project instead of another prompt example, build a [Telegram bot with Claude API in Python](/blog/build-telegram-bot-claude-api-python). You can use the [/category/ai](/category/ai) lane and the [/guides/developer-tools-directory](/guides/developer-tools-directory) pillar when you want the rest of the decision path around these AI workflow choices.
+The quality jumps most for me when I paste the real draft, PR diff, or rough notes first and make Claude clean that up instead of asking it to invent the work from nothing.
+
+For most developers, the best Claude workflows are long-context review, writing cleanup, code review drafts, and structured reasoning. If you are still comparing models first, start with [Claude vs ChatGPT for Developers](/blog/claude-vs-chatgpt-developers). If you want automation ideas after this guide, read [Claude API + Node.js Automation in 2026](/blog/claude-api-content-automation-nodejs), and if you want a real project instead of another prompt example, build a [Telegram bot with Claude API in Python](/blog/build-telegram-bot-claude-api-python). You can use the [/category/ai](/category/ai) lane and the [/guides/developer-tools-directory](/guides/developer-tools-directory) pillar when you want the rest of the decision path around these AI workflow choices, and keep the [/tag/deployment](/tag/deployment) resources hub nearby if these prompts are part of a wider shipping workflow.
 
 ## TL;DR
 
@@ -46,6 +48,9 @@ That makes it useful for:
 - rewriting awkward technical writing without flattening the meaning
 - auditing code with explicit review criteria
 - turning unstructured research into an actionable outline
+
+![Claude production use cases for developers including long-context review, writing cleanup, and structured analysis](/images/posts/claude-ai-guide/04-production-use-cases.png)
+*The productive use cases are the ones where you already have real material and a clear output shape.*
 
 ## Start With Context Before You Ask for Output
 
@@ -81,6 +86,74 @@ Code:
 ```
 
 For developers, this pattern is reusable across code review, architecture notes, backlog planning, bug triage, and technical writing.
+
+## A Full Worked Example: Bad Prompt -> Better Prompt -> Structured Output
+
+This is the exact shift that makes Claude feel useful instead of vague.
+
+Bad prompt:
+
+```text
+Review this feature spec and tell me what you think.
+```
+
+That prompt usually produces generic feedback because the model has no role, no criteria, and no output shape.
+
+Better prompt:
+
+```text
+You are acting as a staff engineer reviewing a draft spec
+for a webhook retry system.
+
+Task:
+Review the spec for operational risk.
+
+Constraints:
+- prioritize reliability and alerting gaps first
+- keep the answer under 6 bullets
+- include one suggested metrics list
+
+Source material:
+[paste the actual spec]
+```
+
+Structured output request:
+
+```text
+Return JSON only with:
+- risks: string[]
+- missing_metrics: string[]
+- rollout_plan: string[]
+- final_verdict: approve | revise | reject
+```
+
+Example structured output:
+
+```json
+{
+  "risks": [
+    "No retry cap for partner outages",
+    "No dead-letter queue after repeated failures",
+    "No alert when backlog age exceeds 10 minutes"
+  ],
+  "missing_metrics": [
+    "retry_count",
+    "dead_letter_total",
+    "oldest_job_age_seconds"
+  ],
+  "rollout_plan": [
+    "ship retries behind a feature flag",
+    "alert on backlog age before full rollout",
+    "review dead-letter volume after 7 days"
+  ],
+  "final_verdict": "revise"
+}
+```
+
+That is the pattern I trust most: give Claude a role, force a scoring lens, and ask for output I can reuse in a real workflow.
+
+![Claude API response example showing structured output and practical developer use](/images/posts/claude-ai-guide/01-claude-api-response.png)
+*Once the prompt includes role, task, constraints, and format, the output becomes easier to reuse and easier to check.*
 
 ## Use Claude for Draft Acceleration
 
@@ -148,6 +221,24 @@ Each item must contain:
 - urgency: 1-5
 ```
 
+## Cost Is Part of the Workflow Decision
+
+The pricing screenshots below are the sanity check I use before turning a nice chat workflow into an API habit. If the job runs every day, model choice matters immediately.
+
+On my content-fixer workflow, a Claude cleanup run across 15 articles cost about `$0.04-$0.08` depending on how much text I sent. That was cheap enough to automate. The mistake is assuming every workflow needs the most expensive model or the longest context window.
+
+My rule is simple:
+
+- use the cheaper model for cleanup, tagging, and classification
+- use the stronger model when the task needs judgment or nuanced rewrite quality
+- cap the output format so you do not pay for paragraphs you will throw away
+
+![Claude API pricing screen used to sanity-check model cost before automation](/images/posts/claude-ai-guide/03-api-pricing.png)
+*If the workflow repeats, cost stops being theoretical very quickly.*
+
+![Claude model cost comparison for choosing the cheapest model that still does the job](/images/posts/claude-ai-guide/05-api-cost-comparison.png)
+*Model choice is usually the difference between a workflow you keep and one you quietly stop using.*
+
 ## When Claude Is the Better Choice
 
 | Task | Why Claude fits |
@@ -172,6 +263,29 @@ If you do not specify format, you often get extra explanation you did not need.
 ### Trusting confident wording instead of checking claims
 
 Claude can explain something clearly and still be wrong on a detail. Use it to accelerate thinking, then verify important facts.
+
+## Where Claude Still Fails
+
+Claude is useful, but there are still clear failure modes where I do not trust it without manual checks.
+
+### It can sound certain while missing one operational detail
+
+This happens a lot with deployment, billing, and infrastructure answers. The response can read cleanly while skipping the one environment variable, proxy header, or provider rule that actually decides whether the plan works.
+
+### It is better at draft review than final authority
+
+Claude is strong when I want a first pass on a spec, a rewrite, or a code review draft. I do not treat it as the final source of truth for pricing, compliance, or production commands.
+
+### Long context helps, but bad source material still produces bad output
+
+If you paste sloppy notes, conflicting requirements, or half-finished code, Claude gets more context but not necessarily more clarity. Good input still matters.
+
+### It can over-help
+
+If you do not constrain format, it often adds explanation you did not ask for. That is why I keep forcing bullet limits, JSON shapes, or explicit verdicts.
+
+![Claude versus model comparison view used to decide when another model may be the better fit](/images/posts/claude-ai-guide/02-model-comparison.png)
+*The right question is not “Is Claude good?” It is “Is Claude the right fit for this specific task?”*
 
 ## FAQ
 

@@ -108,6 +108,9 @@ nginx -v
 
 If you plan to host several apps later, this combination scales surprisingly well. For a deeper reverse proxy setup, [Nginx Reverse Proxy Setup in 2026](/blog/nginx-reverse-proxy-guide-2026) goes further.
 
+![PM2 keeping multiple production services online on a small VPS](/images/posts/multiple-projects-single-vps/03-pm2-docker-live.png)
+*Related production proof from the same kind of small VPS setup: once PM2 and the app layer are healthy, I want the box to show clean online process state before I add public traffic on top.*
+
 ## Step 4 of 8: upload or clone the Next.js app
 
 You can copy the project from your machine:
@@ -181,6 +184,23 @@ pm2 status
 curl -I http://localhost:3000
 ```
 
+Expected checks:
+
+```text
+┌────┬───────┬────────┬─────────┬──────┐
+│ id │ name  │ mode   │ status  │ cpu  │
+├────┼───────┼────────┼─────────┼──────┤
+│ 0  │ myapp │ cluster│ online  │ 0%   │
+└────┴───────┴────────┴─────────┴──────┘
+
+HTTP/1.1 200 OK
+X-Powered-By: Next.js
+```
+
+<Callout type="tip" title="Expected result">
+Do not continue until PM2 says `online` and `curl -I http://localhost:3000` returns a real HTTP response from Next.js.
+</Callout>
+
 Do not continue to Nginx until `localhost:3000` responds correctly. Otherwise you will end up debugging the proxy while the app itself is still broken.
 
 ## Step 7 of 8: configure Nginx as the reverse proxy
@@ -218,6 +238,11 @@ server {
 }
 ```
 
+That is the exact server block I would start from for a single Next.js app. Keep it boring first. Add custom caching or multiple upstreams only after the base path works.
+
+![Nginx upstream and port routing on a live multi-app VPS](/images/posts/multiple-projects-single-vps/04-nginx-port-map.png)
+*This is the kind of routing map I want in production: obvious upstreams, boring ports, and no mystery about which service Nginx is targeting.*
+
 Enable it and validate the config:
 
 ```bash
@@ -225,6 +250,10 @@ ln -s /etc/nginx/sites-available/myapp /etc/nginx/sites-enabled/
 nginx -t
 systemctl reload nginx
 ```
+
+<Callout type="tip" title="Expected result">
+`nginx -t` should end with `syntax is ok` and `test is successful`. If it does not, stop there and fix Nginx before touching SSL.
+</Callout>
 
 Visit `http://yourdomain.com`. If the app loads over plain HTTP, the core setup is working.
 
@@ -239,6 +268,39 @@ certbot --nginx -d yourdomain.com -d www.yourdomain.com
 
 Certbot will update the Nginx config and set up renewal automatically. Once that finishes, test the final site on HTTPS.
 
+## What Usually Breaks
+
+These are the four mistakes I see most often on the first VPS deploy.
+
+### Wrong Node version on the server
+
+If local development was on Node 20 and the server is older, the build can fail in ways that look like app bugs. Check the runtime first.
+
+### Missing environment variables
+
+A build that works locally can fail or boot into a broken state on the server because `.env` values never made it across.
+
+### Nginx pointing at the wrong port
+
+If PM2 is serving on `3000` but Nginx proxies to another port, you get a clean-looking `502` that hides the real problem.
+
+### DNS not ready before SSL
+
+Certbot is much easier when DNS is already clean. If the A record is wrong or stale, SSL troubleshooting becomes noise.
+
+## What I verify before I call this live
+
+This is the operator checklist I actually care about before I tell myself the deploy is done:
+
+- `npm run build` finished on the server without hidden warnings I do not understand
+- `pm2 status` shows the app `online` after a save and a reload
+- `curl -I http://localhost:3000` returns a real Next.js response before the proxy is involved
+- `nginx -t` is clean and the public HTTP domain loads before I request SSL
+- `curl -I https://yourdomain.com` works after Certbot without a redirect loop
+- a fresh browser session loads the site without stale DNS or mixed-content noise
+
+If one of those checks fails, I stop there. A VPS deploy goes sideways when people keep layering fixes on top of an unverified base.
+
 ## How to deploy updates without downtime
 
 Once the site is live, the update flow is straightforward:
@@ -252,6 +314,14 @@ pm2 reload myapp --update-env
 ```
 
 Use `reload`, not `restart`, if you want cleaner deploys with less visible interruption.
+
+After each deploy, I re-run these checks:
+
+```bash
+pm2 status
+curl -I http://localhost:3000
+curl -I https://yourdomain.com
+```
 
 If you want to keep the app lean after launch, [Next.js Performance Optimization in 2026](/blog/nextjs-performance-optimization-2026) is a good follow-up once the deployment is stable.
 

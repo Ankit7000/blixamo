@@ -136,6 +136,10 @@ export function getPostFreshnessDate(post: Pick<Post, 'updatedAt' | 'date'>): Da
   return new Date(post.updatedAt || post.date)
 }
 
+export function isIndexablePost(post: Pick<Post, 'noindex'>): boolean {
+  return !post.noindex
+}
+
 export function getAllPosts(): Post[] {
   if (!fs.existsSync(postsDirectory)) return []
   const fileNames = fs.readdirSync(postsDirectory)
@@ -177,6 +181,15 @@ export function getPostBySlug(slug: string): Post | undefined {
 export function getPostsByCategory(category: string): Post[] {
   const slug = normalizeCategorySlug(category)
   return getAllPosts().filter((post) => post.category.toLowerCase() === slug.toLowerCase())
+}
+
+export function getIndexablePosts(): Post[] {
+  return getAllPosts().filter(isIndexablePost)
+}
+
+export function getIndexablePostsByCategory(category: string): Post[] {
+  const slug = normalizeCategorySlug(category)
+  return getIndexablePosts().filter((post) => post.category.toLowerCase() === slug.toLowerCase())
 }
 
 export function getFeaturedPosts(limit = 5): Post[] {
