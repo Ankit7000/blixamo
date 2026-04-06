@@ -1,0 +1,262 @@
+---
+title: "How I Monitor a Small VPS Before Small Problems Become Downtime in 2026"
+slug: "monitor-small-vps-before-downtime-2026"
+description: "Practical VPS monitoring for solo developers: what to watch, what to alert on, and how to stay ahead of downtime without building a heavy observability stack."
+date: "2026-04-06"
+updatedAt: "2026-04-06"
+author: "Ankit Sorathiya"
+category: "vps-cloud"
+tags: ["vps", "monitoring", "devops", "self-hosting", "uptime", "observability", "linux"]
+keyword: "monitor small vps"
+secondaryKeywords: ["vps monitoring setup", "lightweight vps observability", "vps uptime monitoring", "small server monitoring 2026"]
+featured: false
+featuredImage: /images/posts/monitor-small-vps-before-downtime-2026/featured.png
+schema: "article"
+difficulty: "intermediate"
+timeToComplete: "20 minutes"
+excerpt: "I spent two hours debugging an outage that a five-minute monitoring check would have caught three days earlier. Here is how I monitor a small VPS now."
+toc: true
+---
+
+Most downtime on a small VPS does not arrive suddenly. It builds. Disk fills up slowly. Memory leaks a little each day. A certificate renewal job silently fails. By the time you notice, a real outage is already happening.
+
+I learned this the expensive way. A full disk caused a Node process to hang. The site was returning 502 errors for two hours before I noticed. No alert fired because I had nothing set up.
+
+This article is what I check now — and why. It is not a stack article. It is an operator's view of what actually matters on a single small VPS running one or two apps.
+
+**TL;DR:** Watch CPU, memory, disk, process health, HTTP uptime, certificate expiry, and backup signals. Alert on the things that cause outages. Review the rest weekly. Do not reach for Prometheus before you have the basics covered.
+
+---
+
+## What I Monitor on Every VPS
+
+### CPU — Alert When Sustained, Not Spiked
+
+A CPU spike during a deploy or a cron job is normal. What is not normal is CPU sitting at 90%+ for ten minutes with no obvious cause.
+
+I do not alert on brief spikes. I alert when the one-minute load average exceeds the number of vCPUs for more than a few minutes in a row. On a 2 vCPU VPS that means `load average > 2.0` sustained.
+
+```bash
+# Quick load check
+uptime
+# Returns: load average: 0.08, 0.06, 0.04
+```
+
+The three numbers are 1-minute, 5-minute, and 15-minute averages. If the 5-minute number is consistently above your vCPU count, something is wrong.
+
+CPU rarely causes sudden downtime on small apps. It is worth watching but it is not your most dangerous metric. Disk is.
+
+### Disk — The Metric That Actually Kills Small VPS Instances
+
+Disk is the one that gets people. Log rotation stops working. Docker pulls write layers. n8n stores execution history. A database write fails silently. Then your app starts returning 500s and you have no idea why until you run `df -h` and see the partition at 100%.
+
+I alert at 80% disk usage, not 90%. The gap between 80 and 100 disappears faster than you expect when logs are accumulating.
+
+```bash
+# Check disk
+df -h /
+
+# Find what is eating space
+du -sh /var/log/* | sort -rh | head -10
+du -sh /var/lib/docker/* 2>/dev/null | sort -rh | head -5
+```
+
+On a Hetzner CPX22 (40GB disk), Docker volumes and PM2 logs are always the culprits. A 40GB VPS running Next.js, Redis, and n8n will use 15-20GB baseline. That leaves less room than it looks like.
+
+### Memory — Watch RSS, Not Just Free
+
+`free -h` shows available memory. That number alone is misleading because Linux aggressively uses spare RAM for file caching, and that cache is released when processes need it.
+
+What I actually watch is RSS (resident set size) of my main processes. If the Node process running the app is growing in RSS over days, there is a memory leak.
+
+```bash
+# Check memory
+free -h
+
+# Check RSS of processes
+ps aux --sort=-%mem | head -10
+
+# Watch a specific PM2 process
+pm2 show blixamo | grep memory
+```
+
+On a 4GB VPS I alert when free memory drops below 300MB for more than five minutes. That is the threshold where the Linux OOM killer starts becoming a real risk. Always check `/var/log/syslog` for `Out of memory` entries if you see unexpected process restarts.
+
+### Process Health — Is the App Actually Running?
+
+A process can be running and still not serving requests. PM2 shows a green status for a process that is in a restart loop. The HTTP check catches this; the process check does not.
+
+I use both:
+
+```bash
+# Is the process running?
+pm2 status
+
+# Is it actually responding?
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3000
+```
+
+If `pm2 status` shows online but curl returns anything other than 200, something is wrong at the app layer even though the process is technically alive.
+
+### HTTP Uptime — External Check, Not Local
+
+A local `curl localhost:3000` passing does not mean your site is up. Nginx could be down. Cloudflare could have a routing issue. Your DNS could be broken.
+
+I use an external uptime checker (UptimeRobot free tier) to hit the public URL every five minutes. If it fails three consecutive times, I get a notification. This is the most important alert I have — everything else I can check manually on a schedule. This is the one that pages me.
+
+### Certificate Expiry — Silent Failure That Destroys Trust
+
+Let's Encrypt certificates expire every 90 days. Certbot autorenewal usually works. Until it does not.
+
+```bash
+# Check when your cert expires
+echo | openssl s_client -connect yourdomain.com:443 -servername yourdomain.com 2>/dev/null \
+  | openssl x509 -noout -dates
+```
+
+Alert threshold: 20 days before expiry. At 20 days you still have time to fix renewal without a weekend emergency. Certbot logs failures to `/var/log/letsencrypt/` — check it in your weekly review.
+
+### Backup Success or Failure Signals
+
+A backup that silently fails is worse than no backup. You think you are covered when you are not.
+
+I log every backup job result with a timestamp and a success/failure status. During my weekly check, I verify that the last backup entry is recent and shows success.
+
+```bash
+tail -5 /var/log/blixamo-backup.log
+# Should show: [2026-04-05 03:00] BACKUP OK — 42MB
+```
+
+If the last backup was more than 48 hours ago, that is a problem worth investigating immediately. Do not assume the cron job is still running.
+
+---
+
+## What I Alert On vs What I Just Review
+
+Not everything needs a notification. Too many alerts means you start ignoring them.
+
+**Alert immediately:**
+- External HTTP check fails (3 consecutive failures)
+- Disk usage exceeds 80%
+- Free memory below 300MB sustained
+- PM2 process restarting more than 5 times in 10 minutes
+
+**Review weekly, do not alert:**
+- CPU load averages (unless consistently elevated)
+- Certificate expiry (check at 20-day threshold is enough)
+- Backup log freshness
+- Process RSS growth trend
+
+The weekly review takes about 10 minutes. Run four commands, look at the output, investigate anything that looks off.
+
+---
+
+## What Is Enough for One VPS vs Multiple Apps
+
+For a single app on one VPS, the stack above is complete.
+
+For two or three apps on the same server (covered in [running multiple projects on one VPS](/blog/multiple-projects-single-vps)), the only additions are:
+- One HTTP check per app
+- Per-app process health check
+- Closer eye on combined disk pressure
+
+The monitoring strategy does not change. The number of checks scales with the number of apps. If you are running five or more apps and monitoring is becoming a job of its own, read [when a small VPS is too small](/blog/when-small-vps-is-too-small-2026) before adding more surface area.
+
+---
+
+## How I Avoid Building a Heavy Stack Too Early
+
+Prometheus, Grafana, and Alertmanager are excellent tools. They are also meaningful operational overhead on a VPS with 4GB RAM and one developer managing it.
+
+My rule: do not add a monitoring component that requires more operational care than the thing it is monitoring.
+
+The lightweight approach works because:
+- UptimeRobot handles external HTTP checks without any server-side install
+- PM2 already has built-in process health and restart management
+- `df`, `free`, and `ps` are always available with zero overhead
+- Certbot already writes renewal logs — I just read them
+
+When the site grows to the point where this is not enough — multiple services, team members, SLA requirements — the right answer is a managed monitoring service or a dedicated monitoring VPS, not adding a full observability stack to an already-small server.
+
+---
+
+## My Weekly VPS Review Checklist
+
+```bash
+# 1. Disk
+df -h /
+
+# 2. Memory
+free -h && pm2 show blixamo | grep memory
+
+# 3. Process health
+pm2 status && curl -s -o /dev/null -w "%{http_code}" http://localhost:3000
+
+# 4. Certificate
+echo | openssl s_client -connect yourdomain.com:443 -servername yourdomain.com 2>/dev/null \
+  | openssl x509 -noout -enddate
+
+# 5. Backup
+tail -3 /var/log/your-backup.log
+
+# 6. Error signals
+sudo grep -i "out of memory\|oom\|killed" /var/log/syslog | tail -5
+```
+
+Ten minutes. If all six return expected output, close the terminal and get back to building. The [self-hosted maintenance runbook](/blog/self-hosted-maintenance-runbook-vps-2026) has a more complete weekly and monthly ops checklist if you want to go deeper.
+
+---
+
+## Troubleshooting Common Monitoring Gaps
+
+**UptimeRobot shows down but site looks fine locally**
+Your local check hits localhost. UptimeRobot hits the public URL through Cloudflare. Check nginx status: `sudo systemctl status nginx`. Also check Cloudflare's status page.
+
+**PM2 shows online but app is not responding**
+The process is running but likely stuck or in a crash loop. Check: `pm2 logs blixamo --lines 50`. Look for repeated error output just before the hang.
+
+**Disk alert fired but du shows nothing obvious**
+Check inodes: `df -i /`. You can run out of inodes before running out of disk space if you have millions of small files. Common with some logging setups or leftover Node module caches.
+
+**Certbot renewal failing silently**
+Run: `sudo certbot renew --dry-run`. If it fails, check `/var/log/letsencrypt/letsencrypt.log`. Common causes: port 80 blocked by firewall, DNS not pointing at VPS, or Nginx config conflict with the ACME challenge path.
+
+---
+
+## FAQ
+
+### What is the minimum monitoring setup for a small VPS?
+
+An external uptime check and a disk alert. Those two cover the most common outage causes. Add process health checks and certificate expiry as a second step. Everything else is useful but not critical for a single-app setup.
+
+### Do I need Prometheus to monitor a VPS properly?
+
+No. Prometheus is excellent for multi-service infrastructure with teams. For a solo developer running one or two apps, built-in Linux tools plus an external uptime service cover everything you need. Add Prometheus when you have a real reason to aggregate metrics across multiple hosts.
+
+### How often should I manually check my VPS?
+
+Once a week for a healthy server. The weekly review checklist above takes under ten minutes. If you have alerts set up correctly, you only touch the server outside the weekly review when something fires.
+
+### What is the biggest monitoring mistake on a small VPS?
+
+Ignoring disk. CPU and memory have natural recovery mechanisms (throttling, OOM kill). Disk does not. At 100% disk the app stops writing logs, databases reject writes, and processes fail in confusing ways. Alert at 80% and investigate before it becomes critical.
+
+### Should I set up email or SMS alerts?
+
+Email is fine for disk and backup alerts where a few minutes of delay is acceptable. For HTTP uptime, use something with faster delivery — UptimeRobot's free notification channel works well. SMS is worth it only if the service is customer-facing and response time matters in minutes.
+
+### How do I monitor multiple apps on one VPS?
+
+Add one HTTP health check per app, one PM2 process check per app, and watch combined disk usage more carefully. The monitoring strategy is identical — the surface area scales with the number of apps. See [running multiple projects on one VPS](/blog/multiple-projects-single-vps) for the operational setup that makes this manageable.
+
+---
+
+## What to Read Next
+
+For a full weekly and monthly ops checklist, the [self-hosted maintenance runbook](/blog/self-hosted-maintenance-runbook-vps-2026) covers the complete operational rhythm for a self-hosted VPS setup.
+
+If consistent resource pressure is making you wonder whether monitoring is telling you to upgrade, read [when a small VPS is too small](/blog/when-small-vps-is-too-small-2026) before spending money on a bigger server.
+
+If your VPS has already had a security incident, the [compromised VPS recovery guide](/blog/compromised-vps-recovery-2026) and [SSH security hardening](/blog/vps-security-harden-ubuntu-2026) cover the rebuild and hardening path.
+
+Browse the full [VPS and Cloud category](/category/vps-cloud) for more operational depth.

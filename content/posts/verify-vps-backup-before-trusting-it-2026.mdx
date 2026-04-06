@@ -1,0 +1,308 @@
+---
+title: "How I Verify a VPS Backup Before I Trust It in 2026"
+slug: "verify-vps-backup-before-trusting-it-2026"
+description: "A snapshot is not a backup until you have restored from it. Here is how I verify a VPS backup covers files, databases, config, and app startup before trusting it."
+date: "2026-04-06"
+updatedAt: "2026-04-06"
+author: "Ankit Sorathiya"
+category: "vps-cloud"
+tags: ["vps", "backups", "disaster-recovery", "self-hosting", "devops", "linux", "security"]
+keyword: "verify vps backup"
+secondaryKeywords: ["vps backup restore test", "backup verification checklist", "test vps snapshot restore", "vps disaster recovery drill"]
+featured: false
+featuredImage: /images/posts/verify-vps-backup-before-trusting-it-2026/featured.png
+schema: "article"
+difficulty: "intermediate"
+timeToComplete: "25 minutes"
+excerpt: "I had three months of automated backups running before I realized I had never tested whether any of them actually restored. Here is the verification process I use now."
+toc: true
+---
+
+Most developers set up automated backups and never look at them again. The backup job runs on a schedule, the log shows success, and you get a quiet sense of security. That security is false until you have actually restored from a backup and confirmed it works.
+
+I ran automated VPS snapshots for three months before I did my first restore drill. When I did, I found that my database dump was from a different environment, my `.env` file was not included in the backup path, and the app failed to start because a config key had changed. The backup existed. It was not usable.
+
+This article is the verification process I use now. Not how to create a backup — how to confirm one is actually restorable before you need it.
+
+**TL;DR:** Verify files, database, env/config, app startup, reverse proxy, and DNS assumptions separately. Do a dry-run restore on a staging server or a snapshot clone. Record what you verified and when. Only then call the backup strategy real.
+
+---
+
+## Why Snapshots Alone Are Not Enough
+
+A VPS snapshot from Hetzner or any cloud provider captures the disk state at a point in time. That sounds complete. In practice, it has gaps:
+
+**The snapshot was taken at the wrong moment.** If a database write was in progress when the snapshot ran, the database files in the snapshot may be inconsistent. Most production databases handle this fine if they replay their WAL or redo log on startup. Some do not. You only find out during a restore.
+
+**The snapshot restores the files but not the runtime state.** A snapshot of a working VPS restores the filesystem. It does not restore PM2's process list, active SSH sessions, or Nginx's loaded configuration state. The app has to be started cleanly after restore, which means the startup process itself must be verified.
+
+**The snapshot includes things you do not want.** Temporary files, half-completed deploys, debug credentials from a test session. Snapshots capture everything, including the things you forgot were there.
+
+**You do not know what is in the snapshot until you open it.** The backup log says "success." That means the snapshot completed. It does not mean the contents are what you think they are.
+
+A verified backup strategy requires actually restoring and checking.
+
+---
+
+## What I Verify in a Backup
+
+### Files — Are the Right Files There?
+
+The first check is whether the backup actually contains what you expect. This sounds obvious. It is easy to get wrong if your backup script targets a path that was restructured.
+
+```bash
+# After restoring to a staging environment, check key paths
+ls -la /var/www/yourapp/
+ls -la /var/www/yourapp/content/posts/ | wc -l   # post count should match production
+ls -la /var/www/yourapp/public/images/posts/      # image directories present?
+```
+
+I check three things:
+1. The app root is present and has the right structure
+2. Content files (MDX posts, user uploads, media) are there and match count from production
+3. No obvious missing directories that would cause app errors on startup
+
+If you backup using `rsync` or `tar`, also verify the archive is not corrupted before relying on it:
+
+```bash
+# Test tar archive integrity
+tar -tzf /backup/app-backup-2026-04-06.tar.gz | wc -l
+# Should return the number of files you expect
+
+# Test rsync backup is readable
+ls -lh /backup/latest/var/www/yourapp/
+```
+
+### Database — Is the Dump Actually Usable?
+
+Database backups are the most commonly broken piece of a backup strategy. The dump file exists. The dump file may not restore cleanly.
+
+```bash
+# For PostgreSQL — test restore to a separate database
+createdb restore_test
+pg_restore -d restore_test /backup/db-2026-04-06.dump
+# or for SQL dumps:
+psql restore_test < /backup/db-2026-04-06.sql
+
+# Verify row counts match production
+psql restore_test -c "SELECT COUNT(*) FROM your_main_table;"
+# Compare to production: psql yourapp_db -c "SELECT COUNT(*) FROM your_main_table;"
+
+# Clean up after testing
+dropdb restore_test
+```
+
+For Redis:
+```bash
+# Check the RDB dump file is readable
+redis-check-rdb /backup/dump.rdb
+```
+
+Two things I always check specifically:
+- Does the restore complete without errors?
+- Does a spot-check of row counts match what I expect from production?
+
+A dump that restores with errors is not a backup. A dump from a test database mistakenly run against a production backup path is a real scenario.
+
+### Environment and Config — The Files That Are Usually Missing
+
+`.env` files are almost always excluded from version control for good reason. They are also often excluded from backup scripts accidentally because the developer never thought to include them.
+
+```bash
+# Verify env file is in the backup
+ls -la /backup/latest/var/www/yourapp/.env
+cat /backup/latest/var/www/yourapp/.env | grep -v "=" | head   # check it has content
+
+# Verify key configs are present
+ls -la /backup/latest/etc/nginx/sites-available/
+ls -la /backup/latest/etc/nginx/sites-enabled/
+```
+
+I also check that the env file in the backup does not contain placeholder values from a previous testing session. I have seen backups with `DATABASE_URL=localhost` pointing at a development database that no longer exists.
+
+Configs to verify are present:
+- `.env` for the app
+- Nginx site config (`/etc/nginx/sites-available/yoursite`)
+- PM2 ecosystem config (`ecosystem.config.js`)
+- Any cron entries (`crontab -l` output should be documented)
+- SSL certificate files (or confirm they can be regenerated via certbot)
+
+### App Startup — Does the App Actually Run?
+
+This is the test most people skip and the one that catches the most problems.
+
+On a staging server or snapshot clone:
+
+```bash
+# Install dependencies from lockfile
+cd /var/www/yourapp
+npm ci --omit=dev
+
+# Attempt to build
+npm run build
+
+# Start via PM2
+pm2 start ecosystem.config.js
+
+# Wait a moment, then check
+pm2 status
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3000
+```
+
+If the build fails, that is a broken backup. Document why. Common causes:
+- Node.js version mismatch between backup and current server
+- Missing env variable that the build process requires
+- `node_modules` included in backup but from a different OS
+
+If the build passes but the app does not respond on port 3000, check PM2 logs immediately: `pm2 logs appname --lines 50`.
+
+A backup where the app will not start is not a usable backup. This test takes 10 minutes and gives you real confidence.
+
+### Reverse Proxy — Will Nginx Route Traffic Correctly?
+
+After app startup, confirm Nginx can serve the app:
+
+```bash
+# Test nginx config
+sudo nginx -t
+
+# Reload
+sudo systemctl reload nginx
+
+# Test the app through Nginx (port 80, not direct app port)
+curl -s -o /dev/null -w "%{http_code}" http://localhost
+```
+
+Also verify the Nginx config references the correct upstream app port and domain name. If you ever changed the app port from 3000 to 3001, the Nginx config in the backup may still point at 3000.
+
+### DNS Assumptions — What the Backup Does Not Cover
+
+A backup restores a server. It does not restore DNS. This is obvious when you think about it, but in the stress of an actual recovery, people forget.
+
+Document these separately (not in the backup, but in a recovery runbook):
+- The domain registrar and login for the domain
+- Where DNS is managed (Cloudflare, registrar's own DNS, etc.)
+- The A record or CNAME that points to the server IP
+- Any Cloudflare proxy settings (orange cloud vs gray cloud)
+- The expected IP after restore (may be different if you restore to a new server)
+
+If the domain is behind Cloudflare proxy and you restore to a new IP, DNS cutover is a manual step that no backup handles automatically.
+
+---
+
+## How I Do a Restore Check Without Wrecking Production
+
+The cleanest approach is a snapshot clone:
+
+1. Create a Hetzner snapshot of the production server
+2. Spin up a new VPS from that snapshot (takes 2-3 minutes)
+3. Run the verification steps above on the new VPS
+4. Delete the new VPS when done (~5-10 EUR for an hour of testing)
+
+This gives you a real restore on real data without touching production.
+
+For testing just the application backup (not a full server snapshot), use a staging environment or a temporary server with the same OS and Node version.
+
+What I do NOT do:
+- Restore to the production server to test (risk of data corruption or service interruption)
+- Assume the backup is good because the backup job exited 0
+- Skip the database restore test because "the dump looks right"
+
+The cost of a 1-hour VPS to run a restore drill is lower than 1 hour of downtime from a backup that does not work.
+
+---
+
+## What I Test First in a Restore Drill
+
+If time is limited, I prioritize in this order:
+
+1. **Database restore** — row counts match, no errors on restore
+2. **App startup** — `npm run build` passes, PM2 starts, HTTP 200 on port 3000
+3. **Env file present** — `.env` exists with production values (not dev placeholders)
+4. **Nginx routes correctly** — HTTP 200 through port 80
+5. **File count sanity check** — post count and image directories match production
+
+If I can confirm all five in under 30 minutes, I call the backup strategy verified.
+
+---
+
+## What I Record Before I Call the Backup Strategy Real
+
+A backup that was verified once is better than one that was never verified. A backup that was verified and documented is the one I actually trust.
+
+I keep a simple log entry after each restore drill:
+
+```
+[2026-04-06] Restore drill — app-backup-2026-04-06.tar.gz
+- Server: Hetzner CPX11, snapshot clone
+- Database: restored OK, row count matched (1,247 posts table)
+- App startup: npm run build OK, PM2 online, HTTP 200
+- Env file: present, production values confirmed
+- Nginx: routing correctly on port 80
+- Files: 53 MDX posts present, image directories present
+- Result: PASS
+- Tested by: Ankit
+```
+
+This log lives in my recovery runbook alongside the [self-hosted maintenance runbook](/blog/self-hosted-maintenance-runbook-vps-2026). It answers the question "when was this backup last verified?" with a real date instead of a guess.
+
+I also note the one thing that needed fixing from the drill. There is almost always one thing.
+
+---
+
+## Troubleshooting Failed Restore Drills
+
+**Build fails with missing env variable**
+The build process needs an env variable that was not in the backup. Check which env variables your `next.config.js` or build script requires at build time versus runtime. Add build-time env requirements to your backup include list.
+
+**Database restore exits with errors**
+Check the error message. Common causes: the dump was created with a newer PostgreSQL version than the restore target, the dump was interrupted partway through, or the dump format does not match the restore command (e.g., custom format dump but plain SQL restore command). Always use matching `pg_dump` and `pg_restore` versions.
+
+**PM2 starts but app crashes immediately**
+Run `pm2 logs appname --lines 100` and look for the first error. Nine times out of ten it is a missing env variable or a database connection string pointing at the wrong host.
+
+**Nginx config test fails**
+Run `sudo nginx -t` and read the error. Common: the config references a certificate path that does not exist on the restore target, or a socket file path that differs between the backup and the restore environment.
+
+**App starts but some features broken**
+Not a backup failure — this is an app-level issue. Document it in the restore drill log. It may indicate config drift between environments.
+
+---
+
+## FAQ
+
+### How often should I run a restore drill?
+
+Every 90 days at minimum for a production app. Every 30 days if the backup strategy has changed recently or if you are running a customer-facing service. A restore drill is a 30-minute task — the cost is low and the value is high.
+
+### Is a Hetzner server snapshot a valid backup?
+
+It is a valid disaster recovery option for a full server failure. It is not a substitute for a database dump that can be restored to a different server or point in time. Use both: automated database dumps for data recovery, and server snapshots for full rebuild recovery.
+
+### What if I do not have a staging server?
+
+Spin up a temporary VPS from the snapshot for testing. At Hetzner prices, a CPX11 for one hour costs less than a cup of coffee. Delete it after the drill. This is the most practical approach for solo developers without a permanent staging environment.
+
+### Should I test every backup or just do periodic drills?
+
+Periodic drills. Testing every backup is operationally expensive and usually unnecessary. What matters is that the backup process is consistent, that the verification drill confirms the process works, and that you have a dated record of when it was last confirmed.
+
+### What is the most commonly broken part of a VPS backup?
+
+The database restore. File backups tend to work. Database dumps fail for subtle reasons — version mismatches, incomplete dumps, wrong format flags. Test the database restore first in every drill.
+
+### What should be in a recovery runbook alongside the backup verification?
+
+At minimum: the domain registrar login location, DNS management location, the expected A record after a rebuild, the Hetzner console link, the SSH key location and passphrase (stored securely elsewhere), and the sequence of steps to bring the app back online. The backup is only one piece of recovery — the runbook ties it together.
+
+---
+
+## What to Read Next
+
+If you want to set up the monitoring that tells you when backups are failing silently, read [how to monitor a small VPS before problems become downtime](/blog/monitor-small-vps-before-downtime-2026) — the backup signal check is one of the six weekly items.
+
+For the backup strategy itself (what to back up and how often), the [backup guide for a self-hosted stack](/blog/backup-small-self-hosted-stack-2026) covers the full setup.
+
+For what to do when a restore is not a drill but a real incident, the [compromised VPS recovery guide](/blog/compromised-vps-recovery-2026) and the [post-deploy runbook](/blog/post-deploy-runbook-self-hosted-app-2026) cover the recovery sequence.
+
+Browse the full [VPS and Cloud category](/category/vps-cloud) for more operational depth.
