@@ -25,7 +25,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { page } = await params
   return {
-    title: `Articles — Page ${page} | Blixamo`,
+    title: `Articles — Page ${page}`,
     description: `Browse Blixamo articles — page ${page}.`,
     alternates: { canonical: `https://blixamo.com/blog/page/${page}` },
     robots: 'noindex',
