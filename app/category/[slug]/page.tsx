@@ -358,6 +358,41 @@ export default async function CategoryPage({ params }: Props) {
           href: RESOURCE_HUB_PATH,
           description: 'Use the deployment hub when the next question moves from this topic into operations, hosting, or broader comparisons.',
         }
+  const freeToolsRouteLinks =
+    canonicalSlug === 'free-tools'
+      ? [
+          {
+            title: 'Community',
+            description: 'Use Community when you want the current editorial layer before you widen back into the full free-tools cluster.',
+            href: '/community',
+            eyebrow: 'Editorial Hub',
+          },
+          {
+            title: 'Deployment Resources Hub',
+            description: 'Open the resources hub when a free-tool choice changes how you deploy, host, or operate the stack around it.',
+            href: RESOURCE_HUB_PATH,
+            eyebrow: 'Resources Hub',
+          },
+          {
+            title: 'Free Tools for Developers',
+            description: 'Use the indexed free-tools guide when you want the cleanest route through open-source replacements and budget-first workflow picks.',
+            href: '/guides/free-tools-for-developers',
+            eyebrow: 'Pillar Guide',
+          },
+          {
+            title: 'Developer Tools Directory',
+            description: 'Move here when the next question is broader tool fit instead of one narrow free replacement.',
+            href: '/guides/developer-tools-directory',
+            eyebrow: 'Directory',
+          },
+          {
+            title: 'Comparisons Hub',
+            description: 'Open this only when the shortlist is real and you need a sharper tool or platform verdict before switching.',
+            href: '/guides/comparisons-hub',
+            eyebrow: 'Decision Lane',
+          },
+        ]
+      : []
 
   return (
     <div style={{ maxWidth: '1100px', margin: '2.5rem auto', padding: '0 1rem' }}>
@@ -466,6 +501,47 @@ export default async function CategoryPage({ params }: Props) {
                 <span style={{ color: 'var(--text-secondary)', lineHeight: 1.65 }}>{pick.reason}</span>
               </Link>
             ))}
+          </div>
+        </section>
+      )}
+
+      {freeToolsRouteLinks.length > 0 && (
+        <section style={{ marginBottom: '2rem' }}>
+          <div
+            style={{
+              padding: '1.15rem 1.2rem',
+              borderRadius: '0.95rem',
+              border: '1px solid var(--border)',
+              background: 'var(--surface)',
+            }}
+          >
+            <div style={{ marginBottom: '0.9rem' }}>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.45rem', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
+                Use This Cluster With
+              </div>
+              <h2 style={{ margin: 0, fontSize: '1.35rem', color: 'var(--text-primary)' }}>
+                Free tools works best when you keep one editorial route and one wider tool route open
+              </h2>
+            </div>
+            <p style={{ margin: '0 0 1rem', color: 'var(--text-secondary)', lineHeight: 1.75 }}>
+              Start with the strongest article in this lane, then widen the route through <Link href="/community">Community</Link>, the{' '}
+              <Link href={RESOURCE_HUB_PATH}>deployment resources hub</Link>, the{' '}
+              <Link href="/guides/free-tools-for-developers">Free Tools for Developers guide</Link>, and the{' '}
+              <Link href="/guides/developer-tools-directory">Developer Tools Directory</Link>. Open the{' '}
+              <Link href="/guides/comparisons-hub">comparisons hub</Link> only when the next job is choosing between real alternatives instead of finding the cheapest workable default.
+            </p>
+            <div className="home-quick-grid">
+              {freeToolsRouteLinks.map((link) => (
+                <CategoryLaneFeatureCard
+                  key={link.href}
+                  eyebrow={link.eyebrow}
+                  title={link.title}
+                  description={link.description}
+                  href={link.href}
+                  footer="Indexed route"
+                />
+              ))}
+            </div>
           </div>
         </section>
       )}

@@ -204,6 +204,89 @@ export default function CommunityPage() {
         </div>
       </section>
 
+      <section id="budget-first-reads" className="home-section-shell">
+        <div
+          style={{
+            padding: '1.2rem 1.25rem',
+            borderRadius: '1rem',
+            border: '1px solid var(--border)',
+            background: 'var(--surface)',
+          }}
+        >
+          <div className="home-section-kicker">Budget-First Route</div>
+          <h2 className="home-section-title" style={{ marginTop: '0.4rem' }}>
+            Use this section when the next decision is tool spend, not another feed refresh
+          </h2>
+          <p className="home-section-description" style={{ marginBottom: '0.8rem' }}>
+            The strongest low-cost workflow path on Blixamo starts with the{' '}
+            <Link href="/category/free-tools">free tools category</Link>, then widens into the{' '}
+            <Link href="/guides/free-tools-for-developers">Free Tools for Developers guide</Link>, the{' '}
+            <Link href="/guides/developer-tools-directory">Developer Tools Directory</Link>, and the{' '}
+            <Link href="/tag/deployment">deployment resources hub</Link> depending on whether you need a narrower
+            replacement, a broader tooling lane, or a full stack decision.
+          </p>
+          <div className="home-quick-grid">
+            <Link href="/category/free-tools" className="home-curated-card">
+              <div className="home-curated-top">
+                <span className="home-curated-eyebrow">Category</span>
+                <span className="home-curated-arrow">Open</span>
+              </div>
+              <h3 className="home-curated-title">Free Tools</h3>
+              <p className="home-curated-copy">
+                Start here when you want the strongest budget-first articles without turning Community into another
+                archive page.
+              </p>
+              <div className="home-curated-footer">
+                <span>Workflow picks</span>
+                <span>Read next</span>
+              </div>
+            </Link>
+            <Link href="/guides/free-tools-for-developers" className="home-curated-card">
+              <div className="home-curated-top">
+                <span className="home-curated-eyebrow">Pillar Guide</span>
+                <span className="home-curated-arrow">Open</span>
+              </div>
+              <h3 className="home-curated-title">Free Tools for Developers</h3>
+              <p className="home-curated-copy">
+                Use the guide when one free-tool article is not enough and you want the indexed cluster path.
+              </p>
+              <div className="home-curated-footer">
+                <span>Budget-first map</span>
+                <span>Open guide</span>
+              </div>
+            </Link>
+            <Link href="/guides/developer-tools-directory" className="home-curated-card">
+              <div className="home-curated-top">
+                <span className="home-curated-eyebrow">Directory</span>
+                <span className="home-curated-arrow">Open</span>
+              </div>
+              <h3 className="home-curated-title">Developer Tools Directory</h3>
+              <p className="home-curated-copy">
+                Move here when the question shifts from free replacements to the wider software stack around them.
+              </p>
+              <div className="home-curated-footer">
+                <span>Tooling lane</span>
+                <span>Open guide</span>
+              </div>
+            </Link>
+            <Link href="/tag/deployment" className="home-curated-card">
+              <div className="home-curated-top">
+                <span className="home-curated-eyebrow">Resources Hub</span>
+                <span className="home-curated-arrow">Open</span>
+              </div>
+              <h3 className="home-curated-title">Deployment Resources Hub</h3>
+              <p className="home-curated-copy">
+                Open this when the tool decision affects hosting, self-hosting, or the stack you plan to operate.
+              </p>
+              <div className="home-curated-footer">
+                <span>Stack context</span>
+                <span>Open hub</span>
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <section id="latest-community-reads" className="home-section-shell">
         <div className="home-section-head home-section-head-inline">
           <div>
