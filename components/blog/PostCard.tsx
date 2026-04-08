@@ -49,9 +49,12 @@ export function PostCard({ post, featured = false }: { post: Post; featured?: bo
           />
         ) : (
           <div style={{
-            width: '100%', height: '100%',
+            width: '100%',
+            height: '100%',
             background: gradient,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}>
             <span style={{ fontSize: featured ? '3.5rem' : '2.5rem', opacity: 0.9 }}>{icon}</span>
           </div>
@@ -67,7 +70,8 @@ export function PostCard({ post, featured = false }: { post: Post; featured?: bo
         {/* Title */}
         <h2 style={{
           fontSize: featured ? '1.4rem' : '1.05rem',
-          fontWeight: 700, lineHeight: 1.3,
+          fontWeight: 700,
+          lineHeight: 1.3,
           color: 'var(--text-primary)',
         }}>
           <Link href={`/blog/${post.slug}`} style={{ color: 'inherit' }}>{post.title}</Link>
@@ -75,22 +79,35 @@ export function PostCard({ post, featured = false }: { post: Post; featured?: bo
 
         {/* Excerpt */}
         <p style={{
-          fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.65, flex: 1,
-          display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+          fontSize: '0.875rem',
+          color: 'var(--text-secondary)',
+          lineHeight: 1.65,
+          flex: 1,
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
         }}>{post.description}</p>
 
         {/* Meta row */}
         <div style={{
-          display: 'flex', gap: '0.75rem', alignItems: 'center',
-          fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.5rem',
+          display: 'flex',
+          gap: '0.75rem',
+          alignItems: 'center',
+          fontSize: '0.78rem',
+          color: 'var(--text-muted)',
+          marginTop: '0.5rem',
         }}>
           <time dateTime={displayDate}>
             {dateLabel}
           </time>
-          <span>·</span>
+          <span>|</span>
           <span>{post.readingTime}</span>
           {post.featured && (
-            <><span>·</span><span style={{ color: 'var(--accent)', fontWeight: 600 }}>★ Featured</span></>
+            <>
+              <span>|</span>
+              <span style={{ color: 'var(--accent)', fontWeight: 600 }}>Featured</span>
+            </>
           )}
         </div>
       </div>
