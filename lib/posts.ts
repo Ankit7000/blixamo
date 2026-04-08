@@ -88,8 +88,15 @@ function uniquePosts(posts: Post[]): Post[] {
   })
 }
 
+function comparePostsByArchiveOrder(
+  a: Pick<Post, 'slug' | 'updatedAt' | 'date'>,
+  b: Pick<Post, 'slug' | 'updatedAt' | 'date'>
+): number {
+  return getPostFreshnessDate(b).getTime() - getPostFreshnessDate(a).getTime() || a.slug.localeCompare(b.slug)
+}
+
 function sortByFreshness(posts: Post[]): Post[] {
-  return [...posts].sort((a, b) => getPostFreshnessDate(b).getTime() - getPostFreshnessDate(a).getTime())
+  return [...posts].sort(comparePostsByArchiveOrder)
 }
 
 function getTagOverlapCount(base: Pick<Post, 'tags'>, candidate: Pick<Post, 'tags'>): number {
@@ -142,7 +149,7 @@ export function isIndexablePost(post: Pick<Post, 'noindex'>): boolean {
 
 export function getAllPosts(): Post[] {
   if (!fs.existsSync(postsDirectory)) return []
-  const fileNames = fs.readdirSync(postsDirectory)
+  const fileNames = fs.readdirSync(postsDirectory).sort()
   return fileNames
     .filter((fileName) => fileName.endsWith('.mdx') || fileName.endsWith('.md'))
     .map((fileName) => {
@@ -171,7 +178,7 @@ export function getAllPosts(): Post[] {
         relatedScope: data.relatedScope || '',
       } as Post
     })
-    .sort((a, b) => getPostFreshnessDate(b).getTime() - getPostFreshnessDate(a).getTime())
+    .sort(comparePostsByArchiveOrder)
 }
 
 export function getPostBySlug(slug: string): Post | undefined {
