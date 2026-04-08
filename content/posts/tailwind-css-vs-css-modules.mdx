@@ -242,10 +242,10 @@ import type { Config } from 'tailwindcss'
 //
 const config: Config = {
   content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
-    './content/**/*.{mdx,md}', // Don't forget MDX files!
+    'YOUR_PAGES_GLOB',
+    'YOUR_COMPONENTS_GLOB',
+    'YOUR_APP_GLOB',
+    'YOUR_MDX_CONTENT_GLOB',
   ],
   theme: {
     extend: {},
@@ -255,7 +255,7 @@ const config: Config = {
 export default config
 ```
 <Callout type="warning" title="Common mistake">
-Forgetting `./content/**/*.mdx` in the content array means any Tailwind classes inside MDX files are purged in production. This is a hard-to-debug issue because it only shows up after `npm run build`.
+Forgetting your MDX content directory in the Tailwind `content` array means any classes used inside MDX get purged in production. The exact glob depends on your folder structure, but the important part is covering every pages, components, app, and MDX content directory that can emit class names.
 </Callout>
 #
 ### CSS Module styles not scoping correctly

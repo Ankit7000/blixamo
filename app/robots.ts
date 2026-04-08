@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/api/', '/_next/', '/search', '/author/', '/page/', '/blog/page/', '/feed.xml'],
+        disallow: ['/api/', '/_next/', '/search', '/author/', '/page/', '/feed.xml'],
       },
     ],
     sitemap: 'https://blixamo.com/sitemap.xml',

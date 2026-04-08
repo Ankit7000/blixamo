@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `Articles — Page ${page}`,
     description: `Browse Blixamo articles — page ${page}.`,
     alternates: { canonical: `https://blixamo.com/blog/page/${page}` },
-    robots: 'noindex',
+    robots: { index: false, follow: true },
   }
 }
 

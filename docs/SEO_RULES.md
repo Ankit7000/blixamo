@@ -66,7 +66,8 @@ Route-level noindex rules:
 
 Robots file:
 - `app/robots.ts` is the only source for `/robots.txt`
-- it disallows `/api/`, `/_next/`, `/search`, `/author/`, `/page/`, `/blog/page/`, and `/feed.xml`
+- it disallows `/api/`, `/_next/`, `/search`, `/author/`, `/page/`, and `/feed.xml`
+- `/blog/page/*` stays crawlable so Google can see the route-level `noindex, follow` and remove old paginated archive URLs from the index
 - sitemap declared in robots: `https://blixamo.com/sitemap.xml`
 
 ---

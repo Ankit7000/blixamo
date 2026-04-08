@@ -1,20 +1,34 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import { PostCard } from '@/components/blog/PostCard'
 import { getAllPosts, getIndexablePosts } from '@/lib/posts'
 import { getResourceHubContent, RESOURCE_HUB_TAG } from '@/lib/resources'
 
 type Props = { params: Promise<{ tag: string }> }
 
+const RETIRED_TAG_REDIRECTS: Record<string, string> = {
+  cloudflare: '/tag/deployment',
+}
+
+function getRetiredTagRedirect(tag: string): string | null {
+  return RETIRED_TAG_REDIRECTS[tag] ?? null
+}
+
 export async function generateStaticParams() {
   const posts = getAllPosts()
   const tags = [...new Set(posts.flatMap((post) => post.tags))]
+    .filter((tag) => !getRetiredTagRedirect(tag))
   return tags.map((tag) => ({ tag }))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { tag } = await params
+  const retiredTagRedirect = getRetiredTagRedirect(tag)
+
+  if (retiredTagRedirect) {
+    permanentRedirect(retiredTagRedirect)
+  }
 
   if (tag === RESOURCE_HUB_TAG) {
     return {
@@ -62,6 +76,11 @@ function GenericTagArchive({ tag }: { tag: string }) {
 
 export default async function TagPage({ params }: Props) {
   const { tag } = await params
+  const retiredTagRedirect = getRetiredTagRedirect(tag)
+
+  if (retiredTagRedirect) {
+    permanentRedirect(retiredTagRedirect)
+  }
 
   if (tag !== RESOURCE_HUB_TAG) {
     return <GenericTagArchive tag={tag} />
