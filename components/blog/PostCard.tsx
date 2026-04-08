@@ -14,6 +14,13 @@ export function PostCard({ post, featured = false }: { post: Post; featured?: bo
   const categoryMeta = getCategoryMeta(post.category)
   const gradient = categoryMeta.gradient
   const icon = categoryMeta.icon
+  const displayDate = post.updatedAt || post.date
+  const formattedDate = new Date(displayDate).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+  const dateLabel = post.updatedAt ? `Updated ${formattedDate}` : formattedDate
 
   return (
     <article className="article-card" style={{
@@ -77,8 +84,8 @@ export function PostCard({ post, featured = false }: { post: Post; featured?: bo
           display: 'flex', gap: '0.75rem', alignItems: 'center',
           fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.5rem',
         }}>
-          <time dateTime={post.date}>
-            {new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+          <time dateTime={displayDate}>
+            {dateLabel}
           </time>
           <span>·</span>
           <span>{post.readingTime}</span>
