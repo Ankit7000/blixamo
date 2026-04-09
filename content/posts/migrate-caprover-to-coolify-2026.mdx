@@ -84,7 +84,7 @@ A strong checkpoint here is: can another developer read your notes and predict t
 
 ### 2. Move one layer at a time
 
-Transfer configuration, then stateful data, then traffic, then verification. Mixing these together is how migrations become incidents.
+Transfer configuration, then stateful data, then traffic, then verification. Mixing these together is how migrations become incidents. For the stateful part, split platform recovery from data recovery: the [Coolify backup and restore runbook](/blog/coolify-backup-restore-runbook-2026) covers the platform-side restore drill, and the [Docker volume backup strategy for VPS apps](/blog/docker-volume-backup-strategy-vps-2026) covers what should actually be dumped, snapshotted, and tested.
 
 At this stage, I recommend keeping the article-specific goal visible in a note at the top of your editor or runbook. For moving self-hosted apps from CapRover to Coolify, the usual trap is drifting from the real objective into adjacent cleanup work. Stay focused. If a side issue appears, capture it as a follow-up task instead of folding it into the current change.
 

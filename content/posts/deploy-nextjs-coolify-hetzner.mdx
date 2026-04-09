@@ -41,7 +41,7 @@ This guide is for you if:
 
 ## When to Choose Hetzner + Coolify
 
-Choose this stack when you want low monthly cost, more control than Vercel, and a deployment workflow that is still easy to operate. If you need the absolute simplest hosted path and do not care about infra control, Vercel is still easier. If you need very custom reverse-proxy behavior, manual Nginx plus PM2 may still be the better fit.
+Choose this stack when you want low monthly cost, more control than Vercel, and a deployment workflow that is still easy to operate. If you are moving an existing app off Vercel rather than starting from scratch, use this [Next.js from Vercel to a VPS migration runbook](/blog/migrate-nextjs-vercel-to-vps-2026) so you do not miss the cutover checks. If you need the absolute simplest hosted path and do not care about infra control, Vercel is still easier. If you need very custom reverse-proxy behavior, manual Nginx plus PM2 may still be the better fit.
 
 ## Step 1: Create the Hetzner VPS
 
@@ -106,6 +106,7 @@ Set the env vars before the first real deploy, especially anything under `NEXT_P
 Click deploy and watch the logs. The first deploy is where you catch missing packages, incorrect build commands, and bad environment values.
 
 A common failure after deploy is a [file-backed MDX route inheriting Edge runtime](/blog/nextjs-mdx-remote-rsc-edge-runtime-fix) instead of Node.js, which usually only shows up once you run a real production build.
+If the build completes but the release still dies during boot, port checks, or runtime startup, work through [failed Next.js deploys in Coolify](/blog/fix-coolify-deploy-failures-nextjs-2026) before you start changing unrelated layers.
 
 ![Coolify deploy commands and logs during the first real application build](/images/posts/deploy-nextjs-coolify-hetzner/04-deploy-commands.png)
 *The first deploy tells you whether the problem is memory, environment variables, build configuration, or runtime assumptions.*

@@ -118,7 +118,7 @@ Alert threshold: 20 days before expiry. At 20 days you still have time to fix re
 
 ### Backup Success or Failure Signals
 
-A backup that silently fails is worse than no backup. You think you are covered when you are not.
+A backup that silently fails is worse than no backup. You think you are covered when you are not. The monitoring only matters if the underlying backup plan is sane, which is why I pair these checks with a defined [Docker volume backup strategy for VPS apps](/blog/docker-volume-backup-strategy-vps-2026).
 
 I log every backup job result with a timestamp and a success/failure status. During my weekly check, I verify that the last backup entry is recent and shows success.
 

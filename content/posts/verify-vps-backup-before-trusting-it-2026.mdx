@@ -40,7 +40,7 @@ A VPS snapshot from Hetzner or any cloud provider captures the disk state at a p
 
 **You do not know what is in the snapshot until you open it.** The backup log says "success." That means the snapshot completed. It does not mean the contents are what you think they are.
 
-A verified backup strategy requires actually restoring and checking.
+A verified backup strategy requires actually restoring and checking. If the stack runs on Coolify, my [Coolify backup and restore runbook](/blog/coolify-backup-restore-runbook-2026) is the platform-specific version of this drill. If the risky part is Docker state, use the [Docker volume backup strategy for VPS apps](/blog/docker-volume-backup-strategy-vps-2026) to define what gets dumped, snapshotted, and restored.
 
 ---
 

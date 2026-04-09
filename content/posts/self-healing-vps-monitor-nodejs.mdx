@@ -41,7 +41,7 @@ This setup works best if you already run multiple services on one VPS. The key i
 
 ## What a Self-Healing VPS Monitor Should Actually Do
 
-A lot of monitoring guides jump from "health check" straight to "run restart command." That is too naive for a production VPS.
+A lot of monitoring guides jump from "health check" straight to "run restart command." That is too naive for a production VPS. If your probes are weak, the automation is weak too, so I treat [Docker Compose health checks that actually catch bad deploys](/blog/docker-compose-health-checks-production-2026) as the prerequisite for any recovery loop.
 
 A useful self-healing monitor should do four things:
 

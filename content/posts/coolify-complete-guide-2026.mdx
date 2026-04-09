@@ -105,7 +105,7 @@ Do not rush straight into deploying your app. If the base platform feels shaky b
 
 The first deployment is the proof step.
 
-Pick a real app, connect the repository, set the environment variables, assign the domain, and deploy it. That flow is what tells you whether Coolify actually fits your workflow or just looked appealing on paper.
+Pick a real app, connect the repository, set the environment variables, assign the domain, and deploy it. That flow is what tells you whether Coolify actually fits your workflow or just looked appealing on paper. If the release reaches Coolify but fails during build, boot, or port wiring, work through [How to Fix Failed Next.js Deploys in Coolify](/blog/fix-coolify-deploy-failures-nextjs-2026) before you start changing the platform itself.
 
 This is why I like testing it with a Next.js project early. You learn very quickly whether:
 
@@ -154,7 +154,7 @@ You still need to care about:
 - deployment risk
 - basic security
 
-Coolify lowers the operational burden, but it does not eliminate ownership. That is the real tradeoff with self-hosting.
+Coolify lowers the operational burden, but it does not eliminate ownership. That is the real tradeoff with self-hosting. The backup side is where most teams stay too vague, so I keep a separate [Coolify backup and restore runbook](/blog/coolify-backup-restore-runbook-2026) for the restore drill itself.
 
 ## Why I Would Use Coolify Instead of Several Managed Platforms
 

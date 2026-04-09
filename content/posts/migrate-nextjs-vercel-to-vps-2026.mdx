@@ -1,8 +1,8 @@
 ---
-title: "How to Migrate Next.js from Vercel to a VPS in 2026"
-description: "Move a Next.js app from Vercel to a VPS without breaking env vars, builds, cron jobs, image handling, or rollback on release day."
+title: "How to Migrate Next.js from Vercel to a VPS: Production Runbook"
+description: "Move a Next.js app from Vercel to a VPS without losing env vars, image handling, cron jobs, SSL, or a clean rollback path."
 date: "2026-04-06"
-updatedAt: "2026-04-08"
+updatedAt: "2026-04-09"
 author: "Blixamo"
 category: "how-to"
 tags: ["nextjs", "vercel", "vps", "migration", "how-to", "deployment", "self-hosting", "docker"]
@@ -13,176 +13,208 @@ schema: "howto"
 noindex: false
 ---
 
-# How to Migrate Next.js from Vercel to a VPS in 2026
+Moving a Next.js app off Vercel is not mostly about `next build`. It is about replacing everything Vercel was quietly doing for you: environment handling, build/runtime parity, image behavior, cron jobs, SSL, and rollback.
 
-Moving a Next.js app from Vercel to a VPS is easy to underestimate. The framework moves, but so do env vars, image handling, cron jobs, caching assumptions, and your rollback story.
-
-This guide is for teams that want the lower-level control of a VPS without turning release day into a fire drill.
+This runbook assumes the app already works on Vercel and the real risk is the cutover, not learning how to host Next.js from scratch.
 
 > **TL;DR**
 >
-> - Start with a narrow, testable version of the workflow instead of trying to perfect the whole system at once.
-> - Keep the happy path and the rollback path in the same runbook, because recovery speed matters as much as setup speed.
-> - Link this workflow back to stronger cluster pages like [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide) and the related posts that actually support the decision.
+> - Export the real Vercel assumptions first: env vars, domains, cron jobs, image behavior, and callback URLs.
+> - Make the VPS build, boot, and answer locally before you touch public DNS.
+> - Recreate the boring platform layer on purpose: proxy, SSL, scheduled tasks, uploads, and webhook targets.
+> - Keep Vercel serving until the VPS survives the first real production checks without surprises.
 
-## Quick Plan
+## Migration Decision Table
 
-| Step | What matters |
-|---|---|
-| Start point | Freeze the current state and document how you would undo the next change. |
-| Middle of the job | Work from infrastructure to app behavior instead of guessing from a single error message. |
-| Success signal | The app is healthy, the logs are quiet, and the supporting workflow is repeatable. |
-| Most expensive mistake | Changing two or three things at once and losing the actual cause. |
+| Concern | What to verify before you leave Vercel | VPS replacement |
+| --- | --- | --- |
+| Environment variables | Which vars are needed at build time vs runtime | `.env`, Compose envs, or Coolify env settings |
+| Custom domain and SSL | Current DNS records, redirect rules, and cert assumptions | Nginx, Caddy, or Coolify-managed proxy |
+| Scheduled tasks | Vercel cron jobs or serverless schedules | `cron`, Coolify scheduled jobs, or external scheduler |
+| Image handling | Whether you rely on default `next/image` behavior and cache | Self-hosted Next.js image optimizer and cache/storage plan |
+| Rollback | What "go back now" means in the first 10 minutes | Keep Vercel serving until the VPS is proven |
 
-## What You Need Before You Start
+{/* Proof asset: screenshot of the Vercel project settings showing env vars, domains, and any cron jobs before migration. */}
 
-- A clear owner for the change and a simple success condition.
-- Access to logs, environment settings, and the current deployment method.
-- A short rollback note that says what gets restored, restarted, or reverted if the change fails.
-- At least one supporting internal link back to [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide) and one to [How-To Guides](/category/how-to).
+## When this approach is the right choice
 
-## Why Migrate Next.js From Vercel To VPS Matters
+Use this runbook when:
 
-Most developers do not lose time because they lack a command. They lose time because the operational model around the command is fuzzy. That is why migrate nextjs from vercel to vps deserves a deeper article than a quick note. The real work is in defining the boundary of the task, deciding what "done" means, and making the flow understandable to the next person who touches it.
+- your Next.js app has outgrown Vercel pricing or platform limits
+- you want one VPS to host the app plus adjacent services
+- you are comfortable owning the deploy, proxy, and rollback path
+- you need a migration checklist, not a generic "self-host Next.js" overview
 
-On Blixamo, this topic sits in the path from [home](/) to [resources](/tag/deployment) to [How-To Guides](/category/how-to) to the pillar page for this cluster, [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide). That matters for readers and for crawl paths. A post like this should not float alone. It should connect upward to the hub pages and sideways to the supporting articles that turn one decision into a complete workflow.
+Do not use this page if you are still deciding whether a VPS is the right hosting model. Start with [How to Self-Host Next.js on a VPS](/blog/how-to-self-host-nextjs-on-vps) or [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner) first, then come back when the migration is real.
 
-There is also a trust problem with short posts in this category. A short article can say the right words while still failing the real-world test. Developers want to know where the hidden risk is. They want to know what breaks at 2 AM, what logs to check first, which assumption is usually wrong, and which part of the process is safe to automate. That is why this rewrite spends more time on verification, failure modes, and documentation than on generic definitions.
+## Prerequisites and assumptions
 
-Treat this article as the practical middle layer between a headline and a full incident log. Use it when you want the sequence to be predictable, the trade-offs to be visible, and the next step obvious. That is also why I keep linking to supporting pages like [Deploy Next.js Coolify Hetzner](/blog/deploy-nextjs-coolify-hetzner), [How To Self Host Next.js On VPS](/blog/how-to-self-host-nextjs-on-vps), [Next.js VPS Prelaunch Checklist 2026](/blog/nextjs-vps-prelaunch-checklist-2026), [Roll Back Failed Next.js VPS Deploy 2026](/blog/rollback-failed-nextjs-vps-deploy-2026): the cluster should feel connected, not like isolated content islands.
+- working access to the Vercel project, domain DNS, and current environment variables
+- a VPS with Docker Compose or a platform layer like Coolify already chosen
+- one clear deployment path for the new host
+- a health check or at least one URL you can trust during verification
+- a rollback owner and a low-traffic cutover window
 
-## Build the Workflow Before You Touch Production
+If the VPS still needs prep work, stop here and use [How to Set Up a VPS for Web Hosting in 2026](/blog/vps-setup-guide) plus [Next.js VPS Prelaunch Checklist in 2026](/blog/nextjs-vps-prelaunch-checklist-2026).
 
-For **migrate nextjs from vercel to vps**, the best pattern is to design the workflow on paper before you change the live system. That sounds obvious, but it is where most failed migrations and "mystery" deploy bugs begin. People open the dashboard, click around, and only later discover that they never defined the rollback point, the health checks, or the proof that the change worked.
+## Step 1: Audit the Vercel-specific assumptions
 
-Start with scope. Write down the exact object you are changing: the app, the volume, the environment variables, the proxy, the workflow, or the traffic path. Then write the success signal in one sentence. Good examples are "the same request succeeds on the new host," "the container becomes healthy within two minutes," or "the imported collection runs locally with the same variables." Next, capture the rollback step in plain English. Not an abstract promise. The actual thing you will do.
+Before you deploy anything, write down what the app currently depends on.
 
-Only then should you begin the work. Take a snapshot of the current state, export configuration where possible, and leave a short trail of notes that another developer could follow later. This is also where supporting articles matter. If the task touches deployment, keep [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide) open. If it touches related cluster pages, cross-check against [Deploy Next.js Coolify Hetzner](/blog/deploy-nextjs-coolify-hetzner), [How To Self Host Next.js On VPS](/blog/how-to-self-host-nextjs-on-vps), [Next.js VPS Prelaunch Checklist 2026](/blog/nextjs-vps-prelaunch-checklist-2026), [Roll Back Failed Next.js VPS Deploy 2026](/blog/rollback-failed-nextjs-vps-deploy-2026) so you do not miss a dependency or verification step that another post already covers.
+Your audit should answer:
 
-A practical starter sequence looks like this:
+- which env vars are needed during `next build`
+- which env vars are only needed at runtime
+- whether any route depends on Vercel-only features such as scheduled functions or edge behavior
+- where uploads, generated files, or cache data live today
+- whether background jobs, webhooks, or third-party callbacks point at the Vercel URL
+
+The dangerous migration is the one where the team remembers only the app code and forgets the platform behavior around it.
+
+## Step 2: Pick one VPS deploy path and stop changing architecture mid-migration
+
+This is where teams create unnecessary risk. They start with "move from Vercel to a VPS" and halfway through it becomes "also switch package manager, also change proxy, also rebuild CI, also move databases."
+
+Do not do that.
+
+Pick one deployment path:
+
+- Coolify if you want a UI-led deployment layer and easier app management
+- raw Docker Compose if you want fewer moving parts and you already operate containers comfortably
+
+Either path is fine. What is not fine is changing both the hosting model and the deployment model in the same cutover without a reason.
+
+If you are leaning toward Coolify, pair this with [Fix Failed Next.js Deploys in Coolify (2026)](/blog/fix-coolify-deploy-failures-nextjs-2026). If you are staying close to the metal, keep [Docker Compose on VPS 2026 - Production Setup Guide](/blog/docker-compose-production-vps-2026) open.
+
+## Step 3: Make the app build and boot on the VPS before touching DNS
+
+Your first success condition is simple: the app builds on the VPS, starts cleanly, and answers locally.
+
+For a plain Node-based deployment, the minimum proof looks like this:
 
 ```bash
-# snapshot current state first
-git status
-git rev-parse HEAD
-docker compose ps
+npm ci
+npm run build
+PORT=3000 HOSTNAME=0.0.0.0 npm run start
+curl -I http://127.0.0.1:3000
 ```
 
-That sequence is intentionally boring. Boring wins. Boring workflows are easier to repeat, review, and recover.
+If you are deploying through Docker, the same rule applies. The container must build, listen on the expected port, and answer locally before the public domain moves.
 
-## The Practical Workflow
+Common migration misses here:
 
-### 1. Freeze and inventory the current state
+- the build succeeds locally but not on the VPS because build-time env vars are missing
+- the app listens on the wrong port or only on `localhost`
+- the app writes to local disk for something that used to be handled elsewhere
+- a route depends on a background job that has not been recreated on the VPS
 
-Document what exists now: services, volumes, environment variables, domains, and the simplest rollback target.
+{/* Proof asset: screenshot of the first successful local VPS response or container health state before public cutover. */}
 
-At this stage, I recommend keeping the article-specific goal visible in a note at the top of your editor or runbook. For moving a Next.js app from Vercel to a VPS, the usual trap is drifting from the real objective into adjacent cleanup work. Stay focused. If a side issue appears, capture it as a follow-up task instead of folding it into the current change.
+## Step 4: Recreate the surrounding platform behavior
 
-Use the hub structure on Blixamo to keep context nearby: [How-To Guides](/category/how-to), [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide), and related reads like [Deploy Next.js Coolify Hetzner](/blog/deploy-nextjs-coolify-hetzner), [How To Self Host Next.js On VPS](/blog/how-to-self-host-nextjs-on-vps), [Next.js VPS Prelaunch Checklist 2026](/blog/nextjs-vps-prelaunch-checklist-2026), [Roll Back Failed Next.js VPS Deploy 2026](/blog/rollback-failed-nextjs-vps-deploy-2026). That sounds like an SEO note, but it also helps operationally. Supporting pages often hold the exact nuance you need for one step of the workflow.
+The app is only one part of the migration. Rebuild the boring platform pieces explicitly:
 
-A strong checkpoint here is: can another developer read your notes and predict the next action? If not, the process is still too implicit. Rewrite the step in plain language. Replace "fix config" with the actual file, variable, or command. Replace "test it" with the actual request or scenario that proves the step succeeded.
+1. add the env vars to the new runtime
+2. configure the reverse proxy and SSL
+3. recreate scheduled jobs
+4. confirm any webhook targets now point at the new domain
+5. verify image optimization, file writes, and cache directories behave the way you expect
 
-### 2. Move one layer at a time
+This is also where a compact migration checklist helps:
 
-Transfer configuration, then stateful data, then traffic, then verification. Mixing these together is how migrations become incidents.
+| Check | Done when |
+| --- | --- |
+| Build parity | `npm run build` succeeds on the VPS |
+| Runtime parity | the app starts and serves the main path locally |
+| Domain parity | the production hostname serves the new app after cutover |
+| Background jobs | scheduled tasks run on the VPS, not on the old platform |
+| Rollback parity | you can point traffic back without guessing |
 
-At this stage, I recommend keeping the article-specific goal visible in a note at the top of your editor or runbook. For moving a Next.js app from Vercel to a VPS, the usual trap is drifting from the real objective into adjacent cleanup work. Stay focused. If a side issue appears, capture it as a follow-up task instead of folding it into the current change.
+If search and analytics matter for this app, keep [Google Search Console for Self-Hosted Next.js](/blog/google-search-console-self-hosted-nextjs) nearby after the move.
 
-Use the hub structure on Blixamo to keep context nearby: [How-To Guides](/category/how-to), [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide), and related reads like [Deploy Next.js Coolify Hetzner](/blog/deploy-nextjs-coolify-hetzner), [How To Self Host Next.js On VPS](/blog/how-to-self-host-nextjs-on-vps), [Next.js VPS Prelaunch Checklist 2026](/blog/nextjs-vps-prelaunch-checklist-2026), [Roll Back Failed Next.js VPS Deploy 2026](/blog/rollback-failed-nextjs-vps-deploy-2026). That sounds like an SEO note, but it also helps operationally. Supporting pages often hold the exact nuance you need for one step of the workflow.
+## Step 5: Cut over traffic with rollback still available
 
-A strong checkpoint here is: can another developer read your notes and predict the next action? If not, the process is still too implicit. Rewrite the step in plain language. Replace "fix config" with the actual file, variable, or command. Replace "test it" with the actual request or scenario that proves the step succeeded.
+Do not destroy the old path before the new one is trusted.
 
-### 3. Verify before cleanup
+The safest cutover sequence is:
 
-Leave the old path intact until the new one passes the critical path, the logs look clean, and your team can repeat the same steps.
+1. reduce DNS TTL ahead of time if you control it
+2. verify the new stack on the VPS using a temporary host or direct IP/proxy route where possible
+3. move the production domain
+4. re-run the core user path immediately
+5. keep Vercel intact until you are satisfied with the new host
 
-At this stage, I recommend keeping the article-specific goal visible in a note at the top of your editor or runbook. For moving a Next.js app from Vercel to a VPS, the usual trap is drifting from the real objective into adjacent cleanup work. Stay focused. If a side issue appears, capture it as a follow-up task instead of folding it into the current change.
+The point is not elegance. The point is making rollback cheap.
 
-Use the hub structure on Blixamo to keep context nearby: [How-To Guides](/category/how-to), [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide), and related reads like [Deploy Next.js Coolify Hetzner](/blog/deploy-nextjs-coolify-hetzner), [How To Self Host Next.js On VPS](/blog/how-to-self-host-nextjs-on-vps), [Next.js VPS Prelaunch Checklist 2026](/blog/nextjs-vps-prelaunch-checklist-2026), [Roll Back Failed Next.js VPS Deploy 2026](/blog/rollback-failed-nextjs-vps-deploy-2026). That sounds like an SEO note, but it also helps operationally. Supporting pages often hold the exact nuance you need for one step of the workflow.
+## Verification: what proves the migration actually worked
 
-A strong checkpoint here is: can another developer read your notes and predict the next action? If not, the process is still too implicit. Rewrite the step in plain language. Replace "fix config" with the actual file, variable, or command. Replace "test it" with the actual request or scenario that proves the step succeeded.
+Do not call the move done until these checks pass:
 
-## What Usually Surprises Teams Leaving a Managed Platform
+- homepage or primary route returns `200`
+- login or auth callback works if the app has one
+- `next/image` or other asset-heavy pages load correctly
+- background jobs and webhooks hit the new environment
+- logs stay clean after the first real traffic
+- SSL and redirect behavior match the old production behavior
+- at least one rollback step has been written down, not assumed
 
-The surprise is rarely how to run `next start`. The surprise is everything around it: environment management, restart behavior, proxy configuration, SSL, monitoring, build caching, and rollback discipline. A managed platform hides those concerns until you leave it. A VPS makes them visible again.
+{/* Proof asset: screenshot of the production domain responding correctly after cutover plus one clean deployment log view. */}
 
-That is not a reason to stay hosted forever. It just means your migration guide has to cover the operational envelope, not just the runtime command.
+## Common migration failures
 
-## Migration Patterns That Hold Up Under Pressure
+### Build-time and runtime env vars were mixed together
 
-The migration pattern that ages well is simple: inventory, duplicate, verify, switch, observe, then retire the old path. Inventory means understanding the old system. Duplicate means creating the new path without pressure. Verify means checking behavior before traffic moves. Switch means changing one layer at a time. Observe means watching logs and health after the cutover. Retire means cleaning up only after confidence is earned.
+This is the most common failure in Next.js migrations. The build works in one environment and the runtime fails in another, or vice versa. Audit both sets separately.
 
-People get in trouble when they skip directly from inventory to switch. That compresses all risk into one moment. Spread the risk out. That is the point of a migration plan.
+### The app boots, but the proxy points at the wrong port
 
-I also recommend a small parallel period whenever possible. Even a short overlap gives you a safe place to compare outputs, response times, or job results before you declare the new system authoritative.
+A green deploy is not enough if the reverse proxy expects a different internal port or the app is bound incorrectly.
 
-A practical way to preserve quality is to update the article after the first real use. Your first version should be good enough to follow. Your second version should be good enough to trust.
+### Vercel cron jobs were forgotten
 
-## Common Mistakes and How to Avoid Them
+If a route or workflow relied on Vercel scheduling, nothing on the VPS will replace it by accident. Recreate it intentionally.
 
-The first mistake is treating migrate nextjs from vercel to vps like a one-layer problem. Most failures span at least two layers: the config and the verification, the migration and the rollback, the tool choice and the collaboration model. If you only optimize the visible layer, the issue returns later in a different form.
+### The team removed Vercel too early
 
-The second mistake is hiding assumptions. Write them down. Which environment variables must exist? Which domain must resolve first? Which account permissions are required? Which health endpoint represents "good"? Short articles skip those details because they feel boring. In real work, those details are the difference between a clean handoff and an hours-long debugging session.
+Do not kill the old environment because the first test passed once. Watch the app under real traffic first.
 
-The third mistake is weak naming. Name collections, services, environments, and checkpoints clearly. Ambiguous labels create ambiguity in the review process too. Good names cut down on re-explanation.
+### The migration also changed too many unrelated things
 
-The fourth mistake is skipping post-change observation. People celebrate once the main path works once. That is too early. Watch the system long enough to catch retry storms, delayed errors, silent bad defaults, or permissions issues that appear only on the second or third action.
+Changing hosting, proxy, runtime, background jobs, and database topology in one wave makes debugging much harder than it needs to be.
 
-If you want the cluster around this post to help more, add contextual links from nearby pages once this version is live. Strong internal linking should connect article pages back to the hub, the category, the pillar page, and the closest supporting articles so the cluster feels intentional rather than isolated.
+## Rollback plan
 
-## Troubleshooting and Verification
+Your rollback plan should fit in a few lines:
 
-When something feels off, verify in this order.
+1. switch traffic back to Vercel
+2. disable or pause new VPS-only jobs if they create duplicate actions
+3. keep the VPS stack for investigation, not for live writes
+4. capture the failure cause before retrying
 
-1. **Inputs**: confirm the right variables, credentials, paths, domains, or source files are being used.
-2. **Execution**: confirm the actual command, workflow step, or request you expect is the one being run.
-3. **Dependencies**: confirm the database, queue, proxy, or upstream service is healthy before blaming the app.
-4. **Output**: confirm the success signal is real and not a partial success hiding deeper issues.
-5. **Rollback path**: decide early whether continuing is cheaper than restoring the last known good state.
-
-This sequence matters because it keeps you from making a noisy situation noisier. For many developers, the hardest part of troubleshooting is not technical depth. It is emotional pacing. A failing migration or broken deploy creates urgency, and urgency pushes people toward random action. The verification order above slows that down just enough to make better choices.
-
-Use the archive and the hub pages as support, not distraction. If this article touches deployment, keep [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide) open. If it touches tooling, keep [Developer Tools Directory](/guides/developer-tools-directory) or [Free Tools for Developers](/guides/free-tools-for-developers) nearby. If it touches automation or AI, keep [Automation Guide for Developers](/guides/automation-guide-for-developers) open. Those links give the task a map.
-
-A clean finish means you can answer three questions clearly: what changed, what proof says it worked, and how you would undo it if the next verification step failed.
+If you need a dedicated rollback checklist after the cutover, use [How to Roll Back a Failed Next.js VPS Deploy in 2026](/blog/rollback-failed-nextjs-vps-deploy-2026).
 
 ## FAQ
 
-### What is the safest way to start migrate nextjs from vercel to vps?
+### What usually breaks first when moving Next.js from Vercel to a VPS?
 
-Start with the smallest version of the workflow that proves the approach works. Document the inputs, the expected output, and the rollback path. Then run the task once with real data or a realistic test case before you promote it to a team standard. On Blixamo, that also means connecting the article to the surrounding cluster through [/blog](/blog), [/community](/community), [/tag/deployment](/tag/deployment), the category page, the pillar page, and the closest related posts.
+Usually the first break is not the framework itself. It is missing env vars, a wrong proxy target, forgotten cron jobs, or image/cache assumptions that were previously hidden by the platform.
 
-### Should I move everything in one cutover or in stages?
+### Should I migrate directly to raw Docker Compose or use Coolify?
 
-Start with the smallest version of the workflow that proves the approach works. Document the inputs, the expected output, and the rollback path. Then run the task once with real data or a realistic test case before you promote it to a team standard. On Blixamo, that also means connecting the article to the surrounding cluster through [/blog](/blog), [/community](/community), [/tag/deployment](/tag/deployment), the category page, the pillar page, and the closest related posts.
+Use the path you are most likely to operate calmly. If you want a UI and easier app management, Coolify is a reasonable step. If you already run containers directly, Docker Compose is often simpler.
 
-### How do I reduce risk before switching traffic or ownership?
+### Do I need to move DNS before I know the VPS build works?
 
-Start with the smallest version of the workflow that proves the approach works. Document the inputs, the expected output, and the rollback path. Then run the task once with real data or a realistic test case before you promote it to a team standard. On Blixamo, that also means connecting the article to the surrounding cluster through [/blog](/blog), [/community](/community), [/tag/deployment](/tag/deployment), the category page, the pillar page, and the closest related posts.
+No. Build and test locally on the server first. DNS is part of cutover, not part of initial validation.
 
-### What data should I back up first?
+### Can I keep Vercel live while I test the VPS?
 
-Start with the smallest version of the workflow that proves the approach works. Document the inputs, the expected output, and the rollback path. Then run the task once with real data or a realistic test case before you promote it to a team standard. On Blixamo, that also means connecting the article to the surrounding cluster through [/blog](/blog), [/community](/community), [/tag/deployment](/tag/deployment), the category page, the pillar page, and the closest related posts.
+You should. Keeping the old path intact is what makes rollback cheap.
 
-### How long should I keep the old system around?
+### How long should I keep Vercel live after cutover?
 
-Start with the smallest version of the workflow that proves the approach works. Document the inputs, the expected output, and the rollback path. Then run the task once with real data or a realistic test case before you promote it to a team standard. On Blixamo, that also means connecting the article to the surrounding cluster through [/blog](/blog), [/community](/community), [/tag/deployment](/tag/deployment), the category page, the pillar page, and the closest related posts.
-
-### What is the cleanest rollback plan?
-
-Start with the smallest version of the workflow that proves the approach works. Document the inputs, the expected output, and the rollback path. Then run the task once with real data or a realistic test case before you promote it to a team standard. On Blixamo, that also means connecting the article to the surrounding cluster through [/blog](/blog), [/community](/community), [/tag/deployment](/tag/deployment), the category page, the pillar page, and the closest related posts.
+Keep it live until the VPS has passed the core checks you actually care about: main route, auth callback if relevant, scheduled jobs, uploads or image handling, and at least one period of real traffic without new errors. The cheap rollback window is worth more than deleting the old deployment immediately.
 
 ## What Next?
 
-Use this page as part of a cluster, not as a dead end. The strongest next clicks are below.
-
-- [Homepage](/)
-- [Blog archive](/blog)
-- [Community](/community)
-- [Resources hub](/tag/deployment)
-- [How-To Guides](/category/how-to)
-- [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide)
-- [Deploy Next.js Coolify Hetzner](/blog/deploy-nextjs-coolify-hetzner)
-- [How To Self Host Next.js On VPS](/blog/how-to-self-host-nextjs-on-vps)
-- [Next.js VPS Prelaunch Checklist 2026](/blog/nextjs-vps-prelaunch-checklist-2026)
-- [Roll Back Failed Next.js VPS Deploy 2026](/blog/rollback-failed-nextjs-vps-deploy-2026)
+If you still need the host ready, use [How to Self-Host Next.js on a VPS](/blog/how-to-self-host-nextjs-on-vps) or [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner). If the cutover is done and you want the safer post-launch checks, go straight to [Next.js VPS Prelaunch Checklist in 2026](/blog/nextjs-vps-prelaunch-checklist-2026) and [How to Roll Back a Failed Next.js VPS Deploy in 2026](/blog/rollback-failed-nextjs-vps-deploy-2026).

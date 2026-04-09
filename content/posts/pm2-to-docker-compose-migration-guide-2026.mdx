@@ -15,7 +15,7 @@ noindex: false
 
 # PM2 to Docker Compose Migration Guide in 2026
 
-A PM2 to Docker Compose migration changes more than process management. Ports, env vars, persistence, health checks, and restart behavior all move to a new layer, which is where most surprises hide.
+A PM2 to Docker Compose migration changes more than process management. Ports, env vars, persistence, [health checks that actually catch bad deploys](/blog/docker-compose-health-checks-production-2026), and restart behavior all move to a new layer, which is where most surprises hide.
 
 This guide walks the migration in a sequence that keeps rollback easy while you prove the containerized setup works.
 
