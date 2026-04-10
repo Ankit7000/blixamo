@@ -34,7 +34,10 @@ This runbook assumes the app already works on Vercel and the real risk is the cu
 | Image handling | Whether you rely on default `next/image` behavior and cache | Self-hosted Next.js image optimizer and cache/storage plan |
 | Rollback | What "go back now" means in the first 10 minutes | Keep Vercel serving until the VPS is proven |
 
-{/* Proof asset: screenshot of the Vercel project settings showing env vars, domains, and any cron jobs before migration. */}
+Capture the Vercel assumptions before you move anything. One settings snapshot is often enough to stop a quiet env var, domain, or cron dependency from disappearing mid-cutover.
+
+![Vercel environment variables panel with masked project secrets before migration](/images/posts/migrate-nextjs-vercel-to-vps-2026/vercel-env-vars.png)
+*Vercel settings audited before the move so the VPS cutover did not depend on memory.*
 
 ## When this approach is the right choice
 
@@ -108,7 +111,10 @@ Common migration misses here:
 - the app writes to local disk for something that used to be handled elsewhere
 - a route depends on a background job that has not been recreated on the VPS
 
-{/* Proof asset: screenshot of the first successful local VPS response or container health state before public cutover. */}
+Before you cut DNS, prove the VPS stack is answering on the target runtime and not just "deployed" on paper.
+
+![Preview URL on the VPS showing the app working before DNS cutover](/images/posts/migrate-nextjs-vercel-to-vps-2026/vps-local-proof.png)
+*The VPS answered cleanly on the preview host before the production domain moved.*
 
 ## Step 4: Recreate the surrounding platform behavior
 
@@ -158,7 +164,10 @@ Do not call the move done until these checks pass:
 - SSL and redirect behavior match the old production behavior
 - at least one rollback step has been written down, not assumed
 
-{/* Proof asset: screenshot of the production domain responding correctly after cutover plus one clean deployment log view. */}
+This is the proof point that matters most: the production hostname is serving the new stack cleanly after cutover, with logs that match that claim.
+
+![Production domain loading from the VPS after the Next.js cutover](/images/posts/migrate-nextjs-vercel-to-vps-2026/post-cutover-proof.png)
+*The live hostname responded correctly after cutover, which is the only migration proof that really counts.*
 
 ## Common migration failures
 

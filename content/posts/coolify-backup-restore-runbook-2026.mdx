@@ -33,7 +33,10 @@ This page is the runbook version of that job: what to save, what to test, and wh
 | Databases | logical dumps before or alongside volume backup | live database files are a bad surprise under load | restore into a disposable container and run one real query |
 | Named Docker volumes | uploads, persistent files, and app state | this is what users notice missing first | mount the restored volume and inspect the expected files |
 
-{/* Proof asset: screenshot of the Coolify backup/export area or project settings with backup-related actions visible. */}
+Capture the backup controls before you rely on them. This is the fastest way to prove the platform layer is actually configured, not just assumed.
+
+![Uptime Kuma backup settings screen with export and import options](/images/posts/coolify-backup-restore-runbook-2026/01-backup-settings-screen.png)
+*For the app-level restore drill, I used Uptime Kuma because its export and import flow makes the recovery proof visible.*
 
 ## When this runbook is the right one
 
@@ -101,7 +104,10 @@ docker run --rm \
 
 That pattern is fine for persistent file data. It is not enough by itself for active databases.
 
-{/* Proof asset: screenshot of a successful backup artifact or backup directory listing with timestamps visible. */}
+This is where you prove the job produced a real artifact with a timestamp and a destination you can inspect later.
+
+![Exported Uptime Kuma backup JSON file opened after the backup run](/images/posts/coolify-backup-restore-runbook-2026/02-backup-json-artifact.png)
+*The backup produced a real artifact outside the running app, which is the minimum bar for any restore drill.*
 
 ## Step 5: Store at least one copy off the VPS
 
@@ -137,6 +143,11 @@ docker run --rm \
 
 Then start the app against the restored volume and test something real.
 
+This is the screenshot that matters most in the whole runbook. If the scratch restore is visibly working, the backup is finally moving from theory into proof.
+
+![Restored Uptime Kuma dashboard showing the recovered monitors back online](/images/posts/coolify-backup-restore-runbook-2026/03-restored-dashboard-proof.png)
+*The restore drill brought the deleted monitor set back on a scratch path, which is the end-to-end proof the runbook needs.*
+
 ## Verification checklist
 
 Do not call the runbook healthy until you can confirm:
@@ -147,8 +158,6 @@ Do not call the runbook healthy until you can confirm:
 - at least one named volume restore has been tested
 - one off-box copy exists
 - the first post-restore request behaves the way you expect
-
-{/* Proof asset: screenshot of the restored app responding correctly in the scratch environment after a backup drill. */}
 
 ## Common failure modes
 
