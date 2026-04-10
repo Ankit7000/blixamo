@@ -9,6 +9,8 @@ import Script from 'next/script'
 
 const inter = Inter({ subsets: ['latin'], display: 'swap' })
 const CLARITY_ID = process.env.NEXT_PUBLIC_CLARITY_ID
+const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME
+const DEPLOY_TARGET = process.env.NEXT_PUBLIC_DEPLOY_TARGET
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -16,7 +18,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: { default: 'Blixamo — Tech, Tips & Trends', template: '%s | Blixamo' },
+  title: { default: 'Blixamo - Tech, Tips & Trends', template: '%s | Blixamo' },
   description: 'Blixamo covers the latest in tech, tutorials, AI, and digital tools to help you stay ahead.',
   metadataBase: new URL('https://blixamo.com'),
   openGraph: { siteName: 'Blixamo', type: 'website', locale: 'en_US' },
@@ -29,17 +31,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Inline theme script — prevents flash of wrong theme */}
+        {/* Inline theme script - prevents flash of wrong theme */}
         <script dangerouslySetInnerHTML={{ __html: `(function(){var t=localStorage.getItem('theme')||(window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)})()` }} />
         <link rel="alternate" type="application/rss+xml" title="Blixamo RSS" href="/feed.xml" />
       </head>
       <body className={inter.className}>
         <WebVitals />
+        {APP_NAME && (
+          <div style={{background:'#7c3aed',color:'#fff',padding:'8px 16px',textAlign:'center',fontSize:'14px',fontFamily:'monospace'}}>
+            🚀 <strong>{APP_NAME}</strong> &nbsp;|&nbsp; Deploy target: <strong>{DEPLOY_TARGET}</strong>
+          </div>
+        )}
         <Header />
         <main>{children}</main>
         <Footer />
         <Analytics />
-        {/* Microsoft Clarity — free heatmaps + session recordings */}
         {CLARITY_ID && (
           <Script id="clarity" strategy="afterInteractive">{`
             (function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
