@@ -37,9 +37,6 @@ This runbook assumes the app already works on Vercel and the real risk is the cu
 | Image handling | Whether you rely on default `next/image` behavior and cache | Self-hosted Next.js image optimizer and cache/storage plan |
 | Rollback | What "go back now" means in the first 10 minutes | Keep Vercel serving until the VPS is proven |
 
-![Comparison table for moving a Next.js app from Vercel to a VPS](/images/posts/migrate-nextjs-vercel-to-vps-2026/desktop-comparison-table.jpg)
-*The decision table is easier to scan as a visual when you are checking platform assumptions under time pressure.*
-
 Capture the Vercel assumptions before you move anything. One settings snapshot is often enough to stop a quiet env var, domain, or cron dependency from disappearing mid-cutover.
 
 ![Vercel environment variables panel with masked project secrets before migration](/images/posts/migrate-nextjs-vercel-to-vps-2026/01-vercel-env-audit.jpg)
