@@ -112,6 +112,9 @@ services:
 
 That is useful for reducing noisy startup races. It is not a substitute for proper retry logic inside the app when dependencies become temporarily unavailable later.
 
+![Diagram showing Docker Compose health-check flow from startup to traffic-ready state](/images/posts/docker-compose-health-checks-production-2026/health-check-flow.svg)
+*A good health-check flow keeps traffic away from the app until dependencies are ready and the service can answer real checks.*
+
 ## Step 4: Tune timing values to match reality
 
 Three timing mistakes show up constantly:

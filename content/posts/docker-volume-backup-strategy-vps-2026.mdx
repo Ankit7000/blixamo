@@ -69,6 +69,9 @@ Split them into:
 
 That classification drives everything else: cadence, retention, and restore priority.
 
+![Diagram classifying Docker volumes on a VPS by backup priority and retention strategy](/images/posts/docker-volume-backup-strategy-vps-2026/volume-backup-map.svg)
+*Not every Docker volume deserves the same backup policy. Split database, uploads, config, and cache before you automate retention.*
+
 ## Step 2: Use app-aware backups for databases
 
 This is the rule that prevents a lot of false confidence.
