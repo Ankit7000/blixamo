@@ -1,0 +1,167 @@
+---
+title: "Docker Compose Health Checks That Actually Help"
+description: "Docker Compose health checks in 2026: useful probes, restart policy, failure verification, and the patterns that make production deploys easier to trust."
+date: "2026-04-06"
+updatedAt: "2026-04-07"
+author: "Blixamo"
+category: "how-to"
+tags: ["docker compose", "health checks", "deployments", "self hosting", "containers", "ops", "how-to"]
+keyword: "Docker Compose health checks"
+featured: false
+featuredImage: "/images/posts/docker-compose-health-checks-actually-help-2026/featured.png"
+schema: "howto"
+noindex: false
+canonical: "https://blixamo.com/blog/docker-compose-health-checks-actually-help-2026"
+---
+
+Docker Compose has a `healthcheck` field that most people either skip entirely or copy from a Stack Overflow answer without understanding what it is actually testing. The result is a container that shows as healthy while the application inside it is still starting up, or worse, a health check that always passes because it is testing the wrong thing.
+
+This page belongs in the [How-To Guides](/category/how-to) cluster alongside [Docker Compose for Production VPS in 2026](/blog/docker-compose-production-vps-2026) and the [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide).
+
+<Callout type="info" title="TL;DR">
+
+- A health check that always passes is not a health check. Test something the application actually needs to serve correctly.
+- Set `start_period` long enough that slow-starting containers do not restart before they are ready.
+- Use health check status in `depends_on` conditions so dependent services wait for real readiness, not just container start.
+- Verify failure behavior, not just success behavior — an unhealthy container should behave the way you expect.
+
+</Callout>
+
+## Quick Table
+
+| Field | What it does | Common mistake |
+|---|---|---|
+| `test` | The command to run | Testing the wrong endpoint or always-true command |
+| `interval` | Time between checks | Too short causes false positives during slow operations |
+| `timeout` | Max time for the check to complete | Too long delays failure detection |
+| `retries` | Failures before unhealthy state | Too low restarts healthy apps, too high hides real problems |
+| `start_period` | Grace period before checks count | Skipping this causes restart loops on slow services |
+
+![Docker Compose health checks cover showing production-ready probe patterns](/images/posts/docker-compose-health-checks-actually-help-2026/desktop-cover.jpg)
+*This visual belongs with the quick table because the article is about practical probe design, not generic YAML syntax.*
+
+## What a health check is actually doing
+
+A health check runs a command inside the container on a schedule. If the command exits 0, the container is healthy. If it exits non-zero, the check failed. After enough consecutive failures (defined by `retries`), the container is marked unhealthy.
+
+That status matters in two places. First, `depends_on` with a `condition: service_healthy` directive will wait for the dependency to be healthy before starting the dependent service. Second, restart policies can be configured to restart unhealthy containers.
+
+The problem with most health checks is that they test whether a port is open, not whether the application is actually working. A port can be open and accepting connections while the app is still loading config, connecting to a database, or running migrations. That gap between "port open" and "ready to serve" is where health check failures create mysterious behavior.
+
+## The health check I use for a web application
+
+For a Next.js or similar web app, I want the health check to hit a real endpoint that proves the application can respond correctly:
+
+```yaml
+services:
+  app:
+    image: my-app:latest
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+```
+
+The `/health` endpoint should return a fast 200 with a minimal body. It should not trigger database queries, external API calls, or anything slow. Its job is to prove the app process is alive and responding. Deeper dependency checks belong in readiness checks, not liveness health checks.
+
+If the app does not have a health endpoint, add one. A two-line handler that returns `{"status": "ok"}` with a 200 is enough. Do not use the homepage as the health check target — it often triggers heavier rendering logic.
+
+## Health checks for databases and other dependencies
+
+For a PostgreSQL container:
+
+```yaml
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: myapp
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d myapp"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+```
+
+`pg_isready` tests that Postgres is accepting connections on the expected socket. It is a better test than `ls /tmp/.s.PGSQL.*` or checking whether the process exists.
+
+For Redis:
+
+```yaml
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+```
+
+`redis-cli ping` returns `PONG` with exit 0 when Redis is ready. Simple, direct, accurate.
+
+## Using health checks in depends_on
+
+The real payoff for health checks is the `depends_on` condition:
+
+```yaml
+services:
+  app:
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+```
+
+Without the `condition`, `depends_on` only waits for the container to start — not for the service inside it to be ready. That is the source of many race-condition failures at startup where the app tries to connect to the database before Postgres has finished initializing.
+
+With `condition: service_healthy`, Docker Compose waits until the health check passes before starting the dependent service. This eliminates most startup ordering problems without needing sleep timers or retry loops in your application code.
+
+## The start_period mistake that causes restart loops
+
+`start_period` is the grace period before failed health checks count against the retry limit. If your application takes 15 seconds to start and your health check interval is 10 seconds with 3 retries, the container will be marked unhealthy and restarted before it ever finishes starting.
+
+Set `start_period` to at least the maximum realistic startup time plus a margin. For a Next.js app that takes 8-10 seconds to start, `start_period: 20s` is a reasonable default.
+
+## Verifying that failure behavior works
+
+Most health check setups are only verified when things are working. The more important test is what happens when the health check fails. Can you simulate a failure? Does the container get marked unhealthy? Does the restart policy behave as expected? Do dependent services handle an unhealthy dependency gracefully?
+
+To test failure behavior, you can temporarily change the health check command to one that always fails:
+
+```yaml
+test: ["CMD", "false"]
+```
+
+Then watch `docker compose ps` and confirm the container moves through the starting → healthy → unhealthy states as expected.
+
+## FAQ
+
+### What is the difference between CMD and CMD-SHELL in the test field?
+
+`CMD` takes the command as a JSON array and runs it directly. `CMD-SHELL` runs the command through the shell (`/bin/sh -c`), which lets you use shell features like pipes. Use `CMD` when the command does not need shell expansion, and `CMD-SHELL` when it does.
+
+### Should every container have a health check?
+
+Containers that other services depend on should always have health checks. For standalone containers with no dependents, a health check is still useful for restart policy behavior but less critical for startup ordering.
+
+### Why does my health check pass immediately even though the app is not ready?
+
+Usually because `start_period` is not set and the first few checks during startup are passing a test that does not require the app to be fully initialized. Set `start_period` to cover the real startup time and use a test that checks actual application readiness.
+
+### Can health checks slow down deploys?
+
+Yes, if `interval` and `start_period` are set conservatively. For development, shorter intervals are fine. For production, match the values to your actual startup characteristics rather than copying defaults.
+
+### What should the /health endpoint return?
+
+A 200 status with a minimal JSON body is enough. Avoid triggering cache invalidation, database queries, or any operation that could slow down or fail under load. The endpoint's only job is to confirm the process is alive.
+
+## What Next?
+
+Read this page alongside [Docker Compose for Production VPS in 2026](/blog/docker-compose-production-vps-2026) for the full production setup context. Then open [Fix Coolify Deploy Failures for Next.js in 2026](/blog/fix-coolify-deploy-failures-nextjs-2026) if you are troubleshooting a specific deployment. Return to [How-To Guides](/category/how-to) or the [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide) for the broader path.

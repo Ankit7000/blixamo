@@ -17,6 +17,9 @@ The dangerous Docker backup plan is the one that proudly archives everything and
 
 This guide is about the operator version of the job: what to back up, when volume archives are enough, when you need app-aware dumps, and how to prove the restore path before a real incident.
 
+![Docker volume backup strategy cover for VPS apps](/images/posts/docker-volume-backup-strategy-vps-2026/desktop-cover.jpg)
+*The cover visual summarizes the article: separate backup method, storage layer, and restore confidence.*
+
 > **TL;DR**
 >
 > - Split volumes by workload first: database, uploads, slow-changing app state, or disposable cache.
@@ -33,7 +36,8 @@ This guide is about the operator version of the job: what to back up, when volum
 | App config inside repo | version control plus secret management | hiding the only copy inside a running container |
 | Cache or rebuildable state | often skip or keep short retention | wasting retention budget on data you can recreate |
 
-{/* Proof asset: screenshot of backup artifacts or a backup dashboard/log showing recent volume and database backups. */}
+![Docker volume backup workflow diagram for VPS apps](/images/posts/docker-volume-backup-strategy-vps-2026/desktop-diagram.jpg)
+*The backup path is easier to reason about when the volume archive and restore flow are shown as one system.*
 
 ## When this guide is the right choice
 

@@ -17,6 +17,9 @@ Moving a Next.js app off Vercel is not mostly about `next build`. It is about re
 
 This runbook assumes the app already works on Vercel and the real risk is the cutover, not learning how to host Next.js from scratch.
 
+![Migration runbook cover showing the Vercel-to-VPS move for a Next.js app](/images/posts/migrate-nextjs-vercel-to-vps-2026/desktop-cover.jpg)
+*This overview visual frames the migration as a controlled cutover, not a blind redeploy.*
+
 > **TL;DR**
 >
 > - Export the real Vercel assumptions first: env vars, domains, cron jobs, image behavior, and callback URLs.
@@ -33,6 +36,9 @@ This runbook assumes the app already works on Vercel and the real risk is the cu
 | Scheduled tasks | Vercel cron jobs or serverless schedules | `cron`, Coolify scheduled jobs, or external scheduler |
 | Image handling | Whether you rely on default `next/image` behavior and cache | Self-hosted Next.js image optimizer and cache/storage plan |
 | Rollback | What "go back now" means in the first 10 minutes | Keep Vercel serving until the VPS is proven |
+
+![Comparison table for moving a Next.js app from Vercel to a VPS](/images/posts/migrate-nextjs-vercel-to-vps-2026/desktop-comparison-table.jpg)
+*The decision table is easier to scan as a visual when you are checking platform assumptions under time pressure.*
 
 Capture the Vercel assumptions before you move anything. One settings snapshot is often enough to stop a quiet env var, domain, or cron dependency from disappearing mid-cutover.
 
@@ -88,6 +94,9 @@ Pick one deployment path:
 Either path is fine. What is not fine is changing both the hosting model and the deployment model in the same cutover without a reason.
 
 If you are leaning toward Coolify, pair this with [Fix Failed Next.js Deploys in Coolify (2026)](/blog/fix-coolify-deploy-failures-nextjs-2026). If you are staying close to the metal, keep [Docker Compose on VPS 2026 - Production Setup Guide](/blog/docker-compose-production-vps-2026) open.
+
+![Migration flow diagram for moving Next.js from Vercel to a VPS](/images/posts/migrate-nextjs-vercel-to-vps-2026/desktop-diagram.jpg)
+*The cutover flow stays simple when you separate platform assumptions, VPS validation, and public DNS change.*
 
 ## Step 3: Make the app build and boot on the VPS before touching DNS
 
