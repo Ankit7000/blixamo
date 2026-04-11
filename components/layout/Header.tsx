@@ -8,6 +8,8 @@ const NAV = [
   { label: 'Guides', href: '/tag/deployment#authority-pages' },
   { label: 'Community', href: '/community' },
   { label: 'Blog', href: '/blog' },
+  { label: 'Services', href: '/services' },
+  { label: 'Products', href: '/products' },
   { label: 'About', href: '/about' },
 ]
 
@@ -45,18 +47,19 @@ export function Header() {
           blix<span style={{ color: 'var(--text-primary)' }}>amo</span>
         </Link>
 
-        <nav style={{ display: 'flex', gap: '0.25rem', flex: 1 }} className="hidden-mobile">
+        <nav style={{ display: 'flex', gap: '0.15rem', flex: 1, minWidth: 0 }} className="hidden-mobile">
           {NAV.map((n) => (
             <Link
               key={n.href}
               href={n.href}
               style={{
-                padding: '0.35rem 0.75rem',
+                padding: '0.35rem 0.6rem',
                 borderRadius: '0.375rem',
-                fontSize: '0.9rem',
+                fontSize: '0.88rem',
                 fontWeight: 500,
                 color: 'var(--text-secondary)',
                 transition: 'all 0.15s',
+                whiteSpace: 'nowrap',
               }}
               onMouseEnter={(e) => {
                 ;(e.target as HTMLElement).style.color = 'var(--accent)'
@@ -98,8 +101,8 @@ export function Header() {
       )}
 
       <style>{`
-        @media (max-width: 768px) { .hidden-mobile { display: none !important; } }
-        @media (min-width: 769px) { .show-mobile { display: none !important; } }
+        @media (max-width: 980px) { .hidden-mobile { display: none !important; } }
+        @media (min-width: 981px) { .show-mobile { display: none !important; } }
       `}</style>
     </header>
   )

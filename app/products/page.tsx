@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import Image from 'next/image'
 import { PRIMARY_AUTHOR } from '@/lib/author'
 import { absoluteUrl } from '@/lib/site'
 
@@ -15,9 +16,18 @@ const PRODUCT_GROUPS = [
         includes: ['prelaunch checklist', 'deployment SOP outline', 'verification and rollback checkpoints', 'handoff notes for recurring deploys'],
         delivery: 'Editable docs and checklists you can adapt to your own stack.',
         preview: 'Built around the same launch, VPS, and deployment logic documented across Blixamo articles.',
+        previewAsset: {
+          src: '/images/products/vps-launch-pack-preview.png',
+          alt: 'Preview of a VPS launch checklist and deployment SOP pack',
+          caption: 'Preview of the VPS launch pack with checklist, SOP, rollback, and backup verification notes.',
+          width: 1200,
+          height: 1120,
+        },
+        proofReadyAssets: ['redacted prelaunch checklist preview', 'sample rollback decision page', 'verification worksheet screenshot'],
         proofLinks: [
           { title: 'VPS Setup Guide', href: '/blog/vps-setup-guide' },
           { title: 'How to Self Host Next.js on VPS', href: '/blog/how-to-self-host-nextjs-on-vps' },
+          { title: 'Next.js VPS Prelaunch Checklist', href: '/blog/nextjs-vps-prelaunch-checklist-2026' },
         ],
       },
       {
@@ -27,9 +37,18 @@ const PRODUCT_GROUPS = [
         includes: ['deployment runbook', 'environment and service notes', 'backup and restore checklist', 'operator handoff prompts'],
         delivery: 'Annotated runbook and checklist templates with room for project-specific details.',
         preview: 'Grounded in public Coolify deployment and backup material already published on Blixamo.',
+        previewAsset: {
+          src: '/images/products/coolify-runbook-pack-preview.png',
+          alt: 'Preview of a Coolify deployment runbook pack',
+          caption: 'Preview of the Coolify runbook pack with deploy checks, failure triage, and rollback guidance.',
+          width: 980,
+          height: 1180,
+        },
+        proofReadyAssets: ['service map or env inventory screenshot', 'runbook page preview', 'restore drill checklist preview'],
         proofLinks: [
           { title: 'Deploy Next.js with Coolify on Hetzner', href: '/blog/deploy-nextjs-coolify-hetzner' },
           { title: 'Coolify Backup and Restore Runbook', href: '/blog/coolify-backup-restore-runbook-2026' },
+          { title: 'Docker Volume Backup Strategy on VPS', href: '/blog/docker-volume-backup-strategy-vps-2026' },
         ],
       },
       {
@@ -39,9 +58,12 @@ const PRODUCT_GROUPS = [
         includes: ['health and monitoring checklist', 'backup artifact checklist', 'restore drill worksheet', 'maintenance review notes'],
         delivery: 'Checklist bundle with short operator notes and clear verification prompts.',
         preview: 'Preview logic comes directly from Blixamo content about health checks, backups, and operational readiness.',
+        previewAsset: null,
+        proofReadyAssets: ['health-check checklist page', 'backup artifact log example', 'restore worksheet screenshot'],
         proofLinks: [
           { title: 'Docker Compose Health Checks in Production', href: '/blog/docker-compose-health-checks-production-2026' },
           { title: 'Docker Volume Backup Strategy on VPS', href: '/blog/docker-volume-backup-strategy-vps-2026' },
+          { title: 'How I Verify a VPS Backup Before I Trust It', href: '/blog/verify-vps-backup-before-trusting-it-2026' },
         ],
       },
     ],
@@ -57,9 +79,12 @@ const PRODUCT_GROUPS = [
         includes: ['workflow template set', 'content QA checklist', 'prompt structure examples', 'handoff notes for editorial operations'],
         delivery: 'Template pack with editable workflow docs and example operating patterns.',
         preview: 'Positioned as a workflow kit derived from the publication system Blixamo already operates.',
+        previewAsset: null,
+        proofReadyAssets: ['redacted workflow diagram', 'QA checklist page preview', 'prompt block sample screenshot'],
         proofLinks: [
           { title: 'Claude API Prompt Patterns for Structured JSON', href: '/blog/claude-api-prompt-patterns-structured-json-2026' },
           { title: 'Best Free Developer Tools', href: '/blog/best-free-developer-tools-2026' },
+          { title: 'Human Review Patterns for AI Workflows', href: '/blog/human-review-patterns-ai-workflows-2026' },
         ],
       },
       {
@@ -69,9 +94,12 @@ const PRODUCT_GROUPS = [
         includes: ['repo audit workflow outline', 'runbook template structure', 'review and remediation checklist', 'handoff format examples'],
         delivery: 'Editable workflow pack with operator notes for adaptation to your repositories and processes.',
         preview: 'Best for teams that already know the problem and want a structured way to reuse review workflows.',
+        previewAsset: null,
+        proofReadyAssets: ['repo audit worksheet preview', 'remediation checklist sample', 'runbook section screenshot'],
         proofLinks: [
           { title: 'Webhook Automation Architecture for Developers', href: '/blog/webhook-automation-architecture-developers-2026' },
           { title: 'Getting Started with Next.js', href: '/blog/getting-started-with-nextjs' },
+          { title: 'How I Validate AI JSON Output in 2026', href: '/blog/validate-ai-json-output-2026' },
         ],
       },
     ],
@@ -87,14 +115,42 @@ const PRODUCT_GROUPS = [
         includes: ['starter workflow planning sheet', 'testing checklist', 'basic failure-handling prompts', 'maintenance handoff notes'],
         delivery: 'Workflow starter templates and checklists designed for small practical automations.',
         preview: 'Backed by Blixamo articles on self-hosted n8n and workflow testing.',
+        previewAsset: {
+          src: '/images/products/n8n-workflow-pack-preview.png',
+          alt: 'Preview of an n8n workflow starter pack',
+          caption: 'Preview of the n8n starter pack with workflow templates, retry checks, and QA notes for live runs.',
+          width: 760,
+          height: 1260,
+        },
+        proofReadyAssets: ['workflow planning board preview', 'testing checklist page', 'failure-handling note screenshot'],
         proofLinks: [
           { title: 'Self Hosting n8n on Hetzner VPS', href: '/blog/self-hosting-n8n-hetzner-vps' },
           { title: 'n8n Workflow Testing Checklist', href: '/blog/n8n-workflow-testing-checklist-2026' },
+          { title: 'Debug Slow or Fragile n8n Workflows', href: '/blog/debug-slow-fragile-n8n-workflows-2026' },
         ],
       },
     ],
   },
 ]
+
+const PACK_FORMATS = [
+  {
+    title: 'Checklist pages',
+    description: 'Short operational checklists that can later be shown as one or two real preview pages without turning the page into fake storefront proof.',
+  },
+  {
+    title: 'Annotated runbooks',
+    description: 'Editable SOP or runbook sections with notes about order, dependencies, and verification so the deliverable feels usable, not decorative.',
+  },
+  {
+    title: 'Redacted screenshots',
+    description: 'Screenshots of real checklist, worksheet, or operator pages with sensitive details removed once those assets actually exist.',
+  },
+  {
+    title: 'Sample worksheets',
+    description: 'Migration sheets, workflow maps, or verification tables that show the format of the pack without inventing client stories or fake results.',
+  },
+] as const
 
 export const metadata: Metadata = {
   title: 'Products',
@@ -153,24 +209,54 @@ export default function ProductsPage() {
             <div style={{ display: 'grid', gap: '1.25rem', marginTop: '1.75rem' }}>
               {group.products.map((product) => (
                 <article key={product.title} style={{ border: '1px solid var(--border)', borderRadius: '1.25rem', padding: '1.5rem', background: 'var(--bg)' }}>
-                  <div style={{ display: 'grid', gap: '1.25rem', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
-                    <div>
-                      <h3 style={{ fontSize: '1.35rem', marginBottom: '0.75rem' }}>{product.title}</h3>
-                      <p style={{ color: 'var(--text-secondary)', lineHeight: 1.75 }}>{product.problem}</p>
-                      <p style={{ marginTop: '1rem', color: 'var(--text-secondary)', lineHeight: 1.75 }}><strong style={{ color: 'var(--text-primary)' }}>Who it is for:</strong> {product.audience}</p>
-                    </div>
+                  <div>
+                    <h3 style={{ fontSize: '1.35rem', marginBottom: '0.75rem' }}>{product.title}</h3>
+                    <p style={{ color: 'var(--text-secondary)', lineHeight: 1.75 }}>{product.problem}</p>
+                    <p style={{ marginTop: '1rem', color: 'var(--text-secondary)', lineHeight: 1.75 }}><strong style={{ color: 'var(--text-primary)' }}>Who it is for:</strong> {product.audience}</p>
+                  </div>
 
+                  <div style={{ display: 'grid', gap: '1rem', marginTop: '1.25rem', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
                     <div>
-                      <p style={{ fontWeight: 700, marginBottom: '0.75rem' }}>What is included</p>
+                      <p style={{ fontWeight: 700, marginBottom: '0.75rem' }}>What&apos;s inside</p>
                       <ul style={{ margin: 0, paddingLeft: '1.1rem', color: 'var(--text-secondary)', lineHeight: 1.8 }}>
                         {product.includes.map((item) => <li key={item}>{item}</li>)}
                       </ul>
-                      <p style={{ marginTop: '1rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}><strong style={{ color: 'var(--text-primary)' }}>Delivery format:</strong> {product.delivery}</p>
                     </div>
 
                     <div>
-                      <p style={{ fontWeight: 700, marginBottom: '0.75rem' }}>Proof and preview</p>
+                      <p style={{ fontWeight: 700, marginBottom: '0.75rem' }}>Delivery format</p>
+                      <p style={{ color: 'var(--text-secondary)', lineHeight: 1.75 }}>{product.delivery}</p>
+                    </div>
+
+                    <div>
+                      <p style={{ fontWeight: 700, marginBottom: '0.75rem' }}>Preview and proof block</p>
                       <p style={{ color: 'var(--text-secondary)', lineHeight: 1.75 }}>{product.preview}</p>
+                      {product.previewAsset && (
+                        <figure
+                          style={{
+                            margin: '1rem 0 0',
+                            border: '1px solid var(--border)',
+                            borderRadius: '0.95rem',
+                            overflow: 'hidden',
+                            background: 'var(--bg)',
+                          }}
+                        >
+                          <Image
+                            src={product.previewAsset.src}
+                            alt={product.previewAsset.alt}
+                            width={product.previewAsset.width}
+                            height={product.previewAsset.height}
+                            sizes="(max-width: 767px) 100vw, (max-width: 1120px) 50vw, 30vw"
+                            style={{ width: '100%', height: 'auto', display: 'block' }}
+                          />
+                          <figcaption style={{ padding: '0.85rem 0.95rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+                            {product.previewAsset.caption}
+                          </figcaption>
+                        </figure>
+                      )}
+                      <p style={{ marginTop: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.75 }}>
+                        <strong style={{ color: 'var(--text-primary)' }}>Built from real workflows:</strong> the related reads below are the public operating logic behind this pack format.
+                      </p>
                       <div style={{ display: 'grid', gap: '0.8rem', marginTop: '1rem' }}>
                         {product.proofLinks.map((link) => (
                           <Link key={link.href} href={link.href} style={{ border: '1px solid var(--border)', borderRadius: '0.9rem', padding: '0.85rem 1rem', background: 'var(--bg-subtle)', textDecoration: 'none', color: 'inherit' }}>
@@ -178,6 +264,13 @@ export default function ProductsPage() {
                           </Link>
                         ))}
                       </div>
+                    </div>
+
+                    <div>
+                      <p style={{ fontWeight: 700, marginBottom: '0.75rem' }}>Proof-ready assets</p>
+                      <ul style={{ margin: 0, paddingLeft: '1.1rem', color: 'var(--text-secondary)', lineHeight: 1.8 }}>
+                        {product.proofReadyAssets.map((item) => <li key={item}>{item}</li>)}
+                      </ul>
                     </div>
                   </div>
 
@@ -193,6 +286,23 @@ export default function ProductsPage() {
       ))}
 
       <section style={{ padding: '3rem 1.25rem' }}>
+        <div style={{ maxWidth: '1120px', margin: '0 auto' }}>
+          <div style={{ maxWidth: '760px' }}>
+            <p style={{ color: 'var(--accent)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>What a delivered pack can look like</p>
+            <h2 style={{ fontSize: '2rem', marginTop: '0.4rem' }}>The structure is proof-ready now, even before every preview asset exists.</h2>
+          </div>
+          <div style={{ display: 'grid', gap: '1rem', marginTop: '1.5rem', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+            {PACK_FORMATS.map((item) => (
+              <article key={item.title} style={{ border: '1px solid var(--border)', borderRadius: '1rem', padding: '1.1rem', background: 'var(--bg-subtle)' }}>
+                <strong style={{ display: 'block', marginBottom: '0.55rem' }}>{item.title}</strong>
+                <span style={{ color: 'var(--text-secondary)', lineHeight: 1.75 }}>{item.description}</span>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section style={{ padding: '3rem 1.25rem', background: 'var(--bg-subtle)', borderTop: '1px solid var(--border)' }}>
         <div style={{ maxWidth: '1120px', margin: '0 auto', display: 'grid', gap: '1.25rem', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
           <article style={{ border: '1px solid var(--border)', borderRadius: '1.25rem', padding: '1.5rem' }}>
             <p style={{ color: 'var(--accent)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>When a product is enough</p>
@@ -213,7 +323,7 @@ export default function ProductsPage() {
         </div>
       </section>
 
-      <section style={{ padding: '0 1.25rem 3rem' }}>
+      <section style={{ padding: '0 1.25rem 3rem', background: 'var(--bg-subtle)' }}>
         <div style={{ maxWidth: '1120px', margin: '0 auto', border: '1px solid var(--border)', borderRadius: '1.5rem', padding: '2rem', background: 'linear-gradient(180deg, rgba(5, 150, 105, 0.07) 0%, rgba(255,255,255,0.98) 100%)' }}>
           <p style={{ color: 'var(--accent)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Need the right path first?</p>
           <h2 style={{ fontSize: '2rem', marginTop: '0.45rem' }}>The honest default is to match the route to the scope.</h2>
