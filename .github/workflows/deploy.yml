@@ -1,4 +1,3 @@
-
 name: Deploy to VPS
 
 on:
@@ -13,22 +12,24 @@ jobs:
         shell: bash
         run: |
           mkdir -p ~/.ssh
-          printf "%s" "${{ secrets.BLIXAMO_SSH_KEY }}" > ~/.ssh/blixamo_bot
-          chmod 600 ~/.ssh/blixamo_bot
-          ssh-keyscan -p "${{ secrets.BLIXAMO_SSH_PORT }}" -H "${{ secrets.BLIXAMO_SSH_HOST }}" >> ~/.ssh/known_hosts
+          printf "%s" "${{ secrets.BLIXAMO_SSH_KEY }}" > ~/.ssh/blixamo_actions
+          chmod 600 ~/.ssh/blixamo_actions
+          ssh-keyscan -p 22 -H 204.168.203.255 >> ~/.ssh/known_hosts
 
       - name: Test SSH connection
         shell: bash
         run: |
-          ssh -v -i ~/.ssh/blixamo_bot \
-            -p "${{ secrets.BLIXAMO_SSH_PORT }}" \
-            "${{ secrets.BLIXAMO_SSH_USER }}@${{ secrets.BLIXAMO_SSH_HOST }}" \
+          ssh -v -i ~/.ssh/blixamo_actions \
+            -o IdentitiesOnly=yes \
+            -p 22 \
+            bot@204.168.203.255 \
             "echo SSH_OK && whoami && hostname"
 
       - name: Deploy on VPS
         shell: bash
         run: |
-          ssh -i ~/.ssh/blixamo_bot \
-            -p "${{ secrets.BLIXAMO_SSH_PORT }}" \
-            "${{ secrets.BLIXAMO_SSH_USER }}@${{ secrets.BLIXAMO_SSH_HOST }}" \
+          ssh -i ~/.ssh/blixamo_actions \
+            -o IdentitiesOnly=yes \
+            -p 22 \
+            bot@204.168.203.255 \
             "bash /var/www/blixamo/build.sh"
