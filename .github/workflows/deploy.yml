@@ -1,3 +1,4 @@
+
 name: Deploy to VPS
 
 on:
@@ -8,13 +9,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy to Hetzner VPS
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.BLIXAMO_SSH_HOST }}
-          username: ${{ secrets.BLIXAMO_SSH_USER }}
-          port: ${{ secrets.BLIXAMO_SSH_PORT }}
-          key: ${{ secrets.BLIXAMO_SSH_KEY }}
-          script_stop: true
-          script: |
-            bash /var/www/blixamo/build.sh
+      - name: Prepare SSH
+        shell: bash
+        run: |
+          mkdir -p ~/.ssh
+          printf "%s" "${{ secrets.BLIXAMO_SSH_KEY }}" > ~/.ssh/blixamo_bot
+          chmod 600 ~/.ssh/blixamo_bot
+          ssh-keyscan -p "${{ secrets.BLIXAMO_SSH_PORT }}" -H "${{ secrets.BLIXAMO_SSH_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Test SSH connection
+        shell: bash
+        run: |
+          ssh -v -i ~/.ssh/blixamo_bot \
+            -p "${{ secrets.BLIXAMO_SSH_PORT }}" \
+            "${{ secrets.BLIXAMO_SSH_USER }}@${{ secrets.BLIXAMO_SSH_HOST }}" \
+            "echo SSH_OK && whoami && hostname"
+
+      - name: Deploy on VPS
+        shell: bash
+        run: |
+          ssh -i ~/.ssh/blixamo_bot \
+            -p "${{ secrets.BLIXAMO_SSH_PORT }}" \
+            "${{ secrets.BLIXAMO_SSH_USER }}@${{ secrets.BLIXAMO_SSH_HOST }}" \
+            "bash /var/www/blixamo/build.sh"
