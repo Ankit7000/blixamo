@@ -92,8 +92,23 @@
 
 - Built and verified the local business-layer implementation.
 - Committed the business-layer route, sitemap, navigation, subscribe-flow, and documentation files.
-- Deployed the updated revision to the current server.
+- Pushed commit `0fcc547` to `origin/master`.
+- Deployed the updated revision to the current server with `bash /var/www/blixamo/build.sh`.
 
 ## Final verification status
 
-- Pending final post-deploy verification in this document update.
+- Post-deploy public verification passed:
+  - `/services` -> `200`
+  - `/products` -> `200`
+  - `/contact` -> `200` with the expanded contact copy live
+  - `/subscribe` -> `200`
+  - `/subscribe` HTML includes `noindex`
+  - `/sitemap.xml` -> `200`
+- Post-deploy sitemap verification passed:
+  - `/services` present
+  - `/products` present
+  - `/contact` present
+  - `/subscribe` excluded
+- Homepage and about page now expose the business-layer links publicly.
+- Footer and contact-route business links are present in the deployed HTML.
+- Final status: fixed and live.
