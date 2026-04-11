@@ -37,6 +37,12 @@
   n8n Automation mini hub page.
 - `app/contact/page.tsx`
   Contact page.
+- `app/services/page.tsx`
+  Services page.
+- `app/products/page.tsx`
+  Productized offers page.
+- `app/subscribe/page.tsx`
+  Owned subscribe page. This route stays `noindex`.
 - `app/privacy-policy/page.tsx`
   Privacy Policy page.
 - `app/terms/page.tsx`
@@ -65,6 +71,8 @@
   Search/post metadata endpoint.
 - `app/api/revalidate/route.ts`
   Secret-protected revalidation endpoint.
+- `app/api/subscribe/route.ts`
+  File-backed subscriber capture endpoint for the owned subscribe flow.
 
 ---
 
@@ -118,6 +126,8 @@ Note:
 | `/` | `app/page.tsx` | SSG |
 | `/about` | `app/about/page.tsx` | SSG |
 | `/community` | `app/community/page.tsx` | SSG |
+| `/services` | `app/services/page.tsx` | SSG |
+| `/products` | `app/products/page.tsx` | SSG |
 | `/ai-for-developers` | `app/ai-for-developers/page.tsx` | SSG |
 | `/dev-tools-watch` | `app/dev-tools-watch/page.tsx` | SSG |
 | `/infrastructure-watch` | `app/infrastructure-watch/page.tsx` | SSG |
@@ -126,6 +136,7 @@ Note:
 | `/hetzner-billing-hub` | `app/hetzner-billing-hub/page.tsx` | SSG |
 | `/n8n-automation-hub` | `app/n8n-automation-hub/page.tsx` | SSG |
 | `/contact` | `app/contact/page.tsx` | SSG |
+| `/subscribe` | `app/subscribe/page.tsx` | SSG |
 | `/privacy-policy` | `app/privacy-policy/page.tsx` | SSG |
 | `/terms` | `app/terms/page.tsx` | SSG |
 | `/disclaimer` | `app/disclaimer/page.tsx` | SSG |
@@ -162,8 +173,8 @@ Primary crawl path:
 - Community hub: `/community`
 
 Indexing intent:
-- Keep indexed: homepage, resources hub, categories, pillar guides, articles, about page, and community hub
-- Keep accessible but low priority: AI mini hub, Dev Tools mini hub, Infrastructure mini hub, Next.js MDX mini hub, Coolify mini hub, Hetzner Billing mini hub, n8n Automation mini hub, other tag pages, author pages, search, legal pages, and pagination
+- Keep indexed: homepage, resources hub, categories, pillar guides, articles, about page, community hub, `/services`, `/products`, and `/contact`
+- Keep accessible but low priority: AI mini hub, Dev Tools mini hub, Infrastructure mini hub, Next.js MDX mini hub, Coolify mini hub, Hetzner Billing mini hub, n8n Automation mini hub, other tag pages, author pages, search, legal pages, pagination, and `/subscribe`
 - Use `noindex, follow` on low-value archive/utility routes rather than removing routes
 
 ---

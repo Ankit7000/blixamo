@@ -105,7 +105,10 @@ export function Footer() {
           <p style={sectionTitleStyle}>Company</p>
           {[
             { label: 'About', href: '/about' },
+            { label: 'Services', href: '/services' },
+            { label: 'Products', href: '/products' },
             { label: 'Contact', href: '/contact' },
+            { label: 'Subscribe', href: '/subscribe' },
             { label: 'Sitemap', href: '/sitemap.xml' },
             { label: 'RSS Feed', href: '/feed.xml' },
           ].map((link) => (

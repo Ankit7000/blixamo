@@ -32,16 +32,19 @@ const BUILD_LAST_MODIFIED = new Date()
 const COMMUNITY_PATH = '/community'
 const BLOG_INDEX_PATH = '/blog'
 const ABOUT_PATH = '/about'
+const SERVICES_PATH = '/services'
+const PRODUCTS_PATH = '/products'
+const CONTACT_PATH = '/contact'
 const HOME_PATH = '/'
 
-const CORE_SITEMAP_PATHS = [HOME_PATH, ABOUT_PATH, BLOG_INDEX_PATH] as const
+const CORE_SITEMAP_PATHS = [HOME_PATH, ABOUT_PATH, BLOG_INDEX_PATH, SERVICES_PATH, PRODUCTS_PATH, CONTACT_PATH] as const
 const HUB_SITEMAP_PATHS = [
   RESOURCE_HUB_PATH,
 ] as const
 const COMMUNITY_SITEMAP_PATHS = [COMMUNITY_PATH] as const
 const STATIC_SITEMAP_PATHS = [...CORE_SITEMAP_PATHS, ...HUB_SITEMAP_PATHS, ...COMMUNITY_SITEMAP_PATHS] as const
 
-const DISALLOWED_EXACT_PATHS = new Set(['/contact', '/disclaimer', '/privacy-policy', '/search', '/terms'])
+const DISALLOWED_EXACT_PATHS = new Set(['/disclaimer', '/privacy-policy', '/search', '/subscribe', '/terms'])
 const DISALLOWED_PREFIXES = ['/api/', '/author/', '/blog/page/', '/feed.xml']
 
 function normalizePathname(pathname: string): string {
@@ -223,6 +226,9 @@ export function buildSitemapEntriesWithKinds(posts: readonly Post[] = getAllPost
     { kind: 'core', url: SITEMAP_SITE_ORIGIN, lastModified: BUILD_LAST_MODIFIED, changeFrequency: 'daily', priority: 1.0 },
     { kind: 'core', url: `${SITEMAP_SITE_ORIGIN}${ABOUT_PATH}`, lastModified: BUILD_LAST_MODIFIED, changeFrequency: 'monthly', priority: 0.5 },
     { kind: 'core', url: `${SITEMAP_SITE_ORIGIN}${BLOG_INDEX_PATH}`, lastModified: BUILD_LAST_MODIFIED, changeFrequency: 'monthly', priority: 0.8 },
+    { kind: 'core', url: `${SITEMAP_SITE_ORIGIN}${SERVICES_PATH}`, lastModified: BUILD_LAST_MODIFIED, changeFrequency: 'monthly', priority: 0.6 },
+    { kind: 'core', url: `${SITEMAP_SITE_ORIGIN}${PRODUCTS_PATH}`, lastModified: BUILD_LAST_MODIFIED, changeFrequency: 'monthly', priority: 0.5 },
+    { kind: 'core', url: `${SITEMAP_SITE_ORIGIN}${CONTACT_PATH}`, lastModified: BUILD_LAST_MODIFIED, changeFrequency: 'monthly', priority: 0.4 },
     {
       kind: 'hub',
       url: `${SITEMAP_SITE_ORIGIN}${RESOURCE_HUB_PATH}`,

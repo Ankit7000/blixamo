@@ -278,6 +278,8 @@ export default function AboutPage() {
             </div>
 
             <div className="about-inline-links">
+              <Link href="/services">Services</Link>
+              <Link href="/products">Products</Link>
               <Link href="/contact">Contact page</Link>
               <a href={`mailto:${PRIMARY_AUTHOR.email}`}>{PRIMARY_AUTHOR.email}</a>
               <a href={`https://twitter.com/${PRIMARY_AUTHOR.twitter}`} target="_blank" rel="noopener noreferrer">
@@ -340,6 +342,28 @@ export default function AboutPage() {
       </section>
 
       <section className="about-section-shell">
+        <div style={{ border: '1px solid var(--border)', borderRadius: '1.5rem', padding: '1.75rem', background: 'linear-gradient(180deg, rgba(37, 99, 235, 0.07) 0%, rgba(255,255,255,0.98) 100%)' }}>
+          <p className="about-section-kicker">Work with Blixamo</p>
+          <h2 className="about-section-title">The publication now has clear routes for service work, productized offers, and direct contact.</h2>
+          <p className="about-section-description" style={{ maxWidth: '68ch' }}>
+            If you are here because the articles match the kind of technical work you need help with, use the service and product routes instead of guessing how to reach out.
+          </p>
+          <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', marginTop: '1.25rem' }}>
+            {[
+              { title: 'Services', href: '/services', text: 'Custom help for Next.js builds, SaaS MVP work, VPS deploys, self-hosting, automation, and ops support.' },
+              { title: 'Products', href: '/products', text: 'Requestable packs for deployment SOPs, workflow kits, self-hosting checklists, and runbook-style materials.' },
+              { title: 'Contact', href: '/contact', text: 'Use the contact page for project work, partnerships, corrections, and practical technical questions.' },
+            ].map((card) => (
+              <Link key={card.href} href={card.href} style={{ border: '1px solid var(--border)', borderRadius: '1rem', padding: '1.1rem', textDecoration: 'none', color: 'inherit', background: 'var(--bg)' }}>
+                <strong style={{ display: 'block', marginBottom: '0.5rem' }}>{card.title}</strong>
+                <span style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }}>{card.text}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="about-section-shell">
         <div className="about-contact-panel">
           <div>
             <p className="about-section-kicker">Contact and collaboration</p>
@@ -352,6 +376,12 @@ export default function AboutPage() {
           <div className="about-contact-actions">
             <Link href="/contact" className="about-contact-button about-contact-button-primary">
               Go to contact page
+            </Link>
+            <Link href="/services" className="about-contact-button about-contact-button-secondary">
+              See services
+            </Link>
+            <Link href="/products" className="about-contact-button about-contact-button-secondary">
+              See products
             </Link>
             <a href={`mailto:${PRIMARY_AUTHOR.email}`} className="about-contact-button about-contact-button-secondary">
               Email {PRIMARY_AUTHOR.displayName}

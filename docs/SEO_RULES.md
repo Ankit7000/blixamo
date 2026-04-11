@@ -48,7 +48,7 @@ Default:
 Route-level noindex rules:
 - `/search` -> `noindex, follow`
 - `/author/*` -> `noindex, follow`
-- `/contact` -> `noindex, follow`
+- `/subscribe` -> `noindex, follow`
 - `/privacy-policy` -> `noindex, follow`
 - `/terms` -> `noindex, follow`
 - `/disclaimer` -> `noindex, follow`
@@ -128,6 +128,9 @@ Included:
 - `/`
 - `/about`
 - `/community`
+- `/services`
+- `/products`
+- `/contact`
 - `/blog`
 - `/tag/deployment`
 - `/category/[slug]`
@@ -137,7 +140,7 @@ Included:
 Excluded:
 - `/search`
 - `/author/*`
-- `/contact`
+- `/subscribe`
 - `/privacy-policy`
 - `/terms`
 - `/disclaimer`
@@ -155,6 +158,9 @@ Excluded:
 
 Priority targets:
 - homepage: `1.0`
+- services: `0.6`
+- products: `0.5`
+- contact: `0.4`
 - blog index: `0.8`
 - resources hub: `0.9`
 - category pages: `0.7`
@@ -166,7 +172,7 @@ Priority targets:
 - posts use `updatedAt` or `date`
 - category pages use the freshest post inside that category
 - guide pages use the freshest linked post shown on that pillar page
-- homepage, `/about`, `/community`, `/blog`, and `/tag/deployment` use the build date
+- homepage, `/about`, `/community`, `/services`, `/products`, `/contact`, `/blog`, and `/tag/deployment` use the build date
 
 Validation:
 - `npm run sitemap:check` prints total count, counts by route type, duplicates, unexpected URLs, and missing expected URLs

@@ -12,6 +12,8 @@
 | `/` | 1.0 | daily | Yes |
 | `/about` | 0.5 | monthly | Yes |
 | `/community` | 0.6 | weekly | Yes |
+| `/services` | 0.6 | monthly | Yes |
+| `/products` | 0.5 | monthly | Yes |
 | `/ai-for-developers` | 0.5 | weekly | No |
 | `/dev-tools-watch` | 0.5 | weekly | No |
 | `/infrastructure-watch` | 0.5 | weekly | No |
@@ -21,7 +23,8 @@
 | `/n8n-automation-hub` | 0.5 | weekly | No |
 | `/blog` | 0.8 | monthly | Yes |
 | `/tag/deployment` | 0.9 | weekly | Yes |
-| `/contact` | 0.3 | monthly | No |
+| `/contact` | 0.4 | monthly | Yes |
+| `/subscribe` | 0.2 | monthly | No |
 | `/privacy-policy` | 0.3 | monthly | No |
 | `/terms` | 0.3 | monthly | No |
 | `/disclaimer` | 0.3 | monthly | No |
@@ -46,6 +49,8 @@ Temporary `noindex: true` post exclusions:
 - `/blog/ubuntu-vps-hardening-checklist`
 - `/blog/best-vps-monitoring-tools-2026`
 - `/blog/hetzner-alternatives-cheap-vps-2026`
+- `/blog/migrate-postman-to-hoppscotch-2026`
+- `/blog/docker-compose-health-checks-actually-help-2026`
 
 Validation command:
 - `npm run sitemap:check -- --list`
@@ -150,17 +155,20 @@ Includes:
 1. `/`
 2. `/about`
 3. `/community`
-4. `/blog`
-5. `/tag/deployment`
-6. `/category/[slug]` for every canonical category with at least one indexable post
-7. `/guides/[slug]` for all pillar pages
-8. `/blog/[slug]` for all canonical indexable posts
+4. `/services`
+5. `/products`
+6. `/contact`
+7. `/blog`
+8. `/tag/deployment`
+9. `/category/[slug]` for every canonical category with at least one indexable post
+10. `/guides/[slug]` for all pillar pages
+11. `/blog/[slug]` for all canonical indexable posts
 
 Does not include:
 - `/search`
 - `/api/*`
 - `/author/*`
-- `/contact`
+- `/subscribe`
 - `/privacy-policy`
 - `/terms`
 - `/disclaimer`
@@ -181,6 +189,9 @@ Does not include:
 - homepage uses the build date
 - `/about` uses the build date
 - `/community` uses the build date
+- `/services` uses the build date
+- `/products` uses the build date
+- `/contact` uses the build date
 - `/blog` uses the build date
 - `/tag/deployment` uses the build date
 - category pages use the freshest post inside that category

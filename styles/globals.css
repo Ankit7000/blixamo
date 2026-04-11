@@ -3163,6 +3163,51 @@ img { max-width: 100%; height: auto; display: block; }
   border: 0;
   padding: 0;
 }
+.article-code-block {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+.article-prose .article-code-block pre {
+  margin-bottom: 0;
+  padding-top: 3.2rem;
+  padding-right: 6rem;
+}
+.article-code-copy-button {
+  position: absolute;
+  top: 0.8rem;
+  right: 0.8rem;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.75rem;
+  min-height: 2rem;
+  padding: 0 0.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 0.7rem;
+  background: rgba(15, 23, 42, 0.78);
+  color: #e6edf3;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+.article-code-copy-button:hover {
+  background: rgba(37, 99, 235, 0.88);
+  border-color: rgba(96, 165, 250, 0.52);
+  transform: translateY(-1px);
+}
+.article-code-copy-button:focus-visible {
+  outline: 2px solid rgba(96, 165, 250, 0.92);
+  outline-offset: 2px;
+}
+.article-code-copy-button.is-copied {
+  background: rgba(5, 150, 105, 0.92);
+  border-color: rgba(52, 211, 153, 0.52);
+  color: #ecfdf5;
+}
 .article-prose blockquote {
   position: relative;
   padding: 1.2rem 1.3rem 1.2rem 1.45rem;
@@ -3596,6 +3641,14 @@ img { max-width: 100%; height: auto; display: block; }
   .article-prose h3 {
     margin-top: 1.7rem;
     font-size: 1.2rem;
+  }
+  .article-prose .article-code-block pre {
+    padding-top: 3rem;
+    padding-right: 5.4rem;
+  }
+  .article-code-copy-button {
+    top: 0.7rem;
+    right: 0.7rem;
   }
   .article-prose pre {
     padding: 0.95rem;

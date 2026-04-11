@@ -180,6 +180,26 @@ export default function HomePage() {
       eyebrow: 'Resources',
     },
   ] satisfies HubCard[]
+  const businessCards = [
+    {
+      title: 'Services',
+      description: 'Operator-led technical help for Next.js builds, VPS deployment, self-hosting, automation, and ongoing ops support.',
+      href: '/services',
+      eyebrow: 'Work with Blixamo',
+    },
+    {
+      title: 'Products',
+      description: 'Productized packs for deployment SOPs, self-hosting checklists, AI workflow kits, and n8n starter materials.',
+      href: '/products',
+      eyebrow: 'Requestable offers',
+    },
+    {
+      title: 'Subscribe',
+      description: 'Owned updates for readers who want the strongest new guides and useful operational notes without the full archive.',
+      href: '/subscribe',
+      eyebrow: 'Owned channel',
+    },
+  ] satisfies HubCard[]
 
   return (
     <>
@@ -268,6 +288,26 @@ export default function HomePage() {
               </div>
             </div>
           </div>
+        </section>
+
+        <section className="home-section-shell home-homepage-section">
+        <div className="home-section-head home-section-head-inline">
+          <div>
+            <div className="home-section-kicker">Business Layer</div>
+            <h2 className="home-section-title">The publication is run by a real builder who also offers practical help and reusable workflow packs</h2>
+            <p className="home-section-description">
+              Blixamo stays editorial-first, but there are now clear routes for readers who want implementation help, productized operational packs, or owned updates.
+            </p>
+          </div>
+          <Link href="/contact" className="home-section-link">
+            Contact Blixamo
+          </Link>
+        </div>
+        <div className="home-quick-grid">
+          {businessCards.map((card) => (
+            <HubLinkCard key={card.title} card={card} />
+          ))}
+        </div>
         </section>
 
         <section id="categories" className="home-section-shell home-homepage-section home-homepage-section-muted">
