@@ -19,8 +19,8 @@ I have deployed a lot of Next.js projects on Hetzner, including this site. Cooli
 
 My default verdict is simple: choose this stack when you want VPS-level cost control and enough deployment convenience to avoid babysitting every release. Skip it if you want the absolute easiest hosted path or if you need very custom server behavior from day one.
 
-![Deployment architecture for Next.js on Hetzner with Coolify, DNS, and SSL in front](/images/posts/deploy-nextjs-coolify-hetzner/01-deploy-architecture.png)
-*This is the actual shape of the workflow: VPS first, deployment layer second, domain and SSL last.*
+![Deployment flow showing the Hetzner server, Coolify dashboard, and live app in one path](/images/posts/deploy-nextjs-coolify-hetzner/deployment-dashboard-server.jpg)
+*This is the real shape of the workflow: server first, deployment layer second, live app last.*
 
 ## TL;DR
 
@@ -97,8 +97,14 @@ Inside Coolify:
 
 For a standard Next.js repo, the defaults are usually good enough.
 
+![Coolify create application screen with repository, branch, build pack, base directory, and port fields](/images/posts/deploy-nextjs-coolify-hetzner/coolify-create-application.png)
+*This is the key application setup screen. Repository, branch, build pack, base directory, and port are the first values worth checking twice.*
+
 ![Next.js deploy flow from Hetzner VPS through Coolify to the live app](/images/posts/deploy-nextjs-coolify-hetzner/nextjs-coolify-hetzner-deploy-flow.jpg)
 *This is the practical flow: Hetzner gives you the server, Coolify handles the deployment layer, and the browser only matters after the app is healthy.*
+
+![Coolify application general configuration showing the detected build pack and runtime state](/images/posts/deploy-nextjs-coolify-hetzner/coolify-app-general-config.png)
+*Once the app exists, this view tells you whether Coolify detected the build pack you expected and whether the runtime state looks normal.*
 
 ## Step 6: Add Environment Variables
 
@@ -111,8 +117,8 @@ Click deploy and watch the logs. The first deploy is where you catch missing pac
 A common failure after deploy is a [file-backed MDX route inheriting Edge runtime](/blog/nextjs-mdx-remote-rsc-edge-runtime-fix) instead of Node.js, which usually only shows up once you run a real production build.
 If the build completes but the release still dies during boot, port checks, or runtime startup, work through [failed Next.js deploys in Coolify](/blog/fix-coolify-deploy-failures-nextjs-2026) before you start changing unrelated layers.
 
-![Coolify deploy commands and logs during the first real application build](/images/posts/deploy-nextjs-coolify-hetzner/04-deploy-commands.png)
-*The first deploy tells you whether the problem is memory, environment variables, build configuration, or runtime assumptions.*
+![Coolify deployment log showing a finished Next.js build and rolling update](/images/posts/deploy-nextjs-coolify-hetzner/coolify-deploy-success.png)
+*A clean deploy log is the proof you want before you spend time on DNS, SSL, or auto deploy settings.*
 
 ## Step 8: Point DNS and Wait for SSL
 
@@ -166,6 +172,9 @@ curl -I https://yourdomain.com
 ### Build fails with memory errors
 
 Add swap first. If that is still not enough, raise the Node memory limit for the build.
+
+![Coolify deployment log showing a failed build before the app ever becomes healthy](/images/posts/deploy-nextjs-coolify-hetzner/coolify-deployment-failed.png)
+*When the build fails early, solve the red deployment log first. DNS and SSL changes will not rescue a broken image build.*
 
 ### SSL does not provision
 
