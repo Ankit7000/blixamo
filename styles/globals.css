@@ -2662,7 +2662,9 @@ img { max-width: 100%; height: auto; display: block; }
   display: block;
 }
 .article-inline-image {
+  display: block;
   width: 100%;
+  height: auto;
   border-radius: 1.15rem;
   border: 1px solid rgba(15, 23, 42, 0.08);
   background:

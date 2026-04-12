@@ -2,7 +2,7 @@
 title: "Coolify Backup and Restore Runbook in 2026"
 description: "Back up and restore Coolify safely by separating platform config, app data, env vars, and restore drills before an outage forces the issue."
 date: "2026-04-06"
-updatedAt: "2026-04-09"
+updatedAt: "2026-04-11"
 author: "Blixamo"
 category: "self-hosting"
 tags: ["coolify", "backup", "restore", "self-hosting", "runbook", "disaster recovery", "docker", "operations"]
@@ -13,43 +13,47 @@ schema: "howto"
 noindex: false
 ---
 
-The mistake with Coolify backups is thinking the platform backup is the whole job. It is not. You need the platform state, the app data, the secrets, and a restore drill that proves the backups are actually usable.
+The dangerous Coolify backup plan is the one that can rebuild the dashboard but not the app that actually matters. In practice, recovery fails when platform state, secrets, databases, and volume data are treated like one blob instead of separate restore layers.
 
-This page is the runbook version of that job: what to save, what to test, and what order to restore when the platform is actually needed again.
+This page is the operator runbook for the real job: define what must come back first, capture each layer with the right method, and run a restore drill that proves the backup is usable before an outage makes the test mandatory.
+
+Use it alongside [Coolify Guide 2026 - Self-Host Everything for EUR5/Month](/blog/coolify-complete-guide-2026), [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner), [Docker Volume Backup Strategy for VPS Apps in 2026](/blog/docker-volume-backup-strategy-vps-2026), [How I Verify a VPS Backup Before I Trust It in 2026](/blog/verify-vps-backup-before-trusting-it-2026), the [Self-Hosting Complete Guide](/guides/self-hosting-complete-guide), and the wider [Resources Hub](/tag/deployment).
 
 ![Backup and restore runbook cover for a Coolify-operated stack](/images/posts/coolify-backup-restore-runbook-2026/desktop-cover.jpg)
 *This visual introduces the backup workflow before the article moves into the real restore drill screenshots.*
 
 > **TL;DR**
 >
-> - Back up the Coolify control plane, app data, secrets, and databases as separate recovery layers.
-> - Dump active databases with database-aware tools before you archive their underlying volumes.
-> - Keep one local copy for speed and one off-box copy for real disaster recovery.
-> - Restore at least one app on a scratch target before you trust the policy.
+> - Back up the Coolify control plane, secrets, databases, and file volumes as separate recovery layers.
+> - Use database-aware dumps before you archive any active database volume.
+> - Keep one fast local copy and one off-box copy, then verify one scratch restore end to end.
+> - Do not trust a policy that has never restored one real app successfully.
+
+## What this runbook is for
+
+Use it when:
+
+- Coolify is already running production or near-production workloads
+- at least one app has user data, uploads, or state you cannot recreate quickly
+- you need a restore order you can follow under pressure, not just backup commands
+
+It is not for the "I am still learning Coolify" stage. If you are there, start with [Coolify Guide 2026 - Self-Host Everything for EUR5/Month](/blog/coolify-complete-guide-2026) first and come back when the recovery path matters.
 
 ## Backup Scope Table
 
-| Layer | What to capture | Why it matters | Restore test |
+| Layer | What to capture | Why it matters | Restore proof |
 | --- | --- | --- | --- |
-| Coolify platform state | project/app definitions, deploy settings, and service notes | gets the control plane back faster | restore one app definition on a scratch server |
-| Environment and secrets | runtime env vars, callback URLs, SMTP settings, tokens | apps fail even when data is present if secrets are missing | compare restored env set against the source of truth |
+| Coolify platform state | project/app definitions, deploy settings, service notes | helps rebuild the control plane faster | recreate one app definition on a scratch server |
+| Environment and secrets | runtime env vars, callback URLs, SMTP settings, tokens | apps fail even when data is present if secrets are missing | compare restored env set against source of truth |
 | Databases | logical dumps before or alongside volume backup | live database files are a bad surprise under load | restore into a disposable container and run one real query |
-| Named Docker volumes | uploads, persistent files, and app state | this is what users notice missing first | mount the restored volume and inspect the expected files |
+| Named Docker volumes | uploads, persistent files, and app state | this is what users notice missing first | mount the restored volume and inspect expected files |
+
+One useful standard: do not call the backup layer healthy unless you can point to one artifact outside the running app and one test that proves it can be restored.
 
 Capture the backup controls before you rely on them. This is the fastest way to prove the platform layer is actually configured, not just assumed.
 
 ![Uptime Kuma backup settings screen with export and import options](/images/posts/coolify-backup-restore-runbook-2026/03-backup-settings-screen.jpg)
 *For the app-level restore drill, I used Uptime Kuma because its export and import flow makes the recovery proof visible.*
-
-## When this runbook is the right one
-
-Use it when:
-
-- Coolify is already running production or near-production workloads
-- at least one app has stateful data you cannot afford to recreate
-- you need a restore sequence, not just a list of storage commands
-
-If you are still at the "how do I deploy apps on Coolify?" stage, start with [Coolify Guide 2026 - Self-Host Everything for EUR5/Month](/blog/coolify-complete-guide-2026) and [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner).
 
 ## Prerequisites
 
@@ -57,42 +61,40 @@ If you are still at the "how do I deploy apps on Coolify?" stage, start with [Co
 - enough disk to stage backups temporarily
 - an off-box destination for the final backup copy
 - a list of which apps own databases, uploads, or other named volumes
-- a restore target: scratch VPS, disposable container, or test environment
+- a scratch restore target: disposable VPS, test container, or separate environment
 
 ## Step 1: Define recovery targets before you back anything up
 
 Do not start with commands. Start with recovery questions:
 
-- what do you need back first: the Coolify UI, one app, or the full stack?
+- what must come back first: the Coolify UI, one app, or the full stack?
 - how much data loss is acceptable?
-- how long can restore take before it becomes a production incident?
-- who owns the restore if you are not available?
+- how long can restore take before it becomes an incident?
+- who owns the restore if you are unavailable?
 
-These answers determine backup cadence and what "good enough" really means.
+These answers decide cadence, retention, and the restore order that actually matters under pressure.
 
 ## Step 2: Separate Coolify state from app data
 
-This is the most important distinction in the whole runbook.
+This is the line that prevents a lot of fake confidence.
 
 Backing up Coolify state helps you rebuild the deployment layer faster.
 
-Backing up app data helps you bring the actual workload back.
+Backing up app data helps you restore the workload users care about.
 
-If you only restore the control plane, you may get a reassuring dashboard with missing uploads, stale databases, or broken secrets. That is not recovery. That is partial theater.
+If you only restore the platform layer, you can end up with a healthy-looking dashboard and missing uploads, stale databases, or broken secrets. That is not recovery. It is a partial reconstruction.
 
 ## Step 3: Use app-aware backups for databases
 
-For databases, prefer a logical dump or app-aware backup first. A raw volume copy can still be useful, but it should not be your only plan for active databases.
+For databases, prefer a logical dump or app-aware backup first. A raw volume copy can still help as a secondary layer, but it should not be your only plan for active databases.
 
-Example for a PostgreSQL-backed app:
+Example for PostgreSQL:
 
 ```bash
 docker exec postgres pg_dump -U appuser appdb > appdb-$(date +%F).sql
 ```
 
-Then back up the related volume if that is also part of your recovery model.
-
-The point is consistency. A volume archive taken while a database is actively writing may not be the restore you think it is.
+Then archive the related volume only if it helps your recovery model. The goal is consistency, not just motion.
 
 ## Step 4: Back up named volumes explicitly
 
@@ -105,16 +107,16 @@ docker run --rm \
   alpine tar czf /backup/app_uploads-$(date +%F).tgz -C /volume .
 ```
 
-That pattern is fine for persistent file data. It is not enough by itself for active databases.
+That pattern is useful for persistent file data. It is not enough by itself for active databases.
 
-This is where you prove the job produced a real artifact with a timestamp and a destination you can inspect later.
+This is also the step where the backup must leave behind a real artifact with a timestamp and a location you can inspect later.
 
 ![Exported Uptime Kuma backup JSON file opened after the backup run](/images/posts/coolify-backup-restore-runbook-2026/04-backup-json-artifact.jpg)
 *The backup produced a real artifact outside the running app, which is the minimum bar for any restore drill.*
 
 ## Step 5: Store at least one copy off the VPS
 
-If the only copy lives on the same server, you do not really have a backup strategy. You have an inconvenience strategy.
+If the only copy lives on the same server, you do not really have a recovery strategy.
 
 At minimum:
 
@@ -133,7 +135,7 @@ Your restore drill should prove:
 - the app boots with the restored data
 - one real user path works afterward
 
-Do not restore straight over production first. Use a scratch environment, a disposable container, or a separate server if you have one.
+Do not restore straight over production first. Use a scratch environment, disposable container, or separate server.
 
 For a volume restore, the pattern is usually:
 
@@ -146,7 +148,7 @@ docker run --rm \
 
 Then start the app against the restored volume and test something real.
 
-This is the screenshot that matters most in the whole runbook. If the scratch restore is visibly working, the backup is finally moving from theory into proof.
+This is the screenshot that matters most in the runbook. If the scratch restore is visibly working, the backup is finally moving from policy into proof.
 
 ![Restored Uptime Kuma dashboard showing the recovered monitors back online](/images/posts/coolify-backup-restore-runbook-2026/07-restored-dashboard-proof.jpg)
 *The restore drill brought the deleted monitor set back on a scratch path, which is the end-to-end proof the runbook needs.*
@@ -166,15 +168,15 @@ Do not call the runbook healthy until you can confirm:
 
 ### Only the platform was backed up
 
-That gets you the UI, not the actual application state.
+That gets you the UI, not the application state.
 
 ### Database volumes were copied live without a consistency plan
 
-For active databases, that is not the same as a trustworthy restore.
+For active databases, that is not the same thing as a trustworthy restore.
 
 ### Secrets were missing during restore
 
-Backups of data without the runtime configuration often produce an app that starts but does not function.
+Data without runtime configuration often produces an app that starts but does not actually function.
 
 ### The first restore attempt happened during an incident
 
@@ -189,7 +191,7 @@ If a restore fails:
 3. capture exactly which layer failed: platform, secrets, database, or volume
 4. move to the last known-good artifact, not a half-tested new one
 
-For the deeper file-data side of this problem, pair this with [Docker Volume Backup Strategy for VPS Apps in 2026](/blog/docker-volume-backup-strategy-vps-2026). For validation discipline after the backup is created, keep [How I Verify a VPS Backup Before I Trust It in 2026](/blog/verify-vps-backup-before-trusting-it-2026) open.
+For the deeper file-data side of the problem, pair this with [Docker Volume Backup Strategy for VPS Apps in 2026](/blog/docker-volume-backup-strategy-vps-2026). For the verification side, keep [How I Verify a VPS Backup Before I Trust It in 2026](/blog/verify-vps-backup-before-trusting-it-2026) open.
 
 ## FAQ
 
@@ -199,7 +201,7 @@ It should include deployment state, env settings, and the actual application dat
 
 ### Is a raw Docker volume backup enough for a database?
 
-Not by itself. Prefer a logical dump or app-aware backup for active databases, then use volume archives as an additional layer where useful.
+Not by itself. Prefer a logical dump or app-aware backup for active databases, then use volume archives as a secondary layer where useful.
 
 ### How often should I test restore?
 
@@ -211,8 +213,8 @@ No. Restore to a scratch target first whenever possible.
 
 ### What is the minimum restore drill worth doing?
 
-Restore one real backup into a scratch target, start the app against it, and verify one user-facing path plus one admin check such as login, upload access, or a database query. If you only confirm that the archive extracts, you still have not proved the app is recoverable.
+Restore one recent backup into a scratch target, start the app against it, and verify one user-facing path plus one admin check such as login, upload access, or a database query.
 
 ## What Next?
 
-Once the restore path works, keep the adjacent pieces tight with [Coolify Guide 2026 - Self-Host Everything for EUR5/Month](/blog/coolify-complete-guide-2026), [Migrate from CapRover to Coolify in 2026](/blog/migrate-caprover-to-coolify-2026), [Docker Volume Backup Strategy for VPS Apps in 2026](/blog/docker-volume-backup-strategy-vps-2026), and [How I Verify a VPS Backup Before I Trust It in 2026](/blog/verify-vps-backup-before-trusting-it-2026).
+Once the restore path works, keep the adjacent pieces tight with [Coolify Guide 2026 - Self-Host Everything for EUR5/Month](/blog/coolify-complete-guide-2026), [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner), [Docker Volume Backup Strategy for VPS Apps in 2026](/blog/docker-volume-backup-strategy-vps-2026), [How I Verify a VPS Backup Before I Trust It in 2026](/blog/verify-vps-backup-before-trusting-it-2026), and the [Self-Hosting Complete Guide](/guides/self-hosting-complete-guide).

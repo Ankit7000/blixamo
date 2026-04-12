@@ -33,8 +33,6 @@ This page is about the middle ground that actually helps in production: probes t
 | Redis | `redis-cli ping` | no check at all |
 | Worker | narrow command that proves the process and critical dependency are ready | full queue execution as the health probe |
 
-{/* Proof asset: screenshot of `docker compose ps` showing containers in a healthy state after deployment. */}
-
 ## When to use health checks
 
 Use them when:
@@ -127,16 +125,27 @@ Your values should match the app you actually run, not whatever a copied blog po
 
 ## Step 5: Verify the probe in production-like conditions
 
-Do not stop after writing the YAML. After deployment, check:
+Do not stop after writing the YAML. After deployment, start with the quick "what good looks like" view:
 
 ```bash
 docker compose ps
+```
+
+If the rollout is healthy, Compose should show the service as healthy instead of merely running.
+
+![PowerShell output showing a Docker Compose service in a healthy state](/images/posts/docker-compose-health-checks-production-2026/healthy-compose-state.png)
+*A healthy Compose service should show more than Up. It should also pass the configured health check.*
+
+Then inspect the health object directly when you need proof that the check is doing real work:
+
+```bash
 docker inspect --format '{{json .State.Health}}' your_container_name
 ```
 
-Then read the logs long enough to confirm the service stays healthy after the first real traffic.
+![PowerShell output showing Docker container health status and successful check results](/images/posts/docker-compose-health-checks-production-2026/health-detail-log.png)
+*Inspect the health state directly when you need proof that the container is passing real checks, not just staying running.*
 
-{/* Proof asset: screenshot of the container health details or logs showing a failed probe turning healthy after the right fix. */}
+Then read the logs long enough to confirm the service stays healthy after the first real traffic.
 
 ## What health checks are not for
 

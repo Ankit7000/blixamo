@@ -18,14 +18,14 @@
 ## Subscriber Storage
 
 - The owned subscribe flow writes to `SUBSCRIBERS_FILE`.
-- Recommended production value: `/var/www/blixamo-data/subscribers.jsonl`
+- Recommended production value: `/home/bot/blixamo-data/subscribers.jsonl`
 - Storage is intentionally outside the git-tracked repo.
 - The API validates email format, dedupes exact emails, and only returns success after a real write or a duplicate check.
 - Existing newsletter surfaces now respect real API success and failure instead of assuming success.
 
 ## Environment Variable
 
-- `SUBSCRIBERS_FILE=/var/www/blixamo-data/subscribers.jsonl`
+- `SUBSCRIBERS_FILE=/home/bot/blixamo-data/subscribers.jsonl`
 
 ## Backup Note
 

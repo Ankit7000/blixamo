@@ -16,6 +16,27 @@ type CuratedRead = {
   reason: string
 }
 
+const COMMUNITY_SUPPORT_PATHS = [
+  {
+    title: 'Need hands-on help?',
+    description: 'Use Services when the next step is implementation, migration sequencing, or direct operator support rather than more reading.',
+    href: '/services',
+    label: 'See services',
+  },
+  {
+    title: 'Need a lighter artifact first?',
+    description: 'Use Products when a checklist, runbook, or workflow pack may solve the problem without a larger engagement.',
+    href: '/products',
+    label: 'Browse products',
+  },
+  {
+    title: 'Want low-noise updates?',
+    description: 'Use Subscribe if you mainly want practical publication updates and occasional builder notes instead of another social follow.',
+    href: '/subscribe',
+    label: 'Go to subscribe',
+  },
+] as const
+
 function uniquePosts(posts: Post[]): Post[] {
   const seen = new Set<string>()
 
@@ -141,8 +162,8 @@ export default function CommunityPage() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 1fr)',
-            gap: '1.25rem',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '1.35rem',
             alignItems: 'start',
           }}
         >
@@ -344,6 +365,57 @@ export default function CommunityPage() {
           {latestComparisons.map((post) => (
             <PostCard key={post.slug} post={post} />
           ))}
+        </div>
+      </section>
+
+      <section className="home-section-shell">
+        <div
+          style={{
+            border: '1px solid var(--border)',
+            borderRadius: '1.25rem',
+            padding: '1.35rem',
+            background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.02) 0%, rgba(255,255,255,0.98) 100%)',
+          }}
+        >
+          <div style={{ maxWidth: '760px' }}>
+            <div className="home-section-kicker">Need More Than Reading?</div>
+            <h2 className="home-section-title" style={{ marginTop: '0.4rem' }}>
+              Community stays editorial first, but the next step should still be easy to find.
+            </h2>
+            <p className="home-section-description">
+              If one of these reads turns into a real implementation problem, a workflow cleanup, or a pack you want to use internally, these are the clean next routes.
+            </p>
+          </div>
+
+          <div
+            style={{
+              display: 'grid',
+              gap: '1rem',
+              marginTop: '1.25rem',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            }}
+          >
+            {COMMUNITY_SUPPORT_PATHS.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                style={{
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  border: '1px solid var(--border)',
+                  borderRadius: '1rem',
+                  padding: '1rem 1.05rem',
+                  background: 'var(--bg)',
+                  display: 'grid',
+                  gap: '0.45rem',
+                }}
+              >
+                <span className="home-curated-eyebrow">{item.label}</span>
+                <span style={{ fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.45 }}>{item.title}</span>
+                <span style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }}>{item.description}</span>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 

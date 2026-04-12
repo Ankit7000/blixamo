@@ -5,6 +5,7 @@ import { PostHeader } from '@/components/blog/PostHeader'
 import { PostFooter } from '@/components/blog/PostFooter'
 import { RelatedPosts } from '@/components/blog/RelatedPosts'
 import { ReadingProgress } from '@/components/blog/ReadingProgress'
+import { CodeBlock } from '@/components/blog/CodeBlock'
 import { EmailCapture } from '@/components/monetization/EmailCapture'
 import { notFound } from 'next/navigation'
 import rehypeSlug from 'rehype-slug'
@@ -115,6 +116,7 @@ export default async function PostPage({ params }: Props) {
                 components={{
                   Callout,
                   img: ArticleImage,
+                  pre: CodeBlock,
                   table: ArticleTable,
                   VisualBlock,
                   ProsCons,

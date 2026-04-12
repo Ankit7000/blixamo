@@ -2,59 +2,164 @@
 
 ## Auto-Deploy Pipeline (GitHub Actions)
 
-Every push to `master` triggers this pipeline automatically:
+The deploy workflow is temporarily set to `workflow_dispatch` only while the GitHub Actions SSH key is re-verified on the current VPS. After one successful manual Actions deploy against the current server, restore the push trigger for `master`.
 
 ```
 git push origin master
        â†“
-GitHub Actions triggers (.github/workflows/deploy.yml)
+GitHub Actions workflow is started manually from Actions â†’ Run workflow
        â†“
-SSH into root@77.42.17.13
+SSH into bot@204.168.203.255
        â†“
-git fetch origin
+run bash /var/www/blixamo/build.sh
        â†“
-git reset --hard origin/master
+build script syncs repo, builds, reloads PM2, and checks health
        â†“
-git clean -fd
-       â†“
-npm install --frozen-lockfile
-       â†“
-npm run build        â† STOPS HERE if build fails (site stays on old version)
-       â†“
-pm2 reload blixamo   â† zero-downtime reload
-       â†“
-health check curl localhost:3000
-       â†“
-âœ… Site live  OR  âŒ auto-rollback triggered
+âœ… Site live
 ```
 
-This flow intentionally discards untracked files and local modifications on the VPS so the working tree always matches GitHub `master` before build.
+The workflow now validates the required GitHub Actions configuration before opening SSH:
+
+- repository variable `BLIXAMO_SSH_HOST`
+- repository variable `BLIXAMO_SSH_USER`
+- repository variable `BLIXAMO_SSH_PORT`
+- repository secret `BLIXAMO_SSH_KEY`
+
+Current production values:
+
+- `BLIXAMO_SSH_HOST=204.168.203.255`
+- `BLIXAMO_SSH_USER=bot`
+- `BLIXAMO_SSH_PORT=22`
+- `BLIXAMO_SSH_KEY` must contain the full private key from `C:\Users\ankit\.ssh\blixamo_actions_nopass`
+
+The build script on the VPS remains the source of truth for sync, build, reload, and health checks.
+
+Temporary safety note:
+
+- The previous GitHub Actions key failed because it was passphrase-protected.
+- GitHub Actions can offer the public key to the server, but non-interactive SSH cannot answer a passphrase prompt.
+- Use a dedicated no-passphrase deploy key for GitHub Actions only.
+- Keep deploy manual until one GitHub Actions run succeeds with the new no-passphrase key and server settings.
+- After that, re-enable the `push` trigger for `master`.
+
+### Create A New No-Passphrase GitHub Actions Key
+
+Run this exact PowerShell command on the local machine:
+
+```powershell
+ssh-keygen -t ed25519 -f $env:USERPROFILE\.ssh\blixamo_actions_nopass -C "blixamo-actions-nopass"
+```
+
+Important:
+
+- When prompted for a passphrase, press `Enter`.
+- When prompted to confirm the passphrase, press `Enter` again.
+- The goal is an empty passphrase.
+
+Expected files:
+
+- `C:\Users\ankit\.ssh\blixamo_actions_nopass`
+- `C:\Users\ankit\.ssh\blixamo_actions_nopass.pub`
+
+### Verify The New Key
+
+Run these exact PowerShell commands:
+
+1. Show the public key:
+
+```powershell
+Get-Content $env:USERPROFILE\.ssh\blixamo_actions_nopass.pub
+```
+
+2. Verify the private key does not prompt for a passphrase:
+
+```powershell
+ssh-keygen -y -f $env:USERPROFILE\.ssh\blixamo_actions_nopass
+```
+
+3. Verify SSH login works with the new key:
+
+```powershell
+ssh -i $env:USERPROFILE\.ssh\blixamo_actions_nopass bot@204.168.203.255 "echo SSH_OK && whoami && hostname"
+```
+
+### Authorize The New Key On The VPS
+
+SSH to the VPS and append the new public key to `/home/bot/.ssh/authorized_keys`:
+
+```bash
+cat >> /home/bot/.ssh/authorized_keys
+```
+
+Paste the full public key line from `C:\Users\ankit\.ssh\blixamo_actions_nopass.pub`, then press `Ctrl+D`.
+
+Fix ownership and permissions:
+
+```bash
+chown bot:bot /home/bot/.ssh/authorized_keys
+chmod 600 /home/bot/.ssh/authorized_keys
+```
+
+Optional verification:
+
+```bash
+tail -n 2 /home/bot/.ssh/authorized_keys
+```
+
+### Update The GitHub Secret
+
+Replace the repository secret:
+
+- `BLIXAMO_SSH_KEY`
+
+with the full contents of:
+
+- `C:\Users\ankit\.ssh\blixamo_actions_nopass`
+
+Important:
+
+- This must be the private key, not the `.pub` file.
+- The pasted secret should begin with `-----BEGIN OPENSSH PRIVATE KEY-----`
+- The pasted secret should end with `-----END OPENSSH PRIVATE KEY-----`
+
+### Next GitHub Actions Test
+
+After updating `BLIXAMO_SSH_KEY`:
+
+1. Run `Deploy to VPS` manually with `workflow_dispatch`.
+2. Confirm the SSH step passes.
+3. Confirm the workflow reaches:
+
+```bash
+bash /var/www/blixamo/build.sh
+```
+
+4. Keep push-based deploy disabled until this manual run succeeds once.
 
 ### Failure Points
 
 | Step | What happens on failure |
 |---|---|
-| `git fetch` / `git reset --hard` / `git clean -fd` | Deploy stops if Git sync fails |
-| `npm install` | Deploy stops â€” old code stays live |
-| `npm run build` | Deploy stops â€” old code stays live âœ… safest point |
-| `pm2 reload` | Deploy stops â€” site may be down, restart manually |
-| Health check fails | Auto-rollback: git stash + rebuild + reload |
+| Missing GitHub variable/secret | Workflow fails immediately with a named config error |
+| SSH port check | Workflow fails early if the host or port is unreachable |
+| SSH authentication | Workflow stops before deploy if the key or user is wrong |
+| `bash /var/www/blixamo/build.sh` | Deploy stops if repo sync, build, PM2 reload, or health checks fail |
 
 ### Manual Rollback Steps
 
 ```bash
-ssh -i C:\Users\ankit\.ssh\id_ed25519 root@77.42.17.13
+ssh -i C:\Users\ankit\.ssh\blixamo_bot bot@204.168.203.255
 
 cd /var/www/blixamo
 
 # Option 1 â€” revert last commit
 git revert HEAD --no-edit
-npm run build && pm2 reload blixamo
+bash /var/www/blixamo/build.sh
 
 # Option 2 â€” reset to specific commit
 git log --oneline -5          # find good commit hash
 git reset --hard <hash>
-npm run build && pm2 reload blixamo
+bash /var/www/blixamo/build.sh
 ```
 
 ### Check Deploy Status
@@ -90,8 +195,8 @@ node /var/www/gsc-tool/gsc.js index https://blixamo.com/blog/[slug]
 Run remotely from local machine:
 
 ```bash
-ssh -i C:\Users\ankit\.ssh\id_ed25519 root@77.42.17.13 "node /var/www/gsc-tool/gsc.js sitemaps"
-ssh -i C:\Users\ankit\.ssh\id_ed25519 root@77.42.17.13 "node /var/www/gsc-tool/gsc.js index https://blixamo.com/blog/[slug]"
+ssh -i C:\Users\ankit\.ssh\blixamo_bot bot@204.168.203.255 "node /var/www/gsc-tool/gsc.js sitemaps"
+ssh -i C:\Users\ankit\.ssh\blixamo_bot bot@204.168.203.255 "node /var/www/gsc-tool/gsc.js index https://blixamo.com/blog/[slug]"
 ```
 
 ### Safe Usage Rules
@@ -153,3 +258,12 @@ When deciding whether to request indexing, use this priority:
 5. Layout, design, or code changes — do not index
 6. Minor typo or small content edits — do not index
 7. Sitemap-only change — submit sitemap, do not index pages
+
+---
+
+## Subscriber Storage
+
+- The owned subscribe flow writes to `SUBSCRIBERS_FILE`.
+- Production value should point outside the repo, for example: `/home/bot/blixamo-data/subscribers.jsonl`
+- The parent directory should be writable by the app process.
+- Back up this file with the rest of the VPS application data. Do not store it inside the git worktree.

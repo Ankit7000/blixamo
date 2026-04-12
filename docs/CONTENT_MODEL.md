@@ -1,4 +1,4 @@
-# CONTENT_MODEL.md — Frontmatter Schema & Content System
+# CONTENT_MODEL.md â€” Frontmatter Schema & Content System
 
 > Last audited: 2026-03-25
 > All fields reflect what lib/posts.ts actually reads at runtime.
@@ -16,14 +16,16 @@ description: "150-160 char meta description"         # Required
 date: "YYYY-MM-DD"                                   # Required
 updatedAt: "YYYY-MM-DD"                              # Optional
 author: "Blixamo"                                    # Required
-category: "vps-cloud"                                # Required — must be one of 9 slugs
+category: "vps-cloud"                                # Required â€” must be one of 9 slugs
 tags: ["hetzner", "vps", "devops"]                  # Required (can be [])
 keyword: "primary seo keyword"                       # Required
 featured: false                                      # Optional boolean
-featuredImage: "/images/posts/slug/featured.png"     # Optional — path under /public
+featuredImage: "/images/posts/slug/featured.png"     # Optional â€” path under /public
 schema: "article"                                    # Optional enum
 noindex: false                                       # Optional boolean
 canonical: ""                                        # Optional URL override
+comparisonGroup: ""                                 # Optional narrow comparison bucket for related-post selection
+relatedScope: ""                                    # Optional explicit topical scope for shared recommendations
 ---
 ```
 
@@ -35,7 +37,7 @@ This is what the app actually reads. If a field is not here, it has no effect.
 
 ```typescript
 interface Post {
-  slug: string           // auto — derived from filename
+  slug: string           // auto â€” derived from filename
   title: string          // frontmatter.title
   description: string    // frontmatter.description
   date: string           // frontmatter.date
@@ -51,11 +53,13 @@ interface Post {
   schema?: 'article' | 'howto' | 'faq' | 'review'
   noindex?: boolean
   canonical?: string
+  comparisonGroup?: string
+  relatedScope?: string
 }
 ```
 
-readingTime is auto-calculated — do not add it to frontmatter.
-slug is derived from the MDX filename — do not add it to frontmatter.
+readingTime is auto-calculated â€” do not add it to frontmatter.
+slug is derived from the MDX filename â€” do not add it to frontmatter.
 
 ---
 
@@ -77,12 +81,19 @@ slug is derived from the MDX filename — do not add it to frontmatter.
 
 | Field | Default | Effect When Set |
 |-------|---------|----------------|
-| updatedAt | — | Overrides sitemap lastModified, adds JSON-LD dateModified |
+| updatedAt | â€” | Overrides sitemap lastModified, adds JSON-LD dateModified |
 | featured | false | Sitemap priority 0.9 (vs 0.7), shown in homepage hero |
 | featuredImage | /images/default-og.jpg | OG image, PostCard thumbnail |
 | schema | article | Selects JSON-LD structured data type |
-| noindex | false | Adds `noindex` to robots meta — hides page from Google |
-| canonical | auto | Override canonical URL — only for syndicated content |
+| noindex | false | Adds `noindex` to robots meta â€” hides page from Google |
+| canonical | auto | Override canonical URL â€” only for syndicated content |
+| comparisonGroup | â€” | Narrow comparison bucket for shared recommendations inside broad comparison pillars |
+| relatedScope | â€” | Explicit topical scope that lets shared recommendations stay narrow across categories/pillars |
+
+Recommendation-selection notes:
+- `relatedScope` is the strongest recommendation signal.
+- `comparisonGroup` is the narrower comparison-only signal used when a post belongs to a broad comparison pillar.
+- If neither field is set, the app falls back to curated code-level grouping plus category and tag relevance.
 
 ---
 
@@ -117,9 +128,9 @@ Using any other category value will:
 | `howto` | HowTo with steps |
 | `faq` | FAQPage |
 | `review` | Review |
-| `comparison` | ⚠️ NOT in TypeScript union — falls back to article silently |
+| `comparison` | âš ï¸ NOT in TypeScript union â€” falls back to article silently |
 
-10 posts currently use "comparison" — this is a known issue (see KNOWN_ISSUES.md).
+10 posts currently use "comparison" â€” this is a known issue (see KNOWN_ISSUES.md).
 
 ---
 
@@ -130,7 +141,7 @@ OG image path: /public/images/posts/[slug]/og.jpg
 Fallback: /images/default-og.jpg (used if featuredImage is not set)
 
 Generation tool: Ideogram v2
-Settings: Render 3D · 16:9 ratio · Dark theme · 1200×630px
+Settings: Render 3D Â· 16:9 ratio Â· Dark theme Â· 1200Ã—630px
 
 Category accent colors for image generation:
 - ai: #7c3aed
@@ -158,8 +169,8 @@ Standard HTML elements (h1-h6, p, ul, ol, code, pre, table, a) are styled via gl
 1. Write content/posts/[slug].mdx with all required frontmatter
 2. Category must be one of the 9 registered slugs
 3. Generate featured image with Ideogram v2, save to public/images/posts/[slug]/featured.png
-4. SCP post to VPS: scp -i C:\Users\ankit\.ssh\id_ed25519 [slug].mdx root@77.42.17.13:/var/www/blixamo/content/posts/
-5. SCP image to VPS: scp -i C:\Users\ankit\.ssh\id_ed25519 featured.png root@77.42.17.13:/var/www/blixamo/public/images/posts/[slug]/
+4. SCP post to VPS: scp -i C:\Users\ankit\.ssh\id_ed25519 [slug].mdx root@204.168.203.255:/var/www/blixamo/content/posts/
+5. SCP image to VPS: scp -i C:\Users\ankit\.ssh\id_ed25519 featured.png root@204.168.203.255:/var/www/blixamo/public/images/posts/[slug]/
 6. Deploy: cd /var/www/blixamo && npm run build && pm2 reload blixamo
 7. Verify: curl -s https://blixamo.com/blog/[slug] | grep -i title
 8. Index: node /var/www/gsc-tool/gsc.js index https://blixamo.com/blog/[slug]

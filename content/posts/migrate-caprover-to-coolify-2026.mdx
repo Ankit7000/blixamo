@@ -1,188 +1,211 @@
 ---
-title: "How to Migrate from CapRover to Coolify in 2026"
-description: "Migrate from CapRover to Coolify with a safer sequence for apps, env vars, volumes, DNS, and rollback before you switch production traffic."
+title: "CapRover to Coolify Migration Checklist (2026)"
+description: "A CapRover to Coolify migration checklist for 2026: inventory apps, export envs, move volumes, test cutover, and keep rollback ready."
 date: "2026-04-06"
-updatedAt: "2026-04-08"
+updatedAt: "2026-04-11"
 author: "Blixamo"
 category: "self-hosting"
-tags: ["caprover", "coolify", "migration", "self-hosting", "docker", "deployment", "reverse proxy", "operations"]
-keyword: "migrate from caprover to coolify"
+tags: ["caprover", "coolify", "migration", "self-hosting", "docker", "deployment", "checklist", "operations"]
+keyword: "caprover to coolify migration checklist"
 featured: false
 featuredImage: "/images/posts/migrate-caprover-to-coolify-2026/featured.png"
 schema: "howto"
 noindex: false
+canonical: "https://blixamo.com/blog/migrate-caprover-to-coolify-2026"
 ---
 
-# How to Migrate from CapRover to Coolify in 2026
+# CapRover to Coolify Migration Checklist (2026)
 
-A CapRover to Coolify migration is mostly about sequencing. If you move apps, env vars, storage, and DNS in the wrong order, the new platform looks broken even when the real issue is cutover discipline.
+If you already know you are moving from CapRover to Coolify, this page should be your checklist, not your theory article.
 
-This guide gives you a safer migration path so you can test the new stack before production traffic moves.
+The full migration walkthrough lives in [Migrate from CapRover to Coolify](/blog/migrate-from-caprover-to-coolify-2026). This page is the shorter pre-cutover and cutover checklist I would keep open while doing the move. Keep it close to [Self-Hosting](/category/self-hosting), the [Self-Hosting Complete Guide](/guides/self-hosting-complete-guide), and the [Resources Hub](/tag/deployment) so the migration sits inside the right cluster instead of floating alone.
 
-> **TL;DR**
->
-> - Start with a narrow, testable version of the workflow instead of trying to perfect the whole system at once.
-> - Keep the happy path and the rollback path in the same runbook, because recovery speed matters as much as setup speed.
-> - Link this workflow back to stronger cluster pages like [Self-Hosting Complete Guide](/guides/self-hosting-complete-guide) and the related posts that actually support the decision.
+<Callout type="info" title="TL;DR">
 
-## Quick Plan
+- Inventory every app, env var, volume, worker, cron job, and domain before touching Coolify.
+- Run CapRover and Coolify in parallel until the new stack passes smoke tests under a test domain.
+- Move data before DNS, switch DNS last, and keep CapRover alive until the new setup survives real traffic.
 
-| Step | What matters |
-|---|---|
-| Start point | Freeze the current state and document how you would undo the next change. |
-| Middle of the job | Work from infrastructure to app behavior instead of guessing from a single error message. |
-| Success signal | The app is healthy, the logs are quiet, and the supporting workflow is repeatable. |
-| Most expensive mistake | Changing two or three things at once and losing the actual cause. |
+</Callout>
 
-## What You Need Before You Start
+## Quick Table
 
-- A clear owner for the change and a simple success condition.
-- Access to logs, environment settings, and the current deployment method.
-- A short rollback note that says what gets restored, restarted, or reverted if the change fails.
-- At least one supporting internal link back to [Self-Hosting Complete Guide](/guides/self-hosting-complete-guide) and one to [Self-Hosting](/category/self-hosting).
+| Stage | Done when | Biggest mistake |
+|---|---|---|
+| Inventory | Every app and dependency is listed | Forgetting workers, cron, or storage |
+| Coolify setup | Dashboard works and server is healthy | Installing under pressure on cutover day |
+| App recreation | Builds pass and env vars are correct | Mixing build-time and runtime config |
+| Data move | Databases and volumes are restored and checked | Trusting a copy without opening the app |
+| DNS cutover | Requests land on Coolify and SSL is valid | Switching traffic before smoke tests |
+| Observation | Logs are quiet and scheduled tasks run | Tearing down CapRover too early |
 
-## Why Migrate From CapRover To Coolify Matters
+## Use This Page for the Checklist, Not the Full Guide
 
-Most developers do not lose time because they lack a command. They lose time because the operational model around the command is fuzzy. That is why migrate from caprover to coolify deserves a deeper article than a quick note. The real work is in defining the boundary of the task, deciding what "done" means, and making the flow understandable to the next person who touches it.
+This page is intentionally narrower than [Migrate from CapRover to Coolify](/blog/migrate-from-caprover-to-coolify-2026). That page is the full operational guide. This one is the execution checklist for the move itself.
 
-On Blixamo, this topic sits in the path from [home](/) to [resources](/tag/deployment) to [Self-Hosting](/category/self-hosting) to the pillar page for this cluster, [Self-Hosting Complete Guide](/guides/self-hosting-complete-guide). That matters for readers and for crawl paths. A post like this should not float alone. It should connect upward to the hub pages and sideways to the supporting articles that turn one decision into a complete workflow.
+The difference matters:
 
-There is also a trust problem with short posts in this category. A short article can say the right words while still failing the real-world test. Developers want to know where the hidden risk is. They want to know what breaks at 2 AM, what logs to check first, which assumption is usually wrong, and which part of the process is safe to automate. That is why this rewrite spends more time on verification, failure modes, and documentation than on generic definitions.
+- Use this page when you want the short list of what must be true before and during cutover.
+- Use the full guide when you want the detailed reasoning behind each step, common traps, and the longer migration flow.
 
-Treat this article as the practical middle layer between a headline and a full incident log. Use it when you want the sequence to be predictable, the trade-offs to be visible, and the next step obvious. That is also why I keep linking to supporting pages like [Coolify Vs CapRover 2026](/blog/coolify-vs-caprover-2026), [Coolify Complete Guide 2026](/blog/coolify-complete-guide-2026), [Deploy Next.js Coolify Hetzner](/blog/deploy-nextjs-coolify-hetzner), [Docker Compose Production VPS 2026](/blog/docker-compose-production-vps-2026): the cluster should feel connected, not like isolated content islands.
+That intent split is also healthier for the content cluster. The checklist supports the guide. It should not repeat the same promise in softer words.
 
-## Build the Workflow Before You Touch Production
+## Pre-Migration Checklist
 
-For **migrate from caprover to coolify**, the best pattern is to design the workflow on paper before you change the live system. That sounds obvious, but it is where most failed migrations and "mystery" deploy bugs begin. People open the dashboard, click around, and only later discover that they never defined the rollback point, the health checks, or the proof that the change worked.
+Check every item below before you create the first production app in Coolify.
 
-Start with scope. Write down the exact object you are changing: the app, the volume, the environment variables, the proxy, the workflow, or the traffic path. Then write the success signal in one sentence. Good examples are "the same request succeeds on the new host," "the container becomes healthy within two minutes," or "the imported collection runs locally with the same variables." Next, capture the rollback step in plain English. Not an abstract promise. The actual thing you will do.
+- List every CapRover app, worker, scheduled job, and one-off service.
+- Export or copy every environment variable for every app.
+- List every persistent volume and which app depends on it.
+- Write down every domain and subdomain currently routed through CapRover.
+- Note any CapRover-specific behavior you rely on:
+  custom nginx config, captain definitions, internal hostnames, build assumptions.
+- Decide where Coolify will run:
+  separate VPS is safer than same-host migration.
+- Write one rollback sentence for each critical app:
+  "If verification fails, traffic goes back to CapRover and this app stays there."
+- Keep these support pages open:
+  [Coolify vs CapRover in 2026](/blog/coolify-vs-caprover-2026),
+  [Coolify Complete Guide 2026](/blog/coolify-complete-guide-2026),
+  [Coolify Backup and Restore Runbook](/blog/coolify-backup-restore-runbook-2026),
+  [Docker Volume Backup Strategy on VPS](/blog/docker-volume-backup-strategy-vps-2026).
 
-Only then should you begin the work. Take a snapshot of the current state, export configuration where possible, and leave a short trail of notes that another developer could follow later. This is also where supporting articles matter. If the task touches deployment, keep [Self-Hosting Complete Guide](/guides/self-hosting-complete-guide) open. If it touches related cluster pages, cross-check against [Coolify Vs CapRover 2026](/blog/coolify-vs-caprover-2026), [Coolify Complete Guide 2026](/blog/coolify-complete-guide-2026), [Deploy Next.js Coolify Hetzner](/blog/deploy-nextjs-coolify-hetzner), [Docker Compose Production VPS 2026](/blog/docker-compose-production-vps-2026) so you do not miss a dependency or verification step that another post already covers.
+If you cannot complete the list above in one sitting, you are not ready for cutover yet. That does not mean the migration is hard. It means the current state is still too fuzzy.
 
-A practical starter sequence looks like this:
+## Cutover Preparation Checklist
+
+These are the items I would verify before touching DNS.
+
+### 1. Coolify server and dashboard are stable
+
+- Coolify dashboard loads cleanly.
+- The server shows healthy status.
+- Disk space, memory, and CPU are not already under pressure.
+- Firewall and ports are correct for the dashboard and app traffic.
+
+### 2. Apps build and boot in Coolify
+
+- Every app has the correct repo or Docker image.
+- Build-time variables are separated from runtime variables where needed.
+- Health checks are configured for apps that support them.
+- App boot logs are clean enough to trust.
+
+### 3. Data and stateful services are restored
+
+- Database dumps were restored into the new environment.
+- Upload directories or other persistent volumes were copied.
+- Restore checks were done in the app, not just in the shell.
+- Secrets and credentials were rechecked after restore.
+
+### 4. Test domains work before production domains move
+
+- Each app has a temporary domain or internal test path.
+- Login, main request flow, and one critical write action were tested.
+- Background jobs run in Coolify, not only web requests.
+
+## Minimal Command Checklist
+
+The exact commands depend on your stack, but the boring checks below are the right baseline.
 
 ```bash
-# snapshot current state first
-git status
+# snapshot current state before migration
+docker ps
+docker volume ls
 git rev-parse HEAD
-docker compose ps
 ```
 
-That sequence is intentionally boring. Boring wins. Boring workflows are easier to repeat, review, and recover.
+```bash
+# database dump example
+docker exec caprover-postgres pg_dump -U myuser mydb > mydb.sql
+```
 
-## The Practical Workflow
+```bash
+# volume copy example
+rsync -avz /var/lib/docker/volumes/source-volume/ user@coolify-vps:/var/lib/docker/volumes/target-volume/
+```
 
-### 1. Freeze and inventory the current state
+Those commands are not the migration. They are the proof that you are moving in a controlled way instead of relying on memory.
 
-Document what exists now: services, volumes, environment variables, domains, and the simplest rollback target.
+## DNS Cutover Checklist
 
-At this stage, I recommend keeping the article-specific goal visible in a note at the top of your editor or runbook. For moving self-hosted apps from CapRover to Coolify, the usual trap is drifting from the real objective into adjacent cleanup work. Stay focused. If a side issue appears, capture it as a follow-up task instead of folding it into the current change.
+Do these in order.
 
-Use the hub structure on Blixamo to keep context nearby: [Self-Hosting](/category/self-hosting), [Self-Hosting Complete Guide](/guides/self-hosting-complete-guide), and related reads like [Coolify Vs CapRover 2026](/blog/coolify-vs-caprover-2026), [Coolify Complete Guide 2026](/blog/coolify-complete-guide-2026), [Deploy Next.js Coolify Hetzner](/blog/deploy-nextjs-coolify-hetzner), [Docker Compose Production VPS 2026](/blog/docker-compose-production-vps-2026). That sounds like an SEO note, but it also helps operationally. Supporting pages often hold the exact nuance you need for one step of the workflow.
+1. Lower TTL before cutover day.
+2. Confirm the app works on Coolify under a test domain.
+3. Confirm the database on Coolify has the current data.
+4. Confirm background workers or scheduled tasks are running on Coolify.
+5. Move DNS.
+6. Watch logs on both sides during the propagation window.
+7. Recheck SSL issuance and the main user path after traffic lands.
 
-A strong checkpoint here is: can another developer read your notes and predict the next action? If not, the process is still too implicit. Rewrite the step in plain language. Replace "fix config" with the actual file, variable, or command. Replace "test it" with the actual request or scenario that proves the step succeeded.
+If step 2, 3, or 4 is still uncertain, do not move DNS yet. That is where self-hosting migrations become avoidable incidents.
 
-### 2. Move one layer at a time
+## Post-Cutover Checklist
 
-Transfer configuration, then stateful data, then traffic, then verification. Mixing these together is how migrations become incidents. For the stateful part, split platform recovery from data recovery: the [Coolify backup and restore runbook](/blog/coolify-backup-restore-runbook-2026) covers the platform-side restore drill, and the [Docker volume backup strategy for VPS apps](/blog/docker-volume-backup-strategy-vps-2026) covers what should actually be dumped, snapshotted, and tested.
+The migration is not done when the homepage loads once.
 
-At this stage, I recommend keeping the article-specific goal visible in a note at the top of your editor or runbook. For moving self-hosted apps from CapRover to Coolify, the usual trap is drifting from the real objective into adjacent cleanup work. Stay focused. If a side issue appears, capture it as a follow-up task instead of folding it into the current change.
+- Check the main logged-out path.
+- Check the main logged-in path.
+- Check one write action:
+  form submit, DB write, upload, or webhook.
+- Check app logs after real traffic hits.
+- Check job runners, cron, or queues.
+- Keep CapRover online during observation.
+- Wait at least a few days, and a full week if the app has weekly jobs or quieter edge paths.
 
-Use the hub structure on Blixamo to keep context nearby: [Self-Hosting](/category/self-hosting), [Self-Hosting Complete Guide](/guides/self-hosting-complete-guide), and related reads like [Coolify Vs CapRover 2026](/blog/coolify-vs-caprover-2026), [Coolify Complete Guide 2026](/blog/coolify-complete-guide-2026), [Deploy Next.js Coolify Hetzner](/blog/deploy-nextjs-coolify-hetzner), [Docker Compose Production VPS 2026](/blog/docker-compose-production-vps-2026). That sounds like an SEO note, but it also helps operationally. Supporting pages often hold the exact nuance you need for one step of the workflow.
+This is where the broader cluster helps. If the move exposed backup, restore, or health-check gaps, go straight to [Docker Compose Health Checks That Actually Catch Bad Deploys](/blog/docker-compose-health-checks-production-2026), [Docker Volume Backup Strategy on VPS](/blog/docker-volume-backup-strategy-vps-2026), and the [Self-Hosting Complete Guide](/guides/self-hosting-complete-guide).
 
-A strong checkpoint here is: can another developer read your notes and predict the next action? If not, the process is still too implicit. Rewrite the step in plain language. Replace "fix config" with the actual file, variable, or command. Replace "test it" with the actual request or scenario that proves the step succeeded.
+## Common Checklist Failures
 
-### 3. Verify before cleanup
+### Missing env vars
 
-Leave the old path intact until the new one passes the critical path, the logs look clean, and your team can repeat the same steps.
+The most common migration bug is not "Coolify is broken." It is a missing or mis-scoped environment variable. Recheck build-time versus runtime values for Next.js and similar stacks.
 
-At this stage, I recommend keeping the article-specific goal visible in a note at the top of your editor or runbook. For moving self-hosted apps from CapRover to Coolify, the usual trap is drifting from the real objective into adjacent cleanup work. Stay focused. If a side issue appears, capture it as a follow-up task instead of folding it into the current change.
+### Worker or cron drift
 
-Use the hub structure on Blixamo to keep context nearby: [Self-Hosting](/category/self-hosting), [Self-Hosting Complete Guide](/guides/self-hosting-complete-guide), and related reads like [Coolify Vs CapRover 2026](/blog/coolify-vs-caprover-2026), [Coolify Complete Guide 2026](/blog/coolify-complete-guide-2026), [Deploy Next.js Coolify Hetzner](/blog/deploy-nextjs-coolify-hetzner), [Docker Compose Production VPS 2026](/blog/docker-compose-production-vps-2026). That sounds like an SEO note, but it also helps operationally. Supporting pages often hold the exact nuance you need for one step of the workflow.
+Teams remember the web app and forget the worker, scheduler, or one-off job container. That is why the inventory step matters so much.
 
-A strong checkpoint here is: can another developer read your notes and predict the next action? If not, the process is still too implicit. Rewrite the step in plain language. Replace "fix config" with the actual file, variable, or command. Replace "test it" with the actual request or scenario that proves the step succeeded.
+### Data copied but not verified
 
-## Why Teams Move Even When CapRover Still Works
+A successful file copy is not proof. Open the app and verify the data is actually where the app expects it.
 
-The migration usually starts because the deployment model, UI, or day-two workflow feels constrained, not because the old platform is completely broken. That is important. You are not proving the old tool wrong. You are deciding whether the new platform better fits how you now deploy, observe, and manage apps.
+### DNS moved too early
 
-That mindset creates a calmer migration. You can preserve what was working while still choosing a better fit for the next phase of the project.
-
-## Migration Patterns That Hold Up Under Pressure
-
-The migration pattern that ages well is simple: inventory, duplicate, verify, switch, observe, then retire the old path. Inventory means understanding the old system. Duplicate means creating the new path without pressure. Verify means checking behavior before traffic moves. Switch means changing one layer at a time. Observe means watching logs and health after the cutover. Retire means cleaning up only after confidence is earned.
-
-People get in trouble when they skip directly from inventory to switch. That compresses all risk into one moment. Spread the risk out. That is the point of a migration plan.
-
-I also recommend a small parallel period whenever possible. Even a short overlap gives you a safe place to compare outputs, response times, or job results before you declare the new system authoritative.
-
-A practical way to preserve quality is to update the article after the first real use. Your first version should be good enough to follow. Your second version should be good enough to trust.
-
-## Common Mistakes and How to Avoid Them
-
-The first mistake is treating migrate from caprover to coolify like a one-layer problem. Most failures span at least two layers: the config and the verification, the migration and the rollback, the tool choice and the collaboration model. If you only optimize the visible layer, the issue returns later in a different form.
-
-The second mistake is hiding assumptions. Write them down. Which environment variables must exist? Which domain must resolve first? Which account permissions are required? Which health endpoint represents "good"? Short articles skip those details because they feel boring. In real work, those details are the difference between a clean handoff and an hours-long debugging session.
-
-The third mistake is weak naming. Name collections, services, environments, and checkpoints clearly. Ambiguous labels create ambiguity in the review process too. Good names cut down on re-explanation.
-
-The fourth mistake is skipping post-change observation. People celebrate once the main path works once. That is too early. Watch the system long enough to catch retry storms, delayed errors, silent bad defaults, or permissions issues that appear only on the second or third action.
-
-If you want the cluster around this post to help more, add contextual links from nearby pages once this version is live. Strong internal linking should connect article pages back to the hub, the category, the pillar page, and the closest supporting articles so the cluster feels intentional rather than isolated.
-
-## Troubleshooting and Verification
-
-When something feels off, verify in this order.
-
-1. **Inputs**: confirm the right variables, credentials, paths, domains, or source files are being used.
-2. **Execution**: confirm the actual command, workflow step, or request you expect is the one being run.
-3. **Dependencies**: confirm the database, queue, proxy, or upstream service is healthy before blaming the app.
-4. **Output**: confirm the success signal is real and not a partial success hiding deeper issues.
-5. **Rollback path**: decide early whether continuing is cheaper than restoring the last known good state.
-
-This sequence matters because it keeps you from making a noisy situation noisier. For many developers, the hardest part of troubleshooting is not technical depth. It is emotional pacing. A failing migration or broken deploy creates urgency, and urgency pushes people toward random action. The verification order above slows that down just enough to make better choices.
-
-Use the archive and the hub pages as support, not distraction. If this article touches deployment, keep [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide) open. If it touches tooling, keep [Developer Tools Directory](/guides/developer-tools-directory) or [Free Tools for Developers](/guides/free-tools-for-developers) nearby. If it touches automation or AI, keep [Automation Guide for Developers](/guides/automation-guide-for-developers) open. Those links give the task a map.
-
-A clean finish means you can answer three questions clearly: what changed, what proof says it worked, and how you would undo it if the next verification step failed.
+The clean rule is simple:
+test domain first, production domain last.
 
 ## FAQ
 
-### What is the safest way to start migrate from caprover to coolify?
+### Can I keep both CapRover and Coolify live during migration?
 
-Start with the smallest version of the workflow that proves the approach works. Document the inputs, the expected output, and the rollback path. Then run the task once with real data or a realistic test case before you promote it to a team standard. On Blixamo, that also means connecting the article to the surrounding cluster through [/blog](/blog), [/community](/community), [/tag/deployment](/tag/deployment), the category page, the pillar page, and the closest related posts.
+Yes, and for most teams that is the safer path. Parallel operation makes the rollback story much cleaner because you are not betting everything on one cutover moment.
 
-### Should I move everything in one cutover or in stages?
+### Should I migrate on the same VPS?
 
-Start with the smallest version of the workflow that proves the approach works. Document the inputs, the expected output, and the rollback path. Then run the task once with real data or a realistic test case before you promote it to a team standard. On Blixamo, that also means connecting the article to the surrounding cluster through [/blog](/blog), [/community](/community), [/tag/deployment](/tag/deployment), the category page, the pillar page, and the closest related posts.
+Only if you are very clear on port conflicts, reverse proxy behavior, and resource headroom. A separate VPS is usually the calmer migration path.
 
-### How do I reduce risk before switching traffic or ownership?
+### What should I back up first?
 
-Start with the smallest version of the workflow that proves the approach works. Document the inputs, the expected output, and the rollback path. Then run the task once with real data or a realistic test case before you promote it to a team standard. On Blixamo, that also means connecting the article to the surrounding cluster through [/blog](/blog), [/community](/community), [/tag/deployment](/tag/deployment), the category page, the pillar page, and the closest related posts.
+Back up the stateful parts first:
+databases, uploaded files, and any volume-backed app data. Platform setup matters, but data loss is usually the expensive failure.
 
-### What data should I back up first?
+### When is it safe to shut CapRover down?
 
-Start with the smallest version of the workflow that proves the approach works. Document the inputs, the expected output, and the rollback path. Then run the task once with real data or a realistic test case before you promote it to a team standard. On Blixamo, that also means connecting the article to the surrounding cluster through [/blog](/blog), [/community](/community), [/tag/deployment](/tag/deployment), the category page, the pillar page, and the closest related posts.
+After the app has survived real traffic, logs look normal, and scheduled or delayed tasks have run cleanly. For most real setups, that means not on the same day as the DNS cutover.
 
-### How long should I keep the old system around?
+### Which page should I read after this checklist?
 
-Start with the smallest version of the workflow that proves the approach works. Document the inputs, the expected output, and the rollback path. Then run the task once with real data or a realistic test case before you promote it to a team standard. On Blixamo, that also means connecting the article to the surrounding cluster through [/blog](/blog), [/community](/community), [/tag/deployment](/tag/deployment), the category page, the pillar page, and the closest related posts.
-
-### What is the cleanest rollback plan?
-
-Start with the smallest version of the workflow that proves the approach works. Document the inputs, the expected output, and the rollback path. Then run the task once with real data or a realistic test case before you promote it to a team standard. On Blixamo, that also means connecting the article to the surrounding cluster through [/blog](/blog), [/community](/community), [/tag/deployment](/tag/deployment), the category page, the pillar page, and the closest related posts.
+Open [Migrate from CapRover to Coolify](/blog/migrate-from-caprover-to-coolify-2026) for the full guide, then keep [Coolify Complete Guide 2026](/blog/coolify-complete-guide-2026) nearby for day-two operations.
 
 ## What Next?
 
-Use this page as part of a cluster, not as a dead end. The strongest next clicks are below.
+Use this checklist as the short execution page, then move deeper only when the migration needs more detail.
 
-- [Homepage](/)
-- [Blog archive](/blog)
-- [Community](/community)
-- [Resources hub](/tag/deployment)
+- [Migrate from CapRover to Coolify](/blog/migrate-from-caprover-to-coolify-2026)
+- [Coolify vs CapRover in 2026](/blog/coolify-vs-caprover-2026)
+- [Coolify Complete Guide 2026](/blog/coolify-complete-guide-2026)
+- [Coolify Backup and Restore Runbook](/blog/coolify-backup-restore-runbook-2026)
+- [Docker Volume Backup Strategy on VPS](/blog/docker-volume-backup-strategy-vps-2026)
 - [Self-Hosting](/category/self-hosting)
 - [Self-Hosting Complete Guide](/guides/self-hosting-complete-guide)
-- [Coolify Vs CapRover 2026](/blog/coolify-vs-caprover-2026)
-- [Coolify Complete Guide 2026](/blog/coolify-complete-guide-2026)
-- [Deploy Next.js Coolify Hetzner](/blog/deploy-nextjs-coolify-hetzner)
-- [Docker Compose Production VPS 2026](/blog/docker-compose-production-vps-2026)
+- [Resources Hub](/tag/deployment)
