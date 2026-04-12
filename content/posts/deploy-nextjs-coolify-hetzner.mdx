@@ -95,15 +95,10 @@ Inside Coolify:
 3. select the repository and branch
 4. let Coolify detect the framework
 
-This is the first place I verify that Coolify is pointed at the right Git repo and branch before touching anything else.
+For a standard Next.js repo, the defaults are usually good enough.
 
-![Coolify Git-based application setup for a Next.js demo repository](/images/posts/deploy-nextjs-coolify-hetzner/deploy-nextjs-coolify-hetzner-01-service-setup.webp)
-*Creating the Git-based Coolify application*
-
-For this verified run, the working app settings were base directory `/`, build pack `Nixpacks`, and port `3000`.
-
-![Coolify application configuration using Nixpacks and port 3000](/images/posts/deploy-nextjs-coolify-hetzner/deploy-nextjs-coolify-hetzner-02-app-config.webp)
-*Configuring the app build and runtime settings*
+![Next.js deploy flow from Hetzner VPS through Coolify to the live app](/images/posts/deploy-nextjs-coolify-hetzner/nextjs-coolify-hetzner-deploy-flow.svg)
+*This is the practical flow: Hetzner gives you the server, Coolify handles the deployment layer, and the browser only matters after the app is healthy.*
 
 ## Step 6: Add Environment Variables
 
@@ -113,13 +108,11 @@ Set the env vars before the first real deploy, especially anything under `NEXT_P
 
 Click deploy and watch the logs. The first deploy is where you catch missing packages, incorrect build commands, and bad environment values.
 
-In the verified run below, Coolify finished the Nixpacks build and rolling update successfully. That proves the deploy completed inside Coolify, not that the temporary public domain or final DNS path was already working.
-
 A common failure after deploy is a [file-backed MDX route inheriting Edge runtime](/blog/nextjs-mdx-remote-rsc-edge-runtime-fix) instead of Node.js, which usually only shows up once you run a real production build.
 If the build completes but the release still dies during boot, port checks, or runtime startup, work through [failed Next.js deploys in Coolify](/blog/fix-coolify-deploy-failures-nextjs-2026) before you start changing unrelated layers.
 
-![Coolify deployment log showing completed Nixpacks build and rolling update](/images/posts/deploy-nextjs-coolify-hetzner/deploy-nextjs-coolify-hetzner-03-deploy-log-success.webp)
-*Deployment completed successfully in Coolify*
+![Coolify deploy commands and logs during the first real application build](/images/posts/deploy-nextjs-coolify-hetzner/04-deploy-commands.png)
+*The first deploy tells you whether the problem is memory, environment variables, build configuration, or runtime assumptions.*
 
 ## Step 8: Point DNS and Wait for SSL
 
@@ -157,12 +150,7 @@ If Cloudflare is orange-clouded before the certificate is issued cleanly, you wa
 
 ### The deploy was marked healthy before I checked the app myself
 
-The first checks happen inside Coolify, not in DNS. I want the deployment log to finish cleanly and the runtime log to show `next start` listening on port `3000` before I blame domains, SSL, or Cloudflare.
-
-![Coolify runtime logs showing Next.js app started successfully on port 3000](/images/posts/deploy-nextjs-coolify-hetzner/deploy-nextjs-coolify-hetzner-04-runtime-ready.webp)
-*Runtime logs confirm the Next.js app is serving correctly*
-
-After that, I still check the service directly:
+The dashboard saying "deployed" is not enough. I still check the site directly:
 
 ```bash
 curl -I http://localhost:3000
@@ -170,7 +158,7 @@ curl -I https://yourdomain.com
 ```
 
 <Callout type="tip" title="Expected result">
-`localhost:3000` should return `HTTP/1.1 200 OK` or a valid redirect first. If the temporary domain or your final domain still fails after that, debug routing, reverse proxy, DNS, or SSL next instead of redeploying the app.
+`localhost:3000` should return `HTTP/1.1 200 OK` or a valid redirect, and the public domain should return a clean `200` or HTTPS redirect with a valid certificate.
 </Callout>
 
 ## Common Problems
