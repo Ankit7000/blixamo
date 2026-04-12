@@ -39,7 +39,7 @@ This runbook assumes the app already works on Vercel and the real risk is the cu
 
 Capture the Vercel assumptions before you move anything. One settings snapshot is often enough to stop a quiet env var, domain, or cron dependency from disappearing mid-cutover.
 
-![Vercel environment variables panel with masked project secrets before migration](/images/posts/migrate-nextjs-vercel-to-vps-2026/01-vercel-env-audit.webp)
+![Vercel environment variables panel with masked project secrets before migration](/images/posts/migrate-nextjs-vercel-to-vps-2026/01-vercel-env-audit.webp?v=20260412b)
 *Vercel settings audited before the move so the VPS cutover did not depend on memory.*
 
 ## When this approach is the right choice
@@ -119,7 +119,7 @@ Common migration misses here:
 
 Before you cut DNS, prove the VPS stack is answering on the target runtime and not just "deployed" on paper.
 
-![Preview URL on the VPS showing the app working before DNS cutover](/images/posts/migrate-nextjs-vercel-to-vps-2026/02-vps-preview-before-cutover.webp)
+![Preview URL on the VPS showing the app working before DNS cutover](/images/posts/migrate-nextjs-vercel-to-vps-2026/02-vps-preview-before-cutover.webp?v=20260412b)
 *The VPS answered cleanly on the preview host before the production domain moved.*
 
 ## Step 4: Recreate the surrounding platform behavior
@@ -172,7 +172,7 @@ Do not call the move done until these checks pass:
 
 This is the proof point that matters most: the production hostname is serving the new stack cleanly after cutover, with logs that match that claim.
 
-![Production domain loading from the VPS after the Next.js cutover](/images/posts/migrate-nextjs-vercel-to-vps-2026/03-production-post-cutover.webp)
+![Production domain loading from the VPS after the Next.js cutover](/images/posts/migrate-nextjs-vercel-to-vps-2026/03-production-post-cutover.webp?v=20260412b)
 *The live hostname responded correctly after cutover, which is the only migration proof that really counts.*
 
 ## Common migration failures
