@@ -39,7 +39,7 @@ Use this page when the deploy is red and you need signal fast, not another round
 
 Take the screenshot before you start changing settings. The failing stage is the first thing that keeps the rest of the runbook honest.
 
-![Coolify deployment log marked failed for the broken Next.js deploy](/images/posts/fix-coolify-deploy-failures-nextjs-2026/01-deploy-failed-stage.jpg)
+![Coolify deployment log marked failed for the broken Next.js deploy](/images/posts/fix-coolify-deploy-failures-nextjs-2026/01-deploy-failed-stage.webp)
 *The first screenshot locks the failure to the deploy stage before any random setting changes start.*
 
 ## When this guide is the right choice
@@ -112,8 +112,13 @@ This is where deployments often fail after a clean build. The app image exists, 
 
 This is the point where the Coolify settings panel can reduce guesswork fast. Show the relevant keys, but keep the values hidden.
 
-![Coolify environment panel with masked Next.js runtime keys before the fix](/images/posts/fix-coolify-deploy-failures-nextjs-2026/02-env-before-fix.jpg)
+![Coolify environment panel with masked Next.js runtime keys before the fix](/images/posts/fix-coolify-deploy-failures-nextjs-2026/02-env-before-fix.webp)
 *Runtime keys were checked in the actual Coolify target with values hidden, not guessed from local files.*
+
+After the missing variable was added in the same environment, the panel matched the app's runtime expectation instead of leaving the deploy to fail during prerender.
+
+![Coolify environment panel after REQUIRED_FLAG was added for the Next.js deploy](/images/posts/fix-coolify-deploy-failures-nextjs-2026/05-env-after-fix.webp)
+*The fix was applied in the deployment target itself, so the next deploy was testing the real runtime state instead of a local assumption.*
 
 ## Step 4: Confirm the app is listening on the correct host and port
 
@@ -135,8 +140,13 @@ Two common misses:
 
 When the failure is still unclear, this is the log window that usually tells you whether the app never bound correctly or crashed immediately after boot.
 
-![Coolify build log showing Missing REQUIRED_FLAG during prerender](/images/posts/fix-coolify-deploy-failures-nextjs-2026/03-missing-required-flag-log.jpg)
+![Coolify build log showing Missing REQUIRED_FLAG during prerender](/images/posts/fix-coolify-deploy-failures-nextjs-2026/03-missing-required-flag-log.webp)
 *The log exposed the real failure point: a missing runtime variable during prerender, not a proxy problem.*
+
+The code path made that dependency explicit, which is why the right next step was fixing the missing key instead of changing ports or SSL.
+
+![Next.js code throwing when REQUIRED_FLAG is missing at runtime](/images/posts/fix-coolify-deploy-failures-nextjs-2026/04-required-flag-code-check.webp)
+*The source confirmed the failure was intentional: the app was designed to stop when the required variable was absent.*
 
 ## Step 5: Check the health signal, not just the container state
 
@@ -173,7 +183,7 @@ After each fix, re-run the same failing path and confirm:
 
 Once the fix is in, capture the first clean proof that the app is reachable and no longer falling over in the background.
 
-![Coolify deployment log marked finished after the Next.js redeploy](/images/posts/fix-coolify-deploy-failures-nextjs-2026/06-successful-redeploy.jpg)
+![Coolify deployment log marked finished after the Next.js redeploy](/images/posts/fix-coolify-deploy-failures-nextjs-2026/06-successful-redeploy.webp)
 *The same deploy path finished cleanly after the fix, which is the proof that the change actually worked.*
 
 ## Common mistakes that waste the most time

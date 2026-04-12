@@ -38,7 +38,10 @@ This page is the runbook version of that job: what to save, what to test, and wh
 
 Capture the backup controls before you rely on them. This is the fastest way to prove the platform layer is actually configured, not just assumed.
 
-![Uptime Kuma backup settings screen with export and import options](/images/posts/coolify-backup-restore-runbook-2026/03-backup-settings-screen.jpg)
+![Uptime Kuma dashboard before the backup run showing all monitors up](/images/posts/coolify-backup-restore-runbook-2026/01-dashboard-before-backup.webp)
+*The drill starts from a known-good state, so the restore has something concrete to bring back later.*
+
+![Uptime Kuma backup settings screen with export and import options](/images/posts/coolify-backup-restore-runbook-2026/03-backup-settings-screen.webp)
 *For the app-level restore drill, I used Uptime Kuma because its export and import flow makes the recovery proof visible.*
 
 ## When this runbook is the right one
@@ -109,7 +112,7 @@ That pattern is fine for persistent file data. It is not enough by itself for ac
 
 This is where you prove the job produced a real artifact with a timestamp and a destination you can inspect later.
 
-![Exported Uptime Kuma backup JSON file opened after the backup run](/images/posts/coolify-backup-restore-runbook-2026/04-backup-json-artifact.jpg)
+![Exported Uptime Kuma backup JSON file opened after the backup run](/images/posts/coolify-backup-restore-runbook-2026/04-backup-json-artifact.webp)
 *The backup produced a real artifact outside the running app, which is the minimum bar for any restore drill.*
 
 ## Step 5: Store at least one copy off the VPS
@@ -146,9 +149,19 @@ docker run --rm \
 
 Then start the app against the restored volume and test something real.
 
+The restore drill is easier to trust when you can see the failure target first. In this case, one monitor was removed before import so the restore had a visible gap to fix.
+
+![Uptime Kuma dashboard after deleting one monitor before the restore test](/images/posts/coolify-backup-restore-runbook-2026/06-dashboard-after-delete.webp)
+*The missing monitor created a simple, visible restore target instead of a vague assumption that the import worked.*
+
+With the backup file selected on the import screen, the drill moved from backup theory into an actual restore action.
+
+![Uptime Kuma backup import screen with the exported JSON file selected](/images/posts/coolify-backup-restore-runbook-2026/05-import-backup-screen.webp)
+*The import step used the exported artifact directly, which is the proof that the saved backup was actually usable.*
+
 This is the screenshot that matters most in the whole runbook. If the scratch restore is visibly working, the backup is finally moving from theory into proof.
 
-![Restored Uptime Kuma dashboard showing the recovered monitors back online](/images/posts/coolify-backup-restore-runbook-2026/07-restored-dashboard-proof.jpg)
+![Restored Uptime Kuma dashboard showing the recovered monitors back online](/images/posts/coolify-backup-restore-runbook-2026/07-restored-dashboard-proof.webp)
 *The restore drill brought the deleted monitor set back on a scratch path, which is the end-to-end proof the runbook needs.*
 
 ## Verification checklist

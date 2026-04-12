@@ -90,6 +90,8 @@ export function PostHeader({ post, pillarPage = null }: { post: Post; pillarPage
                   alt={post.title}
                   width={1200}
                   height={675}
+                  sizes="(max-width: 1024px) calc(100vw - 2rem), 560px"
+                  quality={85}
                   className="article-header-media-image"
                   priority
                 />
