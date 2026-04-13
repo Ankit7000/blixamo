@@ -316,7 +316,7 @@ const TOPIC_LANES: Omit<TopicLanesSection, 'lanes'> & {
       label: 'Coolify',
       description: 'Deployment paths, platform fit, and troubleshooting for self-hosted app shipping.',
       articleCountLabel: '4 key reads',
-      categoryLink: { label: 'Open the Coolify hub', href: '/coolify-hub' },
+      categoryLink: { label: 'Open the self-hosting guide', href: '/guides/self-hosting-complete-guide' },
       featuredArticle: { slug: 'coolify-complete-guide-2026', eyebrow: 'Featured in lane' },
     },
     {

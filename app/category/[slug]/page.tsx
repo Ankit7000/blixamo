@@ -325,21 +325,21 @@ export default async function CategoryPage({ params }: Props) {
         }
       : canonicalSlug === 'vps-cloud'
       ? {
-          label: 'Hetzner Billing Hub',
-          href: '/hetzner-billing-hub',
-          description: 'Use the Hetzner Billing Hub when the real question is payment methods, invoice friction, India-specific card issues, and what to read after billing is sorted.',
+          label: 'VPS & Cloud Guide',
+          href: '/guides/vps-cloud-for-developers-guide',
+          description: 'Use the VPS & Cloud guide when the next question is provider fit, infrastructure tradeoffs, billing decisions, and which indexed route to open after this category.',
         }
       : canonicalSlug === 'self-hosting'
       ? {
-          label: 'Coolify Hub',
-          href: '/coolify-hub',
-          description: 'Use the Coolify Hub when the real question is platform fit, first deploys, multi-app VPS layout, and what to read after the initial install.',
+          label: 'Self Hosting Guide',
+          href: '/guides/self-hosting-complete-guide',
+          description: 'Use the self-hosting guide when the real question is platform fit, first deploys, multi-service layout, and which indexed route should anchor the wider stack.',
         }
       : canonicalSlug === 'web-dev'
       ? {
-          label: 'Next.js MDX Hub',
-          href: '/nextjs-mdx-hub',
-          description: 'Use the Next.js MDX Hub when the real question is file-backed MDX setup, content architecture, runtime fixes, and production publishing upgrades.',
+          label: 'Next.js MDX setup guide',
+          href: '/blog/nextjs-mdx-blog-2026',
+          description: 'Use the Next.js MDX setup guide when the real question is file-backed content architecture, runtime-safe publishing, and the first indexed implementation path.',
         }
       : canonicalSlug === 'automation'
       ? {
