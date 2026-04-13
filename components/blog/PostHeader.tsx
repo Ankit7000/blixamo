@@ -41,7 +41,7 @@ export function PostHeader({ post, pillarPage = null }: { post: Post; pillarPage
           <span className="article-breadcrumb-current">{post.title}</span>
         </nav>
 
-        <div className="article-header-grid">
+        <div className="article-header-main">
           <div className="article-header-copy">
             <Link href={`/category/${post.category}`} className="article-category-chip" style={{ color: categoryMeta.color }}>
               <span>{categoryMeta.icon}</span>
@@ -51,39 +51,39 @@ export function PostHeader({ post, pillarPage = null }: { post: Post; pillarPage
             <h1 className="post-header-title article-header-title">{post.title}</h1>
             <p className="article-header-description">{post.description}</p>
 
-            <div className="article-meta-row">
-              <div className="article-meta-chip article-meta-chip-author">
-                <AuthorBio name={post.author} compact />
-              </div>
-              <div className="article-meta-chip">
-                <span className="article-meta-label">Published</span>
-                <time dateTime={post.date}>
-                  {new Date(post.date).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                </time>
-              </div>
-              {post.updatedAt && (
+            <div className="article-header-meta-bar">
+              <div className="article-meta-row">
+                <div className="article-meta-chip article-meta-chip-author">
+                  <AuthorBio name={post.author} compact />
+                </div>
                 <div className="article-meta-chip">
-                  <span className="article-meta-label">Updated</span>
-                  <span>
-                    {new Date(post.updatedAt).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
+                  <span className="article-meta-label">Published</span>
+                  <time dateTime={post.date}>
+                    {new Date(post.date).toLocaleDateString('en-US', {
                       year: 'numeric',
                     })}
-                  </span>
+                  </time>
                 </div>
-              )}
-              <div className="article-meta-chip">
-                <span className="article-meta-label">Read time</span>
-                <span>{post.readingTime}</span>
+                {post.updatedAt && (
+                  <div className="article-meta-chip">
+                    <span className="article-meta-label">Updated</span>
+                    <span>
+                      {new Date(post.updatedAt).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
+                    </span>
+                  </div>
+                )}
+                <div className="article-meta-chip">
+                  <span className="article-meta-label">Read time</span>
+                  <span>{post.readingTime}</span>
+                </div>
               </div>
+              <ShareButtons title={post.title} slug={post.slug} compact />
             </div>
 
-            <ShareButtons title={post.title} slug={post.slug} />
             {post.tags.includes('affiliate') && <AffiliateDisclosure />}
           </div>
 
@@ -96,7 +96,7 @@ export function PostHeader({ post, pillarPage = null }: { post: Post; pillarPage
                     alt={post.title}
                     width={1200}
                     height={675}
-                    sizes="(max-width: 1024px) calc(100vw - 2rem), 560px"
+                    sizes="(max-width: 1024px) calc(100vw - 2rem), 1160px"
                     quality={85}
                     className="article-header-media-image"
                     priority

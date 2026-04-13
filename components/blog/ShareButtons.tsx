@@ -5,9 +5,10 @@ import { useState } from 'react'
 interface Props {
   title: string
   slug: string
+  compact?: boolean
 }
 
-export function ShareButtons({ title, slug }: Props) {
+export function ShareButtons({ title, slug, compact = false }: Props) {
   const [copied, setCopied] = useState(false)
   const url = `https://blixamo.com/blog/${slug}`
   const encoded = encodeURIComponent(url)
@@ -32,7 +33,7 @@ export function ShareButtons({ title, slug }: Props) {
   }
 
   return (
-    <div className="share-buttons-row">
+    <div className={`share-buttons-row${compact ? ' share-buttons-row-compact' : ''}`}>
       <span className="share-buttons-label">Share</span>
       <a
         href={`https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encoded}`}

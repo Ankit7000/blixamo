@@ -91,25 +91,6 @@ export default async function PostPage({ params }: Props) {
         <div className="post-layout article-layout-grid">
           <div />
           <article className="article-content-card">
-            {pillarPage && (
-              <section className="article-share-panel">
-                <p className="article-share-eyebrow">In this cluster</p>
-                <div className="article-explore-grid" style={{ marginTop: '0.75rem' }}>
-                  <Link href={`/category/${post.category}`} className="article-explore-link">
-                    <span className="article-nav-label">Category</span>
-                    <span className="article-nav-title">Browse more in {categoryMeta.label}</span>
-                  </Link>
-                  <Link href={pillarPage.href} className="article-explore-link">
-                    <span className="article-nav-label">Guide</span>
-                    <span className="article-nav-title">Open {pillarPage.title}</span>
-                  </Link>
-                  <Link href={RESOURCE_HUB_PATH} className="article-explore-link">
-                    <span className="article-nav-label">Resources Hub</span>
-                    <span className="article-nav-title">Open the broader deployment path</span>
-                  </Link>
-                </div>
-              </section>
-            )}
             <div className="prose article-prose">
               <MDXRemote
                 source={post.content}
@@ -130,6 +111,26 @@ export default async function PostPage({ params }: Props) {
                 }}
               />
             </div>
+
+            {pillarPage && (
+              <section className="article-share-panel">
+                <p className="article-share-eyebrow">In this cluster</p>
+                <div className="article-explore-grid" style={{ marginTop: '0.75rem' }}>
+                  <Link href={`/category/${post.category}`} className="article-explore-link">
+                    <span className="article-nav-label">Category</span>
+                    <span className="article-nav-title">Browse more in {categoryMeta.label}</span>
+                  </Link>
+                  <Link href={pillarPage.href} className="article-explore-link">
+                    <span className="article-nav-label">Guide</span>
+                    <span className="article-nav-title">Open {pillarPage.title}</span>
+                  </Link>
+                  <Link href={RESOURCE_HUB_PATH} className="article-explore-link">
+                    <span className="article-nav-label">Resources Hub</span>
+                    <span className="article-nav-title">Open the broader deployment path</span>
+                  </Link>
+                </div>
+              </section>
+            )}
 
             <div className="article-email-capture">
               <EmailCapture placement="end-of-post" />
