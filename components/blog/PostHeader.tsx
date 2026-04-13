@@ -8,6 +8,10 @@ import { getCategoryMeta } from '@/lib/categories'
 import type { PillarPage } from '@/lib/pillars'
 
 const DEFAULT_IMAGE = '/images/default-og.jpg'
+const FEATURED_IMAGE_CAPTIONS: Record<string, string> = {
+  'hetzner-payment-methods-2026':
+    'This article covers the real first-time Hetzner payment problems developers run into: which cards usually work, why some payments fail, and what to try next to get billing approved faster.',
+}
 
 function hasRealImage(path: string) {
   return path && path !== DEFAULT_IMAGE && !path.includes('undefined')
@@ -16,6 +20,7 @@ function hasRealImage(path: string) {
 export function PostHeader({ post, pillarPage = null }: { post: Post; pillarPage?: PillarPage | null }) {
   const categoryMeta = getCategoryMeta(post.category)
   const showFeaturedImage = hasRealImage(post.featuredImage)
+  const featuredImageCaption = FEATURED_IMAGE_CAPTIONS[post.slug]
 
   return (
     <header className="article-header-wrap">
@@ -84,18 +89,23 @@ export function PostHeader({ post, pillarPage = null }: { post: Post; pillarPage
 
           <div className="article-header-media-shell">
             {showFeaturedImage ? (
-              <div className="article-header-media-frame">
-                <Image
-                  src={post.featuredImage}
-                  alt={post.title}
-                  width={1200}
-                  height={675}
-                  sizes="(max-width: 1024px) calc(100vw - 2rem), 560px"
-                  quality={85}
-                  className="article-header-media-image"
-                  priority
-                />
-              </div>
+              <figure className="article-header-media-figure">
+                <div className="article-header-media-frame">
+                  <Image
+                    src={post.featuredImage}
+                    alt={post.title}
+                    width={1200}
+                    height={675}
+                    sizes="(max-width: 1024px) calc(100vw - 2rem), 560px"
+                    quality={85}
+                    className="article-header-media-image"
+                    priority
+                  />
+                </div>
+                {featuredImageCaption ? (
+                  <figcaption className="article-header-media-caption">{featuredImageCaption}</figcaption>
+                ) : null}
+              </figure>
             ) : (
               <div className="article-header-fallback" style={{ background: categoryMeta.gradient }}>
                 <div className="article-header-fallback-symbol">{categoryMeta.symbol}</div>
