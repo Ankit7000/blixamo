@@ -3023,6 +3023,9 @@ img { max-width: 100%; height: auto; display: block; }
 .article-header-media-shell {
   min-width: 0;
 }
+.article-header-media-figure {
+  margin: 0;
+}
 .article-header-media-frame,
 .article-header-fallback {
   min-height: 100%;
@@ -3039,6 +3042,13 @@ img { max-width: 100%; height: auto; display: block; }
   height: auto;
   object-fit: cover;
   aspect-ratio: 16 / 10;
+}
+.article-header-media-caption {
+  margin-top: 0.85rem;
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  line-height: 1.7;
+  text-align: center;
 }
 .article-header-fallback {
   display: flex;
