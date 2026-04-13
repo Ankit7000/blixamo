@@ -5,6 +5,7 @@ import { PostHeader } from '@/components/blog/PostHeader'
 import { PostFooter } from '@/components/blog/PostFooter'
 import { RelatedPosts } from '@/components/blog/RelatedPosts'
 import { ReadingProgress } from '@/components/blog/ReadingProgress'
+import { CodeBlock } from '@/components/blog/CodeBlock'
 import { EmailCapture } from '@/components/monetization/EmailCapture'
 import { notFound } from 'next/navigation'
 import rehypeSlug from 'rehype-slug'
@@ -90,6 +91,27 @@ export default async function PostPage({ params }: Props) {
         <div className="post-layout article-layout-grid">
           <div />
           <article className="article-content-card">
+            <div className="prose article-prose">
+              <MDXRemote
+                source={post.content}
+                components={{
+                  Callout,
+                  img: ArticleImage,
+                  pre: CodeBlock,
+                  table: ArticleTable,
+                  VisualBlock,
+                  ProsCons,
+                  VerdictBox,
+                }}
+                options={{
+                  mdxOptions: {
+                    remarkPlugins: [remarkGfm],
+                    rehypePlugins: [rehypeSlug, [rehypeAutolinkHeadings, { behavior: 'wrap' }]],
+                  },
+                }}
+              />
+            </div>
+
             {pillarPage && (
               <section className="article-share-panel">
                 <p className="article-share-eyebrow">In this cluster</p>
@@ -109,25 +131,6 @@ export default async function PostPage({ params }: Props) {
                 </div>
               </section>
             )}
-            <div className="prose article-prose">
-              <MDXRemote
-                source={post.content}
-                components={{
-                  Callout,
-                  img: ArticleImage,
-                  table: ArticleTable,
-                  VisualBlock,
-                  ProsCons,
-                  VerdictBox,
-                }}
-                options={{
-                  mdxOptions: {
-                    remarkPlugins: [remarkGfm],
-                    rehypePlugins: [rehypeSlug, [rehypeAutolinkHeadings, { behavior: 'wrap' }]],
-                  },
-                }}
-              />
-            </div>
 
             <div className="article-email-capture">
               <EmailCapture placement="end-of-post" />
