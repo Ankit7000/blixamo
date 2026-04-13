@@ -2,11 +2,11 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import type { TopicLane } from '@/lib/homepage'
+import type { TopicLanesSection } from '@/lib/homepage'
 
-export function HomeTopicLanes({ lanes }: { lanes: TopicLane[] }) {
-  const [activeLaneId, setActiveLaneId] = useState(lanes[0]?.id ?? '')
-  const activeLane = lanes.find((lane) => lane.id === activeLaneId) ?? lanes[0]
+export function HomeTopicLanes({ section }: { section: TopicLanesSection }) {
+  const [activeLaneId, setActiveLaneId] = useState(section.lanes[0]?.id ?? '')
+  const activeLane = section.lanes.find((lane) => lane.id === activeLaneId) ?? section.lanes[0]
 
   if (!activeLane) {
     return null
@@ -15,12 +15,9 @@ export function HomeTopicLanes({ lanes }: { lanes: TopicLane[] }) {
   return (
     <section id="topic-lanes" className="home-section-shell">
       <div className="home-section-head">
-        <div className="home-section-kicker">Topic Lanes</div>
-        <h2 className="home-section-title">Read Blixamo like a technical publication, not a generic blog archive</h2>
-        <p className="home-section-description">
-          Each lane has one lead read and two supporting reads so you can go deeper without widening into the full
-          site too early.
-        </p>
+        <div className="home-section-kicker">{section.kicker}</div>
+        <h2 className="home-section-title">{section.title}</h2>
+        <p className="home-section-description">{section.description}</p>
       </div>
 
       <div
@@ -31,7 +28,7 @@ export function HomeTopicLanes({ lanes }: { lanes: TopicLane[] }) {
           marginBottom: '1.2rem',
         }}
       >
-        {lanes.map((lane) => {
+        {section.lanes.map((lane) => {
           const isActive = lane.id === activeLane.id
 
           return (
@@ -64,15 +61,15 @@ export function HomeTopicLanes({ lanes }: { lanes: TopicLane[] }) {
           gap: '1rem',
         }}
       >
-        <Link
-          href={`/blog/${activeLane.leadArticle.slug}`}
-          className="home-featured-lead"
+        <div
+          className="home-proof-panel"
           style={{
-            gridTemplateColumns: '1fr',
-            padding: '1.35rem',
+            display: 'grid',
+            gap: '1rem',
+            padding: '1.2rem',
           }}
         >
-          <div className="home-featured-content" style={{ padding: 0 }}>
+          <div style={{ display: 'grid', gap: '0.7rem' }}>
             <div
               style={{
                 display: 'flex',
@@ -84,43 +81,49 @@ export function HomeTopicLanes({ lanes }: { lanes: TopicLane[] }) {
               <span className="home-featured-badge" style={{ color: activeLane.color }}>
                 {activeLane.label}
               </span>
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{activeLane.routeLabel}</span>
+              {activeLane.articleCountLabel ? (
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{activeLane.articleCountLabel}</span>
+              ) : null}
             </div>
+            <p
+              style={{
+                color: 'var(--text-secondary)',
+                fontSize: '0.92rem',
+                lineHeight: 1.65,
+                margin: 0,
+              }}
+            >
+              {activeLane.description}
+            </p>
+            <Link href={activeLane.categoryLink.href} className="home-section-link" style={{ width: 'fit-content' }}>
+              {activeLane.categoryLink.label}
+            </Link>
+          </div>
+        </div>
 
+        <Link
+          href={`/blog/${activeLane.featuredArticle.slug}`}
+          className="home-featured-lead"
+          style={{
+            gridTemplateColumns: '1fr',
+            padding: '1.35rem',
+          }}
+        >
+          <div className="home-featured-content" style={{ padding: 0 }}>
             <div style={{ display: 'grid', gap: '0.6rem' }}>
               <h3 className="home-featured-title" style={{ fontSize: 'clamp(1.4rem, 2vw, 1.9rem)' }}>
-                {activeLane.leadArticle.title}
+                {activeLane.featuredArticle.title}
               </h3>
-              <p className="home-featured-copy">{activeLane.description}</p>
-              <p className="home-featured-copy" style={{ fontSize: '0.9rem' }}>
-                {activeLane.leadArticle.description}
-              </p>
+              <p className="home-featured-copy">{activeLane.featuredArticle.description}</p>
             </div>
 
             <div className="home-featured-meta">
-              <span>{activeLane.leadArticle.categoryLabel}</span>
-              <span>{activeLane.leadArticle.readingTime}</span>
-              <span>Lead read</span>
+              <span>{activeLane.featuredArticle.categoryLabel}</span>
+              <span>{activeLane.featuredArticle.readingTime}</span>
+              <span>Featured article</span>
             </div>
           </div>
         </Link>
-
-        <div className="home-featured-stack">
-          {activeLane.supportArticles.map((article) => (
-            <Link key={article.slug} href={`/blog/${article.slug}`} className="home-featured-mini">
-              <div className="home-featured-mini-top">
-                <span className="home-featured-mini-category" style={{ color: activeLane.color }}>
-                  Support read
-                </span>
-                <span className="home-featured-mini-meta" style={{ marginTop: 0 }}>
-                  {article.readingTime}
-                </span>
-              </div>
-              <h3 className="home-featured-mini-title">{article.title}</h3>
-              <p className="home-featured-mini-copy">{article.description}</p>
-            </Link>
-          ))}
-        </div>
       </div>
     </section>
   )

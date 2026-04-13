@@ -1,16 +1,13 @@
 import Link from 'next/link'
-import type { StartHereItem } from '@/lib/homepage'
+import type { StartHereSection } from '@/lib/homepage'
 
-export function HomeStartHere({ items }: { items: StartHereItem[] }) {
+export function HomeStartHere({ section }: { section: StartHereSection }) {
   return (
     <section id="start-here" className="home-section-shell">
       <div className="home-section-head">
-        <div className="home-section-kicker">Start Here</div>
-        <h2 className="home-section-title">Choose the shortest path into the problem you are trying to solve</h2>
-        <p className="home-section-description">
-          Blixamo works best when you start with the job in front of you, not by opening the archive and guessing where
-          to click next.
-        </p>
+        <div className="home-section-kicker">{section.kicker}</div>
+        <h2 className="home-section-title">{section.title}</h2>
+        <p className="home-section-description">{section.description}</p>
       </div>
 
       <div
@@ -20,10 +17,9 @@ export function HomeStartHere({ items }: { items: StartHereItem[] }) {
           gap: '1rem',
         }}
       >
-        {items.map((item, index) => (
-          <Link
+        {section.items.map((item, index) => (
+          <article
             key={item.title}
-            href={item.href}
             className="home-curated-card"
             style={{
               minHeight: '100%',
@@ -35,8 +31,8 @@ export function HomeStartHere({ items }: { items: StartHereItem[] }) {
             }}
           >
             <div className="home-curated-top">
-              <span className="home-curated-eyebrow">Path {index + 1}</span>
-              <span className="home-curated-arrow">Open</span>
+              <span className="home-curated-eyebrow">Goal {index + 1}</span>
+              <span className="home-curated-arrow">Choose</span>
             </div>
             <h3
               className="home-curated-title"
@@ -55,13 +51,40 @@ export function HomeStartHere({ items }: { items: StartHereItem[] }) {
                 lineHeight: 1.65,
               }}
             >
-              {item.outcome}
+              {item.description}
             </p>
-            <div className="home-curated-footer">
-              <span>{item.linkLabel}</span>
-              <span>Read now</span>
+            <div
+              style={{
+                display: 'grid',
+                gap: '0.6rem',
+              }}
+            >
+              <Link
+                href={item.primaryLink.href}
+                className="home-hero-button home-hero-button-secondary"
+                style={{
+                  width: 'fit-content',
+                  padding: '0.65rem 0.9rem',
+                }}
+              >
+                {item.primaryLink.label}
+              </Link>
+              {item.secondaryLink ? (
+                <Link
+                  href={item.secondaryLink.href}
+                  style={{
+                    color: 'var(--text-secondary)',
+                    fontSize: '0.86rem',
+                    fontWeight: 600,
+                    lineHeight: 1.5,
+                    textDecoration: 'none',
+                  }}
+                >
+                  {item.secondaryLink.label}
+                </Link>
+              ) : null}
             </div>
-          </Link>
+          </article>
         ))}
       </div>
     </section>
