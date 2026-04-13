@@ -3089,13 +3089,17 @@ img { max-width: 100%; height: auto; display: block; }
   line-height: 1.7;
 }
 .article-layout-grid {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 720px) minmax(0, 1fr);
-  gap: 0.95rem;
+  max-width: 1160px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 840px) minmax(0, 1fr);
+  gap: 1rem;
   align-items: start;
 }
 .article-content-card {
+  width: 100%;
+  max-width: 840px;
+  margin: 0 auto;
   min-width: 0;
-  padding: 1.05rem 1.35rem 1.6rem;
+  padding: 1.1rem 1.6rem 1.7rem;
   border-radius: 1.5rem;
   border: 1px solid rgba(15, 23, 42, 0.08);
   background: rgba(255, 255, 255, 0.94);
@@ -3103,9 +3107,22 @@ img { max-width: 100%; height: auto; display: block; }
 }
 .article-prose {
   max-width: 100%;
+  --article-text-measure: 46rem;
 }
 .article-prose > *:first-child {
   margin-top: 0;
+}
+.article-prose > p:not(:has(> .article-image-shell)),
+.article-prose > h2,
+.article-prose > h3,
+.article-prose > h4,
+.article-prose > ul,
+.article-prose > ol,
+.article-prose > blockquote,
+.article-prose > hr {
+  max-width: min(100%, var(--article-text-measure));
+  margin-left: auto;
+  margin-right: auto;
 }
 .article-prose h2,
 .article-prose h3,
@@ -3314,7 +3331,7 @@ img { max-width: 100%; height: auto; display: block; }
 }
 .article-footer-shell,
 .related-posts-shell {
-  max-width: 760px;
+  max-width: 880px;
   margin: 0 auto;
   padding: 1.35rem 1rem 0;
 }
@@ -3624,7 +3641,11 @@ img { max-width: 100%; height: auto; display: block; }
     grid-template-columns: 1fr;
   }
   .article-layout-grid {
+    max-width: 920px;
     gap: 1rem;
+  }
+  .article-content-card {
+    max-width: 860px;
   }
   .article-header-media-frame {
     aspect-ratio: 16 / 8.5;
@@ -3643,19 +3664,30 @@ img { max-width: 100%; height: auto; display: block; }
   .article-page-shell {
     padding-bottom: 2.5rem;
   }
+  .article-header-wrap {
+    padding: 0.9rem 0.9rem 0.3rem;
+  }
   .article-header-wrap,
   .article-footer-shell,
   .related-posts-shell {
     padding-left: 0.9rem;
     padding-right: 0.9rem;
   }
+  .article-layout-grid {
+    max-width: none;
+    gap: 0.75rem !important;
+    padding: 0 0.9rem !important;
+  }
   .article-header-card,
   .article-content-card,
   .author-bio-full,
   .author-bio-hero,
   .article-share-panel {
-    padding: 1rem;
-    border-radius: 1.1rem;
+    padding: 0.95rem;
+    border-radius: 1rem;
+  }
+  .article-content-card {
+    padding: 0.92rem 1rem 1.25rem;
   }
   .article-header-title {
     max-width: none;
@@ -3664,6 +3696,7 @@ img { max-width: 100%; height: auto; display: block; }
   .article-header-description,
   .article-prose p {
     font-size: 0.98rem;
+    line-height: 1.78;
   }
   .article-header-meta-bar,
   .article-meta-row,
@@ -3671,6 +3704,10 @@ img { max-width: 100%; height: auto; display: block; }
   .author-bio-links {
     flex-direction: column;
     align-items: stretch;
+  }
+  .article-header-meta-bar,
+  .article-meta-row {
+    gap: 0.55rem;
   }
   .article-nav-grid {
     grid-template-columns: 1fr;
@@ -3681,13 +3718,25 @@ img { max-width: 100%; height: auto; display: block; }
     justify-content: flex-start;
   }
   .article-header-media-frame {
-    aspect-ratio: 16 / 9.5;
+    aspect-ratio: 16 / 9.15;
   }
   .article-header-media-caption {
-    font-size: 0.84rem;
+    margin-top: 0.45rem;
+    font-size: 0.82rem;
+    line-height: 1.52;
   }
   .article-header-fallback {
     min-height: 220px;
+  }
+  .article-prose p,
+  .article-prose ul,
+  .article-prose ol,
+  .article-prose blockquote,
+  .article-prose pre,
+  .article-prose table,
+  .article-prose figure,
+  .article-prose hr {
+    margin-bottom: 1.2rem;
   }
   .article-prose h2 {
     margin-top: 2.15rem;
