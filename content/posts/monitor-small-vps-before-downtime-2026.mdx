@@ -203,7 +203,7 @@ tail -3 /var/log/your-backup.log
 sudo grep -i "out of memory\|oom\|killed" /var/log/syslog | tail -5
 ```
 
-Ten minutes. If all six return expected output, close the terminal and get back to building. The [self-hosted maintenance runbook](/blog/self-hosted-maintenance-runbook-vps-2026) has a more complete weekly and monthly ops checklist if you want to go deeper.
+Ten minutes. If all six return expected output, close the terminal and get back to building. The [self-hosted app upgrade checklist](/blog/self-hosted-app-upgrade-checklist-2026) is the better next read if you want a stricter change-window checklist before maintenance work lands on production.
 
 ---
 
@@ -253,7 +253,7 @@ Add one HTTP health check per app, one PM2 process check per app, and watch comb
 
 ## What to Read Next
 
-For a full weekly and monthly ops checklist, the [self-hosted maintenance runbook](/blog/self-hosted-maintenance-runbook-vps-2026) covers the complete operational rhythm for a self-hosted VPS setup.
+For a more structured maintenance window checklist, the [self-hosted app upgrade checklist](/blog/self-hosted-app-upgrade-checklist-2026) covers the backup, smoke-test, and rollback discipline that keeps routine ops from turning into downtime.
 
 If consistent resource pressure is making you wonder whether monitoring is telling you to upgrade, read [when a small VPS is too small](/blog/when-small-vps-is-too-small-2026) before spending money on a bigger server.
 

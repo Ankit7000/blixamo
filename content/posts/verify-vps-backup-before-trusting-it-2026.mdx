@@ -244,7 +244,7 @@ I keep a simple log entry after each restore drill:
 - Tested by: Ankit
 ```
 
-This log lives in my recovery runbook alongside the [self-hosted maintenance runbook](/blog/self-hosted-maintenance-runbook-vps-2026). It answers the question "when was this backup last verified?" with a real date instead of a guess.
+This log lives in my recovery runbook alongside the [self-hosted app upgrade checklist](/blog/self-hosted-app-upgrade-checklist-2026). It answers the question "when was this backup last verified?" with a real date instead of a guess.
 
 I also note the one thing that needed fixing from the drill. There is almost always one thing.
 
@@ -301,8 +301,8 @@ At minimum: the domain registrar login location, DNS management location, the ex
 
 If you want to set up the monitoring that tells you when backups are failing silently, read [how to monitor a small VPS before problems become downtime](/blog/monitor-small-vps-before-downtime-2026) — the backup signal check is one of the six weekly items.
 
-For the backup strategy itself (what to back up and how often), the [backup guide for a self-hosted stack](/blog/backup-small-self-hosted-stack-2026) covers the full setup.
+For the backup strategy itself, [Docker Volume Backup Strategy for VPS Apps in 2026](/blog/docker-volume-backup-strategy-vps-2026) covers what to back up, how to stage restorable artifacts, and what to verify before you trust the archive.
 
-For what to do when a restore is not a drill but a real incident, the [compromised VPS recovery guide](/blog/compromised-vps-recovery-2026) and the [post-deploy runbook](/blog/post-deploy-runbook-self-hosted-app-2026) cover the recovery sequence.
+For what to do when a restore is not a drill but a real incident, the [compromised VPS recovery guide](/blog/compromised-vps-recovery-2026) covers the rebuild path, and the [self-hosted app upgrade checklist](/blog/self-hosted-app-upgrade-checklist-2026) helps verify the stack cleanly once it comes back up.
 
 Browse the full [VPS and Cloud category](/category/vps-cloud) for more operational depth.

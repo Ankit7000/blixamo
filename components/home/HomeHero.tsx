@@ -123,60 +123,57 @@ export function HomeHero({ hero }: { hero: HeroSection }) {
               style={{
                 display: 'grid',
                 gap: '0.8rem',
-                padding: '1rem',
-                borderRadius: '1rem',
-                border: '1px solid var(--border)',
-                background: 'rgba(15, 23, 42, 0.12)',
               }}
             >
-              {hero.visual.rows.map((row) => (
-                <div
-                  key={row.title}
+              {hero.routeCards.map((route) => (
+                <Link
+                  key={route.href}
+                  href={route.href}
+                  className="home-featured-mini"
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: 'minmax(88px, 108px) 1fr',
-                    gap: '0.85rem',
-                    alignItems: 'start',
+                    gap: '0.55rem',
+                    padding: '1rem',
                   }}
                 >
-                  <span
+                  <div
                     style={{
-                      display: 'inline-flex',
-                      justifyContent: 'center',
-                      padding: '0.38rem 0.65rem',
-                      borderRadius: '999px',
-                      border: '1px solid var(--border)',
-                      background: 'var(--bg)',
-                      color: 'var(--text-muted)',
-                      fontSize: '0.72rem',
-                      fontWeight: 800,
-                      letterSpacing: '0.08em',
-                      textTransform: 'uppercase',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      gap: '0.8rem',
                     }}
                   >
-                    {row.label}
-                  </span>
-                  <div style={{ display: 'grid', gap: '0.2rem' }}>
-                    <strong
-                      style={{
-                        color: 'var(--text-primary)',
-                        fontSize: '0.92rem',
-                        lineHeight: 1.4,
-                      }}
-                    >
-                      {row.title}
-                    </strong>
+                    <span className="home-featured-mini-category">{route.eyebrow}</span>
                     <span
                       style={{
-                        color: 'var(--text-secondary)',
-                        fontSize: '0.84rem',
-                        lineHeight: 1.55,
+                        color: 'var(--text-muted)',
+                        fontSize: '0.77rem',
+                        fontWeight: 700,
                       }}
                     >
-                      {row.copy}
+                      Open lane
                     </span>
                   </div>
-                </div>
+                  <strong
+                    style={{
+                      color: 'var(--text-primary)',
+                      fontSize: '0.97rem',
+                      lineHeight: 1.45,
+                    }}
+                  >
+                    {route.title}
+                  </strong>
+                  <span
+                    style={{
+                      color: 'var(--text-secondary)',
+                      fontSize: '0.84rem',
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    {route.description}
+                  </span>
+                </Link>
               ))}
             </div>
           </div>
