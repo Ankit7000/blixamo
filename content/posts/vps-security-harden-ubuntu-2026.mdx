@@ -1,7 +1,7 @@
 ---
-title: "VPS Security Hardening Ubuntu 2026 — Blocks 847 SSH Attacks"
+title: "VPS Security Hardening Ubuntu 2026: SSH, UFW, Fail2Ban Checklist"
 slug: "vps-security-harden-ubuntu-2026"
-description: "15-step Ubuntu 24.04 checklist that blocked 847 SSH attacks on a fresh Hetzner VPS — SSH keys, UFW, fail2ban, SSL, unattended upgrades. Zero breaches."
+description: "Practical Ubuntu 24.04 hardening checklist for SSH keys, UFW, fail2ban, SSL, and unattended upgrades on a fresh VPS."
 date: "2026-03-18"
 updatedAt: "2026-03-26"
 author: "Ankit Sorathiya"
@@ -14,15 +14,15 @@ featuredImage: /images/posts/vps-security-harden-ubuntu-2026/featured.jpg
 schema: "howto"
 difficulty: "intermediate"
 timeToComplete: "30 minutes"
-excerpt: "I run this 8-step hardening checklist on every new Hetzner VPS within the first 10 minutes of provisioning."
+excerpt: "Practical Ubuntu hardening checklist for SSH keys, UFW, fail2ban, SSL, and unattended upgrades on a fresh VPS."
 toc: true
 ---
-A fresh Ubuntu VPS exposed to the internet will have its first SSH brute-force attempt within 3 hours — as of March 2026, I run this 8-step hardening checklist on every new server within the first 10 minutes of provisioning. On my last Hetzner server, `grep "Failed password" /var/log/auth.log | wc -l` showed 847 failed attempts within 48 hours — all from different IPs, all automated.
+A fresh Ubuntu VPS exposed to the internet needs a hardening pass before it sees real traffic. I run this checklist on every new server within the first 10 minutes of provisioning.
 
 > **Disclosure:** Some links in this article are affiliate links — I earn a small commission at no extra cost to you.
 
 
-I run this 8-step hardening checklist on every new server within the first 10 minutes of provisioning. It takes 30 minutes the first time. After that you have it memorized and it takes 10. For the broader server-security path, keep the [resources hub](/tag/deployment) nearby, treat this guide as part of the [VPS & Cloud category](/category/vps-cloud), and use the [VPS & Cloud for Developers Guide](/guides/vps-cloud-for-developers-guide) as the parent map while you move from baseline setup into incident prevention.
+It takes 30 minutes the first time. After that you have it memorized and it takes 10. For the broader server-security path, keep the [resources hub](/tag/deployment) nearby, treat this guide as part of the [VPS & Cloud category](/category/vps-cloud), and use the [VPS & Cloud for Developers Guide](/guides/vps-cloud-for-developers-guide) as the parent map while you move from baseline setup into incident prevention.
 
 <Callout type="info" title="TL;DR">
 - **SSH keys only** — disable password auth, eliminate brute-force attacks entirely
