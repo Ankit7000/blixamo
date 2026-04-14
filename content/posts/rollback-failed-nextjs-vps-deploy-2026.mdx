@@ -76,31 +76,12 @@ That sequence is intentionally boring. Boring wins. Boring workflows are easier 
 
 Document what exists now: services, volumes, environment variables, domains, and the simplest rollback target.
 
-At this stage, I recommend keeping the article-specific goal visible in a note at the top of your editor or runbook. For reverting a broken Next.js deployment quickly, the usual trap is drifting from the real objective into adjacent cleanup work. Stay focused. If a side issue appears, capture it as a follow-up task instead of folding it into the current change.
-
-Use the hub structure on Blixamo to keep context nearby: [How-To Guides](/category/how-to), [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide), and related reads like [Fix Coolify Deploy Failures Next.js 2026](/blog/fix-coolify-deploy-failures-nextjs-2026), [Deploy Next.js Coolify Hetzner](/blog/deploy-nextjs-coolify-hetzner), [Migrate Next.js From Vercel To VPS 2026](/blog/migrate-nextjs-vercel-to-vps-2026), [Verify VPS Backup Before Trusting It 2026](/blog/verify-vps-backup-before-trusting-it-2026). That sounds like an SEO note, but it also helps operationally. Supporting pages often hold the exact nuance you need for one step of the workflow.
-
-A strong checkpoint here is: can another developer read your notes and predict the next action? If not, the process is still too implicit. Rewrite the step in plain language. Replace "fix config" with the actual file, variable, or command. Replace "test it" with the actual request or scenario that proves the step succeeded.
-
 ### 2. Move one layer at a time
 
 Transfer configuration, then stateful data, then traffic, then verification. Mixing these together is how migrations become incidents.
-
-At this stage, I recommend keeping the article-specific goal visible in a note at the top of your editor or runbook. For reverting a broken Next.js deployment quickly, the usual trap is drifting from the real objective into adjacent cleanup work. Stay focused. If a side issue appears, capture it as a follow-up task instead of folding it into the current change.
-
-Use the hub structure on Blixamo to keep context nearby: [How-To Guides](/category/how-to), [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide), and related reads like [Fix Coolify Deploy Failures Next.js 2026](/blog/fix-coolify-deploy-failures-nextjs-2026), [Deploy Next.js Coolify Hetzner](/blog/deploy-nextjs-coolify-hetzner), [Migrate Next.js From Vercel To VPS 2026](/blog/migrate-nextjs-vercel-to-vps-2026), [Verify VPS Backup Before Trusting It 2026](/blog/verify-vps-backup-before-trusting-it-2026). That sounds like an SEO note, but it also helps operationally. Supporting pages often hold the exact nuance you need for one step of the workflow.
-
-A strong checkpoint here is: can another developer read your notes and predict the next action? If not, the process is still too implicit. Rewrite the step in plain language. Replace "fix config" with the actual file, variable, or command. Replace "test it" with the actual request or scenario that proves the step succeeded.
-
 ### 3. Verify before cleanup
 
 Leave the old path intact until the new one passes the critical path, the logs look clean, and your team can repeat the same steps.
-
-At this stage, I recommend keeping the article-specific goal visible in a note at the top of your editor or runbook. For reverting a broken Next.js deployment quickly, the usual trap is drifting from the real objective into adjacent cleanup work. Stay focused. If a side issue appears, capture it as a follow-up task instead of folding it into the current change.
-
-Use the hub structure on Blixamo to keep context nearby: [How-To Guides](/category/how-to), [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide), and related reads like [Fix Coolify Deploy Failures Next.js 2026](/blog/fix-coolify-deploy-failures-nextjs-2026), [Deploy Next.js Coolify Hetzner](/blog/deploy-nextjs-coolify-hetzner), [Migrate Next.js From Vercel To VPS 2026](/blog/migrate-nextjs-vercel-to-vps-2026), [Verify VPS Backup Before Trusting It 2026](/blog/verify-vps-backup-before-trusting-it-2026). That sounds like an SEO note, but it also helps operationally. Supporting pages often hold the exact nuance you need for one step of the workflow.
-
-A strong checkpoint here is: can another developer read your notes and predict the next action? If not, the process is still too implicit. Rewrite the step in plain language. Replace "fix config" with the actual file, variable, or command. Replace "test it" with the actual request or scenario that proves the step succeeded.
 
 ## Rollback Speed Depends on What You Preserve
 

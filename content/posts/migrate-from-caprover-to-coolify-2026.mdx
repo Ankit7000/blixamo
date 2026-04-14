@@ -1,0 +1,165 @@
+---
+title: "Migrate from CapRover to Coolify"
+description: "Migrate from CapRover to Coolify in 2026 with lower risk: inventory apps, export envs, move volumes, switch DNS, and keep rollback ready."
+date: "2026-04-06"
+updatedAt: "2026-04-07"
+author: "Blixamo"
+category: "self-hosting"
+tags: ["caprover", "coolify", "migration", "self hosting", "docker", "platform migration", "rollback"]
+keyword: "migrate from CapRover to Coolify"
+featured: false
+featuredImage: "/images/posts/migrate-from-caprover-to-coolify-2026/featured.png"
+schema: "howto"
+noindex: true
+canonical: "https://blixamo.com/blog/migrate-from-caprover-to-coolify-2026"
+---
+
+CapRover and Coolify both deploy Docker applications through a web dashboard, but they have different mental models and different failure patterns. Migrating between them is mostly straightforward, but it has a few specific traps — environment variable handling, volume data, and DNS timing — that cause painful downtime if you hit them without preparation.
+
+This page is the operational guide for the migration. The comparison context lives in [Coolify vs CapRover in 2026](/blog/coolify-vs-caprover-2026). This page sits in [Self-Hosting](/category/self-hosting) alongside the [Self-Hosting Complete Guide](/guides/self-hosting-complete-guide) and [Coolify Complete Guide 2026](/blog/coolify-complete-guide-2026).
+
+<Callout type="info" title="TL;DR">
+
+- Inventory every app, every environment variable, every volume, and every domain before touching anything.
+- Run both platforms in parallel until all apps are verified on Coolify — do not decommission CapRover early.
+- Switch DNS last, after smoke testing on Coolify with a test domain.
+- Keep the CapRover server for at least a week after full migration as a rollback option.
+
+</Callout>
+
+## Quick Table
+
+| Migration stage | What to do | Common trap |
+|---|---|---|
+| Inventory | List all apps, envs, volumes, domains | Forgetting background workers or cron jobs |
+| Coolify install | Fresh VPS or same VPS with port separation | Traefik port conflict if same VPS |
+| App recreation | Add each app in Coolify, set envs | Build-time vs runtime env var distinction |
+| Data migration | Move volumes and database dumps | Restoring to wrong path or wrong container |
+| DNS cutover | Update DNS after smoke test | Cutting over before app is verified |
+| CapRover teardown | Remove after one-week observation | Removing too early before hidden issues surface |
+
+## Step 1: Full inventory before you touch anything
+
+Write down every resource on the CapRover instance:
+
+- app names and their git repos or Docker images
+- all environment variables for each app (export them)
+- which apps use persistent storage and what path
+- database containers and their connection strings
+- worker or cron containers
+- custom domains and subdomains
+- SSL certificates (Coolify will regenerate, but you need the domain list)
+- any custom nginx configuration in CapRover
+
+Do this before opening Coolify. The inventory is the rollback anchor. If you discover an app mid-migration that was not on your list, you are already in a fragile state.
+
+For CapRover environment variables, you can view them in the app dashboard for each app. Write them down or export them to a local file. CapRover does not have a single "export everything" button.
+
+## Step 2: Install Coolify alongside CapRover
+
+The safest migration runs both platforms in parallel. Install Coolify on a fresh VPS — not the same one as CapRover unless you are certain about port separation, since both use Traefik on port 80 and 443.
+
+On the new Coolify VPS:
+- install Coolify following their documentation
+- add your server under Sources
+- configure your domain (Coolify needs a domain for its own dashboard)
+
+Do not point real traffic at Coolify yet. You are building a verified parallel environment.
+
+## Step 3: Recreate each app in Coolify
+
+For each app in your inventory:
+
+1. add the application in Coolify (git repo or Docker image)
+2. copy all environment variables from your CapRover export
+3. configure the port (Coolify needs the port the container exposes)
+4. add a health check if the app has a health endpoint
+5. trigger a test build and confirm it succeeds
+
+The most common failure here is environment variable scope. Next.js apps need to distinguish between build-time (`NEXT_PUBLIC_*`) and runtime variables. CapRover treats all env vars the same; Coolify may require you to mark build-time variables separately.
+
+For each app, after the build succeeds, set a test domain (like `app.test.yourdomain.com`) and smoke test the basic user path: does the app load, can you log in, does the main functionality work?
+
+## Step 4: Migrate volume data
+
+For apps with persistent storage, migrate the data before the DNS cutover.
+
+For database containers:
+
+```bash
+# On CapRover server — dump the database
+docker exec caprover-postgres-container pg_dump -U myuser mydb > mydb-$(date +%F).sql
+
+# Copy to Coolify server
+scp mydb-2026-04-07.sql user@coolify-vps:/tmp/
+
+# On Coolify server — import into new container
+docker exec -i coolify-postgres-container psql -U myuser mydb < /tmp/mydb-2026-04-07.sql
+```
+
+For file upload volumes, use rsync between servers:
+
+```bash
+rsync -avz user@caprover-vps:/var/lib/docker/volumes/caprover-app_uploads/ \
+  user@coolify-vps:/var/lib/docker/volumes/coolify-app_uploads/
+```
+
+Verify the data is present in the Coolify environment before proceeding to DNS cutover.
+
+## Step 5: DNS cutover
+
+After all apps are running and verified on Coolify under test domains, update DNS:
+
+1. lower the TTL on all affected DNS records 24 hours before cutover (to 60-300 seconds)
+2. at cutover time, update each DNS record to point to the Coolify VPS IP
+3. monitor for errors in the first 30 minutes after cutover
+4. verify SSL certificate generation completes for each domain
+
+Keep both servers running during DNS propagation. Requests may hit either server for the duration of the TTL window.
+
+## Step 6: One-week observation before teardown
+
+After the DNS cutover, leave the CapRover server running for at least one week. This gives you time to discover:
+
+- background jobs that were running on CapRover and not recreated on Coolify
+- scheduled tasks that only run weekly
+- apps that were not in your original inventory
+- edge cases in SSL or proxy behavior
+
+Only decommission CapRover after one full week of clean operation on Coolify.
+
+## Troubleshooting common migration failures
+
+**App builds succeed on CapRover but fail on Coolify**
+
+Check Node.js version in your Dockerfile or Nixpacks config. Coolify may default to a different version than CapRover's build environment.
+
+**Database connection fails after migration**
+
+Verify the `DATABASE_URL` environment variable points to the new database container hostname, not the old CapRover internal hostname.
+
+**SSL certificate not generating on Coolify**
+
+Confirm DNS has propagated to the Coolify server IP. Coolify uses Let's Encrypt, which requires DNS to be pointing at the server before it can issue the certificate.
+
+## FAQ
+
+### Can I run Coolify on the same VPS as CapRover?
+
+Possible but not recommended. Both use Traefik on ports 80 and 443. You would need to reconfigure one of them to use different ports, which adds complexity. A second VPS for parallel migration is cleaner.
+
+### Do I need to keep the same Docker images?
+
+No. Coolify will rebuild from your git repo using Nixpacks or a Dockerfile. If you were using custom CapRover Docker images, make sure the equivalent Dockerfile is available.
+
+### What happens to my SSL certificates during migration?
+
+Coolify generates new Let's Encrypt certificates. The old CapRover certificates are not transferable. DNS must be pointing at the Coolify server before certificate generation can succeed.
+
+### How do I handle apps with zero-downtime requirements?
+
+Use the parallel migration approach and do the DNS cutover during a low-traffic window. Lowering the DNS TTL beforehand shortens the propagation window.
+
+## What Next?
+
+Read the full comparison in [Coolify vs CapRover in 2026](/blog/coolify-vs-caprover-2026) if you are still deciding. After migration, use [Coolify Complete Guide 2026](/blog/coolify-complete-guide-2026) for day-to-day operations. Return to [Self-Hosting](/category/self-hosting) or the [Self-Hosting Complete Guide](/guides/self-hosting-complete-guide) for the broader cluster.
