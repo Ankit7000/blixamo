@@ -54,7 +54,8 @@ export default function PrivacyPolicyPage() {
         <h2>Google AdSense Advertising</h2>
         <p>
           Blixamo may use Google AdSense to display ads. Google and its partners may use cookies and similar
-          technologies to serve ads based on your visit to this site and other websites.
+          technologies to serve personalized or non-personalized ads, limit ad frequency, and measure ad performance
+          based on your visit to this site and other websites.
         </p>
         <p>
           Third-party vendors, including Google, may use the DoubleClick cookie to serve ads based on a user&apos;s prior
@@ -90,9 +91,9 @@ export default function PrivacyPolicyPage() {
 
         <h2>User Consent</h2>
         <p>
-          By continuing to use this website, you consent to the collection and use of information as described in this
-          Privacy Policy. Where required by law, consent choices may be requested for analytics, advertising cookies,
-          or similar technologies.
+          Where required by law, including for users in the EEA, UK, and Switzerland, Blixamo will request consent
+          before using advertising or analytics cookies that require consent. If a consent prompt appears, you can
+          accept, reject, or manage your choices there.
         </p>
         <p>
           You can also manage cookies through your browser settings and, where available, through controls provided by

@@ -1,0 +1,138 @@
+---
+title: "Migrate Next.js from Vercel to VPS"
+description: "Migrate Next.js from Vercel to VPS in 2026: move envs, cron, images, logs, SSL, and rollback without turning release day into a fire drill."
+date: "2026-04-06"
+updatedAt: "2026-04-07"
+author: "Blixamo"
+category: "how-to"
+tags: ["nextjs", "vercel", "vps migration", "self hosting", "deployment", "rollback", "nginx"]
+keyword: "migrate Next.js from Vercel to VPS"
+featured: false
+featuredImage: "/images/posts/migrate-nextjs-from-vercel-to-vps-2026/featured.png"
+schema: "howto"
+noindex: true
+canonical: "https://blixamo.com/blog/migrate-nextjs-from-vercel-to-vps-2026"
+---
+
+Vercel is the easiest way to deploy Next.js. Leaving Vercel is a reasonable decision — cost control, data residency, custom configuration requirements — but it is not as simple as switching a deploy target. Vercel provides a bundle of infrastructure that you need to replace explicitly: edge caching, automatic image optimization, serverless function scaling, preview deployments, and analytics. None of those disappear automatically when you switch to a VPS.
+
+This page covers the migration systematically. The related setup detail lives in [How to Self-Host Next.js on a VPS](/blog/how-to-self-host-nextjs-on-vps) and [Deploy Next.js on a VPS with Coolify and Hetzner](/blog/deploy-nextjs-coolify-hetzner). This page belongs in [How-To Guides](/category/how-to) and the [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide).
+
+<Callout type="info" title="TL;DR">
+
+- Inventory every Vercel feature you are actively using before migration — you need a replacement plan for each one.
+- Run the VPS deployment in parallel under a test domain before cutting over.
+- Environment variables in Vercel have per-environment scoping — recreate that structure explicitly on the VPS.
+- Keep Vercel active as a rollback option until the VPS deployment has handled at least one full traffic cycle.
+
+</Callout>
+
+## Quick Table
+
+| Vercel feature | VPS replacement | Notes |
+|---|---|---|
+| Build and deploy | Coolify, Nixpacks, or custom CI | Requires explicit configuration |
+| Edge caching | Cloudflare CDN | Free tier usually sufficient |
+| Image optimization | `next/image` works with Node target | Self-managed cache headers needed |
+| Serverless functions | Node.js server (always-on) | Different scaling model |
+| Preview deployments | Manual or branch-based CI | Most self-hosted setups skip this |
+| Environment variables | Coolify or .env on server | Per-environment scoping is manual |
+| Analytics | Plausible or Umami | Self-hosted or separate SaaS |
+| DDoS protection | Cloudflare | Free tier handles most cases |
+
+## Step 1: Inventory what you are actually using on Vercel
+
+Vercel gives you a lot by default, and it is easy to not know which features your application depends on. Before migrating, check:
+
+**Environment variables**: What variables are set, in which environments (production, preview, development), and do any of them point to Vercel-specific services?
+
+**Serverless functions**: Are you using API routes that rely on Vercel's serverless execution model, or do they work as standard Node.js handlers?
+
+**Edge functions or middleware**: Vercel Edge middleware runs at the CDN layer. On a VPS, middleware runs on the server. Behavior may differ, especially for geolocation or A/B testing.
+
+**Image optimization**: `next/image` uses Vercel's image optimization service by default. On a VPS, you need to ensure the Next.js server handles optimization, or configure a custom loader.
+
+**Preview deployments**: If your review process depends on Vercel preview URLs, you need an alternative or accept that this feature goes away.
+
+**Cron jobs**: Vercel supports cron triggers via configuration. On a VPS, you need to replace these with cron jobs on the server or a scheduling service.
+
+## Step 2: Set up the VPS deployment under a test domain
+
+Do not cut over from Vercel until the VPS deployment is verified working. Set up the full stack:
+
+- provision a VPS (Hetzner CX22 or similar)
+- install Coolify or configure Docker + Nginx directly
+- clone the repo and configure the build
+- set all environment variables
+- configure a test domain (like `staging.yourdomain.com`)
+- verify the build completes and the app loads
+- test the main user paths
+
+At this stage, Vercel is still serving production traffic. You are building and verifying a parallel environment.
+
+## Step 3: Migrate environment variables carefully
+
+Vercel's environment variable system supports per-environment scoping: you can have different values for production, preview, and development. On a VPS, that scoping is manual.
+
+Export all production environment variables from the Vercel dashboard. Set them in your deployment tool (Coolify's env section or a `.env` file on the server). Double-check:
+
+- `NEXTAUTH_URL` — must be the production domain, not the Vercel URL
+- `NEXTAUTH_SECRET` — copy exactly, do not regenerate unless you want sessions to invalidate
+- Database URLs — update if you are also migrating databases
+- Any variable containing `vercel.app` in the value — those will break
+
+Also check for `NEXT_PUBLIC_*` variables. These are embedded at build time. If any of them pointed to Vercel-specific endpoints, update them before building.
+
+## Step 4: Configure CDN caching and SSL
+
+Vercel handles SSL automatically. On a VPS, Coolify handles SSL via Let's Encrypt, or you configure Certbot directly. Both work, but you need to verify the certificates are issued and renewing.
+
+For CDN caching, put Cloudflare in front of the VPS. Configure Cloudflare to cache static assets and respect `Cache-Control` headers from Next.js. This replaces most of what Vercel's edge network provides for static performance.
+
+Set appropriate cache headers in Next.js for static assets, API routes that should not be cached, and dynamic pages. On Vercel, some of this was implicit. On a VPS with Cloudflare, it needs to be explicit.
+
+## Step 5: DNS cutover
+
+After the VPS deployment is verified on the test domain:
+
+1. lower DNS TTL to 60-300 seconds 24 hours before cutover
+2. at cutover time, update the A record to point to the VPS IP
+3. verify SSL certificate is valid on the new server
+4. monitor for errors in the first 30 minutes
+5. check that `NEXTAUTH_URL` and any callback URLs are correct for the production domain
+
+During the TTL window, some users will still hit Vercel, others will hit the VPS. Both should work correctly since both are running the same application code.
+
+## Step 6: What to disable on Vercel after cutover
+
+Do not immediately delete the Vercel project. Instead:
+
+- disable cron triggers on Vercel (to prevent duplicate execution with VPS cron)
+- keep Vercel deployment active for one week as a rollback option
+- after one week of clean VPS operation, you can remove the Vercel project if desired
+
+## FAQ
+
+### Do I need to change my Next.js code?
+
+Usually not. `next start` on a VPS works the same as Vercel for most applications. Edge runtime and edge middleware may need adjustment if you are using Vercel-specific features.
+
+### What about Image Optimization?
+
+`next/image` works on a self-hosted Next.js server without configuration changes. The server handles optimization on the first request and can cache subsequent requests. Add appropriate `Cache-Control` headers and consider a CDN in front for high-traffic images.
+
+### Is a VPS cheaper than Vercel?
+
+Depends on your traffic. For low-to-medium traffic developer blogs or tools, a small VPS (€5-€10/month) is usually cheaper than Vercel Pro. For high-traffic sites or teams that rely on preview deployments, the comparison is less clear.
+
+### Can I keep preview deployments?
+
+Preview deployments are one of Vercel's hardest features to replicate. Most self-hosted migrations accept losing this feature or replace it with manual staging environments.
+
+### What happens to Vercel Analytics after migration?
+
+Vercel Analytics stops collecting data when traffic leaves Vercel. Replace it with Plausible, Umami, or Fathom if you want privacy-friendly self-hosted analytics.
+
+## What Next?
+
+Read [How to Self-Host Next.js on a VPS](/blog/how-to-self-host-nextjs-on-vps) for the full setup walkthrough and [Deploy Next.js on a VPS with Coolify and Hetzner](/blog/deploy-nextjs-coolify-hetzner) for the Coolify-specific path. Return to [How-To Guides](/category/how-to) or the [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide) for adjacent reads.
