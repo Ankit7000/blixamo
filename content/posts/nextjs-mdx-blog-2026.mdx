@@ -1,7 +1,7 @@
 ---
-title: "Next.js MDX Blog in 2026: App Router + next-mdx-remote Setup"
+title: "File-Backed Next.js MDX Blog in 2026: App Router + next-mdx-remote"
 slug: "nextjs-mdx-blog-2026"
-description: "Build a Next.js 15 MDX blog with App Router and next-mdx-remote/rsc. Includes frontmatter, syntax highlighting, metadata, sitemap, and VPS deployment."
+description: "Build a file-backed Next.js 15 MDX blog with App Router and next-mdx-remote/rsc. Includes frontmatter, syntax highlighting, metadata, sitemap, and VPS deployment."
 date: "2026-03-18"
 updatedAt: "2026-03-27"
 author: "Ankit Sorathiya"
@@ -13,7 +13,7 @@ featuredImage: /images/posts/nextjs-mdx-blog-2026/featured.jpg
 schema: "howto"
 ---
 
-If you want a developer blog with Next.js and MDX in 2026, the cleanest setup is still App Router plus `next-mdx-remote/rsc`, with posts stored on disk and a small posts library handling frontmatter, reading time, related posts, and metadata.
+If you want a file-backed developer blog with Next.js and MDX in 2026, the cleanest setup is still App Router plus `next-mdx-remote/rsc`, with posts stored on disk and a small posts library handling frontmatter, reading time, related posts, and metadata.
 
 I built blixamo.com this way because I wanted the blog to behave like an app repo, not a CMS subscription. The real challenge is not rendering MDX once. The real challenge is picking the right MDX approach, keeping metadata clean, and deploying the site without breaking revalidation or search visibility.
 

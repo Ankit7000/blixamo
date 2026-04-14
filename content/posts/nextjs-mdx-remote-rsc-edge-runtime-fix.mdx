@@ -1,7 +1,7 @@
 ---
-title: "Fix next-mdx-remote/rsc Edge Error in Next.js 15"
+title: "Fix next-mdx-remote/rsc Edge Runtime fs/path Errors in Next.js 15"
 slug: "nextjs-mdx-remote-rsc-edge-runtime-fix"
-description: "Fix next-mdx-remote/rsc Edge Runtime errors in Next.js 15 by forcing Node.js runtime, checking inherited config, and verifying the route in production."
+description: "Fix the next-mdx-remote/rsc Edge Runtime fs/path error in Next.js 15 by forcing Node.js runtime, checking inherited config, and verifying the route in production."
 date: "2026-03-23"
 updatedAt: "2026-04-01"
 author: "Ankit Sorathiya"
@@ -18,7 +18,7 @@ excerpt: "Fix the `next-mdx-remote/rsc` Edge Runtime error in Next.js 15 by forc
 toc: true
 ---
 
-This is the kind of bug that makes smart people debug the wrong thing for hours. The route works in `next dev`, the MDX content looks fine, and then production dies with `The edge runtime does not support Node.js 'fs' module` or a vague `500`.
+This is the kind of bug that makes smart people debug the wrong thing for hours. The route works in `next dev`, the MDX content looks fine, and then production dies with `fs` or `path`-related runtime errors, or a vague `500`.
 
 That pattern is why this issue spreads. It looks like a markdown problem. It is usually a runtime problem.
 
