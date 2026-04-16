@@ -139,6 +139,7 @@ Pattern: `/author/[author]`
 | `/series/self-hosting` | `/category/self-hosting` | Old series URL |
 | `/hire` | `/about` | Misc redirect |
 | `/tag/cloudflare` | `/tag/deployment` | Consolidate old tag archive into resources hub |
+| `/tag/oracle-cloud` | `/tag/deployment` | Consolidate old tag archive into resources hub |
 | `/tag/docker` | `/tag/deployment` | Consolidate old tag archive into resources hub |
 | `/tag/postgresql` | `/tag/deployment` | Consolidate old tag archive into resources hub |
 | `/tag/nextjs` | `/tag/deployment` | Consolidate old tag archive into resources hub |
