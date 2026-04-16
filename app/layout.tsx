@@ -8,6 +8,7 @@ import { WebVitals } from '@/components/seo/WebVitals'
 import Script from 'next/script'
 
 const inter = Inter({ subsets: ['latin'], display: 'swap' })
+const ADSENSE_ACCOUNT_ID = 'ca-pub-9266447528918260'
 const CLARITY_ID = process.env.NEXT_PUBLIC_CLARITY_ID
 const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME
 const DEPLOY_TARGET = process.env.NEXT_PUBLIC_DEPLOY_TARGET
@@ -33,6 +34,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         {/* Inline theme script - prevents flash of wrong theme */}
         <script dangerouslySetInnerHTML={{ __html: `(function(){var t=localStorage.getItem('theme')||(window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)})()` }} />
+        <script
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_ACCOUNT_ID}`}
+          crossOrigin="anonymous"
+        />
         <link rel="alternate" type="application/rss+xml" title="Blixamo RSS" href="/feed.xml" />
       </head>
       <body className={inter.className}>
