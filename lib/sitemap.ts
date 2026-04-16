@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { CATEGORY_META } from './categories'
 import { getPillarDefinitions, getPillarPageBySlug, PILLAR_BASE_PATH } from './pillars'
-import { getAllPosts, getPostFreshnessDate, type Post } from './posts'
+import { getAllPosts, getPostFreshnessDate, isPostNoindex, type Post } from './posts'
 import { RESOURCE_HUB_PATH } from './resources'
 
 export type SitemapRouteKind = 'core' | 'hub' | 'community' | 'category' | 'guide' | 'post'
@@ -171,7 +171,7 @@ function getUnexpectedUrlReason(
 }
 
 export function shouldIncludePostInSitemap(post: Pick<Post, 'slug' | 'noindex' | 'canonical'>): boolean {
-  if (!post.slug || post.noindex) return false
+  if (!post.slug || isPostNoindex(post)) return false
   if (!post.canonical) return true
 
   try {

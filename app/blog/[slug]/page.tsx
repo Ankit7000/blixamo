@@ -1,4 +1,4 @@
-import { getAllPosts, getPostBySlug, getPostRecommendationSections } from '@/lib/posts'
+import { getAllPosts, getPostBySlug, getPostRecommendationSections, isPostNoindex } from '@/lib/posts'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import { JsonLd, FaqJsonLd } from '@/components/seo/JsonLd'
 import { PostHeader } from '@/components/blog/PostHeader'
@@ -28,6 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const post = getPostBySlug(slug)
   if (!post) return {}
+  const isNoindex = isPostNoindex(post)
 
   return {
     title: post.title,
@@ -55,7 +56,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: post.description,
     },
     alternates: { canonical: post.canonical || `https://blixamo.com/blog/${slug}` },
-    robots: post.noindex ? { index: false, follow: true } : { index: true, follow: true },
+    robots: isNoindex ? { index: false, follow: true } : { index: true, follow: true },
   }
 }
 
