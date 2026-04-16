@@ -14,6 +14,11 @@ import { getRelatedCategorySlugs } from './resources'
 
 const postsDirectory = path.join(process.cwd(), 'content/posts')
 
+const FORCED_NOINDEX_POST_SLUGS = new Set([
+  'migrate-postman-to-hoppscotch-2026',
+  'docker-compose-health-checks-actually-help-2026',
+])
+
 const WEAK_ARTICLE_BOOSTS_BY_CATEGORY: Record<string, Set<string>> = {
   'developer-tools': new Set(['best-vpn-for-developers-2026']),
   'free-tools': new Set([
@@ -143,8 +148,12 @@ export function getPostFreshnessDate(post: Pick<Post, 'updatedAt' | 'date'>): Da
   return new Date(post.updatedAt || post.date)
 }
 
-export function isIndexablePost(post: Pick<Post, 'noindex'>): boolean {
-  return !post.noindex
+export function isPostNoindex(post: Pick<Post, 'slug' | 'noindex'>): boolean {
+  return Boolean(post.noindex) || FORCED_NOINDEX_POST_SLUGS.has(post.slug)
+}
+
+export function isIndexablePost(post: Pick<Post, 'slug' | 'noindex'>): boolean {
+  return !isPostNoindex(post)
 }
 
 export function getAllPosts(): Post[] {
