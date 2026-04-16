@@ -5,7 +5,6 @@ export const metadata: Metadata = {
   title: 'Privacy Policy',
   description: 'Read how Blixamo collects, uses, and protects data, including analytics, cookies, Google AdSense advertising, and user consent information.',
   alternates: { canonical: absoluteUrl('/privacy-policy') },
-  robots: { index: false, follow: true },
 }
 
 export default function PrivacyPolicyPage() {
