@@ -6,7 +6,7 @@ import type { ComponentPropsWithoutRef, ReactNode } from 'react'
 type VisualTone = 'default' | 'info' | 'success' | 'warning' | 'accent'
 
 const ARTICLE_IMAGE_SIZES =
-  '(max-width: 768px) calc(100vw - 2rem), (max-width: 1200px) min(100vw - 4rem, 760px), 760px'
+  '(max-width: 768px) calc(100vw - 1.8rem), (max-width: 1200px) min(100vw - 4rem, 840px), 840px'
 
 const LOCAL_PUBLIC_ROOT = path.join(process.cwd(), 'public')
 const OPTIMIZABLE_RASTER_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp'])

@@ -3,7 +3,7 @@ title: "Oracle Cloud Free vs Hetzner 2026 — 4 Hidden Limits"
 slug: "oracle-cloud-free-vs-hetzner-2026"
 description: "Oracle Free Tier sounds perfect until you hit the 4 limits they don't advertise. Ran both in production. Honest verdict with real cost comparison."
 date: "2026-03-20"
-updatedAt: "2026-03-26"
+updatedAt: "2026-04-13"
 author: "Ankit Sorathiya"
 category: "vps-cloud"
 tags: [vps,hetzner,self-hosting]
@@ -21,12 +21,11 @@ I run a Telegram bot on Oracle Cloud Free and blixamo.com on Hetzner CPX22.
 
 > **Disclosure:** Some links in this article are affiliate links — I earn a small commission at no extra cost to you.
 
-Oracle Cloud Always Free sounds too good. 4 Arm CPUs, 24GB RAM, free forever — and it's real. But there are four limits nobody in the marketing copy mentions that will hit you in production. Here's what you actually get from both options. For the broader host-selection path, keep the [resources hub](/tag/deployment) open, treat this comparison as part of the [VPS & Cloud category](/category/vps-cloud), and use the [VPS & Cloud for Developers Guide](/guides/vps-cloud-for-developers-guide) as the parent map before you commit to a provider. If you are mapping a low-cost stack beyond hosting, start with the [main free-tools guide](/guides/free-tools-for-developers).
+Oracle Cloud Always Free sounds too good. Free VPS, generous marketing numbers, and no monthly bill. It is real, but it is not the same thing as a cheap production server you can trust under normal deploy, build, and recovery pressure.
 
+This page is for developers choosing between a genuinely free server for bots, staging, or low-pressure side projects and a small paid VPS for real user-facing work. For the broader host-selection path, keep the [resources hub](/tag/deployment), the [VPS & Cloud category](/category/vps-cloud), and the [VPS & Cloud for Developers Guide](/guides/vps-cloud-for-developers-guide) nearby while you compare this with [Hetzner vs AWS Lightsail in 2026](/blog/hetzner-vs-aws-lightsail-2026) and [Multiple Projects on One VPS](/blog/multiple-projects-single-vps).
 
- As of March 2026, Oracle's Always Free tier is the only legitimate free VPS that doesn't expire — but it has hard limits that make Hetzner the right choice for anything production-critical.
-
-Here is exactly what each handles, what breaks, and which one you should use.
+As of March 2026, Oracle's Always Free tier is the only legitimate free VPS that does not expire. It is still the wrong answer for anything production-critical unless you are deliberately accepting slower builds, ARM64 checks, and a weaker reliability story in exchange for the $0 bill.
 
 <Callout type="info" title="TL;DR">
 - **Oracle Cloud Free** — genuinely free forever, 1GB RAM ARM instance, great for bots and lightweight APIs
@@ -34,6 +33,14 @@ Here is exactly what each handles, what breaks, and which one you should use.
 - **Verdict:** Oracle Free for your first project and experimentation. Hetzner for anything with real traffic or uptime requirements.
 - **Key number:** Oracle's free ARM has 1GB RAM. Hetzner CPX22 has 4GB RAM for $5.2/month.
 </Callout>
+
+## Quick verdict before the full comparison
+
+Use Oracle Cloud Free if the real job is a bot, staging box, cron worker, or lightweight API and you are willing to babysit the setup more closely.
+
+Use Hetzner if the real job is a production web app, a multi-service stack, or anything where failed builds, slow recovery, and ARM64 compatibility checks will cost more than €5.19/month.
+
+The mistake is treating these two servers as interchangeable because the marketing numbers look closer than the real operating experience.
 
 | Feature | Oracle Cloud Free | Hetzner CPX22 |
 
@@ -50,17 +57,23 @@ Here is exactly what each handles, what breaks, and which one you should use.
 | vCPU | 1 OCPU | 2 vCPU |
 | Storage | 50GB | 75GB NVMe |
 | Bandwidth | 10TB/month | 20TB/month |
-| Card verification | International card (tricky) | Niyo/Wise works |
+| Card verification | International card can be awkward | Standard paid signup is simpler |
 
 ---
 
-## Why This Comparison Matters for Indie Developers
+## Why This Comparison Matters
 
-Most VPS comparisons skip one practical detail: Oracle Cloud's Always Free tier requires a credit card for verification, and that card often gets declined. Hetzner works reliably with Niyo Global or Wise virtual cards — covered in the [Hetzner payment guide](/blog/pay-hetzner-from-india).
+Most VPS comparisons flatten this decision into "free vs cheap." That is not the real tradeoff. The real tradeoff is whether you want a zero-cost server with stricter operating limits or a cheap paid server that behaves like normal production infrastructure.
 
-Once you get past payment, the choice comes down to your actual use case. Oracle Free is genuinely perpetually free — not a 1-year trial like AWS Free Tier. Hetzner is $5.2/month for specs that handle real production traffic.
+Oracle Free is genuinely perpetual — not a one-year trial. Hetzner is still cheap enough that the monthly bill is often smaller than the engineering time lost to swap workarounds, ARM64 surprises, or slow first-time setup.
 
-As of March 2026, I use both: Oracle for the Telegram Claude bot (runs 24/7, uses ~50MB RAM), Hetzner for blixamo.com and four other projects. The 306ms homepage load time from Cloudflare's edge would not be possible on Oracle's 1GB ARM instance during a Next.js build.
+As of March 2026, I use both: Oracle for the Telegram Claude bot that idles around 50MB RAM, Hetzner for blixamo.com and four other projects. The 306ms homepage load time from Cloudflare's edge is not the hard part. The hard part is that Oracle's 1GB ARM instance is the wrong place to trust repeated Next.js production builds, multi-service stacks, or anything that needs comfortable headroom.
+
+## Which developer should read this first?
+
+- Read this first if you are choosing your first real VPS and cost is the main filter.
+- Read this first if Oracle Free looks tempting but you are unsure whether it is safe for an actual production app.
+- Skip this as your first stop if you already know you need a normal paid server and the real question is provider comparison across paid options. In that case, [Hetzner vs AWS Lightsail in 2026](/blog/hetzner-vs-aws-lightsail-2026) is the cleaner next read.
 
 ---
 
@@ -83,7 +96,7 @@ Oracle's Always Free tier gives you 2 AMD micro instances (1GB RAM each) or 1 AR
 The 1GB RAM limit is the ceiling. A plain Python or Node.js bot runs fine. A Next.js app building from source will OOM-kill every time — Next.js production builds consistently spike above 1GB. A Docker container running n8n idle uses ~180MB, which fits, but leaves almost nothing for workflows.
 
 <Callout type="warning" title="Oracle Free: Payment Verification Is the Real Barrier">
-Oracle requires a valid international credit card to sign up, even for the free tier. They charge a $0.01 verification that auto-reverses. Standard debit cards sometimes fail this verification. Wise virtual Visa card or a Niyo Global card works most reliably. If the card fails, Oracle holds your account in pending status — sometimes for days.
+Oracle requires a valid international credit card to sign up, even for the free tier. They charge a $0.01 verification that auto-reverses. Standard debit cards sometimes fail this verification. If the card fails, Oracle holds your account in pending status — sometimes for days. That is one more reason Oracle Free is better treated as a low-cost experiment box than a normal production starting point.
 </Callout>
 
 **What runs well on Oracle Free 1GB ARM:**
@@ -212,13 +225,22 @@ If you are comparing the rest of a low-cost developer stack alongside hosting, t
 
 This is exactly my setup: Oracle handles the Telegram bot and a staging environment, Hetzner handles everything user-facing.
 
+## When not to choose Oracle Free
+
+Do not choose Oracle Free just because the top-line specs look generous.
+
+- Do not choose it for a Next.js production app that builds on the server.
+- Do not choose it for a stack where ARM64 compatibility checks will slow you down.
+- Do not choose it if the app matters enough that a "free tier capacity" or reclaim story would keep you up.
+- Do not choose it if you really want a normal cheap production VPS and are only hesitating over €5.19/month.
+
 ---
 
 ## Troubleshooting Common Issues
 
 **Oracle Free: Account stuck in pending after card verification**
 
-Oracle's fraud detection blocks many international cards. Try a Wise virtual Visa card — it has the highest success rate for Oracle's verification process. If Wise fails, try a Niyo Global card. Standard debit cards from many countries (including SBI, HDFC) often fail the verification.
+Oracle's fraud detection blocks many international cards. A virtual Visa card with reliable international verification tends to work better than a standard debit card. If the verification still fails, Oracle can leave the account pending for days.
 
 **Oracle Free: Instance shows "Out of host capacity"**
 
@@ -256,9 +278,9 @@ The main barrier is card verification. Once you're past that — Wise card is th
 
 Standard migration: create a Hetzner server, rsync your files and configs from Oracle to Hetzner, update DNS to point to the new IP, verify everything works, then let the Oracle instance go. For databases, dump and restore. With PM2 and Docker, the entire migration typically takes under 2 hours. The [multiple projects VPS setup guide](/blog/multiple-projects-single-vps) gives you the exact Nginx + PM2 configuration for the new Hetzner server.
 
-### Which has better latency from India?
+### Which has better Asia-region latency?
 
-Oracle's Mumbai region (ap-mumbai-1) has ~10–20ms latency in the Asia region — significantly better than Hetzner Helsinki's ~150ms. However, with Cloudflare CDN in front of Hetzner, static content is served from Cloudflare's Mumbai or Chennai edge at ~5–10ms. For dynamic requests and APIs without caching, Oracle Mumbai wins on latency. For content-heavy sites with Cloudflare, the difference is negligible.
+Oracle's Mumbai region (ap-mumbai-1) has ~10–20ms latency in the Asia region — significantly better than Hetzner Helsinki's ~150ms. However, with Cloudflare in front of Hetzner, static content is still served from a nearby edge at ~5–10ms. For dynamic uncached requests, Oracle Mumbai wins. For content-heavy sites behind Cloudflare, the difference matters less than server reliability and build headroom.
 
 ### Can I use both Oracle Free and Hetzner together?
 
@@ -277,12 +299,12 @@ Yes — this is the optimal setup. Oracle Free handles services that don't need 
 | Bandwidth | 10TB | 20TB |
 | Architecture | ARM64 | x86_64 |
 | SLA | None (free tier) | 99.9% |
-| Card to sign up | Wise virtual card recommended | Niyo/Kotak recommended |
+| Signup friction | Card verification can be awkward | Normal paid signup flow |
 | Next.js build | Slow (needs swap) | 40 seconds |
 | Docker ARM64 compat | Check per image | All images work |
 | n8n + Redis | Tight (1GB limit) | Comfortable (4GB) |
 | Multiple projects | 1–2 lightweight | 4–6 production apps |
-| Region near India | Mumbai, Hyderabad | Helsinki (use Cloudflare) |
+| APAC-friendly region option | Mumbai, Hyderabad | Use CDN in front of Helsinki |
 | Termination risk | 30-day notice possible | Paid tier, no termination |
 | Best use case | Bots, cron, staging | Production web apps |
 
@@ -296,7 +318,7 @@ You now have the exact framework: Oracle Free for zero-cost bots and experiments
 
 1. **Start with Oracle Free** — get the ARM instance running, add 2GB swap, deploy your bot or lightweight API. It's free and teaches you the VPS fundamentals you'll use on Hetzner later.
 2. **Move to Hetzner when you outgrow it** — read [how to run 5 side projects on one Hetzner CPX22](/blog/multiple-projects-single-vps) for the production-ready Nginx + PM2 + Docker setup.
-3. **Sort out card payment** — the [Indian debit cards for dev tools guide](/blog/indian-debit-cards-dev-tools) covers which cards work on each platform.
+3. **Sort out deployment discipline** — the [VPS & Cloud for Developers Guide](/guides/vps-cloud-for-developers-guide) is the cleaner next step if the hosting choice is made and the real question is how to run it safely.
 
 If you're already on Hetzner and want the free Oracle ARM for a staging server or bot, setting it up takes under 30 minutes — and $0 in ongoing costs is hard to argue with.
 

@@ -184,15 +184,15 @@ export default function ServicesPage() {
           <div>
             <p style={{ color: 'var(--accent)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Services</p>
             <h1 style={{ fontSize: 'clamp(2.4rem, 5vw, 4rem)', lineHeight: 1.05, marginTop: '0.5rem', maxWidth: '12ch' }}>
-              Technical help for founders and teams that need a working stack.
+              Technical help for teams that need a working build, deploy, or cleanup path.
             </h1>
             <p style={{ fontSize: '1.05rem', lineHeight: 1.8, color: 'var(--text-secondary)', maxWidth: '64ch' }}>
               Blixamo is run by {PRIMARY_AUTHOR.displayName}. The same person writing the deployment, self-hosting, and workflow guides is available for practical build work,
-              migration help, audits, and targeted implementation support.
+              migration help, audits, and targeted implementation support when the stack and the problem are already real.
             </p>
             <div style={{ display: 'flex', gap: '0.9rem', flexWrap: 'wrap', marginTop: '1.5rem' }}>
               <Link href="/contact" className="home-hero-button home-hero-button-primary">Start with contact</Link>
-              <Link href="/products" className="home-hero-button home-hero-button-secondary">See productized offers</Link>
+              <Link href="/products" className="home-hero-button home-hero-button-secondary">See practical packs</Link>
               <Link href="/subscribe" className="home-hero-button home-hero-button-secondary">Subscribe for updates</Link>
             </div>
           </div>
@@ -200,7 +200,7 @@ export default function ServicesPage() {
           <aside style={{ background: 'linear-gradient(180deg, rgba(37, 99, 235, 0.08) 0%, rgba(255,255,255,0.98) 100%)', border: '1px solid var(--border)', borderRadius: '1.25rem', padding: '1.5rem', boxShadow: '0 20px 50px rgba(15, 23, 42, 0.08)' }}>
             <p style={{ fontWeight: 700, color: 'var(--text-primary)' }}>Founder and operator credibility</p>
             <p style={{ color: 'var(--text-secondary)', lineHeight: 1.75 }}>
-              {PRIMARY_AUTHOR.shortBio} Work here is intentionally small-business and operator-led, not agency-bloated.
+              {PRIMARY_AUTHOR.shortBio} Work here is intentionally operator-led and hands-on, with direct ownership of the implementation and the supporting notes.
             </p>
             <div style={{ display: 'grid', gap: '0.75rem', marginTop: '1.25rem' }}>
               {[
@@ -238,7 +238,7 @@ export default function ServicesPage() {
         <div style={{ maxWidth: '1120px', margin: '0 auto' }}>
           <div style={{ maxWidth: '760px' }}>
             <p style={{ color: 'var(--accent)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>What I help with</p>
-            <h2 style={{ fontSize: '2rem', marginTop: '0.4rem' }}>Service areas, deliverables, and proof routes</h2>
+            <h2 style={{ fontSize: '2rem', marginTop: '0.4rem' }}>Service areas, deliverables, and published support</h2>
           </div>
           <div style={{ display: 'grid', gap: '1.25rem', marginTop: '1.75rem' }}>
             {SERVICES.map((service) => (
@@ -261,7 +261,7 @@ export default function ServicesPage() {
                     <ul style={{ margin: 0, paddingLeft: '1.1rem', color: 'var(--text-secondary)', lineHeight: 1.8 }}>
                       {service.artifacts.map((item) => <li key={item}>{item}</li>)}
                     </ul>
-                    <p style={{ fontWeight: 700, margin: '1rem 0 0.75rem' }}>Public proof route</p>
+                    <p style={{ fontWeight: 700, margin: '1rem 0 0.75rem' }}>Published support</p>
                     <div style={{ display: 'grid', gap: '0.85rem' }}>
                       {service.proofs.map((proof) => (
                         <Link key={proof.href} href={proof.href} style={{ border: '1px solid var(--border)', borderRadius: '0.95rem', padding: '0.9rem 1rem', textDecoration: 'none', color: 'inherit', background: 'var(--bg-subtle)' }}>
@@ -373,7 +373,7 @@ export default function ServicesPage() {
           <p style={{ color: 'var(--accent)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Next step</p>
           <h2 style={{ fontSize: '2rem', marginTop: '0.45rem' }}>If the project is real, the fastest route is still a clear message.</h2>
           <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '68ch' }}>
-            Use the contact page to describe the goal, current setup, timeline, and where the stack is getting stuck. If a productized pack is enough, that will usually be
+            Use the contact page to describe the goal, current setup, timeline, and where the stack is getting stuck. If a smaller pack or checklist is enough, that will usually be
             the cleaner recommendation. If not, the conversation can move into scoped implementation help.
           </p>
           <div style={{ display: 'flex', gap: '0.9rem', flexWrap: 'wrap', marginTop: '1.4rem' }}>

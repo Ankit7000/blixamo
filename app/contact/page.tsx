@@ -105,7 +105,7 @@ export default function ContactPage() {
           <p style={{ color: 'var(--accent)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Direct contact path</p>
           <h2 style={{ fontSize: '2rem', marginTop: '0.45rem' }}>{PRIMARY_AUTHOR.email}</h2>
           <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '68ch' }}>
-            If the request looks like a services fit, read <Link href="/services">Services</Link> first. If a productized pack may be enough, check <Link href="/products">Products</Link>.
+            If the request looks like a services fit, read <Link href="/services">Services</Link> first. If a smaller pack or checklist may be enough, check <Link href="/products">Products</Link>.
             If you mainly want publication updates, use <Link href="/subscribe">Subscribe</Link>.
           </p>
           <div style={{ display: 'flex', gap: '0.9rem', flexWrap: 'wrap', marginTop: '1.4rem' }}>

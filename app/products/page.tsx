@@ -155,7 +155,7 @@ const PACK_FORMATS = [
 export const metadata: Metadata = {
   title: 'Products',
   description:
-    'Honest productized offers from Blixamo: deployment packs, self-hosting runbooks, AI workflow kits, and n8n starter materials available by request.',
+    'Practical Blixamo packs for deployment, self-hosting, AI workflows, and n8n work that are requested directly instead of pushed through a generic storefront.',
   alternates: { canonical: absoluteUrl('/products') },
 }
 
@@ -167,11 +167,11 @@ export default function ProductsPage() {
           <div>
             <p style={{ color: 'var(--accent)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Products</p>
             <h1 style={{ fontSize: 'clamp(2.4rem, 5vw, 4rem)', lineHeight: 1.05, marginTop: '0.5rem', maxWidth: '12ch' }}>
-              Productized packs for operators who need structure before they need a bigger service engagement.
+              Practical packs for operators who need structure before they need hands-on implementation.
             </h1>
             <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, fontSize: '1.05rem', maxWidth: '66ch' }}>
-              These offers are intentionally simple. No fake checkout, no invented pricing, and no filler catalog. If a pack is enough, it should save time without
-              turning into a full consulting project. If it is not enough, the better route is the services page.
+              These are lightweight, documentation-first offers for teams that need a checklist, runbook, or workflow pack before they need custom build work. Requests go
+              through contact so the fit stays clear and the scope stays honest.
             </p>
             <div style={{ display: 'flex', gap: '0.9rem', flexWrap: 'wrap', marginTop: '1.5rem' }}>
               <Link href="/contact" className="home-hero-button home-hero-button-primary">Ask about availability</Link>
@@ -183,13 +183,13 @@ export default function ProductsPage() {
             <p style={{ fontWeight: 700 }}>Why these offers exist</p>
             <p style={{ color: 'var(--text-secondary)', lineHeight: 1.75 }}>
               {PRIMARY_AUTHOR.displayName} already publishes the deployment, workflow, and runbook logic behind these offers. The product layer simply packages the most
-              reusable parts into requestable formats.
+              reusable parts into compact formats a small team can actually use.
             </p>
             <div style={{ display: 'grid', gap: '0.75rem', marginTop: '1.1rem' }}>
               {[
-                'Request details through contact instead of pretending checkout is ready.',
-                'Use proof and related reads as provenance signals.',
-                'Keep the page honest: if a pack is not enough, say so and move the fit to services.',
+                'Request through contact so the fit and scope stay clear before anything is promised.',
+                'Use the previews and published guides as provenance for how the packs are built.',
+                'Move to services when the real need is implementation, migration handling, or stack cleanup.',
               ].map((item) => (
                 <div key={item} style={{ border: '1px solid var(--border)', borderRadius: '0.95rem', padding: '0.9rem 1rem', background: 'rgba(255,255,255,0.92)' }}>{item}</div>
               ))}
@@ -229,7 +229,7 @@ export default function ProductsPage() {
                     </div>
 
                     <div>
-                      <p style={{ fontWeight: 700, marginBottom: '0.75rem' }}>Preview and proof block</p>
+                      <p style={{ fontWeight: 700, marginBottom: '0.75rem' }}>Preview and published support</p>
                       <p style={{ color: 'var(--text-secondary)', lineHeight: 1.75 }}>{product.preview}</p>
                       {product.previewAsset && (
                         <figure
@@ -255,7 +255,7 @@ export default function ProductsPage() {
                         </figure>
                       )}
                       <p style={{ marginTop: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.75 }}>
-                        <strong style={{ color: 'var(--text-primary)' }}>Built from real workflows:</strong> the related reads below are the public operating logic behind this pack format.
+                        <strong style={{ color: 'var(--text-primary)' }}>Built from published workflows:</strong> the related reads below show the operating logic behind this pack format.
                       </p>
                       <div style={{ display: 'grid', gap: '0.8rem', marginTop: '1rem' }}>
                         {product.proofLinks.map((link) => (
@@ -267,7 +267,7 @@ export default function ProductsPage() {
                     </div>
 
                     <div>
-                      <p style={{ fontWeight: 700, marginBottom: '0.75rem' }}>Proof-ready assets</p>
+                      <p style={{ fontWeight: 700, marginBottom: '0.75rem' }}>Typical support assets</p>
                       <ul style={{ margin: 0, paddingLeft: '1.1rem', color: 'var(--text-secondary)', lineHeight: 1.8 }}>
                         {product.proofReadyAssets.map((item) => <li key={item}>{item}</li>)}
                       </ul>
@@ -276,7 +276,7 @@ export default function ProductsPage() {
 
                   <div style={{ display: 'flex', gap: '0.9rem', flexWrap: 'wrap', marginTop: '1.35rem' }}>
                     <Link href="/contact" className="home-hero-button home-hero-button-primary">Request details</Link>
-                    <Link href="/contact" className="home-hero-button home-hero-button-secondary">Get this via contact</Link>
+                    <Link href="/services" className="home-hero-button home-hero-button-secondary">Need implementation instead?</Link>
                   </div>
                 </article>
               ))}
@@ -289,7 +289,7 @@ export default function ProductsPage() {
         <div style={{ maxWidth: '1120px', margin: '0 auto' }}>
           <div style={{ maxWidth: '760px' }}>
             <p style={{ color: 'var(--accent)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>What a delivered pack can look like</p>
-            <h2 style={{ fontSize: '2rem', marginTop: '0.4rem' }}>The structure is proof-ready now, even before every preview asset exists.</h2>
+            <h2 style={{ fontSize: '2rem', marginTop: '0.4rem' }}>How these packs are typically structured</h2>
           </div>
           <div style={{ display: 'grid', gap: '1rem', marginTop: '1.5rem', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
             {PACK_FORMATS.map((item) => (

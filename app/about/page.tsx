@@ -344,7 +344,7 @@ export default function AboutPage() {
       <section className="about-section-shell">
         <div style={{ border: '1px solid var(--border)', borderRadius: '1.5rem', padding: '1.75rem', background: 'linear-gradient(180deg, rgba(37, 99, 235, 0.07) 0%, rgba(255,255,255,0.98) 100%)' }}>
           <p className="about-section-kicker">Work with Blixamo</p>
-          <h2 className="about-section-title">The publication now has clear routes for service work, productized offers, and direct contact.</h2>
+          <h2 className="about-section-title">The publication now has clear routes for service work, practical packs, and direct contact.</h2>
           <p className="about-section-description" style={{ maxWidth: '68ch' }}>
             If you are here because the articles match the kind of technical work you need help with, use the service and product routes instead of guessing how to reach out.
           </p>
