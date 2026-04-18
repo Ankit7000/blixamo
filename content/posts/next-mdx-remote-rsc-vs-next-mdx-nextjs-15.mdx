@@ -20,16 +20,27 @@ That is why this comparison matters. This is not a generic MDX overview. It is a
 
 If your setup is already broken with a runtime mismatch, jump straight to [Fix next-mdx-remote/rsc Edge Error in Next.js 15](/blog/nextjs-mdx-remote-rsc-edge-runtime-fix). If you still need the full file-backed implementation, start with [Next.js MDX Blog in 2026](/blog/nextjs-mdx-blog-2026). If the implementation already works and you are trying to harden it with syntax highlighting, feeds, sitemap, and metadata, follow it with [Next.js MDX Blog with Syntax Highlighting, RSS, Sitemap, and SEO](/blog/nextjs-mdx-blog-syntax-highlighting-rss-sitemap-seo). For the rest of the cluster, keep [blixamo.com](/), the [blog archive](/blog), the [community hub](/community), the [resources hub](/tag/deployment), the [Web Development category](/category/web-dev), the [Developer Tools Directory](/guides/developer-tools-directory), and the [Next.js MDX Hub](/nextjs-mdx-hub) open while you decide.
 
+<Callout type="warning" title="Decision">
+Choose `next-mdx-remote/rsc` for file-backed blogs and content workflows. Choose `@next/mdx` for route-level MDX pages inside `app`. If your content needs frontmatter, archives, related posts, and feed or sitemap support, the file-backed model is the better fit.
+</Callout>
+
 <Callout type="info" title="TL;DR">
 If your MDX files live under `content/posts` and flow through a posts library, choose `next-mdx-remote/rsc`. If your MDX files are actual route content inside `app`, choose `@next/mdx`. The wrong choice usually shows up later as awkward content structure or runtime pain.
 </Callout>
 
-## Quick verdict table
+## Decision table
 
-| Option | Best for | Gets awkward when |
+| Dimension | `next-mdx-remote/rsc` | `@next/mdx` |
 | --- | --- | --- |
-| `next-mdx-remote/rsc` | file-backed blogs and content systems | you really wanted route-level MDX pages |
-| `@next/mdx` | route-level MDX inside App Router | you need a richer posts library on top |
+| Best for | file-backed blogs and content systems | route-level MDX pages inside `app` |
+| Content source | MDX files under `content/posts` | MDX files that are the route |
+| Rendering model | content data rendered by a posts layer | native MDX page rendering |
+| Editorial control | stronger, easier to add metadata and archives | lighter, fewer layers |
+| Setup complexity | higher because you maintain a posts library | lower because the route is the content |
+| Long-term fit | better for publishing workflows | better for docs or small MDX sections |
+
+![Practical comparison diagram showing file-backed content architecture versus route-native MDX page structure](/images/posts/next-mdx-remote-rsc-vs-next-mdx-nextjs-15/decision-diagram.jpg)
+*This diagram makes the architectural split easier to scan at a glance.*
 
 ## What this comparison is actually deciding
 
@@ -95,6 +106,9 @@ File-backed content changes everything because the moment you have `content/post
 That is why file-backed content usually pushes the decision toward `next-mdx-remote/rsc`. The content is not the route. The route is only one consumer of the content.
 
 If your plan is "I want a blog repo that behaves like application code," the pattern in [Next.js MDX Blog in 2026](/blog/nextjs-mdx-blog-2026) is still the stronger fit. If your plan is "I want a few MDX pages inside the app," `@next/mdx` is usually enough.
+
+![A full editorial comparison cover showing next-mdx-remote/rsc versus next-mdx in Next.js 15](/images/posts/next-mdx-remote-rsc-vs-next-mdx-nextjs-15/next-mdx-remote-rsc-vs-next-mdx-nextjs-15%20feature%20image.png)
+*This is the same comparison in a higher-detail cover format, useful for scanning the two-path choice quickly.*
 
 ## Runtime implications in Next.js 15
 

@@ -1,5 +1,5 @@
 ---
-title: "File-Backed Next.js MDX Blog in 2026: App Router + next-mdx-remote"
+title: "Next.js MDX Blog in 2026: App Router + next-mdx-remote/rsc"
 slug: "nextjs-mdx-blog-2026"
 description: "Build a file-backed Next.js 15 MDX blog with App Router and next-mdx-remote/rsc. Includes frontmatter, syntax highlighting, metadata, sitemap, and VPS deployment."
 date: "2026-03-18"
@@ -18,6 +18,10 @@ If you want a file-backed developer blog with Next.js and MDX in 2026, the clean
 I built blixamo.com this way because I wanted the blog to behave like an app repo, not a CMS subscription. The real challenge is not rendering MDX once. The real challenge is picking the right MDX approach, keeping metadata clean, and deploying the site without breaking revalidation or search visibility.
 
 My recommendation is to use this setup when you want a real content system inside a Next.js codebase, not a demo blog that stops at "MDX renders." If you need the surrounding cluster, pair this guide with [Getting Started with Next.js in 2026](/blog/getting-started-with-nextjs), [Next.js 15 Performance Optimization 2026](/blog/nextjs-performance-optimization-2026), and the [next-mdx-remote/rsc Edge Runtime Fix](/blog/nextjs-mdx-remote-rsc-edge-runtime-fix), then use the [/category/web-dev](/category/web-dev) lane, the [Developer Tools Directory](/guides/developer-tools-directory), and the [/tag/deployment](/tag/deployment) hub for the broader stack around it. If AI-assisted implementation is part of the plan, the [Next.js MCP server setup for coding agents](/blog/nextjs-mcp-server-coding-agents-2026) is the best companion once the content system itself is stable.
+
+<Callout type="warning" title="Quick verdict">
+Use `next-mdx-remote/rsc` if you want a file-backed MDX blog with App Router, stronger editorial control, and a real content workflow. Do not use it if you only need a few route-level MDX pages with minimal setup. This guide is for developers building a proper posts library, not a one-off docs page.
+</Callout>
 
 <Callout type="info" title="TL;DR">
 Use `next-mdx-remote/rsc` when your MDX files are content data, keep metadata in one posts library, add `remark-gfm` and `rehype-pretty-code`, and deploy with a cache policy that does not fight Next.js HTML revalidation.
