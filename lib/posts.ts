@@ -20,7 +20,7 @@ const FORCED_NOINDEX_POST_SLUGS = new Set([
 ])
 
 const WEAK_ARTICLE_BOOSTS_BY_CATEGORY: Record<string, Set<string>> = {
-  'developer-tools': new Set(['best-vpn-for-developers-2026']),
+  'developer-tools': new Set([]),
   'free-tools': new Set([
     'best-free-api-testing-tools-2026',
     'best-free-documentation-tools-2026',
@@ -28,10 +28,10 @@ const WEAK_ARTICLE_BOOSTS_BY_CATEGORY: Record<string, Set<string>> = {
     'best-free-diagram-tools-2026',
   ]),
   'how-to': new Set(['build-telegram-bot-claude-api-python']),
-  'indie-hacking': new Set(['razorpay-integration-nextjs-india', 'wise-vs-payoneer-india-freelancer']),
-  'self-hosting': new Set(['self-hosting-resources']),
-  'vps-cloud': new Set(['hetzner-vs-aws-2026', 'ssh-security-hardening-vps-2026', 'compromised-vps-recovery-2026']),
-  'web-dev': new Set(['nextjs-mdx-remote-rsc-edge-runtime-fix', 'tailwind-css-tips']),
+  'indie-hacking': new Set(['razorpay-integration-nextjs-india']),
+  'self-hosting': new Set([]),
+  'vps-cloud': new Set(['compromised-vps-recovery-2026']),
+  'web-dev': new Set([]),
 }
 
 export interface Post {
