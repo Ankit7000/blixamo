@@ -1,8 +1,8 @@
 ---
 title: "My Practical Free Developer Tool Stack for 2026"
-description: "A practical free developer tool stack for small projects in 2026, covering API work, docs, Git, diagrams, and database/admin work without overcomplicating it."
+description: "The mostly-free developer tool stack I would start with for a small project: API work, docs, Git, diagrams, and database checks without extra sprawl."
 date: "2026-04-05"
-updatedAt: "2026-04-13"
+updatedAt: "2026-04-19"
 author: "Blixamo"
 category: "free-tools"
 tags: [free tools, developer workflow, small projects, api testing, git, docs, database tools]
@@ -12,172 +12,118 @@ featuredImage: "/images/default-og.jpg"
 schema: "article"
 difficulty: "beginner"
 timeToComplete: "15 minutes"
-excerpt: "A mostly-free developer stack works well for small projects when each tool solves one job clearly. The trick is keeping the stack lean enough that it still feels fast."
+excerpt: "The free stack I would actually start with for a small project, what I keep, what I skip, and where I would pay later."
 toc: true
 ---
 
-Most free-tool stacks go wrong the same way: too many tools solving almost the same problem. The result is technically cheap and operationally messy. A practical free stack for a small project should feel lighter than the paid one, not more complicated.
+I do not build a "free stack" by collecting one tool from every category. I build it by asking a harsher question: which tools still feel worth opening after the project gets messy?
 
-This page is for solo developers and small teams that want one lean working stack, not a giant roundup. It is the stack I would actually start with for a small project in 2026: enough for API work, docs, Git, diagrams, and database/admin work, but still small enough that you remember why each tool is installed. For the wider cluster, keep the [free tools category](/category/free-tools), the [Free Tools for Developers guide](/guides/free-tools-for-developers), and the [Resources Hub](/tag/deployment) nearby while you compare this with [Best Free Developer Tools in 2026](/blog/best-free-developer-tools-2026), [Open Source Developer Tools Worth Switching To in 2026](/blog/open-source-tools-2026), and [How I Replace Paid Developer Tools With Free Alternatives Without Breaking My Workflow in 2026](/blog/replace-paid-developer-tools-with-free-2026).
+For a small project, I want the stack to stay boring. That means one tool for API work, one path for docs, one way to stay sane in Git, one diagram pair, and one database GUI that does not turn into another subscription decision too early.
 
 <Callout type="info" title="TL;DR">
-For small projects I would use Bruno or Hoppscotch for API work, MkDocs or Nextra for docs, Lazygit with normal Git, Excalidraw plus Mermaid for diagrams, and DBeaver for database/admin work. That is enough for most solo and small-team projects before paid tools are necessary.
+If I were starting a small project today, I would use **Bruno**, **MkDocs Material** or **Nextra**, **Lazygit**, **Excalidraw**, **Mermaid**, and **DBeaver**. That stack stays light, cheap, and easy to explain to the next person.
 </Callout>
 
-## Quick decision before you install anything
+## Who this is for
 
-- Use this stack if the project is still small enough that one person can understand the whole workflow.
-- Use this stack if cost matters, but daily speed matters more than squeezing every last feature out of the free tier.
-- Do not copy this stack blindly if the project already depends on heavier collaboration, permissions, or audit history. In that case, read [When Free Developer Tools Are Enough and When Paid Tools Are Worth It in 2026](/blog/when-free-developer-tools-are-enough-2026) first.
+- Solo developers.
+- Small teams where one person still understands most of the system.
+- Side projects and client work where tooling should support delivery, not become its own budget line.
 
-## What I solve first on a small project
+## Skip this if
 
-I do not pick tools by category first. I pick them by bottleneck.
+- Your team already needs heavier permissions, comments, and audit trails.
+- The main problem is enterprise coordination, not developer speed.
 
-The first jobs I want covered are:
+## What I keep in the stack from day one
 
-- testing APIs quickly
-- keeping notes or docs close to the code
-- staying sane in Git
-- explaining architecture without a big whiteboard suite
-- checking database state without wasting time
+### API work: Bruno first, Hoppscotch only when I need it
 
-That gives me a smaller stack than most roundup pages suggest.
+My default is **Bruno** because I want API collections to live close to the code. Plain files, local-first behavior, and Git-friendly review matter more to me than a glossy workspace.
 
-For small projects, the goal is not to optimize every corner. It is to keep the toolchain clear enough that I can still ship without thinking about tooling all day.
+I add **Hoppscotch** only for quick one-off checks. That is the first example of how I keep the stack practical: one default, one optional specialist. Not 4 overlapping clients.
 
-## What I use first for API work
+If API testing is the whole problem, [Best Free API Testing Tools for Developers in 2026](/blog/best-free-api-testing-tools-2026) is the page I would read next.
 
-My first pick is usually Bruno.
+### Docs: MkDocs Material unless the project is already deep in Next.js
 
-Why:
+For docs, I care about whether I will still update them in 3 months. That is why I usually start with **MkDocs Material**. It is fast, Markdown-first, and does not ask me to turn documentation into a side frontend project.
 
-- request collections live locally
-- Git diffs are cleaner
-- the tool stays close to the project
+The exception is **Nextra**. If the project already lives inside a Next.js content workflow, I would rather keep docs in the same ecosystem than invent a separate docs stack just to be "pure."
 
-If I want very fast one-off checks, I also keep Hoppscotch nearby. That gives me a simple split:
+If the docs choice itself is blocking you, go deeper with [Best Free Documentation Tools for Developers in 2026](/blog/best-free-documentation-tools-2026).
 
-- Bruno for durable request collections
-- Hoppscotch for quick browser testing
+### Git: normal Git plus Lazygit
 
-That setup is enough for most small-project API work. If API testing is the main decision instead of the stack as a whole, [Best Free API Testing Tools for Developers in 2026](/blog/best-free-api-testing-tools-2026) is the better deep read, and [Best API Clients for Developers in 2026](/blog/best-api-clients-for-developers-2026) is the better broader client-selection page.
+I have no interest in building a complicated Git toolchain for a small project. I use Git as the source of truth and **Lazygit** as the speed layer for staging, review, and branch cleanup.
 
-## What I use for docs
+That combination is enough. I do not want 3 Git GUIs installed just because they are free.
 
-I want the docs tool to stay close to the codebase.
+### Diagrams: Excalidraw for thinking, Mermaid for keeping
 
-For small projects, that usually means:
+I want two diagram modes:
 
-- MkDocs Material if I want fast docs-as-code
-- Nextra if the project already lives in a Next.js workflow
+- **Excalidraw** when I am still figuring things out.
+- **Mermaid** when the diagram should live in docs or a README.
 
-I do not want a separate heavy documentation system too early. I want something I will still update after the project gets messy.
+That split keeps me honest. Rough thinking stays rough. Repeatable documentation stays in text.
 
-That is why I like small-project docs to stay boring, file-based, and easy to review in Git. If the docs choice itself is the blocker, go deeper with [Best Free Documentation Tools for Developers in 2026](/blog/best-free-documentation-tools-2026) rather than bloating the stack here.
+### Database work: DBeaver
 
-## What I use for Git
+For small projects I want one database GUI that does not make me think twice. That is **DBeaver**. It is not the prettiest tool here, but it handles daily inspection, query work, and boring admin tasks well enough that I rarely need more.
 
-I keep Git simple:
+If interface polish matters more than flexibility, I would try TablePlus. But for a safe free default, DBeaver is still my answer.
 
-- Git itself as the source of truth
-- Lazygit when I want faster staging and review
+## What I deliberately do not add early
 
-That is enough.
+### I do not add a heavy docs portal too soon
 
-I do not need three Git GUIs for a small project. I need one tool that makes diff review and branch cleanup less annoying. That is why Lazygit keeps earning a place in lean stacks. If you want the wider shortlist, [Best Free Git Tools for Developers in 2026](/blog/best-free-git-tools-2026) is the right next page.
+If the project has 8 pages of docs, I do not need a grand documentation platform. I need something I will keep current.
 
-## What I use for diagrams
+### I do not add multiple tools in the same lane
 
-For diagrams, I want two modes:
+A free stack gets expensive fast when it adds decision fatigue. One default per job is the rule.
 
-- Excalidraw for thinking fast
-- Mermaid for diagrams that should live in docs
+### I do not pay to avoid small discomfort too early
 
-That pairing is enough for most small projects.
+Some friction is fine. Recurring cost should buy back real time, not emotional relief from having one more subscription.
 
-Excalidraw handles the rough architecture sketch before a deploy or integration change. Mermaid handles the diagrams that need to survive inside README files or internal docs. I do not think a small project needs more diagram tooling than that. If the diagram decision is the main question, [Best Free Diagram Tools for Developers in 2026](/blog/best-free-diagram-tools-2026) goes deeper.
+## When I would pay later
 
-## What I use for database and admin work
+I would upgrade parts of this stack only when the problem changes from "help me ship" to "help us coordinate."
 
-For database/admin work, I want one GUI that handles real use without turning into a whole platform decision.
+That usually shows up as:
 
-My default is DBeaver.
-
-Why:
-
-- it handles PostgreSQL well
-- it is strong enough for daily inspection and query work
-- it does not force the small-project stack into a paid decision too early
-
-TablePlus free is still a nice option if you care more about interface quality than long-term free flexibility. But if I wanted one safe answer, I would choose DBeaver first. The deeper comparison lives in [Best Free PostgreSQL GUI Clients in 2026](/blog/best-postgresql-gui-free).
-
-## What I keep lightweight
-
-I deliberately keep these lightweight:
-
-- API tooling
-- docs setup
-- diagrams
-- Git helpers
-- database inspection
-
-Those layers should support the project, not become the project.
-
-This is also why I avoid installing multiple overlapping tools in the same lane. If Bruno is already doing the API job, I do not need three more clients unless a real pain shows up.
-
-## When this stack stops being enough
-
-This stack stops being enough when the tool problem changes from "what helps me ship faster?" to "what keeps a team aligned?"
-
-The warning signs are practical:
-
-- shared permissions start costing time
-- teammates need comments, review history, or stronger handoff support
-- free-tier limits interrupt normal work instead of rare edge cases
+- shared permissions become annoying
+- review history matters more
+- free-tier limits interrupt normal work
 - one missing feature creates manual cleanup every week
 
-That is the point where the cheaper stack becomes the slower stack. When that happens, the right move is not to bolt on more random free tools. It is to replace the one lane that is now blocking the workflow.
+That is the point where "free" stops being cheap in time.
 
-## What I would swap out later
+## Why this stack works for small projects
 
-I would consider swapping parts of this stack later when:
+This stack works because every tool has one clear job:
 
-- the team grows
-- permissions become a real issue
-- collaboration starts costing time
-- free-tier limits are clearly slowing delivery
+- **Bruno** for durable API work
+- **MkDocs Material** or **Nextra** for docs
+- **Lazygit** for faster Git flow
+- **Excalidraw** for quick architecture thinking
+- **Mermaid** for diagrams that should live in the codebase
+- **DBeaver** for database inspection
 
-That is when paid tools or heavier platforms start to make more sense.
+I can explain every choice in one sentence. That is the real test.
 
-Until then, this stack is enough for real small-project work. If you want the judgment framework for that boundary, read [When Free Developer Tools Are Enough and When Paid Tools Are Worth It in 2026](/blog/when-free-developer-tools-are-enough-2026).
+## What I would change for a bigger team
 
-## My recommendation
+I would not force this exact stack onto a team of 15. Once more people are touching the same workflows, the questions change. Permissions, handoffs, approvals, and structured review start to matter more than the elegance of a lean local setup.
 
-For small projects, I would keep the free stack lean: Bruno or Hoppscotch for API work, MkDocs or Nextra for docs, Lazygit for Git flow, Excalidraw plus Mermaid for diagrams, and DBeaver for database/admin work. That is enough to stay productive without turning free tooling into another source of sprawl.
+That is when I would revisit docs, API tooling, and maybe the database layer first. Those are the lanes where collaboration overhead shows up earliest.
 
-I would rather have one clear tool per job than a giant stack of overlapping installs. The biggest win in a free setup is not zero cost. It is keeping the workflow light enough that it still feels fast every day.
+## Final recommendation
 
-If the next question is how to switch from paid tools into this kind of stack safely, go to [How I Replace Paid Developer Tools With Free Alternatives Without Breaking My Workflow in 2026](/blog/replace-paid-developer-tools-with-free-2026).
+For a small project, I would keep the stack lean on purpose: **Bruno**, **MkDocs Material** or **Nextra**, **Lazygit**, **Excalidraw**, **Mermaid**, and **DBeaver**. That is enough to do real work without turning tooling into another project to manage.
 
-## FAQ
+The honest exception is the docs layer. If the project already runs on Next.js and MDX, I would choose **Nextra** over MkDocs because the ecosystem fit matters more than staying language-agnostic. Otherwise, MkDocs is still the cleaner default.
 
-### What is a practical free developer tool stack for small projects?
-
-A practical stack covers the core jobs with one clear tool each: API testing, docs, Git workflow, diagrams, and database/admin work. It should stay lightweight enough that the stack speeds up the project instead of adding overhead.
-
-### Are free developer tools enough for real projects?
-
-Yes, especially for solo or small-team projects. Strong free tools already handle most everyday work well before collaboration, compliance, or reliability needs make paid plans more attractive.
-
-### What free tools should I install first on a new machine?
-
-Start with one API client, one Git helper, one database GUI, and one docs or diagram path only if the project needs them. Do not install every category at once.
-
-### When should I move beyond a mostly-free stack?
-
-Move later when team size, permissions, support expectations, or workflow friction make the free stack more expensive in time than the paid alternative is in money.
-
-## What next?
-
-If you want the broader shortlist behind this stack, go back to [Best Free Developer Tools in 2026](/blog/best-free-developer-tools-2026) and [Open Source Developer Tools Worth Switching To in 2026](/blog/open-source-tools-2026). If the next job is judging when paid starts to make sense, read [When Free Developer Tools Are Enough and When Paid Tools Are Worth It in 2026](/blog/when-free-developer-tools-are-enough-2026). After that, keep the [Free Tools for Developers guide](/guides/free-tools-for-developers), the [free tools category](/category/free-tools), and the [Resources Hub](/tag/deployment) nearby so the cluster stays connected.
+If your next question is whether the broader free stack is worth it at all, read [When Free Developer Tools Are Enough and When Paid Tools Are Worth It in 2026](/blog/when-free-developer-tools-are-enough-2026). If you want the bigger comparison list instead of my operator stack, go to [Best Free Developer Tools in 2026](/blog/best-free-developer-tools-2026). The broader [free tools category](/category/free-tools), the [Free Tools for Developers guide](/guides/free-tools-for-developers), and the [Resources Hub](/tag/deployment) cover the adjacent decisions.
