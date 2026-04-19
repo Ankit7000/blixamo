@@ -20,7 +20,7 @@ toc: true
 
 Most Docker Compose tutorials show you how to run containers locally. They skip the parts that matter in production: persistent volumes, [health checks that actually catch bad deploys](/blog/docker-compose-health-checks-production-2026), automatic restarts, log rotation, and what happens when the VPS reboots at 3am.
 
-I run n8n, Redis, and PostgreSQL on my Hetzner CPX22 using Docker Compose. That stack has been up for 6 months without data loss or unexpected downtime. This guide shows the exact setup — including the mistakes I made before getting it right. For the broader deployment path, keep the [resources hub](/tag/deployment) open, treat this guide as part of the [How-To category](/category/how-to), and use the [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide) as the parent map before you layer more services onto the box.
+I run n8n, Redis, and PostgreSQL on my Hetzner CPX22 using Docker Compose. That stack has been up for 6 months without data loss or unexpected downtime. This guide shows the exact setup — including the mistakes I made before getting it right. If you want the bigger VPS deployment picture around it, the next useful read is [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide).
 
 > **Disclosure:** Some links in this article are affiliate links — I earn a small commission at no extra cost to you.
 
@@ -391,7 +391,7 @@ df -h /
 #
 ### Does Docker Compose work with Coolify?
 #
-Yes — Coolify supports Docker Compose deployments natively. You can paste your `docker-compose.yml` directly into Coolify and it handles SSL and reverse proxy. The manual nginx setup in this guide is for when you want full control. See the [Coolify complete guide](/blog/coolify-complete-guide-2026) for that approach, and keep the [Coolify Hub](/coolify-hub) nearby if you want the tighter decision path around platform choice, deploys, and multi-app VPS follow-up reads.
+Yes — Coolify supports Docker Compose deployments natively. You can paste your `docker-compose.yml` directly into Coolify and let it handle SSL and reverse proxy. The manual nginx setup in this guide is for when you want full control. See the [Coolify Complete Guide in 2026](/blog/coolify-complete-guide-2026) if you want the platform-managed version of the same idea.
 #
 ### How do I update containers to the latest image?
 #
