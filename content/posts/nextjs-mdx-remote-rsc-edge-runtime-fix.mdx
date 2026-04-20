@@ -26,7 +26,7 @@ That pattern is why this issue spreads. It looks like a markdown problem. It is 
 If `next-mdx-remote/rsc` is reading file-backed MDX and fails with `fs` or `path` errors under Edge Runtime, force `runtime = "nodejs"`, check inherited Edge config, then verify in a real production build.
 </Callout>
 
-If your app uses `next-mdx-remote/rsc` with file-backed content, the fastest fix is boring: keep that route on Node.js runtime, check for inherited Edge config above it, and verify the route with a real production build. For the broader cluster around this topic, start with the [Deployment resources hub](/tag/deployment), the [Web Development category](/category/web-dev), the [deploy apps on VPS guide](/guides/deploy-apps-on-vps-complete-guide), the [Next.js MDX blog guide](/blog/nextjs-mdx-blog-2026), and the [Next.js MDX Hub](/nextjs-mdx-hub) if you want the tighter route through setup, upgrade, and architecture reads.
+If your app uses `next-mdx-remote/rsc` with file-backed content, the fastest fix is boring: keep that route on Node.js runtime, check for inherited Edge config above it, and verify the route with a real production build. If you want more on this topic, browse the [Deployment resources hub](/tag/deployment), the [Web Development category](/category/web-dev), the [deploy apps on VPS guide](/guides/deploy-apps-on-vps-complete-guide), the [Next.js MDX blog guide](/blog/nextjs-mdx-blog-2026), and the [Next.js MDX Hub](/nextjs-mdx-hub).
 
 <Callout type="info" title="TL;DR">
 If your `next-mdx-remote/rsc` page fails under Edge Runtime, set `export const runtime = "nodejs"` on the route that renders the MDX content, then check parent layouts for inherited Edge config. After that, run a real production build and verify the live URL instead of trusting dev mode.
@@ -87,7 +87,7 @@ You should already have a file-backed MDX route, access to the route file that r
 - [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner)
 - [How to Self-Host Next.js on a VPS](/blog/how-to-self-host-nextjs-on-vps)
 
-If you are mapping the wider cluster before you touch code, keep the [Deployment resources hub](/tag/deployment), the [Web Development category](/category/web-dev), and the [Blog archive](/blog) open in another tab.
+If you want a few supporting reads before you touch code, keep the [Deployment resources hub](/tag/deployment), the [Web Development category](/category/web-dev), and the [Blog archive](/blog) open in another tab.
 
 ## Why the next-mdx-remote/rsc Edge Runtime error happens in Next.js 15
 
@@ -125,7 +125,7 @@ The faster order is:
 
 That order is what makes this article shareable inside teams. It does not just say what broke. It tells you what to stop wasting time on first.
 
-If your setup also includes a local content system like the one in [Next.js MDX Blog in 2026](/blog/nextjs-mdx-blog-2026), keep this article next to Next.js performance work so runtime and production-behavior fixes stay in the same cluster.
+If your setup also includes a local content system like the one in [Next.js MDX Blog in 2026](/blog/nextjs-mdx-blog-2026), keep this article next to Next.js performance work so runtime and production-behavior fixes stay in the same part of the stack.
 
 ## Step 1: Force Node.js runtime on the route that renders the post
 
@@ -188,7 +188,7 @@ For most real projects, the stable split looks like this:
 - keep middleware and tiny edge-safe request logic near Edge
 - keep content routes that touch the filesystem on Node.js
 
-That split is easier to understand, easier to test, and easier to ship. For more route-level fixes in the same cluster, keep browsing the [Web Development category](/category/web-dev) instead of generic tag archives.
+That split is easier to understand, easier to test, and easier to ship. For more route-level fixes, keep browsing the [Web Development category](/category/web-dev) instead of generic tag archives.
 
 ## Step 3: Run a real production build before you trust the fix
 
@@ -352,4 +352,4 @@ Start with [Next.js MDX Blog in 2026](/blog/nextjs-mdx-blog-2026) if your conten
 
 If deployment is now the bottleneck, move through [Deploy Next.js on Hetzner with Coolify](/blog/deploy-nextjs-coolify-hetzner), [How to Self-Host Next.js on a VPS](/blog/how-to-self-host-nextjs-on-vps), the [Deployment resources hub](/tag/deployment), and the [deploy apps on VPS guide](/guides/deploy-apps-on-vps-complete-guide).
 
-For the rest of this cluster, keep the page connected to the [Homepage](/), the [Web Development category](/category/web-dev), the [Blog archive](/blog), and the [Community hub](/community).
+If you want a few more related reads after this, browse the [Homepage](/), the [Web Development category](/category/web-dev), the [Blog archive](/blog), and the [Community hub](/community).
