@@ -20,7 +20,7 @@ toc: true
 
 SSH is usually the first real door into your VPS. If that door is weak, the rest of your setup does not matter much.
 
-This page is intentionally narrower than a full VPS hardening guide. It is only about the SSH access layer: the user account, the key setup, the `sshd_config` choices that matter, and the checks I run before I trust the box. If you want the broader server view after SSH is clean, read [VPS Security Hardening Ubuntu 2026](/blog/vps-security-harden-ubuntu-2026) and keep the shorter [Ubuntu VPS Hardening Checklist](/blog/ubuntu-vps-hardening-checklist) nearby. For the wider cluster, this still sits inside [/category/vps-cloud](/category/vps-cloud), supports the [/guides/vps-cloud-for-developers-guide](/guides/vps-cloud-for-developers-guide) pillar, and belongs in the [/tag/deployment](/tag/deployment) hub as the SSH-specific step.
+This page is intentionally narrower than a full VPS hardening guide. It is only about the SSH access layer: the user account, the key setup, the `sshd_config` choices that matter, and the checks I run before I trust the box. If you want the broader server view after SSH is clean, read [VPS Security Hardening Ubuntu 2026](/blog/vps-security-harden-ubuntu-2026) and keep the shorter [Ubuntu VPS Hardening Checklist](/blog/ubuntu-vps-hardening-checklist) nearby. You can also browse [/category/vps-cloud](/category/vps-cloud), [/guides/vps-cloud-for-developers-guide](/guides/vps-cloud-for-developers-guide), and [/tag/deployment](/tag/deployment) for more VPS setup and hardening reads.
 
 On one fresh VPS, `auth.log` showed `847` failed SSH password attempts within `48` hours. That is normal internet noise now. The point is not to panic. The point is to stop making those attacks relevant.
 
@@ -300,20 +300,6 @@ Only if you actually use SSH tunnels, remote forwards, or deploy workflows that 
 
 Move to the broader [VPS Security Hardening Ubuntu 2026](/blog/vps-security-harden-ubuntu-2026) guide. That is where I handle UFW, Fail2Ban, unattended upgrades, exposed ports, and the rest of the server.
 
-## SEO Meta
-
-- Meta title: `SSH Security Hardening for VPS Servers in 2026`
-- Meta description: `SSH security hardening for VPS servers: tighten sshd_config, use SSH keys, disable root and passwords, and verify access safely without locking yourself out.`
-- Slug: `ssh-security-hardening-vps-2026`
-- Excerpt: `This is the SSH-only hardening flow I would use on any new Ubuntu VPS before moving on to broader server security.`
-
-## Suggested Internal Links for Blixamo
-
-- [VPS Security Hardening Ubuntu 2026](/blog/vps-security-harden-ubuntu-2026)
-- [Ubuntu VPS Hardening Checklist](/blog/ubuntu-vps-hardening-checklist)
-- [VPS Setup Guide](/blog/vps-setup-guide)
-- [Nginx Reverse Proxy Setup in 2026](/blog/nginx-reverse-proxy-guide-2026)
-
 ## What Next?
 
-After SSH is locked down, move outward through the same cluster: revisit the [/category/vps-cloud](/category/vps-cloud) archive, use the [/guides/vps-cloud-for-developers-guide](/guides/vps-cloud-for-developers-guide) pillar as the main map, and keep the [/tag/deployment](/tag/deployment) hub open when you want adjacent setup and deploy articles. Then tighten the rest of the server with [VPS Security Hardening Ubuntu 2026](/blog/vps-security-harden-ubuntu-2026) and keep [Ubuntu VPS Hardening Checklist](/blog/ubuntu-vps-hardening-checklist) handy when you provision the next box.
+After SSH is locked down, tighten the rest of the server with [VPS Security Hardening Ubuntu 2026](/blog/vps-security-harden-ubuntu-2026) and keep [Ubuntu VPS Hardening Checklist](/blog/ubuntu-vps-hardening-checklist) handy when you provision the next box. You can also browse [/category/vps-cloud](/category/vps-cloud), [/guides/vps-cloud-for-developers-guide](/guides/vps-cloud-for-developers-guide), and [/tag/deployment](/tag/deployment) for more VPS setup and hardening reads.

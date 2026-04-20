@@ -18,7 +18,7 @@ toc: true
 
 Most n8n workflows do not fail because the logic is hard. They fail because the real world is messy: APIs rate-limit, webhooks arrive twice, credentials expire, and one bad payload makes the whole chain look broken. The fix is not more nodes. It is better failure handling.
 
-This guide is for developers who already know the basics of n8n and want workflows that survive production conditions. If you still need the platform foundation first, start with the [n8n Complete Guide 2026](/blog/n8n-complete-guide-2026) and [Self-Host n8n on Hetzner VPS 2026](/blog/self-hosting-n8n-hetzner-vps). For the broader lane, keep the [Automation category](/category/automation), the [Automation Guide for Developers](/guides/automation-guide-for-developers), and the [resources hub](/tag/deployment) nearby while you wire reliability into the rest of the stack.
+This guide is for developers who already know the basics of n8n and want workflows that survive production conditions. If you still need the platform foundation first, start with the [n8n Complete Guide 2026](/blog/n8n-complete-guide-2026) and [Self-Host n8n on Hetzner VPS 2026](/blog/self-hosting-n8n-hetzner-vps). Keep the [Automation category](/category/automation), the [Automation Guide for Developers](/guides/automation-guide-for-developers), and the [resources hub](/tag/deployment) nearby if you want the supporting reliability reads too.
 
 <Callout type="info" title="TL;DR">
 Retries should handle temporary failures, not hide broken workflow design. My default is: retry transient API calls, log enough context to debug later, and alert a human only when the workflow cannot recover cleanly.
