@@ -22,7 +22,7 @@ toc: true
 
 I got tired of the same kind of VPS outage: one service dies, the fix is obvious, and I still only notice after the site has been down for longer than it should have been. That is fine once. It is not fine when the server is running multiple projects and a simple PM2 or Nginx failure becomes a silent outage.
 
-So I built a self-healing VPS monitor in Node.js. It checks a small set of high-value signals, keeps a record of which fixes actually work, stops itself from thrashing when a fix keeps failing, and sends an alert when it reaches the point where a human should take over. For the broader self-hosting path, keep the [resources hub](/tag/deployment) nearby, treat this guide as part of the [Self-Hosting category](/category/self-hosting), and use the [Self Hosting Complete Guide](/guides/self-hosting-complete-guide) as the parent map while you connect monitoring to the rest of your stack.
+So I built a self-healing VPS monitor in Node.js. It checks a small set of high-value signals, keeps a record of which fixes actually work, stops itself from thrashing when a fix keeps failing, and sends an alert when it reaches the point where a human should take over. If you want more self-hosting reads after this, keep the [resources hub](/tag/deployment), the [Self-Hosting category](/category/self-hosting), and the [Self Hosting Complete Guide](/guides/self-hosting-complete-guide) nearby.
 
 <Callout type="info" title="TL;DR">
 This setup works best if you already run multiple services on one VPS. The key idea is not "restart everything automatically." It is "only run recovery actions that have a history of working, and stop before your monitor becomes the problem."

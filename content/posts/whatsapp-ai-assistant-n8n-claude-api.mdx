@@ -20,7 +20,7 @@ toc: true
 
 The fastest way to make a WhatsApp AI assistant feel expensive is to bolt together a hosted automation tool, a paid bot platform, and an LLM API before you even know whether the workflow is useful. I wanted the opposite: one VPS, one automation layer, one model API, and a setup I could understand end to end.
 
-That is why this stack works well: WAHA handles WhatsApp connectivity, n8n orchestrates the workflow, and Claude API generates the reply. It is simple enough to build in under an hour and flexible enough to evolve into a more capable assistant later. For the broader workflow path, keep the [resources hub](/tag/deployment) nearby, treat this build as part of the [AI category](/category/ai), use the [Automation Guide for Developers](/guides/automation-guide-for-developers) as the parent map while you connect it to the rest of your automation stack, and keep the [n8n Automation Hub](/n8n-automation-hub) open for the tighter webhook and workflow reading path.
+That is why this stack works well: WAHA handles WhatsApp connectivity, n8n orchestrates the workflow, and Claude API generates the reply. It is simple enough to build in under an hour and flexible enough to evolve into a more capable assistant later. If you want more automation reads after this, keep the [resources hub](/tag/deployment), the [AI category](/category/ai), the [Automation Guide for Developers](/guides/automation-guide-for-developers), and the [n8n Automation Hub](/n8n-automation-hub) nearby.
 
 <Callout type="info" title="TL;DR">
 Use WAHA for the WhatsApp connection, n8n for the message workflow, and Claude API for the reply. Keep the first version stateless, add a short system prompt, and add rate limits before you share the bot with more than a few users.
