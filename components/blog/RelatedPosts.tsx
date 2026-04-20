@@ -18,7 +18,7 @@ export function RelatedPosts({ posts, category }: RelatedPostsProps) {
         <p className="related-posts-kicker">Related reads</p>
         <h2 className="related-posts-title">More in {categoryMeta.label}</h2>
         <p className="related-posts-description">
-          Keep the next reads close to the same deployment and self-hosting path.
+          Read these next if you want to go deeper.
         </p>
         <Link
           href={`/category/${category}`}
