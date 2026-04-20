@@ -18,7 +18,7 @@ toc: true
 
 Getting JSON out of Claude is easy once. Getting it reliably across real app traffic is where the work starts. The biggest mistake is asking for "structured output" in one vague sentence and hoping the model behaves like a parser. It will not.
 
-The safer approach is prompt design plus validation plus realistic fallbacks. This guide covers the patterns I trust when I need Claude API responses to behave like data instead of prose. For the broader AI lane, keep the [AI category](/category/ai), the [Developer Tools Directory](/guides/developer-tools-directory), and the [resources hub](/tag/deployment) nearby. Pair this with [How to Actually Use Claude AI for Productive Work in 2026](/blog/claude-ai-guide), [Claude API + Node.js Automation in 2026](/blog/claude-api-content-automation-nodejs), and [Claude API vs OpenAI GPT-4 in 2026](/blog/claude-api-vs-openai-gpt4-2026) if you want the bigger model-choice context.
+The safer approach is prompt design plus validation plus realistic fallbacks. This guide covers the patterns I trust when I need Claude API responses to behave like data instead of prose. Read more in the [AI category](/category/ai), keep the [Developer Tools Directory](/guides/developer-tools-directory) nearby for the surrounding tool stack, and use the [resources hub](/tag/deployment) for related deployment and automation reads. Pair this with [How to Actually Use Claude AI for Productive Work in 2026](/blog/claude-ai-guide), [Claude API + Node.js Automation in 2026](/blog/claude-api-content-automation-nodejs), and [Claude API vs OpenAI GPT-4 in 2026](/blog/claude-api-vs-openai-gpt4-2026) if you want more model-choice context.
 
 <Callout type="info" title="Core rule">
 The best JSON prompt pattern is not "please return JSON." It is: define the job narrowly, show the exact schema, forbid extra prose, validate the result, and keep a fallback path when the output still drifts.
@@ -280,7 +280,7 @@ My recommendation is simple:
 
 That is how Claude API becomes usable for real structured workflows instead of just nice demos.
 
-If you want a concrete automation follow-up, read [Claude API + Node.js Automation in 2026](/blog/claude-api-content-automation-nodejs). If you are still comparing models first, continue with [Claude vs ChatGPT for Developers](/blog/claude-vs-chatgpt-developers) and [Claude API vs OpenAI Cost for India](/blog/claude-api-vs-openai-cost-india). If you want the prompt patterns inside a broader automation stack, pair this with [WhatsApp AI Assistant with n8n and Claude API](/blog/whatsapp-ai-assistant-n8n-claude-api).
+If you want a concrete automation follow-up, read [Claude API + Node.js Automation in 2026](/blog/claude-api-content-automation-nodejs). If you are still comparing models first, continue with [Claude vs ChatGPT for Developers](/blog/claude-vs-chatgpt-developers) and [Claude API vs OpenAI Cost for India](/blog/claude-api-vs-openai-cost-india). If you want to see these prompt patterns inside a larger automation setup, pair this with [WhatsApp AI Assistant with n8n and Claude API](/blog/whatsapp-ai-assistant-n8n-claude-api).
 
 ## FAQ
 
