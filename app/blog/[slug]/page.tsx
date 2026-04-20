@@ -113,7 +113,7 @@ export default async function PostPage({ params }: Props) {
 
             {pillarPage && (
               <section className="article-share-panel">
-                <p className="article-share-eyebrow">In this cluster</p>
+                <p className="article-share-eyebrow">Go deeper</p>
                 <div className="article-explore-grid" style={{ marginTop: '0.75rem' }}>
                   <Link href={`/category/${post.category}`} className="article-explore-link">
                     <span className="article-nav-label">Category</span>
@@ -121,11 +121,11 @@ export default async function PostPage({ params }: Props) {
                   </Link>
                   <Link href={pillarPage.href} className="article-explore-link">
                     <span className="article-nav-label">Guide</span>
-                    <span className="article-nav-title">Open {pillarPage.title}</span>
+                    <span className="article-nav-title">Start with {pillarPage.title}</span>
                   </Link>
                   <Link href={RESOURCE_HUB_PATH} className="article-explore-link">
-                    <span className="article-nav-label">Resources Hub</span>
-                    <span className="article-nav-title">Open the broader deployment path</span>
+                    <span className="article-nav-label">More reads</span>
+                    <span className="article-nav-title">Browse more deployment guides</span>
                   </Link>
                 </div>
               </section>

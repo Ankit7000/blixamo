@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react'
 
-const STYLES: Record<string, { bg: string; border: string; icon: string }> = {
-  info: { bg: 'var(--surface)', border: '#3b82f6', icon: 'i' },
+const STYLES: Record<string, { bg: string; border: string; icon?: string }> = {
+  info: { bg: 'var(--surface)', border: '#3b82f6' },
   warning: { bg: 'rgba(234,179,8,0.08)', border: '#eab308', icon: '!' },
   error: { bg: 'rgba(239,68,68,0.08)', border: '#ef4444', icon: 'x' },
   danger: { bg: 'rgba(239,68,68,0.08)', border: '#ef4444', icon: 'x' },
@@ -32,7 +32,7 @@ export function Callout({
     >
       {title && (
         <div className="article-callout-title">
-          <span className="article-callout-icon">{style.icon}</span>
+          {style.icon ? <span className="article-callout-icon">{style.icon}</span> : null}
           {title}
         </div>
       )}
