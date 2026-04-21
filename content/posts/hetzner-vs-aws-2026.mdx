@@ -23,7 +23,7 @@ toc: true
 
 My AWS bill for a side project with 200 daily users was $47/month. EC2 t3.small, RDS free tier, S3, CloudFront, data transfer fees. Every month I'd open the bill and find a new line item I didn't remember enabling.
 
-I moved everything to a Hetzner CPX22 VPS at €5.19/month (around Rs 465 or $5.50). That was 90 days ago. This is what actually happened. If you want more provider comparisons after this, keep the [resources hub](/tag/deployment), the [VPS & Cloud category](/category/vps-cloud), and the [VPS & Cloud for Developers Guide](/guides/vps-cloud-for-developers-guide) open.
+I moved everything to a Hetzner CPX22 VPS at €5.19/month (around Rs 465 or $5.50). That was 90 days ago. The short version: choose Hetzner if you run a predictable indie app and want one cheap server you can understand. Choose AWS if you need managed services, autoscaling, compliance paperwork, or a large team permission model.
 
 <Callout type="info" title="TL;DR — Is Hetzner Worth It?">
 For indie projects and small startups under 10K daily users: yes, Hetzner beats AWS on price by 8-10x with no meaningful reliability difference. AWS wins only when you need managed services, autoscaling, or enterprise compliance.
@@ -73,7 +73,7 @@ I ran 3 projects on AWS. Here is exactly what I moved and how long each took:
 
 Total monthly cost now: **€5.19/month (Rs 465)**. All three projects running on one box.
 
-If you want to see exactly how to run multiple projects on a single VPS without conflicts, the [multiple projects on one Hetzner VPS guide](/blog/multiple-projects-single-vps) covers the full Nginx + PM2 setup.
+If you want to see exactly how to run multiple projects on a single VPS without conflicts, the [multiple projects on one Hetzner VPS walkthrough](/blog/multiple-projects-single-vps) covers the full Nginx + PM2 setup.
 
 ## 90-Day Uptime: Hetzner vs AWS Reality
 
@@ -136,7 +136,7 @@ This is the exact process I used:
 
 **Day 1 (Saturday, 4 hours):**
 1. Spin up Hetzner CPX22 at hetzner.com to start
-2. Install Coolify for zero-downtime deploys (see [Coolify setup guide](/blog/deploy-nextjs-coolify-hetzner))
+2. Install Coolify for zero-downtime deploys (see the [Coolify setup walkthrough](/blog/deploy-nextjs-coolify-hetzner))
 3. Set up Nginx reverse proxy + SSL with Certbot
 4. Migrate Postgres: `pg_dump` on AWS → `pg_restore` on Hetzner
 
@@ -169,11 +169,11 @@ Yes. Hetzner has been running since 1997 and has a better uptime track record th
 
 ### Can I pay for Hetzner from India?
 
-Yes. Niyo Global debit card works reliably. Wise virtual card also works. The full guide to [paying for Hetzner from India](/blog/pay-hetzner-from-india) covers every method that actually processes.
+Yes. Niyo Global debit card works reliably. Wise virtual card also works. The full [Hetzner payment article for India](/blog/pay-hetzner-from-india) covers every method that actually processes.
 
 ### What happens if my VPS goes down at 3am?
 
-Set up a self-healing monitor that auto-restarts services. The [Node.js VPS monitoring guide](/blog/self-healing-vps-monitor-nodejs) shows how to build one in an afternoon. It has kept my server running for 90 days without a single manual intervention.
+Set up a self-healing monitor that auto-restarts services. The [Node.js VPS monitoring walkthrough](/blog/self-healing-vps-monitor-nodejs) shows how to build one in an afternoon. It has kept my server running for 90 days without a single manual intervention.
 
 ### Does Hetzner offer a free trial?
 
@@ -185,4 +185,4 @@ Hetzner is a German company subject to GDPR — often stricter than US data laws
 
 ## What Next?
 
-If you're ready to make the move, start with the [Hetzner + Coolify deployment guide](/blog/deploy-nextjs-coolify-hetzner) — it gets you from zero to a running Next.js app in 25 minutes. Once that is working, the rest of the migration follows naturally.
+If you're ready to make the move, start with the [Hetzner + Coolify deployment walkthrough](/blog/deploy-nextjs-coolify-hetzner) — it gets you from zero to a running Next.js app in 25 minutes. Once that is working, the rest of the migration follows naturally.
