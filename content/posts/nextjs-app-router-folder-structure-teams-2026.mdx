@@ -17,7 +17,7 @@ The App Router does not become messy because the framework is confusing. It beco
 
 This page is for teams that need a structure people can guess without asking in chat every day. It is not about winning a folder-style argument. It is about keeping changes reviewable, ownership clearer, and new feature work from turning `app/` into a junk drawer.
 
-Keep the [Web Development](/category/web-dev) category, the [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide), the [Resources Hub](/tag/deployment), and nearby Next.js reads such as [Next.js Performance Optimization 2026](/blog/nextjs-performance-optimization-2026), [Playwright Checklist Next.js App Router 2026](/blog/playwright-checklist-nextjs-app-router-2026), [Next.js MDX Blog 2026](/blog/nextjs-mdx-blog-2026), and [Next.js 15 to 16 Migration Guide](/blog/nextjs-15-to-16-migration-guide) nearby if you want supporting context while reading.
+The structure below is the pattern I would use before a team starts adding more product areas, tests, background jobs, and shared UI. It keeps route composition in `app/`, feature ownership in `features/`, and reusable pieces in clearly named shared folders.
 
 > **TL;DR**
 >
@@ -222,4 +222,4 @@ Use [Playwright Checklist Next.js App Router 2026](/blog/playwright-checklist-ne
 
 ## What Next?
 
-If the immediate problem is team layout and review friction, start by adopting the route-versus-feature boundary from this page. Then keep [Playwright Checklist Next.js App Router 2026](/blog/playwright-checklist-nextjs-app-router-2026), [Next.js Performance Optimization 2026](/blog/nextjs-performance-optimization-2026), [Next.js MDX Blog 2026](/blog/nextjs-mdx-blog-2026), [Next.js 15 to 16 Migration Guide](/blog/nextjs-15-to-16-migration-guide), and the [Web Development](/category/web-dev) category nearby for the implementation and testing follow-up.
+If the immediate problem is team layout and review friction, start by adopting the route-versus-feature boundary from this page. Then use [Playwright Checklist Next.js App Router 2026](/blog/playwright-checklist-nextjs-app-router-2026) for testing discipline, [Next.js Performance Optimization 2026](/blog/nextjs-performance-optimization-2026) for performance-sensitive decisions, [Next.js MDX Blog 2026](/blog/nextjs-mdx-blog-2026) for content-heavy projects, and more [web development posts](/category/web-dev) when you need related Next.js examples.

@@ -17,35 +17,36 @@ noindex: false
 
 Postman to Bruno is a good move when you want local files, Git visibility, and less cloud lock-in. The migration still needs a plan for collections, environments, auth, and team habits or it turns messy fast.
 
-This guide shows how to move the parts that matter first and verify the new workflow before you retire the old one.
+The clean way to migrate is to move one real API collection, prove variables and authentication still work, then repeat that pattern for the rest of the workspace.
 
 > **TL;DR**
 >
-> - Start with a narrow, testable version of the workflow instead of trying to perfect the whole system at once.
-> - Keep the happy path and the rollback path in the same runbook, because recovery speed matters as much as setup speed.
-> - Keep the Bruno comparison and migration guides nearby so you can verify edge cases without losing your place.
+> - Bruno is strongest when your API requests should live as local files reviewed in Git.
+> - Export from Postman in stages: collections first, then environments, auth, scripts, and team docs.
+> - Expect manual cleanup around variables, pre-request scripts, secrets, and shared workspace conventions.
 
-## Quick Plan
+## Migration Snapshot
 
-| Step | What matters |
+| Area | What to check |
 |---|---|
-| Start point | Freeze the current state and document how you would undo the next change. |
-| Middle of the job | Work from infrastructure to app behavior instead of guessing from a single error message. |
-| Success signal | The app is healthy, the logs are quiet, and the supporting workflow is repeatable. |
-| Most expensive mistake | Changing two or three things at once and losing the actual cause. |
+| Collections | Export only the active collections first, not every stale workspace artifact. |
+| Environments | Recreate variables carefully and keep secrets out of Git. |
+| Auth | Test bearer tokens, OAuth flows, cookies, and inherited auth one by one. |
+| Scripts | Review Postman scripts manually because not every helper maps cleanly to Bruno. |
+| Team handoff | Confirm another developer can clone the repo and run the same requests. |
 
 ## What You Need Before You Start
 
-- A clear owner for the change and a simple success condition.
-- Access to logs, environment settings, and the current deployment method.
-- A short rollback note that says what gets restored, restarted, or reverted if the change fails.
-- A short reading list that includes the main [Developer Tools Directory](/guides/developer-tools-directory) guide and the [Developer Tools](/category/developer-tools) category if you need broader context while working.
+- Export access to the Postman collections you actually use.
+- A list of environments, variables, auth methods, and scripts that must survive the move.
+- A Git repo where the Bruno files will live.
+- One API flow that proves the migration works end to end.
 
 ## Why Migrate From Postman To Bruno Matters
 
 Most teams do not struggle with Bruno itself. They struggle with the old Postman sprawl they are trying to carry over: duplicate collections, stale environments, auth helpers nobody understands, and workspace habits that only make sense in the old tool. A clean migration forces those decisions into the open.
 
-If you are still comparing options, read [Bruno Vs Hoppscotch Local API Testing 2026](/blog/bruno-vs-hoppscotch-local-api-testing-2026), [Migrate From Postman To Hoppscotch 2026](/blog/migrate-postman-to-hoppscotch-2026), [Best API Clients For Developers 2026](/blog/best-api-clients-for-developers-2026), and [Open Source Tools 2026](/blog/open-source-tools-2026). Once you have decided on Bruno, the goal is simpler: move one working slice at a time and end up with collections that are easier to review in Git than they were in Postman.
+Bruno is worth the move when the team wants request changes to be visible in code review instead of hidden inside a hosted workspace. If you are still comparing tools, the [Bruno vs Hoppscotch comparison](/blog/bruno-vs-hoppscotch-local-api-testing-2026) and [best API clients list](/blog/best-api-clients-for-developers-2026) are useful before you commit to the migration.
 
 ## Build the Migration Before You Delete Anything
 
@@ -53,35 +54,21 @@ The safest Bruno migration starts with one collection that the team actually use
 
 Write down a small definition of done before you start. For most teams that means three things: the requests import cleanly, variables resolve correctly, and another developer can run the same collection without asking where hidden settings live. If any of those fail, keep Postman as the source of truth until the gap is fixed.
 
-If you need supporting reads while working, keep [Developer Tools Directory](/guides/developer-tools-directory), [Bruno Vs Hoppscotch Local API Testing 2026](/blog/bruno-vs-hoppscotch-local-api-testing-2026), [Migrate From Postman To Hoppscotch 2026](/blog/migrate-postman-to-hoppscotch-2026), [Best API Clients For Developers 2026](/blog/best-api-clients-for-developers-2026), and [Open Source Tools 2026](/blog/open-source-tools-2026) close by for comparison details and fallback ideas.
+## Export Collections in a Controlled Order
 
-A practical starter sequence looks like this:
+### 1. Inventory what Postman currently owns
 
-```bash
-# snapshot current state first
-git status
-git rev-parse HEAD
-docker compose ps
-```
+List active collections, shared environments, mock servers, monitors, generated docs, auth helpers, and scripts. Mark anything stale before exporting so Bruno does not become a cleaner-looking copy of the same mess.
 
-That sequence is intentionally simple. Simple migration steps are easier to review and much easier to undo when one export or auth rule behaves differently than expected.
+The usual mistake is turning a client swap into a full API cleanup project. Fix naming and ownership where it blocks the migration, but leave unrelated API redesign work for later.
 
-## The Practical Workflow
+### 2. Export one collection family
 
-### 1. Freeze and inventory the current state
+Start with one collection family that covers a real product flow. Import it into Bruno, commit the files, and review the diff. The diff should be understandable to a developer who has never opened Postman.
 
-Document what exists now: services, volumes, environment variables, domains, and the simplest rollback target.
+If the first import produces noisy names, duplicate folders, or unclear variables, stop and clean the model before repeating it across the whole workspace.
 
-Keep the migration goal narrow while you work. The usual mistake is turning a client swap into a full API cleanup project. If you find unrelated issues, note them and finish the Postman-to-Bruno move first.
-Start by listing the collections, environments, auth methods, and scripts you actually need. This is where you catch years of Postman drift before it follows you into Bruno.
-
-### 2. Move one layer at a time
-
-Transfer configuration, then stateful data, then traffic, then verification. Mixing these together is how migrations become incidents.
-
-Move one collection family at a time. Get the requests, variables, and auth flow working together before you add scripts, test assertions, or team conventions on top.
-
-### 3. Verify before cleanup
+### 3. Keep Postman available until Bruno proves itself
 
 Leave the old path intact until the new one passes the critical path, the logs look clean, and your team can repeat the same steps.
 
@@ -93,47 +80,51 @@ Do not migrate the most complicated workspace first. Migrate the smallest useful
 
 Once the first slice works, standardize naming. Old Postman workspaces often hide years of drift in environment names, duplicate requests, and unclear ownership. A migration is the perfect moment to clean that up instead of copying the mess forward.
 
-## Migration Patterns That Hold Up Under Pressure
+## Environment Variables and Secrets
 
-The migration pattern that ages well is simple: inventory, duplicate, verify, switch, observe, then retire the old path. Inventory means understanding the old system. Duplicate means creating the new path without pressure. Verify means checking behavior before traffic moves. Switch means changing one layer at a time. Observe means watching logs and health after the cutover. Retire means cleaning up only after confidence is earned.
+Environment handling is where many Postman-to-Bruno migrations get sloppy. Postman makes it easy to rely on workspace-level variables, inherited values, and hidden current values. Bruno works better when the file layout makes the source of each value obvious.
 
-People get in trouble when they skip directly from inventory to switch. That compresses all risk into one moment. Spread the risk out. That is the point of a migration plan.
+For each environment, decide which values belong in committed templates and which values belong only on each developer's machine. API base URLs, safe feature flags, and variable names can usually be committed. Tokens, client secrets, session cookies, and production credentials should not be committed.
 
-I also recommend a small parallel period whenever possible. Even a short overlap gives you a safe place to compare outputs, response times, or job results before you declare the new system authoritative.
+After import, run the same request against dev, staging, and production-like settings if your team has them. This catches hardcoded base URLs and auth assumptions before the old workspace is retired.
 
-A practical way to preserve quality is to update the article after the first real use. Your first version should be good enough to follow. Your second version should be good enough to trust.
+## Scripts, Tests, and Auth Gotchas
+
+Postman pre-request and test scripts deserve manual review. Simple header setup and variable assignment are usually easy to recreate. Complex scripts that generate signatures, refresh tokens, or chain requests can break because the runtime assumptions are different.
+
+Treat auth as its own migration step. Test inherited auth at folder and request level, then confirm that a fresh clone can run the same requests after adding local secrets. If a collection only works on the original maintainer's machine, the migration is not done.
+
+For teams moving away from several API tools at once, [Migrate From Postman To Hoppscotch 2026](/blog/migrate-postman-to-hoppscotch-2026) is useful for spotting which issues belong to the export format and which are specific to Bruno.
 
 ## Common Mistakes and How to Avoid Them
 
-The first mistake is treating migrate from postman to bruno like a one-layer problem. Most failures span at least two layers: the config and the verification, the migration and the rollback, the tool choice and the collaboration model. If you only optimize the visible layer, the issue returns later in a different form.
+The first mistake is migrating everything at once. Move one useful slice first, then repeat the proven pattern.
 
-The second mistake is hiding assumptions. Write them down. Which environment variables must exist? Which domain must resolve first? Which account permissions are required? Which health endpoint represents "good"? Short articles skip those details because they feel boring. In real work, those details are the difference between a clean handoff and an hours-long debugging session.
+The second mistake is hiding environment assumptions. Write down which variables must exist, which values are local-only, and which requests prove that auth is working.
 
-The third mistake is weak naming. Name collections, services, environments, and checkpoints clearly. Ambiguous labels create ambiguity in the review process too. Good names cut down on re-explanation.
+The third mistake is vague names. Rename collections, folders, and environments while the migration is fresh. Ambiguous labels create ambiguity in code review too.
 
-The fourth mistake is skipping post-change observation. People celebrate once the main path works once. That is too early. Watch the system long enough to catch retry storms, delayed errors, silent bad defaults, or permissions issues that appear only on the second or third action.
+The fourth mistake is skipping team verification. A migration is not complete until someone other than the person doing the import can clone the Bruno files, add local secrets, and run the critical requests.
 
-If you are turning this into a team runbook, link the migration guide, the comparison guide, and the fallback tool list in the same document. That makes handoffs much easier when someone needs context during a cutover.
+## Verification Before Retiring Postman
 
-## Troubleshooting and Verification
+Before you shut down the old workspace, verify in this order.
 
-When something feels off, verify in this order.
+1. **Variables**: confirm Bruno resolves the expected base URL, token, headers, and request body values.
+2. **Auth**: test login, refresh, expired-token behavior, and any inherited auth settings.
+3. **Collections**: run the most important read and write requests against the intended environment.
+4. **Scripts**: compare script-dependent requests with Postman output before trusting them.
+5. **Git review**: confirm the committed Bruno files are readable and do not contain secrets.
 
-1. **Inputs**: confirm the right variables, credentials, paths, domains, or source files are being used.
-2. **Execution**: confirm the actual command, workflow step, or request you expect is the one being run.
-3. **Dependencies**: confirm the database, queue, proxy, or upstream service is healthy before blaming the app.
-4. **Output**: confirm the success signal is real and not a partial success hiding deeper issues.
-5. **Rollback path**: decide early whether continuing is cheaper than restoring the last known good state.
+This final check is where Bruno should feel better than Postman. If a request change is easy to review, easy to run, and safe to share without leaking secrets, the migration has done its job.
 
-This sequence matters because it keeps you from making a noisy situation noisier. For many developers, the hardest part of troubleshooting is not technical depth. It is emotional pacing. A failing migration or broken deploy creates urgency, and urgency pushes people toward random action. The verification order above slows that down just enough to make better choices.
+For more tooling picks, use the [Developer Tools Directory](/guides/developer-tools-directory), [free developer tools list](/guides/free-tools-for-developers), and [open source tools roundup](/blog/open-source-tools-2026).
 
-Read these next if you want to go deeper: [Developer Tools Directory](/guides/developer-tools-directory) for more tooling picks, [Free Tools for Developers](/guides/free-tools-for-developers) for budget-first options, and [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide) if the migration is part of a bigger deployment cleanup.
-
-You should finish with a short migration record: what changed, how you verified it, and how you would roll back if the team hits a problem later.
+You should finish with a short migration note: what moved, what still depends on Postman, what changed during cleanup, and which requests prove Bruno is ready.
 
 ## FAQ
 
-### What is the safest way to start migrate from postman to bruno?
+### What is the safest way to start a Postman to Bruno migration?
 
 Start with one low-risk collection and one environment. Export them, import them into Bruno, then run a real request that proves auth, variables, and scripts still behave the way you expect before you touch anything shared.
 
@@ -159,15 +150,4 @@ Keep the old Postman workspace readable, export a final backup before the cutove
 
 ## What Next?
 
-Read these next if you want to go deeper or compare adjacent options.
-
-- [Homepage](/)
-- [Blog archive](/blog)
-- [Community](/community)
-- [Resources hub](/tag/deployment)
-- [Developer Tools](/category/developer-tools)
-- [Developer Tools Directory](/guides/developer-tools-directory)
-- [Bruno Vs Hoppscotch Local API Testing 2026](/blog/bruno-vs-hoppscotch-local-api-testing-2026)
-- [Migrate From Postman To Hoppscotch 2026](/blog/migrate-postman-to-hoppscotch-2026)
-- [Best API Clients For Developers 2026](/blog/best-api-clients-for-developers-2026)
-- [Open Source Tools 2026](/blog/open-source-tools-2026)
+If Bruno is the right fit, migrate one active collection this week and make the Git diff part of the review. For adjacent tool decisions, read [Bruno Vs Hoppscotch Local API Testing 2026](/blog/bruno-vs-hoppscotch-local-api-testing-2026), [Best API Clients For Developers 2026](/blog/best-api-clients-for-developers-2026), and more [developer tooling posts](/category/developer-tools).
