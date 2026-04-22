@@ -21,39 +21,35 @@ This guide walks the migration in a sequence that keeps rollback easy while you 
 
 > **TL;DR**
 >
-> - Start with a narrow, testable version of the workflow instead of trying to perfect the whole system at once.
-> - Keep the happy path and the rollback path in the same runbook, because recovery speed matters as much as setup speed.
-> - Keep the Docker, VPS, and rollback guides nearby so you can migrate one layer at a time without guessing.
+> - Inventory everything PM2 currently handles before you write the first Compose file.
+> - Move env loading, ports, volumes, health checks, and proxy targets one layer at a time.
+> - Keep PM2 available until the containerized app has passed real traffic, restarts, and one rollback drill.
 
 ## Quick Plan
 
 | Step | What matters |
 |---|---|
-| Start point | Freeze the current state and document how you would undo the next change. |
-| Middle of the job | Work from infrastructure to app behavior instead of guessing from a single error message. |
-| Success signal | The app is healthy, the logs are quiet, and the supporting workflow is repeatable. |
-| Most expensive mistake | Changing two or three things at once and losing the actual cause. |
+| Inventory | Ports, env vars, startup command, logs, proxy target, and writable paths. |
+| Compose baseline | Build, command, env file, restart policy, and health check. |
+| Cutover | Switch traffic only after the container is healthy and repeatable. |
+| Biggest mistake | Killing PM2 too early and losing the fastest rollback path. |
 
 ## What You Need Before You Start
 
-- A clear owner for the change and a simple success condition.
-- Access to logs, environment settings, and the current deployment method.
-- A short rollback note that says what gets restored, restarted, or reverted if the change fails.
-- A short reading list that includes [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide) and [How-To Guides](/category/how-to) if you need broader context while migrating.
+- The current PM2 ecosystem or startup command.
+- The port mapping, reverse-proxy target, and any volume or storage path the app depends on.
+- Access to the current `.env` values or secret store.
+- A rollback note that says how to put PM2 back on the old port or old target quickly.
 
 ## Why PM2 To Docker Compose Migration Guide Matters
 
 Moving from PM2 to Docker Compose changes the shape of the deployment. The app process is only one part of it. Ports, persistent storage, env files, image builds, health checks, and restart behavior all move into a different operating model, which is why the migration can feel bigger than expected.
-
-If you want the surrounding hosting context, keep [Docker Compose Production VPS 2026](/blog/docker-compose-production-vps-2026), [Multiple Projects Single VPS](/blog/multiple-projects-single-vps), [Monitor Small VPS Before Downtime 2026](/blog/monitor-small-vps-before-downtime-2026), and [Roll Back Failed Next.js VPS Deploy 2026](/blog/rollback-failed-nextjs-vps-deploy-2026) nearby. Those guides cover the adjacent hosting questions that usually show up during this migration.
 
 ## Build the Cutover Around the Runtime Shift
 
 Start by documenting what PM2 is doing today that Compose will need to replace: env loading, restart behavior, ports, volumes, reverse-proxy targets, and any background process assumptions. That is where the hidden migration work usually lives.
 
 Define success before you start. For most teams that means the containerized app boots cleanly, receives traffic, stays healthy across a restart, and leaves you with a rollback that is still quick. If one of those is fuzzy, the migration is not ready yet.
-
-If you need a second reference while you work, keep [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide), [Docker Compose Production VPS 2026](/blog/docker-compose-production-vps-2026), [Multiple Projects Single VPS](/blog/multiple-projects-single-vps), [Monitor Small VPS Before Downtime 2026](/blog/monitor-small-vps-before-downtime-2026), and [Roll Back Failed Next.js VPS Deploy 2026](/blog/rollback-failed-nextjs-vps-deploy-2026) close by.
 
 A practical starter sequence looks like this:
 
@@ -70,25 +66,39 @@ services:
 
 That first Compose file should stay simple. The goal is to prove the runtime model, not to redesign the whole stack on day one.
 
-## The Practical Workflow
+## What Changes When You Leave PM2
 
-### 1. Freeze and inventory the current state
+PM2 is mainly about keeping a Node process alive. Docker Compose defines the process, the filesystem, the environment, the network, and often the supporting services too. That means a PM2 migration is never just `pm2 delete` plus `docker compose up`.
 
-Document what exists now: services, volumes, environment variables, domains, and the simplest rollback target.
+The biggest mindset change is ownership:
+- PM2 owns process restarts
+- Docker owns the container lifecycle
+- Compose owns service wiring
+- your reverse proxy still owns public traffic
 
-Start by inventorying the current PM2 setup, env files, port bindings, storage paths, and proxy rules. That tells you what the Compose file actually has to preserve.
+## Move the App Definition First
 
-### 2. Move one layer at a time
+Start with the narrowest viable Compose setup: build image, start command, env file, port, and restart policy. Do not add extra services until the core app boots cleanly.
 
-Transfer configuration, then stateful data, then traffic, then verification. Mixing these together is how migrations become incidents.
+Then copy over the behavior PM2 previously hid from you:
+- working directory assumptions
+- startup command
+- environment variable source
+- log location
+- memory or restart expectations
 
-Move one layer at a time. First make the app boot in Compose, then wire storage and env vars, then switch traffic. That order keeps failures small enough to diagnose.
+If you run more than one service on the VPS, compare the migration plan against [single-VPS service layout](/blog/multiple-projects-single-vps) before you expose ports or volumes casually.
 
-### 3. Verify before cleanup
+## Handle Env Vars, Volumes, and Health Checks Explicitly
 
-Leave the old path intact until the new one passes the critical path, the logs look clean, and your team can repeat the same steps.
+This is where most PM2 to Compose migrations go sideways. PM2 apps often depend on local assumptions that are invisible until the container starts fresh.
 
-Keep PM2 available until the Compose version has passed the main health checks, received real traffic, and survived at least one ordinary restart.
+Check these one by one:
+1. env vars load from the intended file or secret source
+2. writable directories are mounted where the app expects them
+3. uploads or cache paths survive container recreation
+4. health checks prove readiness, not just process startup
+5. the reverse proxy points at the new container port, not the old PM2 port
 
 ## Why People Move from PM2 Even When PM2 Works
 
@@ -96,49 +106,45 @@ PM2 is fine for many workloads. Teams usually move when they want cleaner depend
 
 That means the guide should compare operating models, not pretend the old approach was foolish.
 
-## Migration Patterns That Hold Up Under Pressure
+## Cut Over Traffic Only After a Real Smoke Pass
 
-The migration pattern that ages well is simple: inventory, duplicate, verify, switch, observe, then retire the old path. Inventory means understanding the old system. Duplicate means creating the new path without pressure. Verify means checking behavior before traffic moves. Switch means changing one layer at a time. Observe means watching logs and health after the cutover. Retire means cleaning up only after confidence is earned.
+Before changing the proxy target or public port, run the container locally on the VPS and test:
+- homepage or app root
+- one authenticated route
+- one write path if the app supports writes
+- restart behavior
+- health endpoint
+- logs during startup and under light traffic
 
-People get in trouble when they skip directly from inventory to switch. That compresses all risk into one moment. Spread the risk out. That is the point of a migration plan.
-
-I also recommend a small parallel period whenever possible. Even a short overlap gives you a safe place to compare outputs, response times, or job results before you declare the new system authoritative.
-
-A practical way to preserve quality is to update the article after the first real use. Your first version should be good enough to follow. Your second version should be good enough to trust.
+Then switch traffic and keep PM2 untouched for a while. If the container crashes, leaks env vars, or serves the wrong assets, rollback should mean pointing traffic back to PM2, not rebuilding the old setup from memory.
 
 ## Common Mistakes and How to Avoid Them
 
-The first mistake is treating pm2 to docker compose migration guide like a one-layer problem. Most failures span at least two layers: the config and the verification, the migration and the rollback, the tool choice and the collaboration model. If you only optimize the visible layer, the issue returns later in a different form.
+The first mistake is moving traffic before volumes and env vars are verified. The app may boot and still fail real work.
 
-The second mistake is hiding assumptions. Write them down. Which environment variables must exist? Which domain must resolve first? Which account permissions are required? Which health endpoint represents "good"? Short articles skip those details because they feel boring. In real work, those details are the difference between a clean handoff and an hours-long debugging session.
+The second mistake is treating `restart: unless-stopped` as a health strategy. Restarts help, but only a real health check tells the proxy whether the app is ready.
 
-The third mistake is weak naming. Name collections, services, environments, and checkpoints clearly. Ambiguous labels create ambiguity in the review process too. Good names cut down on re-explanation.
+The third mistake is deleting PM2 config too early. Keep the old startup path until the new one survives real usage.
 
-The fourth mistake is skipping post-change observation. People celebrate once the main path works once. That is too early. Watch the system long enough to catch retry storms, delayed errors, silent bad defaults, or permissions issues that appear only on the second or third action.
-
-If you are turning this into a team migration runbook, keep the Docker, monitoring, and rollback guides in the same document. That makes it much easier to answer follow-up questions during the cutover.
+The fourth mistake is forgetting the reverse proxy. A lot of migration bugs are really Nginx or Caddy still pointing at the wrong place.
 
 ## Troubleshooting and Verification
 
-When something feels off, verify in this order.
+If the migration feels unstable, verify in this order.
 
-1. **Inputs**: confirm the right variables, credentials, paths, domains, or source files are being used.
-2. **Execution**: confirm the actual command, workflow step, or request you expect is the one being run.
-3. **Dependencies**: confirm the database, queue, proxy, or upstream service is healthy before blaming the app.
-4. **Output**: confirm the success signal is real and not a partial success hiding deeper issues.
-5. **Rollback path**: decide early whether continuing is cheaper than restoring the last known good state.
+1. **Container config**: does the image, command, and env file match what PM2 used?
+2. **State**: are volumes mounted to the correct write paths?
+3. **Network**: does the reverse proxy point at the correct container port?
+4. **Health**: does the check prove readiness instead of just process existence?
+5. **Rollback**: can you point traffic back to PM2 immediately if needed?
 
-This sequence matters because it keeps you from making a noisy situation noisier. For many developers, the hardest part of troubleshooting is not technical depth. It is emotional pacing. A failing migration or broken deploy creates urgency, and urgency pushes people toward random action. The verification order above slows that down just enough to make better choices.
-
-Read these next if you want to go deeper: [Docker Compose Production VPS 2026](/blog/docker-compose-production-vps-2026) for the target setup, [Monitor Small VPS Before Downtime 2026](/blog/monitor-small-vps-before-downtime-2026) for post-cutover visibility, and [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide) if the migration is part of a larger hosting cleanup.
-
-Finish with a cutover note that records what moved, how you verified containers and traffic, and what you would switch back first if the rollout fails.
+If those checks are clear, the migration is usually safe enough to continue.
 
 ## FAQ
 
 ### What is the safest way to start pm2 to docker compose migration guide?
 
-Start with one non-critical service and prove the container can boot, stay healthy, and receive traffic before you touch the busiest app. A small win exposes the missing Docker details without risking the whole stack.
+Start with one service, prove the container boots and stays healthy, then switch traffic only after the proxy and volumes are confirmed.
 
 ### Should I move everything in one cutover or in stages?
 
@@ -160,17 +166,16 @@ Keep PM2 available until the Docker path has survived normal traffic, restarts, 
 
 Keep the last known good PM2 config, the startup commands, and the old traffic target ready, and define the exact conditions that trigger the switch back. A rollback plan should restore service fast, not send you back into experimentation.
 
+### What should I compare between PM2 and Compose before cutover?
+
+Compare ports, env vars, logs, writable paths, restart behavior, health checks, and the reverse-proxy target. Those are the real migration surface.
+
 ## What Next?
 
-Read these next if you want to go deeper or build the next step after the migration.
+Use [How-To Guides](/category/how-to), the [resources hub](/tag/deployment), and these related posts to finish the migration cleanly:
 
-- [Homepage](/)
-- [Blog archive](/blog)
-- [Community](/community)
-- [Resources hub](/tag/deployment)
-- [How-To Guides](/category/how-to)
-- [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide)
 - [Docker Compose Production VPS 2026](/blog/docker-compose-production-vps-2026)
 - [Multiple Projects Single VPS](/blog/multiple-projects-single-vps)
 - [Monitor Small VPS Before Downtime 2026](/blog/monitor-small-vps-before-downtime-2026)
 - [Roll Back Failed Next.js VPS Deploy 2026](/blog/rollback-failed-nextjs-vps-deploy-2026)
+- [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide)

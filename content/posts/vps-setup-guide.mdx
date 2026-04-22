@@ -124,7 +124,7 @@ ufw status
 `ufw status` should show `Status: active` with rules for `OpenSSH`, `80`, and `443`.
 </Callout>
 
-At this stage you usually only need SSH, HTTP, and HTTPS exposed publicly. Do not open random app ports unless you know exactly why they need to be public.
+For most new VPS setups, you only need SSH, HTTP, and HTTPS exposed publicly. Do not open random app ports unless you know exactly why they need to be public.
 
 If `ufw enable` warns about interrupting existing SSH connections, read the prompt carefully and make sure `OpenSSH` is already allowed before you confirm.
 
