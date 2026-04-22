@@ -21,44 +21,40 @@ This guide focuses on the checks that matter most when you are moving a real app
 
 > **TL;DR**
 >
-> - Start with a narrow, testable version of the workflow instead of trying to perfect the whole system at once.
-> - Keep the happy path and the rollback path in the same runbook, because recovery speed matters as much as setup speed.
-> - Keep the framework, performance, and deployment guides nearby so you can sanity-check the upgrade without opening too many fronts at once.
+> - Upgrade in a branch, lock the current deploy target, and define rollback before touching packages.
+> - Check the Next.js 16 removals first: async request APIs, `middleware` to `proxy`, `next lint`, Turbopack defaults, and image config changes.
+> - Call the migration done only after `lint`, `build`, critical routes, images, and deploy logs all behave the same in production mode.
 
 ## Quick Plan
 
 | Step | What matters |
 |---|---|
-| Start point | Freeze the current state and document how you would undo the next change. |
-| Middle of the job | Work from infrastructure to app behavior instead of guessing from a single error message. |
-| Success signal | The app is healthy, the logs are quiet, and the supporting workflow is repeatable. |
-| Most expensive mistake | Changing two or three things at once and losing the actual cause. |
+| Preflight | Verify Node.js `20.9+`, TypeScript `5.1+`, and a clean rollback target. |
+| Upgrade step | Run the codemod, then fix the breaking changes it cannot finish for you. |
+| Validation | Lint, build, route checks, image checks, and one production-mode smoke pass. |
+| Biggest mistake | Treating a green install as proof that the app is ready to ship. |
 
 ## What You Need Before You Start
 
-- A clear owner for the change and a simple success condition.
-- Access to logs, environment settings, and the current deployment method.
-- A short rollback note that says what gets restored, restarted, or reverted if the change fails.
-- A short reading list that includes [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide) and [Web Development](/category/web-dev) if you need broader context while upgrading.
+- Node.js `20.9.0` or newer and TypeScript `5.1` or newer.
+- A clean branch, a saved lockfile, and the current production commit hash.
+- Access to CI, environment variables, and whatever VPS or platform path you use to ship the app.
+- A short note that says how to restore the previous package versions and redeploy fast.
 
 ## Why Next.js 15 To 16 Migration Guide Matters
 
 The risky part of a major Next.js upgrade is not running the codemod. It is the gap between "the packages installed" and "the app still behaves the same way under a production build." Routing assumptions, runtime boundaries, lint rules, and deployment defaults are where the real surprises usually live.
 
-If you want the surrounding Next.js context, keep [Next.js Mdx Blog 2026](/blog/nextjs-mdx-blog-2026), [Next.js Performance Optimization 2026](/blog/nextjs-performance-optimization-2026), [Migrate Next.js From Vercel To VPS 2026](/blog/migrate-nextjs-vercel-to-vps-2026), and [Next.js App Router Folder Structure Teams 2026](/blog/nextjs-app-router-folder-structure-teams-2026) nearby. Those guides cover the routing, performance, and deployment choices that usually show up during a framework upgrade.
-
 ## Build the Upgrade Around Real Checks
 
-Start by auditing the parts of the app most likely to move under a major upgrade: route handlers, middleware, build scripts, lint rules, MDX or content tooling, and anything that depends on a specific runtime. That is where the cheap surprises live.
+Start by auditing the parts of the app most likely to move under a major upgrade: route handlers, `middleware.ts`, build scripts, lint scripts, image config, MDX tooling, and anything that depends on request-time APIs such as `cookies`, `headers`, `params`, or `searchParams`.
 
 Define success before you upgrade. For most teams that means the app builds cleanly, the main routes render in production mode, and the release path stays boring after the version bump. If those checks fail, stop there and fix them before layering on unrelated cleanup.
-
-If you need a second reference while you work, keep [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide), [Next.js Mdx Blog 2026](/blog/nextjs-mdx-blog-2026), [Next.js Performance Optimization 2026](/blog/nextjs-performance-optimization-2026), [Migrate Next.js From Vercel To VPS 2026](/blog/migrate-nextjs-vercel-to-vps-2026), and [Next.js App Router Folder Structure Teams 2026](/blog/nextjs-app-router-folder-structure-teams-2026) close by.
 
 A practical starter sequence looks like this:
 
 ```bash
-npm install next@latest react@latest react-dom@latest
+npm install next@latest react@latest react-dom@latest eslint-config-next@latest
 npx @next/codemod@canary upgrade latest
 npm run lint
 npm run build
@@ -66,77 +62,87 @@ npm run build
 
 That order should stay boring. A major upgrade is much safer when package changes, codemods, linting, and build verification happen in a predictable sequence.
 
-## The Practical Workflow
+## Breaking Changes Worth Checking First
 
-### 1. Freeze and inventory the current state
+### 1. Async request APIs must be async now
 
-Document what exists now: services, volumes, environment variables, domains, and the simplest rollback target.
+Next.js 15 allowed temporary compatibility in some places. Next.js 16 removes that fallback. Audit any usage of:
+- `cookies()`
+- `headers()`
+- `draftMode()`
+- `params`
+- `searchParams`
 
-### 2. Move one layer at a time
+If those are still read synchronously in pages, layouts, route handlers, or metadata files, update them before you trust the build.
 
-Transfer configuration, then stateful data, then traffic, then verification. Mixing these together is how migrations become incidents.
+### 2. `middleware` becomes `proxy`
 
-### 3. Verify before cleanup
+If the app still uses the deprecated `middleware` convention, move it to `proxy` as part of the upgrade. This is easy to miss in apps that use auth, rewrites, or edge checks.
 
-Leave the old path intact until the new one passes the critical path, the logs look clean, and your team can repeat the same steps.
+### 3. Turbopack is now the default
 
-## The Parts of the Upgrade That Deserve Extra Attention
+You no longer need `--turbopack` flags in `dev` or `build` scripts. Remove them. Also check for custom webpack config, because `next build` now using Turbopack by default can expose config paths that previously stayed quiet.
 
-The official upgrade path is helpful, but production teams still need judgment. Focus first on configuration changes, linting workflow changes, any deprecated conventions that now need replacement, and a full build/test pass after codemods. The upgrade is not finished when packages install. It is finished when your app builds, the main routes render, and the team understands the new defaults.
+### 4. `next lint` is gone
 
-Do not chase every optional improvement on day one. First aim for a clean, boring upgrade.
+Next.js 16 removes the old `next lint` command. Use the ESLint CLI directly in your scripts and CI. If your upgrade only fixes app code but leaves `npm run lint` broken in CI, the migration is not finished.
 
-## Migration Patterns That Hold Up Under Pressure
+### 5. Image defaults changed
 
-The migration pattern that ages well is simple: inventory, duplicate, verify, switch, observe, then retire the old path. Inventory means understanding the old system. Duplicate means creating the new path without pressure. Verify means checking behavior before traffic moves. Switch means changing one layer at a time. Observe means watching logs and health after the cutover. Retire means cleaning up only after confidence is earned.
+Review `next.config` if your app uses `next/image` heavily. Next.js 16 changes defaults around local query-string images, `minimumCacheTTL`, `qualities`, redirect limits, and deprecates `images.domains` in favor of `remotePatterns`.
 
-People get in trouble when they skip directly from inventory to switch. That compresses all risk into one moment. Spread the risk out. That is the point of a migration plan.
+### 6. Remove dead config while you are here
 
-I also recommend a small parallel period whenever possible. Even a short overlap gives you a safe place to compare outputs, response times, or job results before you declare the new system authoritative.
+The codemod can clean up some deprecated config, but still check for removed flags such as `experimental_ppr` and any old unstable APIs that now have stable names.
 
-A practical way to preserve quality is to update the article after the first real use. Your first version should be good enough to follow. Your second version should be good enough to trust.
+## Validate the App Like a Real Deploy
+
+The safest validation pass is simple and practical:
+1. run `npm run lint`
+2. run `npm run build`
+3. start the app in production mode
+4. load the top routes
+5. test one form or mutation
+6. test one image-heavy page
+7. test auth or middleware/proxy behavior
+8. check server logs for warnings that did not exist before
+
+That is also a good time to compare against related deployment work such as [moving off Vercel](/blog/migrate-nextjs-vercel-to-vps-2026), [performance follow-up](/blog/nextjs-performance-optimization-2026), or a content-heavy app like this [MDX setup](/blog/nextjs-mdx-blog-2026).
 
 ## Common Mistakes and How to Avoid Them
 
-The first mistake is treating nextjs 15 to 16 migration guide like a one-layer problem. Most failures span at least two layers: the config and the verification, the migration and the rollback, the tool choice and the collaboration model. If you only optimize the visible layer, the issue returns later in a different form.
+The first mistake is upgrading Next.js without locking Node and TypeScript versions first. A framework problem is much easier to debug when the runtime is already correct.
 
-The second mistake is hiding assumptions. Write them down. Which environment variables must exist? Which domain must resolve first? Which account permissions are required? Which health endpoint represents "good"? Short articles skip those details because they feel boring. In real work, those details are the difference between a clean handoff and an hours-long debugging session.
+The second mistake is trusting the codemod too much. It saves time, but it does not understand every app-specific assumption.
 
-The third mistake is weak naming. Name collections, services, environments, and checkpoints clearly. Ambiguous labels create ambiguity in the review process too. Good names cut down on re-explanation.
+The third mistake is not testing images, auth, or metadata routes. Those are common places where an upgrade looks fine until production traffic hits the odd path.
 
-The fourth mistake is skipping post-change observation. People celebrate once the main path works once. That is too early. Watch the system long enough to catch retry storms, delayed errors, silent bad defaults, or permissions issues that appear only on the second or third action.
+The fourth mistake is coupling the framework upgrade with unrelated refactors. Keep the diff boring. Move stylistic cleanup to a later PR.
 
-If you are turning this into a team upgrade runbook, put the migration, performance, and deployment guides in the same document. That makes it easier to answer the follow-up questions without breaking upgrade focus.
+## Rollback Plan
 
-## Troubleshooting and Verification
+Keep rollback boring:
+1. restore the previous branch or tag
+2. restore the old lockfile
+3. reinstall previous versions
+4. redeploy the last known good build
+5. confirm the same smoke paths recover
 
-When something feels off, verify in this order.
-
-1. **Inputs**: confirm the right variables, credentials, paths, domains, or source files are being used.
-2. **Execution**: confirm the actual command, workflow step, or request you expect is the one being run.
-3. **Dependencies**: confirm the database, queue, proxy, or upstream service is healthy before blaming the app.
-4. **Output**: confirm the success signal is real and not a partial success hiding deeper issues.
-5. **Rollback path**: decide early whether continuing is cheaper than restoring the last known good state.
-
-This sequence matters because it keeps you from making a noisy situation noisier. For many developers, the hardest part of troubleshooting is not technical depth. It is emotional pacing. A failing migration or broken deploy creates urgency, and urgency pushes people toward random action. The verification order above slows that down just enough to make better choices.
-
-Read these next if you want to go deeper: [Next.js Mdx Blog 2026](/blog/nextjs-mdx-blog-2026) for a real content-heavy app, [Next.js Performance Optimization 2026](/blog/nextjs-performance-optimization-2026) for upgrade follow-up work, and [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide) if the framework update is tied to a deployment change.
-
-Finish with upgrade notes that record the version change, the checks you ran, and the first rollback step if a production issue shows up later.
+Do not pair a database migration or big caching change with the same release unless you want rollback to become ambiguous.
 
 ## FAQ
 
 ### What is the safest way to start nextjs 15 to 16 migration guide?
 
-Start with one non-critical route and one build path. If the app compiles, the tests pass, and the route behaves correctly there, you have a safer base for the rest of the upgrade.
+Start with a branch, a locked runtime, and a saved rollback target. Then run the official codemod and fix the high-risk changes before you touch anything optional.
 
 ### Should I move everything in one cutover or in stages?
 
-Stages are safer. Update the framework, fix the breaking changes, verify the core routes, and only then fold in related cleanup such as lint, caching, or deployment tweaks.
+Stages are safer. Upgrade packages, fix the breaking changes, validate production mode, and only then clean up adjacent config.
 
 ### How do I reduce risk before switching traffic or ownership?
 
-Lock dependency versions, save a clean branch, and decide which failing checks force a rollback before you change anything. That is how you keep a framework upgrade from quietly becoming a multi-day outage.
+Lock dependency versions, save a clean branch, and decide which failed checks force a rollback before you change anything.
 
 ### What data should I back up first?
 
@@ -144,23 +150,22 @@ Back up the lockfile, environment settings, deployment config, and any app-speci
 
 ### How long should I keep the old system around?
 
-Keep the previous version around until the main routes, build pipeline, and deployment path have survived at least one normal release cycle. The old setup should disappear only after the new one stops surprising you.
+Keep the previous package set and rollback notes around until the upgraded app has survived at least one normal release cycle.
 
 ### What is the cleanest rollback plan?
 
 Keep the previous lockfile, dependency versions, and deploy instructions ready, and define the exact trigger for reverting before you start. A clean rollback should restore the last known good build without inventing new steps under pressure.
 
+### What should I search for first in the codebase?
+
+Search for `middleware`, `cookies(`, `headers(`, `draftMode(`, `searchParams`, `params`, and custom image config. Those are the highest-value upgrade checks.
+
 ## What Next?
 
-Read these next if you want to go deeper or prepare the next step after the upgrade.
+Use [Web Development](/category/web-dev), the [resources hub](/tag/deployment), and these related reads to finish the upgrade cleanly:
 
-- [Homepage](/)
-- [Blog archive](/blog)
-- [Community](/community)
-- [Resources hub](/tag/deployment)
-- [Web Development](/category/web-dev)
-- [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide)
 - [Next.js Mdx Blog 2026](/blog/nextjs-mdx-blog-2026)
 - [Next.js Performance Optimization 2026](/blog/nextjs-performance-optimization-2026)
 - [Migrate Next.js From Vercel To VPS 2026](/blog/migrate-nextjs-vercel-to-vps-2026)
 - [Next.js App Router Folder Structure Teams 2026](/blog/nextjs-app-router-folder-structure-teams-2026)
+- [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide)

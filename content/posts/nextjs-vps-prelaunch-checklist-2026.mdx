@@ -21,39 +21,35 @@ This checklist is for that last pass before launch, when small misses are still 
 
 > **TL;DR**
 >
-> - Start with a narrow, testable version of the workflow instead of trying to perfect the whole system at once.
-> - Keep the happy path and the rollback path in the same runbook, because recovery speed matters as much as setup speed.
-> - Keep the related hosting and failure guides nearby so the checklist stays practical instead of generic.
+> - Test the public domain, auth flow, and one write path before you call the launch ready.
+> - Check cache headers, health endpoints, backups, TLS, env vars, and logs before changing traffic.
+> - Do one rollback drill while the site is still quiet. A launch is not ready if recovery is still theoretical.
 
 ## Fast Checklist
 
 | Stage | What to confirm |
 |---|---|
-| Before you start | Know the scope, success condition, rollback path, and where the logs live. |
-| During execution | Change one layer at a time and verify health after each step. |
-| Before calling it done | Re-run the critical path, document exceptions, and make sure another person can follow the notes. |
-| What breaks most often | Missing environment assumptions, stale secrets, and skipping the verification step. |
+| Public checks | Domain, TLS, redirects, and the primary pages load correctly. |
+| App checks | Env vars, auth, database, storage, and background jobs behave normally. |
+| Ops checks | Logs, monitoring, backups, alerts, and restart behavior are confirmed. |
+| Recovery check | The previous release can be restored in minutes, not hours. |
 
 ## What You Need Before You Start
 
-- A clear owner for the change and a simple success condition.
-- Access to logs, environment settings, and the current deployment method.
-- A short rollback note that says what gets restored, restarted, or reverted if the change fails.
-- A short reading list that includes [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide) and [How-To Guides](/category/how-to) if you need broader context while preparing the release.
+- Access to the VPS, deploy command, logs, and environment file or secret manager.
+- The current production commit hash or image tag.
+- A known-good database backup or restore point if the app writes important data.
+- One simple rollback note that names the previous release, restart command, and health check.
 
 ## Why Next.js VPS Prelaunch Checklist Matters
 
 Most bad launches are not caused by one dramatic mistake. They come from five small misses lining up at once: one wrong env var, one SSL detail, one missing health check, one stale cache assumption, and one rollback path nobody actually tried. A good prelaunch checklist is what catches those before users do.
-
-If you want the surrounding hosting context, keep [How To Self Host Next.js On VPS](/blog/how-to-self-host-nextjs-on-vps), [Deploy Next.js Coolify Hetzner](/blog/deploy-nextjs-coolify-hetzner), [Migrate Next.js from Vercel to a VPS](/blog/migrate-nextjs-vercel-to-vps-2026), [Fix Coolify Deploy Failures Next.js 2026](/blog/fix-coolify-deploy-failures-nextjs-2026), and [Roll Back Failed Next.js VPS Deploy 2026](/blog/rollback-failed-nextjs-vps-deploy-2026) nearby. Those guides cover the hosting decisions that usually sit next to the final prelaunch pass.
 
 ## Build the Final Pass Around Launch Risk
 
 Start with the checks users will feel first: the public domain, the main route, auth, one form submission, one server-rendered page, and one error path. After that, verify the support layer: logs, monitoring, SSL renewal assumptions, and rollback.
 
 Write down what would cancel the launch before you begin. If the app fails the health endpoint, the main route serves stale content, auth breaks, or rollback is still vague, the checklist should stop the release immediately.
-
-If you need a second reference while you work, keep [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide), [How To Self Host Next.js On VPS](/blog/how-to-self-host-nextjs-on-vps), [Deploy Next.js Coolify Hetzner](/blog/deploy-nextjs-coolify-hetzner), [Fix Coolify Deploy Failures Next.js 2026](/blog/fix-coolify-deploy-failures-nextjs-2026), and [Roll Back Failed Next.js VPS Deploy 2026](/blog/rollback-failed-nextjs-vps-deploy-2026) close by.
 
 A practical starter sequence looks like this:
 
@@ -66,69 +62,71 @@ docker compose ps
 
 That order should stay boring. A calm, repeatable launch checklist catches more real problems than a flashy last-minute scramble.
 
-## The Practical Workflow
+## Prelaunch Checks That Actually Matter
 
-### 1. Pre-checks
+### 1. Domain, TLS, and redirects
 
-Handle the prerequisites before anyone is under time pressure. Most emergency fixes fail because the simple checks were skipped earlier.
+Open the production URL in a private window and confirm:
+- HTTPS is valid
+- the canonical domain wins
+- `www` to apex or apex to `www` behaves as expected
+- login, dashboard, and one content page all load
+- error pages do not expose server internals
 
-Pre-checks should answer one question clearly: do you trust the release environment enough to continue. That means env vars, secrets, domains, storage paths, and rollback notes are all visible before anyone presses ahead.
+### 2. Environment variables and secrets
 
-### 2. Execution checks
+Verify the variables the app actually needs, not just the `.env` file existing on disk. Common misses are auth URLs, payment keys, webhook secrets, storage credentials, SMTP settings, and analytics IDs.
 
-Use a predictable order and verify after each checkpoint. A checklist is useful only when it changes behavior during the job, not after it.
+If you changed providers recently, confirm the old values are gone too. Stale secrets create misleading half-working deploys.
 
-Execution checks should follow user impact: route load, auth, form handling, server-side data, and one monitored background behavior. That order catches expensive launch failures first.
+### 3. Health checks, logs, and restart behavior
 
-### 3. Post-checks
+Call the health endpoint directly and through the public domain. Then watch logs while you hit the main paths. If the app restarts under light traffic, the launch is not ready.
 
-Close the loop with verification, documentation, and one or two follow-up tasks that prevent the same issue next time.
+For self-hosted setups, I also check the log path, disk space, and what happens after a service restart. That is where "works once" turns into "fails on the next reboot."
 
-Post-checks should leave a clear release trail: what passed, what still needs watching, and what exact signal would force a rollback after launch.
+### 4. Cache and static asset behavior
 
-## The Last Ten Minutes Before Launch Matter Most
+Check one SSR page, one static page, one image-heavy page, and one asset from `_next/static`. Look at response headers. If cache settings are wrong, the app can look fine at launch and then serve stale or broken content through the CDN or proxy.
 
-Many self-hosted launches fail because the team spends hours on setup and then rushes the last verification pass. The final ten minutes should be slow: health endpoint, environment validation, domain response, log inspection, error page path, and rollback readiness. That is where you catch the issues that would otherwise become public.
+### 5. Backups and writable paths
 
-A prelaunch checklist is not about ceremony. It is about buying a quiet launch window.
+Confirm database backups, uploaded files, and any writable directories exist where the app expects them. If your app uses Docker volumes, verify they are mounted to the right paths before launch, not after the first failed write.
 
-## How to Use the Checklist Without Turning It into Ritual
+### 6. Security basics
 
-A checklist works only when it changes behavior. That means the items must be concrete enough to stop a bad release, a bad restore, or a bad test run. "Check everything" is not a checklist. "Confirm the database is reachable from the app container" is.
+At minimum, confirm:
+- SSH key-only access if this is your policy
+- no unused public app ports
+- the reverse proxy points only to the intended service
+- rate limiting or bot protection is active where needed
+- debug modes are off in production
 
-The second rule is ordering. Put the highest-risk items early. If one failed check should cancel the launch, it belongs near the top, not hidden in the middle. The third rule is evidence. A useful checklist item implies a verifiable proof: a successful request, a clean log line, a passing health endpoint, or a screenshot of a green status.
+### 7. Rollback drill
 
-Teams start hating checklists when the list becomes ceremonial. Keep it short enough to use under pressure and precise enough to prevent avoidable mistakes.
-
-A practical way to preserve quality is to update the article after the first real use. Your first version should be good enough to follow. Your second version should be good enough to trust.
+Before launch, rehearse the first rollback move: switch back to the old container, restore the last PM2 process, or redeploy the previous commit. If that first recovery step is slow or unclear, fix it now.
 
 ## Common Mistakes and How to Avoid Them
 
-The first mistake is treating nextjs vps prelaunch checklist like a one-layer problem. Most failures span at least two layers: the config and the verification, the migration and the rollback, the tool choice and the collaboration model. If you only optimize the visible layer, the issue returns later in a different form.
+The first mistake is checking only the homepage. A healthy homepage says nothing about auth, forms, jobs, or storage.
 
-The second mistake is hiding assumptions. Write them down. Which environment variables must exist? Which domain must resolve first? Which account permissions are required? Which health endpoint represents "good"? Short articles skip those details because they feel boring. In real work, those details are the difference between a clean handoff and an hours-long debugging session.
+The second mistake is skipping cache validation. A lot of "mystery" launch bugs are stale assets, bad cache headers, or a reverse proxy serving the wrong response.
 
-The third mistake is weak naming. Name collections, services, environments, and checkpoints clearly. Ambiguous labels create ambiguity in the review process too. Good names cut down on re-explanation.
+The third mistake is forgetting writable paths and backups. That usually appears only after the first upload, background job, or restore attempt.
 
-The fourth mistake is skipping post-change observation. People celebrate once the main path works once. That is too early. Watch the system long enough to catch retry storms, delayed errors, silent bad defaults, or permissions issues that appear only on the second or third action.
-
-If you are turning this into a launch runbook, keep the hosting, failure, and migration guides in the same document. That makes it easier to answer follow-up questions without rebuilding context during a release.
+The fourth mistake is calling launch done before you know how to roll back.
 
 ## Troubleshooting and Verification
 
-When something feels off, verify in this order.
+If the app still feels risky after the checklist, verify these points in order.
 
-1. **Inputs**: confirm the right variables, credentials, paths, domains, or source files are being used.
-2. **Execution**: confirm the actual command, workflow step, or request you expect is the one being run.
-3. **Dependencies**: confirm the database, queue, proxy, or upstream service is healthy before blaming the app.
-4. **Output**: confirm the success signal is real and not a partial success hiding deeper issues.
-5. **Rollback path**: decide early whether continuing is cheaper than restoring the last known good state.
+1. **Public domain**: does the real production URL serve the expected build?
+2. **Critical flows**: do login, one write action, and one server-rendered route work?
+3. **Dependencies**: can the app still reach the database, storage, email, and queues?
+4. **Observability**: do logs and alerts stay quiet during the smoke pass?
+5. **Rollback**: can you restore the previous release without inventing new steps?
 
-This sequence matters because it keeps you from making a noisy situation noisier. For many developers, the hardest part of troubleshooting is not technical depth. It is emotional pacing. A failing migration or broken deploy creates urgency, and urgency pushes people toward random action. The verification order above slows that down just enough to make better choices.
-
-Read these next if you want to go deeper: [How To Self Host Next.js On VPS](/blog/how-to-self-host-nextjs-on-vps) for the base setup, [Fix Coolify Deploy Failures Next.js 2026](/blog/fix-coolify-deploy-failures-nextjs-2026) for failure recovery, and [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide) if the launch checklist is part of a broader deployment process.
-
-Finish with launch notes that record the checks you completed, the evidence they passed, and the first rollback move if the release goes sideways.
+If any one of those stays unclear, delay the launch.
 
 ## FAQ
 
@@ -156,17 +154,16 @@ Ownership should sit with the person shipping the release, with platform or QA r
 
 A trustworthy checklist works during incidents because it is concrete, ordered, and already familiar to the team. You should be able to run it quickly without rewriting the steps while production is noisy.
 
+### What should cancel the launch immediately?
+
+Broken auth, failed health checks, missing env vars, bad TLS, or a rollback path nobody has tested are all valid launch blockers.
+
 ## What Next?
 
-Read these next if you want to go deeper or tighten the hosting workflow around the launch.
+Use [How-To Guides](/category/how-to), the [resources hub](/tag/deployment), and these related posts to harden the release path:
 
-- [Homepage](/)
-- [Blog archive](/blog)
-- [Community](/community)
-- [Resources hub](/tag/deployment)
-- [How-To Guides](/category/how-to)
-- [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide)
 - [How To Self Host Next.js On VPS](/blog/how-to-self-host-nextjs-on-vps)
 - [Deploy Next.js Coolify Hetzner](/blog/deploy-nextjs-coolify-hetzner)
 - [Fix Coolify Deploy Failures Next.js 2026](/blog/fix-coolify-deploy-failures-nextjs-2026)
 - [Roll Back Failed Next.js VPS Deploy 2026](/blog/rollback-failed-nextjs-vps-deploy-2026)
+- [Deploy Apps on VPS Complete Guide](/guides/deploy-apps-on-vps-complete-guide)
