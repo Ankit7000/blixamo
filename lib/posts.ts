@@ -166,6 +166,15 @@ export function getAllPosts(): Post[] {
       const fullPath = path.join(postsDirectory, fileName)
       const fileContents = fs.readFileSync(fullPath, 'utf8')
       const { data, content } = matter(fileContents)
+
+      let featuredImage = data.featuredImage || '/images/default-og.jpg'
+      if (featuredImage !== '/images/default-og.jpg') {
+        const imagePath = path.join(process.cwd(), 'public', featuredImage.split('?')[0])
+        if (!fs.existsSync(imagePath)) {
+          featuredImage = '/images/default-og.jpg'
+        }
+      }
+
       return {
         slug,
         title: data.title || '',
@@ -177,7 +186,7 @@ export function getAllPosts(): Post[] {
         tags: data.tags || [],
         keyword: data.keyword || '',
         featured: data.featured || false,
-        featuredImage: data.featuredImage || '/images/default-og.jpg',
+        featuredImage,
         readingTime: calcReadingTime(content),
         content,
         schema: data.schema || 'article',
