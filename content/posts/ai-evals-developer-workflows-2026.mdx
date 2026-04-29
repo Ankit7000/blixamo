@@ -15,7 +15,7 @@ noindex: false
 
 # AI Evals for Developer Workflows in 2026
 
-If you ship AI into developer workflows, start with evals before you add more prompts, more models, or more automation. That is the practical answer. The expensive failures are rarely "the model sounded weird." They are things like malformed JSON breaking a downstream step, a ticket classifier routing to the wrong queue, a code assistant skipping a required safety check, or an internal support bot sounding confident while returning the wrong answer.
+If you ship AI into developer workflows, add evals before you add more prompts, more models, or more automation. The failures that hurt are rarely vague quality drops. They are things like malformed JSON breaking a downstream step, a ticket classifier routing to the wrong queue, a code assistant skipping a required safety check, or an internal support bot sounding confident while returning the wrong answer.
 
 Good evals for developer workflows are small release gates tied to real failure modes. They tell you whether the workflow still returns valid structure, still makes the right decision on representative examples, and still knows when to escalate to a human instead of bluffing. If an AI step can create work for developers, customers, or operators, you need a repeatable way to catch regressions before they become normal.
 
@@ -188,4 +188,4 @@ Treat AI evals like tests for workflow behavior, not tests for model personality
 
 If the workflow is small, keep the eval suite small. If the workflow is high-risk, raise the release gate instead of pretending one prompt tweak is harmless.
 
-For the wider path around this topic, start from [home](/), browse the [blog](/blog), or use [community](/community) when you want the latest practical reads. Then keep the [Resources Hub](/tag/deployment), the [AI category](/category/ai), and the [Automation Guide for Developers](/guides/automation-guide-for-developers) nearby while you continue with [Validate AI JSON Output in 2026](/blog/validate-ai-json-output-2026), [Human Review Patterns for AI Workflows in 2026](/blog/human-review-patterns-ai-workflows-2026), and [When to Use AI in Developer Workflows and When Not To in 2026](/blog/when-to-use-ai-in-developer-workflows-2026).
+If your next problem is structured output, read [Validate AI JSON Output in 2026](/blog/validate-ai-json-output-2026). If you are deciding where people should stay in the loop, continue with [Human Review Patterns for AI Workflows in 2026](/blog/human-review-patterns-ai-workflows-2026) and [When to Use AI in Developer Workflows and When Not To in 2026](/blog/when-to-use-ai-in-developer-workflows-2026). For more articles in the same lane, browse the [AI category](/category/ai), the [Resources Hub](/tag/deployment), or the [Automation Guide for Developers](/guides/automation-guide-for-developers).
